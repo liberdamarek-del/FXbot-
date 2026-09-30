@@ -828,3 +828,40 @@ def archive_summary(instrument: str) -> dict:
             for r in bars
         },
     }
+
+
+def rebuild_all(instrument: str) -> dict:
+    """Rebuild every stored aggregate of an instrument from its COMPLETE
+    days and months (idempotent; used after an interrupted download)."""
+    counts = {"months": 0, "days": 0}
+    initialize_path_archive()
+
+    with get_path_connection() as connection:
+        months = [r["month"] for r in connection.execute(
+            "SELECT month FROM path_months WHERE instrument = ? AND state = 'COMPLETE' ORDER BY month",
+            (instrument,))]
+        days = [r["day"] for r in connection.execute(
+            "SELECT day FROM path_days WHERE instrument = ? AND state = 'COMPLETE' ORDER BY day",
+            (instrument,))]
+
+    years = sorted({m[:4] for m in months})
+
+    for year in years:
+        in_year = [m for m in months if m.startswith(year)]
+        first = tuple(int(x) for x in in_year[0].split("-"))
+        last = tuple(int(x) for x in in_year[-1].split("-"))
+        rebuild_hourly_aggregates(instrument, first, last)
+        counts["months"] += len(in_year)
+
+    if days:
+        start = date.fromisoformat(days[0])
+        end = date.fromisoformat(days[-1])
+
+        while start <= end:
+            chunk_end = min(end, start + timedelta(days=29))
+            rebuild_aggregates(instrument, start, chunk_end)
+            start = chunk_end + timedelta(days=1)
+
+        counts["days"] = len(days)
+
+    return counts

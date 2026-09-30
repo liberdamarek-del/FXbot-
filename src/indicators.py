@@ -198,3 +198,86 @@ def cluster_levels(
 
     close()
     return levels
+
+
+def swing_pivots(
+    highs: Sequence[float],
+    lows: Sequence[float],
+    k: int,
+    prominence: Sequence[float | None],
+) -> list[tuple[int, int, float, str]]:
+    """Swing pivots with a per-bar prominence threshold.
+
+    Same pivot rule as swing_points(), but the noise filter may change over
+    time (prominence[i], e.g. a multiple of the ATR at bar i; None = pivot
+    not evaluated). Returns (pivot_index, confirm_index, price, "H"/"L"),
+    ordered by confirm_index. confirm_index = pivot_index + k is the first
+    bar at whose CLOSE the pivot is known - using it earlier would be
+    look-ahead.
+    """
+    if k < 1:
+        raise ValueError("k must be >= 1")
+
+    if not (len(highs) == len(lows) == len(prominence)):
+        raise ValueError("highs, lows and prominence must have the same length")
+
+    pivots: list[tuple[int, int, float, str]] = []
+
+    for i in range(k, len(highs) - k):
+        threshold = prominence[i]
+
+        if threshold is None:
+            continue
+
+        window_low = min(lows[i - k : i + k + 1])
+        window_high = max(highs[i - k : i + k + 1])
+
+        if highs[i] > max(highs[i - k : i]) and highs[i] >= max(highs[i + 1 : i + k + 1]):
+            if highs[i] - window_low >= threshold:
+                pivots.append((i, i + k, highs[i], "H"))
+
+        if lows[i] < min(lows[i - k : i]) and lows[i] <= min(lows[i + 1 : i + k + 1]):
+            if window_high - lows[i] >= threshold:
+                pivots.append((i, i + k, lows[i], "L"))
+
+    pivots.sort(key=lambda p: (p[1], p[0]))
+    return pivots
+
+
+def efficiency_ratio(closes: Sequence[float], period: int) -> list[float | None]:
+    """Kaufman efficiency ratio: |net move| / sum of |bar moves| over
+    `period` bars. 1 = straight trend, near 0 = noise / range."""
+    n = len(closes)
+    out: list[float | None] = [None] * n
+
+    for i in range(period, n):
+        path = sum(abs(closes[j] - closes[j - 1]) for j in range(i - period + 1, i + 1))
+        out[i] = abs(closes[i] - closes[i - period]) / path if path > 0 else 0.0
+
+    return out
+
+
+def rolling_percentile(values: Sequence[float | None], window: int) -> list[float | None]:
+    """Percentile rank (0-100) of values[i] among the previous `window`
+    defined values including itself. Causal (uses no later value)."""
+    import bisect
+
+    out: list[float | None] = [None] * len(values)
+    ordered: list[float] = []
+    history: list[float] = []
+
+    for i, value in enumerate(values):
+        if value is None:
+            continue
+
+        bisect.insort(ordered, value)
+        history.append(value)
+
+        if len(history) > window:
+            old = history.pop(0)
+            del ordered[bisect.bisect_left(ordered, old)]
+
+        if len(history) >= min(window, 20):
+            out[i] = 100.0 * bisect.bisect_left(ordered, value) / len(ordered)
+
+    return out

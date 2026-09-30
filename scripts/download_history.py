@@ -30,6 +30,7 @@ Size (approx.): 1 pair x 1 year of 1-minute data = ~520 files, ~11 MB;
 """
 
 import argparse
+import os
 import sys
 import time
 from datetime import date, datetime, timedelta, timezone
@@ -45,6 +46,7 @@ from src.path_archive import (  # noqa: E402
     initialize_path_archive,
     next_month,
     rebuild_aggregates,
+    rebuild_all,
     rebuild_hourly_aggregates,
 )
 from src.sources.dukascopy import (  # noqa: E402
@@ -58,8 +60,8 @@ from src.sources.dukascopy import (  # noqa: E402
 
 UTC = timezone.utc
 REBUILD_CHUNK_DAYS = 30
-THROTTLE_PAUSE = 180       # seconds to wait when the server stops answering
-MAX_THROTTLE_PAUSES = 20   # then give up for this run (re-run later)
+THROTTLE_PAUSE = int(os.getenv("DOWNLOAD_THROTTLE_PAUSE", "60"))           # seconds to wait when the server stops answering
+MAX_THROTTLE_PAUSES = int(os.getenv("DOWNLOAD_MAX_THROTTLE_PAUSES", "30"))  # then give up for this run (re-run later)
 
 
 def _date(text: str) -> date:
@@ -94,7 +96,7 @@ def print_status(symbols: list[str]) -> None:
     print("=" * 70)
 
 
-def run_jobs(jobs: list, label: str) -> dict:
+def run_jobs(jobs: list, label: str, on_complete=None) -> dict:
     """Run (symbol, period, callable) jobs sequentially with throttle handling."""
     totals: dict[str, int] = {}
     started = time.monotonic()
@@ -114,12 +116,16 @@ def run_jobs(jobs: list, label: str) -> dict:
                 totals["UNAVAILABLE"] = totals.get("UNAVAILABLE", 0) + len(jobs) - index
                 break
 
-            print(f"  server neodpovida ({symbol} {period}) - pauza {THROTTLE_PAUSE} s", flush=True)
+            print(f"  server neodpovida ({symbol} {period}) - pauza {THROTTLE_PAUSE} s "
+                  f"[{datetime.now(UTC):%H:%M}]", flush=True)
             time.sleep(THROTTLE_PAUSE)
             continue            # same job again
 
         totals[state] = totals.get(state, 0) + 1
         index += 1
+
+        if state in ("COMPLETE", "PARTIAL") and on_complete is not None:
+            on_complete(symbol, period)
 
         if state not in ("COMPLETE", "EMPTY", "PENDING"):
             print(f"  {symbol} {period}: {state}")
@@ -152,7 +158,11 @@ def hourly(symbols: list[str], years: int, now: datetime) -> dict:
         for (y, m) in months
         for symbol in symbols
     ]
-    totals = run_jobs(jobs, "1h mesice")
+    def rebuild_month(symbol: str, period: str) -> None:
+        y, m = (int(x) for x in period.split("-"))
+        rebuild_hourly_aggregates(symbol, (y, m), next_month(y, m), SOURCE_H1)
+
+    totals = run_jobs(jobs, "1h mesice", rebuild_month)
 
     for symbol in symbols:
         # yearly chunks keep memory small
@@ -179,7 +189,11 @@ def minutes(symbols: list[str], first: date, last: date, now: datetime) -> dict:
         for day in days
         for symbol in symbols
     ]
-    totals = run_jobs(jobs, "1min dny")
+    def rebuild_day(symbol: str, period: str) -> None:
+        day = date.fromisoformat(period)
+        rebuild_aggregates(symbol, day - timedelta(days=1), day + timedelta(days=1), SOURCE_M1)
+
+    totals = run_jobs(jobs, "1min dny", rebuild_day)
 
     for symbol in symbols:
         chunk_start = first
@@ -201,12 +215,19 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--hourly-years", type=int, default=0, help="hourly history in years")
     parser.add_argument("--today", action="store_true", help="also fetch finished hours of today (provisional)")
     parser.add_argument("--status", action="store_true")
+    parser.add_argument("--rebuild", action="store_true", help="only rebuild stored bars from the archive")
     args = parser.parse_args(argv)
 
     symbols = parse_symbols(args.symbols)
     initialize_path_archive()
 
     if args.status:
+        print_status(symbols)
+        return 0
+
+    if args.rebuild:
+        for symbol in symbols:
+            print(f"{symbol}: prestavba {rebuild_all(symbol)}")
         print_status(symbols)
         return 0
 
