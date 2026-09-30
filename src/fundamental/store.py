@@ -238,13 +238,17 @@ class Observation:
 
 
 class PointInTimeSeries:
-    """All observations of one series, queryable as of any moment."""
+    """All observations of one series, queryable as of any moment.
+
+    Rows are ordered by (available_at, obs_date); with a constant lag per
+    series both orders agree, so both can be searched with bisect."""
 
     def __init__(self, series_id: str, rows: list[tuple], revisions: list[tuple]):
         self.series_id = series_id
-        # rows sorted by available_at, then obs_date
         self._rows = sorted(rows, key=lambda r: (r[2], r[0]))
         self._times = [r[2] for r in self._rows]
+        self._dates = [date.fromisoformat(r[0]) for r in self._rows]
+        self._ords = [d.toordinal() for d in self._dates]
         self._revisions: dict[str, list[tuple[int, float]]] = {}
 
         for obs_date, new_value, seen_at in revisions:
@@ -253,40 +257,39 @@ class PointInTimeSeries:
     def __len__(self) -> int:
         return len(self._rows)
 
-    def _value(self, row: tuple, t: int) -> float:
+    def _value(self, index: int, t: int) -> float:
+        row = self._rows[index]
         value = row[1]
 
-        for seen_at, new_value in self._revisions.get(row[0], ()):
-            if seen_at <= t:
-                value = new_value
+        if self._revisions:
+            for seen_at, new_value in self._revisions.get(row[0], ()):
+                if seen_at <= t:
+                    value = new_value
 
         return value
+
+    def _observation(self, index: int, t: int) -> Observation:
+        return Observation(self._dates[index], self._value(index, t), self._rows[index][2])
 
     def asof(self, t: int) -> Observation | None:
         """Newest observation that was publicly known at time t."""
         index = bisect.bisect_right(self._times, t) - 1
-
-        if index < 0:
-            return None
-
-        row = self._rows[index]
-        return Observation(date.fromisoformat(row[0]), self._value(row, t), row[2])
+        return None if index < 0 else self._observation(index, t)
 
     def history(self, t: int, count: int) -> list[Observation]:
         """The last `count` observations known at time t, oldest first."""
-        index = bisect.bisect_right(self._times, t)
-        return [
-            Observation(date.fromisoformat(r[0]), self._value(r, t), r[2])
-            for r in self._rows[max(0, index - count):index]
-        ]
+        end = bisect.bisect_right(self._times, t)
+        return [self._observation(k, t) for k in range(max(0, end - count), end)]
 
     def asof_date(self, t: int, obs_on_or_before: date) -> Observation | None:
         """Value for the latest observation date <= obs_on_or_before known at t."""
-        for obs in reversed(self.history(t, 400)):
-            if obs.obs_date <= obs_on_or_before:
-                return obs
+        end = bisect.bisect_right(self._times, t)
 
-        return None
+        if end == 0:
+            return None
+
+        index = bisect.bisect_right(self._ords, obs_on_or_before.toordinal(), 0, end) - 1
+        return None if index < 0 else self._observation(index, t)
 
     def last(self) -> Observation | None:
         return self.asof(2**62)
