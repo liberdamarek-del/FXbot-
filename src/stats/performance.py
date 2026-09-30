@@ -58,7 +58,15 @@ def mean_ci(values: list[float], z: float = 1.96) -> tuple[float, float, float] 
 
 
 def direction_correct(trade: dict) -> bool | None:
-    """True/False for explicitly directional, resolved predictions (66)."""
+    """True/False for explicitly directional predictions (module 66).
+
+    Preferred measure: did the mid price move in the locked direction over
+    the primary horizon (fwd_move_atr > 0)? It does not depend on where the
+    entry, SL and TP were placed. Without it (live ledger rows) the
+    outcome-based fallback is used."""
+    if trade.get("fwd_move_atr") is not None:
+        return trade["fwd_move_atr"] > 0
+
     state = trade.get("outcome_state")
 
     if state == "TP1_BEFORE_SL":

@@ -323,6 +323,7 @@ def series_summary() -> list[dict]:
             dict(r)
             for r in connection.execute(
                 "SELECT series_id, COUNT(*) AS n, MIN(obs_date) AS first, MAX(obs_date) AS last, "
-                "MAX(available_at) AS last_available FROM series_obs GROUP BY series_id ORDER BY series_id"
+                "MAX(available_at) AS last_available, MAX(first_seen_at) AS last_download "
+                "FROM series_obs GROUP BY series_id ORDER BY series_id"
             )
         ]

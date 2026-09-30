@@ -72,17 +72,38 @@ def event_cluster(symbol: str, direction: str, t: int) -> str:
 
 
 def _plan(candidate: Candidate, t: int, p: ModelParams, direction: str | None = None) -> Plan:
+    """Plan of the candidate; with another direction the PLACEBO plan: the
+    same distances (entry offset from the price, risk, reward) applied from
+    the same price in the other direction (pre-specified, no future data)."""
     instrument = get_instrument(candidate.symbol)
     direction = direction or candidate.direction
     entry, stop, tp1 = candidate.entry, candidate.stop, candidate.targets[0]
 
     if direction != candidate.direction:
-        # mirrored geometry around the entry (placebo): same distances
-        stop = entry + (entry - stop)
-        tp1 = entry - (tp1 - entry)
+        s0 = 1.0 if candidate.direction == "BUY" else -1.0
+        offset = s0 * (candidate.price - entry)          # pullback depth (>= 0)
+        risk = s0 * (entry - stop)
+        reward = s0 * (tp1 - entry)
+        s1 = -s0
+        entry = candidate.price - s1 * offset
+        stop = entry - s1 * risk
+        tp1 = entry + s1 * reward
 
     return Plan(direction, candidate.is_now, entry, stop, tp1, t, t + p.horizon_hours * H,
                 p.slippage_pips * instrument.pip)
+
+
+def forward_move_atr(series: PairSeries, t: int, direction: str, hours: int) -> float | None:
+    """Mid-price move from t to t + horizon in the given direction, in
+    ATR(H1) at t (the plain directional forecast, module 66)."""
+    i0 = series.h1.index_at(t)
+    i1 = series.h1.index_at(t + hours * H)
+
+    if i0 < 0 or i1 <= i0 or not series.h1.atr14[i0]:
+        return None
+
+    sign = 1.0 if direction == "BUY" else -1.0
+    return sign * (series.h1.close[i1] - series.h1.close[i0]) / series.h1.atr14[i0]
 
 
 def _record(candidate: Candidate, outcome: Outcome, t: int, direction: str, known_at: int | None) -> dict:
@@ -190,6 +211,7 @@ def run_symbol(series: PairSeries, config: BacktestConfig, result: BacktestResul
         plan = _plan(candidate, t, p)
         outcome, known_at = _resolve(series, plan, h1_ts)
         record = _record(candidate, outcome, t, candidate.direction, known_at)
+        record["fwd_move_atr"] = forward_move_atr(series, t, candidate.direction, p.horizon_hours)
         result.trades.append(record)
         book.open_thesis(candidate, f"BT-{series.symbol}-{t}", t, p.horizon_hours)
         open_trade = record
@@ -198,7 +220,9 @@ def run_symbol(series: PairSeries, config: BacktestConfig, result: BacktestResul
             direction = rng.choice(("BUY", "SELL"))
             placebo_plan = _plan(candidate, t, p, direction)
             placebo_outcome, placebo_known = _resolve(series, placebo_plan, h1_ts)
-            result.placebo.append(_record(candidate, placebo_outcome, t, direction, placebo_known))
+            placebo_record = _record(candidate, placebo_outcome, t, direction, placebo_known)
+            placebo_record["fwd_move_atr"] = forward_move_atr(series, t, direction, p.horizon_hours)
+            result.placebo.append(placebo_record)
 
     result.decisions += decisions
     result.per_symbol_decisions[series.symbol] = decisions
