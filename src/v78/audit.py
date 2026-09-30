@@ -52,6 +52,8 @@ class AuditItem:
     cost_layer: str
     actions: list
     notes: str
+    triggered_at: int | None = None
+    resolved_at: int | None = None
 
 
 def audit_prediction(p: dict, now: datetime, slippage_pips: float = 0.2) -> AuditItem:
@@ -112,7 +114,7 @@ def audit_prediction(p: dict, now: datetime, slippage_pips: float = 0.2) -> Audi
                 actions.append(final_state)
 
     return AuditItem(pid, symbol, p["decision"], outcome.status, outcome.outcome_state, outcome.r_net,
-                     outcome.cost_layer, actions, "; ".join(outcome.notes))
+                     outcome.cost_layer, actions, "; ".join(outcome.notes), outcome.triggered_at, outcome.resolved_at)
 
 
 def audit_all(now: datetime, limit: int = 2000) -> list[AuditItem]:

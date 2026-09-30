@@ -488,8 +488,12 @@ def execute(options: RunOptions) -> dict:
         book = ThesisBook(store)
 
         for item in audit_items:
-            if item.outcome_state:
-                book.update_from_path(item.symbol, int(now.timestamp()), item.outcome_state, None)
+            if item.outcome_state or item.triggered_at:
+                book.update_from_path(item.symbol, item.resolved_at or int(now.timestamp()), item.outcome_state,
+                                      item.triggered_at, item.prediction_id)
+
+        for thesis in store.all_open():
+            book.update_from_path(thesis.symbol, int(now.timestamp()), None, None, thesis.prediction_id)
 
         from src.data_state import get_status
 

@@ -193,11 +193,17 @@ class ThesisBook:
     def __init__(self, store):
         self.store = store
 
-    def update_from_path(self, symbol: str, t: int, outcome: str | None, triggered_at: int | None) -> Thesis | None:
-        """Advance an open thesis from the resolved path (append-only)."""
+    def update_from_path(self, symbol: str, t: int, outcome: str | None, triggered_at: int | None,
+                         prediction_id: str | None = None) -> Thesis | None:
+        """Advance an open thesis from the resolved path (append-only).
+        With prediction_id, only the thesis of exactly that prediction moves
+        (another prediction on the same pair never closes it)."""
         thesis = self.store.get(symbol)
 
         if thesis is None or not thesis.open:
+            return thesis
+
+        if prediction_id is not None and thesis.prediction_id != prediction_id:
             return thesis
 
         if triggered_at and thesis.state in ("NEW", "WAITING", "WEAKENED") and thesis.triggered_at is None:

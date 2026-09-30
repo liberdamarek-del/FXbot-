@@ -127,7 +127,9 @@ for store in (MemoryThesisStore(), SqliteThesisStore()):
 
 book = ThesisBook(MemoryThesisStore())
 book.open_thesis(buy, "P-2", T0, 24)
-book.update_from_path("EUR/USD", T0 + 3 * H, "SL_BEFORE_TP1", T0 + H)
+book.update_from_path("EUR/USD", T0 + 3 * H, "SL_BEFORE_TP1", T0 + H, prediction_id="P-OLD-TECH01")
+assert book.store.get("EUR/USD").open, "another prediction on the same pair never closes this thesis"
+book.update_from_path("EUR/USD", T0 + 3 * H, "SL_BEFORE_TP1", T0 + H, prediction_id="P-2")
 assert book.store.get("EUR/USD").state == "INVALIDATED"
 assert book.check(sell, T0 + 4 * H, False).allowed, "after invalidation a new opposite thesis is allowed"
 
