@@ -10,7 +10,7 @@
     python fxbot.py resolve          # jen vyhodnotit otevrene predikce
     python fxbot.py status           # stav dat, archivu, evidence a registru modelu
     python fxbot.py paper            # papirovy ucet z evidence predikci
-    python fxbot.py review [--weekly|--monthly]   # revize predikci (modul 82)
+    python fxbot.py review [--weekly|--monthly|--all]   # revize predikci (modul 82)
     python fxbot.py report           # posledni zprava behu
     python fxbot.py verify-model [cesta.docx]   # kontrola Wordu (moduly 0-145)
     python fxbot.py setkey           # ulozit a otestovat klic Twelve Data

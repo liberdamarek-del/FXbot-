@@ -162,6 +162,17 @@ stale = build_pair_quote("EUR/USD", [QuoteObservation("EUR/USD", "TWELVE_DATA", 
                                                       t_lock.timestamp() - 2000, t_lock.timestamp())], t_lock)
 assert lock_candidate("RUN-TEST", t_lock, cand, analysis, stale, cov, P, "fp").startswith("nezamceno")
 
+# forward anti-model control (module 74): the mirrored plan is fixed at T0 from
+# the analysis price (here absent -> the locked reference price 1.3423)
+from src.v78.audit import control_outcome, mirrored_plan  # noqa: E402
+from src.v78.run import ledger_controls  # noqa: E402
+
+direction, a_entry, a_stop, a_tp1 = mirrored_plan(locked)
+assert direction == "SELL"
+assert abs(a_entry - 1.3436) < 1e-9 and abs(a_stop - 1.3451) < 1e-9 and abs(a_tp1 - 1.3396) < 1e-9
+assert control_outcome(locked, t_lock + timedelta(minutes=5)).outcome_state is None  # horizon still open
+assert all(c["symbol"] and c["outcome_state"] for c in ledger_controls(0.0, t_lock + timedelta(minutes=5)))
+
 print("=" * 60)
 print("E5 V7.8.0 RUN PROCEDURE (END-TO-END, OFFLINE)")
 print("=" * 60)
@@ -171,5 +182,6 @@ print("ARTIFACTS + HASHES + READ-BACK: PASS")
 print("T14 CZECH OUTPUT CONTRACT (PRICES, TOP-3, CERTIFICATES): PASS")
 print("PREVIOUS OFFICIAL T0 CONTINUITY: PASS")
 print(f"LOCKED IN RUN 1: {len(result['locked'])} (immutable, linked to run): PASS")
+print("FORWARD ANTI-MODEL CONTROL (MIRRORED PLAN AT T0): PASS")
 print("RESULT: PASS")
 print("=" * 60)

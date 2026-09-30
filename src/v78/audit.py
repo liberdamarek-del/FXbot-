@@ -58,23 +58,20 @@ class AuditItem:
     resolved_at: int | None = None
 
 
-def audit_prediction(p: dict, now: datetime, slippage_pips: float = 0.2) -> AuditItem:
-    symbol = p["instrument"]
-    instrument = get_instrument(symbol)
+def _resolve_locked(p: dict, direction: str, entry: float, stop: float, tp1: float, now: datetime,
+                    slippage_pips: float):
+    """Resolve one locked plan on the archived path (shared by the audit of
+    the prediction and by its anti-model control)."""
+    instrument = get_instrument(p["instrument"])
     t0 = datetime.fromisoformat(p["t0"]).astimezone(UTC)
     horizon_end = t0 + parse_horizon(p["primary_horizon"])
     t0_ts, end_ts = int(t0.timestamp()), int(horizon_end.timestamp())
     # the minute that opens at/after T0 is the first usable one
     first_minute = t0_ts - t0_ts % 60 + (60 if t0_ts % 60 else 0)
-    bars, sources = path_minutes(symbol, first_minute, min(int(now.timestamp()), end_ts))
-
-    try:
-        entry_mode = json.loads(p.get("inputs") or "{}").get("entry_mode", "limit")
-    except ValueError:
-        entry_mode = "limit"
-
-    plan = Plan(p["direction"], p["decision"].endswith("NOW"), float(p["entry"]), float(p["stop_loss"]),
-                float(p["tp1"]), first_minute, end_ts, slippage_pips * instrument.pip, entry_mode)
+    bars, sources = path_minutes(p["instrument"], first_minute, min(int(now.timestamp()), end_ts))
+    entry_mode = locked_inputs(p).get("entry_mode", "limit")
+    plan = Plan(direction, p["decision"].endswith("NOW"), entry, stop, tp1, first_minute, end_ts,
+                slippage_pips * instrument.pip, entry_mode)
     side_correct = all(sources.get(b.ts) != "TWELVE_DATA" for b in bars)
 
     if entry_mode == "confirm" and not plan.is_now:
@@ -84,9 +81,44 @@ def audit_prediction(p: dict, now: datetime, slippage_pips: float = 0.2) -> Audi
         by_ts = {b.ts: b for b in bars}
         loader = lambda a, b: [by_ts[t] for t in range(a, b, 60) if t in by_ts]
         plan.t0 = first_minute - first_minute % 3600 + (3600 if first_minute % 3600 else 0)
-        outcome = resolve(plan, hours, 3600, int(now.timestamp()), loader, side_correct)
-    else:
-        outcome = resolve(plan, bars, 60, int(now.timestamp()), None, side_correct)
+        return resolve(plan, hours, 3600, int(now.timestamp()), loader, side_correct)
+
+    return resolve(plan, bars, 60, int(now.timestamp()), None, side_correct)
+
+
+def locked_inputs(p: dict) -> dict:
+    try:
+        return json.loads(p.get("inputs") or "{}")
+    except ValueError:
+        return {}
+
+
+def mirrored_plan(p: dict) -> tuple[str, float, float, float]:
+    """Anti-model control of a locked prediction (module 74): the same entry
+    offset, risk and reward measured from the same analysis price, in the
+    opposite direction - fixed at T0, nothing is taken from the path. Same
+    construction as the backtest control (src/engine/backtest.py _plan)."""
+    price = float(locked_inputs(p).get("analysis_price") or p["reference_price"])
+    entry, stop, tp1 = float(p["entry"]), float(p["stop_loss"]), float(p["tp1"])
+    s0 = 1.0 if p["direction"] == "BUY" else -1.0
+    offset, risk, reward = s0 * (price - entry), s0 * (entry - stop), s0 * (tp1 - entry)
+    s1 = -s0
+    anti_entry = price - s1 * offset
+    return ("SELL" if s0 > 0 else "BUY"), anti_entry, anti_entry - s1 * risk, anti_entry + s1 * reward
+
+
+def control_outcome(p: dict, now: datetime, slippage_pips: float = 0.2):
+    """Outcome of the mirrored plan on the very same path. Computed on demand
+    for the review; never written to the ledger (it is not a prediction)."""
+    direction, entry, stop, tp1 = mirrored_plan(p)
+    return _resolve_locked(p, direction, entry, stop, tp1, now, slippage_pips)
+
+
+def audit_prediction(p: dict, now: datetime, slippage_pips: float = 0.2) -> AuditItem:
+    symbol = p["instrument"]
+    t0 = datetime.fromisoformat(p["t0"]).astimezone(UTC)
+    outcome = _resolve_locked(p, p["direction"], float(p["entry"]), float(p["stop_loss"]), float(p["tp1"]), now,
+                              slippage_pips)
     actions = []
     states = {s["state"] for s in p["states"]}
     pid = p["prediction_id"]

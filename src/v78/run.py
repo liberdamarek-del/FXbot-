@@ -37,6 +37,7 @@ from src.engine.backtest import event_cluster
 from src.engine.data import load_pair
 from src.engine.params import DEFAULT_PARAMS, ModelParams
 from src.engine.pipeline import analyze_pair
+from src.engine.resolution import FINAL
 from src.engine.portfolio import select_top
 from src.engine.thesis import SqliteThesisStore, ThesisBook
 from src.instruments import get_instrument, parse_symbols
@@ -46,7 +47,7 @@ from src.stats.errors import taxonomy_table
 from src.stats.performance import summarize
 from src.v78 import manifest as M
 from src.v78 import persist, report
-from src.v78.audit import audit_all
+from src.v78.audit import audit_all, control_outcome
 from src.v78.coverage import between_run_delta, coverage, path_minutes
 from src.v78.quotes import QuoteObservation, Snapshot, build_pair_quote, market_state, skew_state, source_consistency
 from src.v78.runstate import Trace, create_run, set_state
@@ -323,9 +324,41 @@ def ledger_trades() -> list[dict]:
             "mae_r": float(last["mae"]) if last["mae"] else None, "notes": last["notes"],
             "triggered": any(s["state"] == "TRIGGERED" for s in p["states"]) or p["decision"].endswith("NOW"),
             "event_cluster": p["event_cluster"], "model_version": p["model_version"],
+            "rr_net_planned": _locked_rr(p),
         })
 
     return trades
+
+
+def _locked_rr(p: dict) -> float | None:
+    try:
+        return json.loads(p.get("inputs") or "{}").get("rr_net")
+    except ValueError:
+        return None
+
+
+def ledger_controls(since: float = 0.0, now: datetime | None = None) -> list[dict]:
+    """Anti-model control of every finally resolved locked prediction since
+    `since`: the mirrored plan resolved on the same path (module 74). With
+    ledger_trades() it gives the paired direction test of the FORWARD test
+    (src/stats/validation.paired_edge). Nothing is written to the ledger."""
+    now = now or datetime.now(UTC)
+    controls = []
+
+    for p in list_predictions(limit=5000):
+        t0 = datetime.fromisoformat(p["t0"]).timestamp()
+
+        if t0 < since or p["direction"] == "NONE" or not p["outcomes"] or not p.get("entry"):
+            continue
+
+        if p["outcomes"][-1]["outcome_state"] not in FINAL:
+            continue
+
+        outcome = control_outcome(p, now)
+        controls.append({"symbol": p["instrument"], "t0": t0, "outcome_state": outcome.outcome_state,
+                         "r_net": outcome.r_net})
+
+    return controls
 
 
 def change_candidates(trades: list[dict]) -> list[str]:
@@ -723,7 +756,7 @@ def lock_candidate(run_id: str, now: datetime, candidate, analysis, quote, cov, 
             reasons=candidate.reasons,
             inputs={
                 "model_fingerprint": fp, "params": p.fingerprint, "risk_pct": candidate.risk_pct,
-                "entry_mode": p.entry_mode,
+                "entry_mode": p.entry_mode, "analysis_price": candidate.price,
                 "rr_net": round(candidate.rr_net, 3), "cost_price": candidate.cost_price,
                 "clusters_for": candidate.clusters_for, "clusters_against": candidate.clusters_against,
                 "gates": [(g.name, g.status, g.reason) for g in candidate.gates],
