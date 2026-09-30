@@ -487,7 +487,8 @@ def ingest_month(symbol: str, year: int, month: int, now: datetime | None = None
     return state
 
 
-def ingest_provisional_hours(symbol: str, day: date, now: datetime | None = None) -> int:
+def ingest_provisional_hours(symbol: str, day: date, now: datetime | None = None,
+                             deadline: float | None = None) -> int:
     """Fetch the finished hours of a day that has no canonical day file yet.
 
     Returns the number of newly stored hour payloads. Hours that are not
@@ -523,6 +524,9 @@ def ingest_provisional_hours(symbol: str, day: date, now: datetime | None = None
         # the hour must be over (plus a small publication margin)
         if now.timestamp() < hour_start + 3600 + 120:
             break
+
+        if deadline is not None and time.monotonic() > deadline:
+            break           # time budget of the caller (next run continues)
 
         endpoint = hour_endpoint(symbol, day, hour)
 

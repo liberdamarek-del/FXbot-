@@ -128,53 +128,55 @@ def acquire_live(symbols: list[str], now: datetime, notes: list) -> dict:
             "budget": feed.budget.status()}
 
 
-def acquire_path(symbols: list[str], now: datetime, days: int, notes: list, budget_s: float = 120.0) -> dict:
+def acquire_path(symbols: list[str], now: datetime, days: int, notes: list, budget_s: float = 90.0) -> dict:
     """Canonical BID/ASK days since the last complete one + provisional
     hours of today (backfill ladder, modules 136/137).
 
-    A run spends at most budget_s seconds here (the server may throttle);
-    whatever is left is fetched by the next run or by fxbot.py history."""
+    A run spends at most about budget_s seconds here and retries each file
+    only twice (the server may throttle); whatever is left is fetched by
+    the next run or by `fxbot.py history`. Nothing is estimated instead."""
     import time
 
+    from src.sources import dukascopy
     from src.sources.dukascopy import SourceUnavailable, ingest_day, ingest_provisional_hours
 
     summary = {"days": {}, "hours": {}, "state": "OK"}
-    unavailable = False
     deadline = time.monotonic() + budget_s
+    saved_retries = dukascopy.MAX_RETRIES
+    dukascopy.MAX_RETRIES = 2
 
-    for symbol in symbols:
-        if unavailable:
-            break
-
+    def out_of_time() -> bool:
         if time.monotonic() > deadline:
-            summary["state"] = "BUDGET"
-            notes.append(f"Dukascopy: casovy limit {budget_s:.0f} s vycerpan - zbytek dalsim behem")
-            break
+            if summary["state"] == "OK":
+                summary["state"] = "BUDGET"
+                notes.append(f"Dukascopy: casovy limit {budget_s:.0f} s - zbytek dalsim behem / fxbot.py history")
+            return True
+        return False
 
-        for back in range(days, 0, -1):
-            day = now.date() - timedelta(days=back)
+    try:
+        for symbol in symbols:
+            for back in range(days, 0, -1):
+                if out_of_time():
+                    break
 
-            try:
+                day = now.date() - timedelta(days=back)
                 state = ingest_day(symbol, day, now)
-            except SourceUnavailable as exc:
-                summary["state"] = "UNAVAILABLE"
-                notes.append(f"Dukascopy neodpovida ({str(exc)[-50:]}) - historie z archivu, mezery GAP-UNRESOLVED")
-                unavailable = True
+                summary["days"][f"{symbol} {day}"] = state
+
+                if state in ("COMPLETE", "PARTIAL"):
+                    rebuild_aggregates(symbol, day - timedelta(days=1), day + timedelta(days=1))
+
+            if out_of_time():
                 break
 
-            summary["days"][f"{symbol} {day}"] = state
+            summary["hours"][symbol] = ingest_provisional_hours(symbol, now.date(), now, deadline)
+    except SourceUnavailable as exc:
+        summary["state"] = "UNAVAILABLE"
+        notes.append(f"Dukascopy neodpovida ({str(exc)[-50:]}) - historie z archivu, mezery GAP-UNRESOLVED")
+    finally:
+        dukascopy.MAX_RETRIES = saved_retries
 
-            if state in ("COMPLETE", "PARTIAL"):
-                rebuild_aggregates(symbol, day - timedelta(days=1), day + timedelta(days=1))
-
-        if not unavailable:
-            try:
-                summary["hours"][symbol] = ingest_provisional_hours(symbol, now.date(), now)
-            except SourceUnavailable:
-                summary["state"] = "UNAVAILABLE"
-                unavailable = True
-
-    record_capability("DUKASCOPY_M1", "RUNTIME-FAIL" if unavailable else "RUNTIME-PASS",
+    record_capability("DUKASCOPY_M1", "RUNTIME-FAIL" if summary["state"] == "UNAVAILABLE" else "RUNTIME-PASS",
                       summary["state"])
     return summary
 
