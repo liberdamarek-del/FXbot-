@@ -46,8 +46,9 @@ dá se kdykoli přerušit a spustit znovu – pokračuje tam, kde skončil.
 Na telefonu před dlouhým stahováním: `termux-wake-lock`.
 
 Když Dukascopy nejde stáhnout, použije analýza jako náhradu minutovou historii
-z Twelve Data (jen střední ceny, bez bid/ask): `python scripts/update_data.py --days 60`
-(stojí asi 20 kreditů na pár; volný plán má 800 kreditů denně).
+z Twelve Data (jen střední ceny, bez bid/ask): `python scripts/update_data.py --days 100`
+(denní indikátory potřebují aspoň ~60 obchodních dní; stojí asi 32 kreditů na pár,
+volný plán má 800 kreditů denně – pro 12 párů to zvládne za jeden den).
 
 ## 3. Denní použití
 
