@@ -445,7 +445,14 @@ def execute(options: RunOptions) -> dict:
         # ------------------------------------------------------ 8. coverage + delta
         from src.data_update import settle_seconds
 
-        start_ts = int((run.previous_t0 or (now - WORKING_WINDOW)).timestamp())
+        # module 107: the between-run path is reconstructed inside the 14-day
+        # working window; older history stays in the archive (on demand)
+        start = max(run.previous_t0 or (now - WORKING_WINDOW), now - WORKING_WINDOW)
+
+        if run.previous_t0 and run.previous_t0 < now - WORKING_WINDOW:
+            notes.append(f"predchozi T0 {run.previous_t0:%Y-%m-%d} je starsi nez 14 dni - delta jen za pracovni okno")
+
+        start_ts = int(start.timestamp())
         # minutes still inside the settle delay are not published yet - not a gap
         end_ts = int(now.timestamp() - settle_seconds() - 60)
         end_ts -= end_ts % 60
