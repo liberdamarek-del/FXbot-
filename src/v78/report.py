@@ -211,6 +211,72 @@ def certificate_lines(cert: dict, pipeline: dict) -> list[str]:
     return out
 
 
+def mechanism_lines(ctx: dict) -> list[str]:
+    """Main causal mechanism (module 7, 34): currency scoreboard from the
+    point-in-time fundamentals + the global risk regime."""
+    from src.engine.fundamental import currency_state, risk_regime
+    from src.instruments import CURRENCIES
+
+    t = int(ctx["run"].t0.timestamp())
+    p = ctx["params"]
+    regime, notes = risk_regime(t, p)
+    out = ["HLAVNI MECHANISMUS (sazby, politika, pozicovani; modul 7/34)",
+           f"  rizikovy rezim: {regime} ({'; '.join(notes)})"[:78]]
+    rows = []
+
+    for currency in CURRENCIES:
+        state = currency_state(currency, t, p)
+
+        if state.short_rate is None or state.short_rate_past is None:
+            continue
+
+        change = (state.short_rate - state.short_rate_past) * 100
+        policy = ""
+
+        if state.policy is not None and state.policy_6m_ago is not None:
+            diff = state.policy - state.policy_6m_ago
+            policy = "zvysuje" if diff >= 0.2 else "snizuje" if diff <= -0.2 else "drzi"
+
+        cot = f" | COT z {state.cot_z:+.1f}" if state.cot_z is not None else ""
+        rows.append((change, f"  {currency}: kratka sazba {state.short_rate:.2f}% ({change:+.0f} bp/20d)"
+                             f" | politika {state.policy if state.policy is not None else '-'}% {policy}{cot}"))
+
+    rows.sort(key=lambda r: -r[0])
+    out += [line[:78] for _, line in rows]
+
+    if rows:
+        out.append(f"  nejvic precenovana nahoru: {rows[0][1].split(':')[0].strip()} | "
+                   f"dolu: {rows[-1][1].split(':')[0].strip()}")
+
+    return out
+
+
+def catalyst_lines(ctx: dict) -> list[str]:
+    """Calendar of high-impact catalysts for 24 h / 3 d / 7 d (module 47, 59)."""
+    from src.fundamental.calendar import calendar_coverage, events_between
+
+    t = int(ctx["run"].t0.timestamp())
+    out = ["KATALYZATORY (vysoky dopad, modul 47)"]
+    _, last_seen = calendar_coverage()
+    shown = 0
+
+    for label, hours in (("24 h", 24), ("3 d", 72), ("7 d", 168)):
+        events = events_between(t, t + hours * 3600, None, "High")
+        previous = events_between(t, t + {24: 0, 72: 24, 168: 72}[hours] * 3600, None, "High") if hours > 24 else []
+        new = [e for e in events if e not in previous]
+
+        for e in new[:8]:
+            forecast = f" (odhad {e.forecast}, minule {e.previous})" if e.forecast else ""
+            out.append(f"  [{label}] {e.time:%a %d.%m %H:%M} {e.currency} {e.title}{forecast}"[:78])
+            shown += 1
+
+    if not shown:
+        out.append("  zadna udalost s vysokym dopadem v dostupnem kalendari")
+
+    out.append("  14 d: NEOVERENO (volny kalendar pokryva jen aktualni tyden)")
+    return out
+
+
 def render(ctx: dict) -> str:
     run = ctx["run"]
     p = ctx["params"]
@@ -233,6 +299,12 @@ def render(ctx: dict) -> str:
         layers = ", ".join(f"{k.replace('DUKASCOPY_', 'D.')}:{v}" for k, v in sorted(cov.layers.items()))
         out.append(f"  {symbol:<8} {cov.state:<10} {cov.ratio * 100:5.1f}% | max mezera {cov.max_gap_minutes} min"
                    f"{' | KRITICKE ' + str(critical) if critical else ''} | {layers}"[:78])
+
+    try:
+        out += [THIN] + mechanism_lines(ctx)
+        out += [THIN] + catalyst_lines(ctx)
+    except Exception as exc:              # a report section never blocks the run
+        out += [THIN, f"HLAVNI MECHANISMUS: nelze sestavit ({type(exc).__name__})"]
 
     out += [THIN, "AUDIT SPLATNYCH PREDIKCI (modul 81)"]
 
