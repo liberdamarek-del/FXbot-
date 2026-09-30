@@ -32,6 +32,7 @@ class ModelParams:
     max_tp1_atr: float = 3.0             # TP1 never further than x ATR(H1)
     no_chase_atr: float = 1.0            # move of x ATR in bias direction = no NOW (module 48)
     no_chase_bars: int = 4
+    atr_timeframe: str = "1h"            # unit of the trade geometry: "1h" (champion) or "4h" (CH-001)
     momentum_days: int = 20              # time-series momentum lookback (D1 bars)
     # ---------------------------------------------------------------- R:R / costs
     min_rr: float = 1.5                  # module 55 default gate

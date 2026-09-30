@@ -195,8 +195,13 @@ def decide(
         return _no_trade(candidate, "nedostatek historie pro D1/H4/H1 analyzu")
 
     i1 = h1.index_at(t)
-    a = tech.h1.atr
-    candidate.atr_h1 = a
+    a = a1 = tech.h1.atr
+    candidate.atr_h1 = a1
+
+    if p.atr_timeframe == "4h" and tech.h4 is not None:
+        # trade geometry (entry offset, SL buffer, TP cap, reach) measured in
+        # H4 ATR instead of H1 ATR - CHALLENGER option of change CH-001
+        a = tech.h4.atr
 
     # ------------------------------------------------------------ evidence matrix
     items: list[Evidence] = [Evidence(E.PRICE_TREND, d, 1 if d in ("BUY", "SELL") else 0, text,
@@ -374,7 +379,7 @@ def decide(
 
     if spread_price is None:
         now_gates.append(Gate("SPREAD", "CONDITIONAL", "spread neznamy (jen MODEL-PRICE)"))
-    elif spread_price > p.max_spread_atr * a:
+    elif spread_price > p.max_spread_atr * a1:
         now_gates.append(Gate("SPREAD", "FAIL", f"spread {instrument.pips(spread_price):.1f} pip > {p.max_spread_atr} ATR"))
     else:
         now_gates.append(Gate("SPREAD", "PASS", f"spread {instrument.pips(spread_price):.1f} pip"))
