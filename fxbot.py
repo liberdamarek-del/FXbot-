@@ -10,6 +10,7 @@
     python fxbot.py resolve          # jen vyhodnotit otevrene predikce
     python fxbot.py status           # stav dat, archivu, evidence a registru modelu
     python fxbot.py paper            # papirovy ucet z evidence predikci
+    python fxbot.py review [--weekly|--monthly]   # revize predikci (modul 82)
     python fxbot.py report           # posledni zprava behu
     python fxbot.py verify-model [cesta.docx]   # kontrola Wordu (moduly 0-145)
     python fxbot.py setkey           # ulozit a otestovat klic Twelve Data
@@ -223,6 +224,7 @@ def main(argv: list[str]) -> int:
     sub.add_parser("backtest", help="backtest (scripts/backtest.py options)", add_help=False)
     sub.add_parser("setkey", help="store and test the Twelve Data key", add_help=False)
     sub.add_parser("test", help="isolated test suite", add_help=False)
+    sub.add_parser("review", help="daily/weekly/monthly review (scripts/review.py)", add_help=False)
     sub.add_parser("resolve", help="resolve open predictions")
     status = sub.add_parser("status", help="state of data and model")
     status.add_argument("--symbols", default=None)
@@ -233,9 +235,9 @@ def main(argv: list[str]) -> int:
     verify.add_argument("path", nargs="?")
     verify.add_argument("--list", action="store_true")
 
-    if argv and argv[0] in ("history", "fundamentals", "backtest", "setkey", "test"):
+    if argv and argv[0] in ("history", "fundamentals", "backtest", "setkey", "test", "review"):
         name = {"history": "download_history", "fundamentals": "update_fundamentals", "backtest": "backtest",
-                "setkey": "set_api_key", "test": "run_tests"}[argv[0]]
+                "setkey": "set_api_key", "test": "run_tests", "review": "review"}[argv[0]]
         return _script(name).main(argv[1:])
 
     args = parser.parse_args(argv)
