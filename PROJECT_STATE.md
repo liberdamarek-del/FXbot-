@@ -36,7 +36,7 @@ BLOKOVANO / NEOVERENO.
 | One CLI | HOTOVO | fxbot.py |
 | Tests E1-E6 incl. Word pre-change register T01-T14 | HOTOVO (47/47 PASS) | test_e*.py |
 
-Manifest: 109 IMPLEMENTED, 28 PARTIAL, 7 NOT_AVAILABLE (26 options, 27 flows,
+Manifest: 110 IMPLEMENTED, 27 PARTIAL, 7 NOT_AVAILABLE (26 options, 27 flows,
 28 fiscal, 29 China, 32 geopolitics, 130 web tickers, 131 rendered widgets),
 2 SUPERSEDED (83, 128).
 

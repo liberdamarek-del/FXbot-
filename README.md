@@ -154,7 +154,7 @@ vědomě neimplementován) – stav všech zdrojů ukáže `python fxbot.py stat
 ## 8. Co je a není implementováno
 
 `python fxbot.py verify-model --list` vypíše všech 146 modulů se stavem:
-**109 IMPLEMENTED, 28 PARTIAL, 7 NOT_AVAILABLE, 2 SUPERSEDED**.
+**110 IMPLEMENTED, 27 PARTIAL, 7 NOT_AVAILABLE, 2 SUPERSEDED** (tabulka: `docs/MODULY.md`).
 Nedostupné (není bezplatný strojově čitelný zdroj): opce (26), toky/fixingy (27),
 fiskál/cla (28), Čína (29), geopolitika (32), webové tickery (130), renderované
 widgety (131). Tyto moduly mají v každém běhu stav N/A s důvodem – nic se tiše nepřeskakuje.
