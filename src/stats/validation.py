@@ -103,8 +103,11 @@ def paired_edge(model: list[dict], anti: list[dict]) -> dict:
     mean = sum(diffs) / n
     sd = math.sqrt(sum((d - mean) ** 2 for d in diffs) / (n - 1))
     half = 1.96 * sd / math.sqrt(n)
+    verdict = ("VYZNAMNE KLADNY" if mean - half > 0 else "VYZNAMNE ZAPORNY (hur nez nahoda)" if mean + half < 0
+               else "NEVYZNAMNY")
     return {"n": n, "model_r_per_decision": sum(model_r) / n, "random_r_per_decision": sum(random_r) / n,
-            "edge": mean, "low": mean - half, "high": mean + half, "significant": mean - half > 0}
+            "edge": mean, "low": mean - half, "high": mean + half, "significant": mean - half > 0,
+            "verdict": verdict}
 
 
 def benchmark(result) -> dict:

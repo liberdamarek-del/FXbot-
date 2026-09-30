@@ -124,7 +124,7 @@ def main(argv: list[str]) -> int:
         print(f"  na rozhodnuti: model {paired['model_r_per_decision']:+.3f}R | nahodny smer (ocekavani) "
               f"{paired['random_r_per_decision']:+.3f}R | n={paired['n']}")
         print(f"  EDGE SMERU vs nahoda (parovy test) {paired['edge']:+.3f}R (95% IS {paired['low']:+.3f} .. "
-              f"{paired['high']:+.3f}) -> {'VYZNAMNY' if paired['significant'] else 'NEVYZNAMNY'}")
+              f"{paired['high']:+.3f}) -> {paired['verdict']}")
 
     print(LINE)
     print("KVALITA SMERU BEZ GEOMETRIE OBCHODU (pohyb mid ve smeru, ATR H1; nahoda = 0; modul 66)")
