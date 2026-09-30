@@ -64,10 +64,21 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--robustness", action="store_true")
     parser.add_argument("--walkforward", action="store_true")
     parser.add_argument("--save", action="store_true")
+    parser.add_argument("--set", action="append", default=[], metavar="KLIC=HODNOTA",
+                        help="challenger parameter, e.g. --set atr_timeframe=4h --set horizon_hours=72")
     args = parser.parse_args(argv)
 
     symbols = parse_symbols(args.symbols)
     p = DEFAULT_PARAMS
+
+    if args.set:
+        changes = {}
+        for item in args.set:
+            key, _, value = item.partition("=")
+            current = getattr(DEFAULT_PARAMS, key)          # AttributeError = unknown parameter
+            changes[key] = type(current)(value) if not isinstance(current, bool) else value.lower() in ("1", "true", "ano")
+        p = DEFAULT_PARAMS.with_changes(**changes)
+        print(f"CHALLENGER parametry: {changes} -> {p.fingerprint} (vychozi {DEFAULT_PARAMS.fingerprint})")
     started = time.monotonic()
     print(LINE)
     print("FXBOT - BACKTEST CELEHO MODELU (V7.8.0 implementace)")
@@ -143,7 +154,14 @@ def main(argv: list[str]) -> int:
         print(f"   {count:>6}x {reason}")
 
     print(f"SELHANE NOW BRANY: {result.gate_failures}")
-    ensure_baseline(p)
+    ensure_baseline(DEFAULT_PARAMS)
+
+    if p is not DEFAULT_PARAMS:
+        from src.stats.registry import register
+
+        register(p, "challenger " + " ".join(args.set), "CHALLENGER",
+                 "backtest; povyseni jen pres walk-forward OOS a promotion gate",
+                 {"expectancy": bench["model"].expectancy, "paired_edge": bench["paired"].get("edge")})
 
     if args.ablation:
         print(LINE)
