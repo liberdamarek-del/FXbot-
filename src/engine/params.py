@@ -56,6 +56,7 @@ class ModelParams:
     event_pre_hours: float = 6.0         # high-impact event ahead -> no NOW (module 47/48)
     event_post_minutes: float = 90.0
     horizon_hours: int = 24              # primary horizon of a prediction
+    stability_atr: float = 0.15          # NOW must survive a price shift of +-x ATR(H1) and 2x spread (module 49)
     # ---------------------------------------------------------------- risk (module 57)
     risk_pct_standard: float = 0.5
     risk_pct_event: float = 0.25

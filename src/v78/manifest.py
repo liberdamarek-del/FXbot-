@@ -88,7 +88,7 @@ _MODULES = [
     (46, "Setup engine", P, "engine/decision.py", "pullback, retest, continuation; no event-reaction setup"),
     (47, "Event engine", P, "fundamental/calendar.py", "calendar gate; history only from collection start"),
     (48, "Event kill switch and level reset", I, "engine/decision.py, engine/technical.py", ""),
-    (49, "Signal persistence and path reconstruction", P, "v78/coverage.py, engine/thesis.py", "no latency perturbation test"),
+    (49, "Signal persistence and path reconstruction", I, "v78/coverage.py, engine/thesis.py, engine/pipeline.py", "stability gate: price +-0.15 ATR, spread x2"),
     (50, "Evidence matrix instead of magic score", I, "engine/decision.py", ""),
     (51, "Tradeability gate", I, "engine/decision.py", ""),
     (52, "Entry engine", I, "engine/decision.py", ""),
