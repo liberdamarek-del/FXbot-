@@ -1,5 +1,6 @@
 # local data, secrets and caches (never part of the code export)
 data/
+dist/
 .env
 __pycache__/
 *.pyc

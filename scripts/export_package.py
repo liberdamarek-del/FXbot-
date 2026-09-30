@@ -1,7 +1,7 @@
 """Build the delivery packages.
 
-    python scripts/export_package.py            # code only -> FXBOT_V78.tar.gz
-    python scripts/export_package.py --data     # + FXBOT_V78_DATA.tar.gz (history archive, fundamentals)
+    python scripts/export_package.py            # code only -> dist/FXBOT_V78.tar.gz
+    python scripts/export_package.py --data     # + dist/FXBOT_V78_DATA.tar.gz (history archive, fundamentals)
 
 The code package contains every tracked project file (no data/, no .env,
 no caches). The data package contains consistent copies (SQLite backup
@@ -57,9 +57,10 @@ def data_package(target: Path) -> Path:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Build delivery packages")
     parser.add_argument("--data", action="store_true")
-    parser.add_argument("--out", default=str(PROJECT_ROOT.parent))
+    parser.add_argument("--out", default=str(PROJECT_ROOT / "dist"))
     args = parser.parse_args(argv)
     out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
     code = code_package(out / "FXBOT_V78.tar.gz")
     print(f"kod: {code} ({code.stat().st_size / 1e6:.1f} MB)")
 
