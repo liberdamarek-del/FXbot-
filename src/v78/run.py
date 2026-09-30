@@ -723,6 +723,7 @@ def lock_candidate(run_id: str, now: datetime, candidate, analysis, quote, cov, 
             reasons=candidate.reasons,
             inputs={
                 "model_fingerprint": fp, "params": p.fingerprint, "risk_pct": candidate.risk_pct,
+                "entry_mode": p.entry_mode,
                 "rr_net": round(candidate.rr_net, 3), "cost_price": candidate.cost_price,
                 "clusters_for": candidate.clusters_for, "clusters_against": candidate.clusters_against,
                 "gates": [(g.name, g.status, g.reason) for g in candidate.gates],

@@ -11,11 +11,13 @@ prediction is made. Results are appended (never overwritten):
 - the error family and root cause are derived from the path (module 69).
 """
 
+import json
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
 from src.engine.resolution import FINAL, Plan, resolve
+from src.path_archive import aggregate
 from src.instruments import get_instrument
 from src.prediction_ledger import add_state, list_predictions, record_outcome
 from src.stats.errors import classify
@@ -65,10 +67,26 @@ def audit_prediction(p: dict, now: datetime, slippage_pips: float = 0.2) -> Audi
     # the minute that opens at/after T0 is the first usable one
     first_minute = t0_ts - t0_ts % 60 + (60 if t0_ts % 60 else 0)
     bars, sources = path_minutes(symbol, first_minute, min(int(now.timestamp()), end_ts))
+
+    try:
+        entry_mode = json.loads(p.get("inputs") or "{}").get("entry_mode", "limit")
+    except ValueError:
+        entry_mode = "limit"
+
     plan = Plan(p["direction"], p["decision"].endswith("NOW"), float(p["entry"]), float(p["stop_loss"]),
-                float(p["tp1"]), first_minute, end_ts, slippage_pips * instrument.pip)
+                float(p["tp1"]), first_minute, end_ts, slippage_pips * instrument.pip, entry_mode)
     side_correct = all(sources.get(b.ts) != "TWELVE_DATA" for b in bars)
-    outcome = resolve(plan, bars, 60, int(now.timestamp()), None, side_correct)
+
+    if entry_mode == "confirm" and not plan.is_now:
+        # the locked trigger is an H1 CLOSE: resolve on complete hours, refine
+        # ambiguous hours with the stored minutes
+        hours = aggregate(bars, "1h")
+        by_ts = {b.ts: b for b in bars}
+        loader = lambda a, b: [by_ts[t] for t in range(a, b, 60) if t in by_ts]
+        plan.t0 = first_minute - first_minute % 3600 + (3600 if first_minute % 3600 else 0)
+        outcome = resolve(plan, hours, 3600, int(now.timestamp()), loader, side_correct)
+    else:
+        outcome = resolve(plan, bars, 60, int(now.timestamp()), None, side_correct)
     actions = []
     states = {s["state"] for s in p["states"]}
     pid = p["prediction_id"]
