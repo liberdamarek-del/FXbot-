@@ -277,6 +277,33 @@ def catalyst_lines(ctx: dict) -> list[str]:
     return out
 
 
+def summary_lines(ctx: dict) -> list[str]:
+    """Short summary for the phone screen; details and all gates follow."""
+    states = [q.data_state for q in ctx["snapshot"].pairs.values()]
+    fresh = sum(1 for s in states if s in ("LIVE", "FRESH"))
+    out = [f"SHRNUTI: certifikat {ctx['certificate']['status']} | ceny LIVE/FRESH {fresh}/{len(states)}"
+           f" | trh {ctx['snapshot'].market}"]
+    top = ctx["selection"].top
+
+    if not top:
+        out.append("  Top-3: zadny obchod (NEOBCHODOVAT)")
+
+    for rank, c in enumerate(top, 1):
+        instrument = get_instrument(c.symbol)
+        out.append(f"  {rank}. {c.symbol} {DECISION_CZ[c.decision]} vstup {instrument.fmt(c.entry)} "
+                   f"SL {instrument.fmt(c.stop)} TP1 {instrument.fmt(c.targets[0])} R:R {c.rr_net:.1f} ({c.confidence})"[:78])
+
+    closed = [i for i in ctx["audit"] if i.outcome_state and i.outcome_state != "UNRESOLVED"]
+
+    if closed:
+        out.append(f"  vyhodnoceno tento beh: {len(closed)} predikci")
+
+    if ctx.get("theses"):
+        out.append(f"  otevrene teze: {', '.join(f'{s} {t.direction}' for s, t in ctx['theses'].items())}"[:78])
+
+    return out
+
+
 def render(ctx: dict) -> str:
     run = ctx["run"]
     p = ctx["params"]
@@ -285,6 +312,8 @@ def render(ctx: dict) -> str:
                f"{run.previous_t0.astimezone(UTC).strftime('%Y-%m-%d %H:%M') if run.previous_t0 else 'zadny (prvni beh)'}")
     out.append(f"model: {ctx['model_load']}")
     out.append(f"parametry {p.fingerprint} | registr zdroju {ctx['register_version']}")
+
+    out += [THIN] + summary_lines(ctx)
 
     if ctx.get("blocked_critical"):
         out.append(THIN)
