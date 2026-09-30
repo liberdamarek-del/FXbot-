@@ -190,3 +190,15 @@ Tohle nejde ověřit bez vašeho zařízení a účtů:
    broker s API; XTB zatím nemá veřejné API.
 6. **Rozdíl spreadů** – přirážka `broker_markup_pips` (0,5 pip) je odhad pro retail
    brokera; porovnáme se skutečnými spready vašeho brokera.
+
+## 11. Řešení problémů
+
+| Problém | Řešení |
+|---|---|
+| `ModuleNotFoundError: lzma` (Termux) | `pkg install xz-utils` a znovu `pkg install python` |
+| `server neodpovida ... pauza` při stahování | server Dukascopy omezuje frekvenci; nechte běžet, pokračuje sám |
+| `LIVE CENA NEOVERENA` u všech párů | chybí klíč Twelve Data (`python fxbot.py setkey`) nebo je trh zavřený |
+| `KEY-REQUIRED` u TWELVE_DATA | klíč není v `.env` |
+| běh je pomalý | `python fxbot.py run --symbols EUR/USD,USD/JPY` (méně párů) |
+| chci začít znovu s historií | smažte `data/market_path.sqlite3` (evidence predikcí v `data/fxbot.sqlite3` zůstane) |
+| test selže | `python fxbot.py test` vypíše, který; testy nikdy nesahají na `data/` |
