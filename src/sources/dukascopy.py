@@ -51,6 +51,11 @@ from src.path_archive import (
     Bar,
     day_start_ts,
     get_day,
+    get_month,
+    month_start_ts,
+    next_month,
+    session_hours_of_month,
+    set_month,
     get_path_connection,
     initialize_path_archive,
     load_payload,
@@ -61,14 +66,16 @@ from src.path_archive import (
 )
 
 SOURCE_M1 = "DUKASCOPY_M1"
+SOURCE_H1 = "DUKASCOPY_H1"
 SOURCE_TICK = "DUKASCOPY_TICK"
 PARSER_VERSION = "duka-bi5-1"
 BASE_URL = os.getenv("DUKASCOPY_BASE_URL", "https://datafeed.dukascopy.com/datafeed")
 USER_AGENT = "Mozilla/5.0 (fxbot historical research)"
 
-MIN_PAUSE = float(os.getenv("DUKASCOPY_MIN_PAUSE", "0.25"))
-MAX_RETRIES = int(os.getenv("DUKASCOPY_MAX_RETRIES", "6"))
-TIMEOUT = 40
+MIN_PAUSE = float(os.getenv("DUKASCOPY_MIN_PAUSE", "1.0"))
+MAX_RETRIES = int(os.getenv("DUKASCOPY_MAX_RETRIES", "8"))
+CONNECT_TIMEOUT = float(os.getenv("DUKASCOPY_CONNECT_TIMEOUT", "6"))
+TIMEOUT = float(os.getenv("DUKASCOPY_READ_TIMEOUT", "12"))
 
 UTC = timezone.utc
 _CANDLE = struct.Struct(">5if")
@@ -121,6 +128,27 @@ def decode_minute_candles(content: bytes, symbol: str, day_start: int) -> list[t
     return out
 
 
+def decode_hour_candles(content: bytes, symbol: str, month_start: int) -> list[tuple]:
+    """-> [(ts, open, high, low, close, volume)] for one side of one month."""
+    instrument = get_instrument(symbol)
+    scale = instrument.dukascopy_scale
+    raw = _decompress(content)
+
+    if len(raw) % _CANDLE.size:
+        raise ValueError("candle payload length is not a multiple of 24 bytes")
+
+    out = []
+
+    for seconds, o, c, low, high, volume in _CANDLE.iter_unpack(raw):
+        if seconds % 3600 or not (0 <= seconds < 32 * 86400):
+            raise ValueError(f"unexpected hour candle offset {seconds}")
+
+        values = [_check_price(instrument, x / scale) for x in (o, high, low, c)]
+        out.append((month_start + seconds, *values, float(volume)))
+
+    return out
+
+
 def decode_ticks(content: bytes, symbol: str, hour_start: int) -> list[tuple]:
     """-> [(epoch_seconds_float, bid, ask, bid_volume, ask_volume)]."""
     instrument = get_instrument(symbol)
@@ -158,8 +186,8 @@ def valid_minute(bar: Bar) -> bool:
     )
 
 
-def merge_sides(bids: list[tuple], asks: list[tuple]) -> list[Bar]:
-    """Join the BID and ASK candles of the same minutes. Invalid minutes
+def merge_sides(bids: list[tuple], asks: list[tuple], unit_minutes: int = 1) -> list[Bar]:
+    """Join the BID and ASK candles of the same period. Invalid candles
     (inconsistent OHLC, ask below bid) are dropped, never repaired."""
     ask_by_ts = {row[0]: row for row in asks}
     out = []
@@ -171,7 +199,8 @@ def merge_sides(bids: list[tuple], asks: list[tuple]) -> list[Bar]:
             continue
 
         _, ao, ah, al, ac, avol = other
-        bar = Bar(ts, bo, bh, bl, bc, ao, ah, al, ac, bvol + avol, 1 if (bvol + avol) > 0 else 0, 1)
+        bar = Bar(ts, bo, bh, bl, bc, ao, ah, al, ac, bvol + avol,
+                  1 if (bvol + avol) > 0 else 0, unit_minutes)
 
         if valid_minute(bar):
             out.append(bar)
@@ -225,6 +254,7 @@ def ticks_to_minutes(ticks: list[tuple], minutes: list[int], previous: tuple | N
 # 7-15 s through the network proxy, a reused connection about 0.2 s.
 _local = threading.local()
 _retries = [0]          # retries since start (diagnostics for the downloader)
+_retry_reasons: dict[str, int] = {}
 
 
 def _session() -> requests.Session:
@@ -240,9 +270,16 @@ def _session() -> requests.Session:
 
 
 def _get(url: str) -> tuple[int, bytes]:
-    """GET with pacing and retries. Returns (status, content) for 200/404."""
-    delay = 2.0
+    """GET with pacing and retries. Returns (status, content) for 200/404.
+
+    Measured behaviour through the network proxy: most requests take about
+    0.2 s, but roughly one in four stalls (connection reset / HTTP 503) for
+    10-120 s. A short timeout plus a fresh connection recovers much faster
+    than waiting; the backoff still grows when the server keeps refusing.
+    """
+    delay = 1.0
     session = _session()
+    error = "no attempt"
 
     for attempt in range(MAX_RETRIES):
         wait = MIN_PAUSE - (time.monotonic() - _local.last_request)
@@ -253,7 +290,7 @@ def _get(url: str) -> tuple[int, bytes]:
         _local.last_request = time.monotonic()
 
         try:
-            response = session.get(url, timeout=TIMEOUT)
+            response = session.get(url, timeout=(CONNECT_TIMEOUT, TIMEOUT))
         except requests.RequestException as exc:
             error = f"{type(exc).__name__}"
             status = None
@@ -268,10 +305,12 @@ def _get(url: str) -> tuple[int, bytes]:
 
             error = f"HTTP {status}"
 
+        _retries[0] += 1
+        _retry_reasons[error] = _retry_reasons.get(error, 0) + 1
+
         if attempt + 1 < MAX_RETRIES:
-            _retries[0] += 1
             time.sleep(delay)
-            delay = min(delay * 2, 60)
+            delay = min(delay * 2, 30)
 
     raise SourceUnavailable(f"{url}: {error} after {MAX_RETRIES} attempts")
 
@@ -373,6 +412,78 @@ def ingest_day(symbol: str, day: date, now: datetime | None = None, force: bool 
             expected_minutes=len(expected), observed_minutes=observed, active_minutes=active,
             quality_state="SIDE-CORRECT",
             note=None if state == "COMPLETE" else f"{len(expected) - observed} in-session minutes missing")
+    return state
+
+
+def month_endpoint(symbol: str, year: int, month: int, side: str) -> str:
+    code = get_instrument(symbol).dukascopy_code
+    return f"{code}/{year:04d}/{month - 1:02d}/{side}_candles_hour_1.bi5"
+
+
+def ingest_month(symbol: str, year: int, month: int, now: datetime | None = None, force: bool = False) -> str:
+    """Download both sides of one month of hourly candles (long history).
+
+    The file exists only after the month has ended. States as for days.
+    """
+    from src.path_archive import _decoded_month
+
+    now = now or datetime.now(UTC)
+    expected = session_hours_of_month(year, month)
+    existing = get_month(symbol, year, month, SOURCE_H1)
+
+    if existing and existing["state"] == "COMPLETE" and not force:
+        return "COMPLETE"
+
+    if now.timestamp() < month_start_ts(*next_month(year, month)) + 3600:
+        return "PENDING"
+
+    payload_ids = {}
+    start = month_start_ts(year, month)
+    end = month_start_ts(*next_month(year, month))
+
+    for side in ("BID", "ASK"):
+        endpoint = month_endpoint(symbol, year, month, side)
+
+        try:
+            status, content = _get(f"{BASE_URL}/{endpoint}")
+        except SourceUnavailable as exc:
+            log_fetch(SOURCE_H1, endpoint, "FAILED", symbol, None, str(exc))
+            raise
+
+        if status == 404 or not content:
+            log_fetch(SOURCE_H1, endpoint, "NOT_FOUND" if status == 404 else "EMPTY", symbol, status)
+            set_month(instrument=symbol, year=year, month=month, source_id=SOURCE_H1, state="GAP",
+                      bid_payload_id=None, ask_payload_id=None, expected_hours=len(expected),
+                      observed_hours=0, active_hours=0, quality_state="UNRESOLVED",
+                      note=f"{side} file not available (HTTP {status})")
+            return "GAP"
+
+        try:
+            decode_hour_candles(content, symbol, start)
+        except (ValueError, lzma.LZMAError) as exc:
+            log_fetch(SOURCE_H1, endpoint, "PARSE_ERROR", symbol, status, str(exc))
+            set_month(instrument=symbol, year=year, month=month, source_id=SOURCE_H1, state="GAP",
+                      bid_payload_id=None, ask_payload_id=None, expected_hours=len(expected),
+                      observed_hours=0, active_hours=0, quality_state="UNRESOLVED",
+                      note=f"{side} payload could not be parsed: {exc}")
+            return "GAP"
+
+        stored = store_payload(
+            source_id=SOURCE_H1, kind="H1_MONTH", endpoint=endpoint, instrument=symbol,
+            side=side, period_start=start, period_end=end, http_status=status,
+            content=content, parser_version=PARSER_VERSION,
+        )
+        log_fetch(SOURCE_H1, endpoint, "OK", symbol, status, f"{len(content)} B sha256={stored.sha256[:12]}")
+        payload_ids[side] = stored.payload_id
+
+    bars = _decoded_month(symbol, year, month, payload_ids["BID"], payload_ids["ASK"])
+    observed = len(bars)
+    state = "COMPLETE" if observed == len(expected) else "PARTIAL"
+    set_month(instrument=symbol, year=year, month=month, source_id=SOURCE_H1, state=state,
+              bid_payload_id=payload_ids["BID"], ask_payload_id=payload_ids["ASK"],
+              expected_hours=len(expected), observed_hours=observed,
+              active_hours=sum(b.active for b in bars), quality_state="SIDE-CORRECT",
+              note=None if state == "COMPLETE" else f"{len(expected) - observed} in-session hours missing")
     return state
 
 

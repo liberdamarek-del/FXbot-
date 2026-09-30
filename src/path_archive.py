@@ -34,15 +34,15 @@ Rules:
   15min and 1h are aligned to the UTC clock.
 """
 
-import hashlib
 import sqlite3
-from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from functools import lru_cache
 from typing import Iterable, NamedTuple
 
+from src import raw_archive
 from src.config import DATA_DIR
 from src.market_session import is_fx_market_open, new_york_utc_offset
+from src.raw_archive import FETCH_LOG_DDL, RAW_PAYLOADS_DDL, StoredPayload, now_iso
 
 PATH_DB = DATA_DIR / "market_path.sqlite3"
 
@@ -78,8 +78,8 @@ class Bar(NamedTuple):
     al: float
     ac: float
     volume: float
-    active: int          # minutes with at least one tick (volume > 0)
-    minutes: int         # in-session minutes the bar is built from
+    active: int          # input bars with at least one tick (volume > 0)
+    minutes: int         # in-session minutes the bar covers
 
     @property
     def mo(self) -> float:
@@ -111,25 +111,7 @@ class Bar(NamedTuple):
 # ----------------------------------------------------------------------
 
 _SCHEMA = (
-    """
-    CREATE TABLE IF NOT EXISTS raw_payloads (
-        payload_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        source_id TEXT NOT NULL,
-        kind TEXT NOT NULL,
-        endpoint TEXT NOT NULL,
-        instrument TEXT,
-        side TEXT,
-        period_start INTEGER,
-        period_end INTEGER,
-        retrieved_at TEXT NOT NULL,
-        http_status INTEGER,
-        sha256 TEXT NOT NULL,
-        size INTEGER NOT NULL,
-        parser_version TEXT NOT NULL,
-        content BLOB NOT NULL,
-        UNIQUE (source_id, endpoint, sha256)
-    )
-    """,
+    RAW_PAYLOADS_DDL,
     """
     CREATE INDEX IF NOT EXISTS ix_raw_payloads_lookup
     ON raw_payloads (instrument, kind, period_start)
@@ -153,6 +135,24 @@ _SCHEMA = (
     )
     """,
     """
+    CREATE TABLE IF NOT EXISTS path_months (
+        instrument TEXT NOT NULL,
+        month TEXT NOT NULL,
+        source_id TEXT NOT NULL,
+        state TEXT NOT NULL,
+        bid_payload_id INTEGER,
+        ask_payload_id INTEGER,
+        expected_hours INTEGER NOT NULL,
+        observed_hours INTEGER NOT NULL,
+        active_hours INTEGER NOT NULL DEFAULT 0,
+        quality_state TEXT NOT NULL,
+        segment_id TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        note TEXT,
+        PRIMARY KEY (instrument, month, source_id)
+    )
+    """,
+    """
     CREATE TABLE IF NOT EXISTS market_path (
         instrument TEXT NOT NULL,
         timeframe TEXT NOT NULL,
@@ -168,18 +168,7 @@ _SCHEMA = (
         PRIMARY KEY (instrument, timeframe, ts, source_id)
     ) WITHOUT ROWID
     """,
-    """
-    CREATE TABLE IF NOT EXISTS fetch_log (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        attempted_at TEXT NOT NULL,
-        source_id TEXT NOT NULL,
-        endpoint TEXT NOT NULL,
-        instrument TEXT,
-        result TEXT NOT NULL,
-        http_status INTEGER,
-        detail TEXT
-    )
-    """,
+    FETCH_LOG_DDL,
 )
 
 
@@ -209,80 +198,16 @@ def initialize_path_archive() -> None:
     _initialized.add(key)
 
 
-def now_iso() -> str:
-    return datetime.now(UTC).isoformat()
-
-
 # ----------------------------------------------------------------------
 # raw payloads and fetch log
 # ----------------------------------------------------------------------
 
-@dataclass(frozen=True)
-class StoredPayload:
-    payload_id: int
-    sha256: str
-    new: bool
-
-
-def sha256_hex(content: bytes) -> str:
-    return hashlib.sha256(content).hexdigest()
-
-
-def store_payload(
-    *,
-    source_id: str,
-    kind: str,
-    endpoint: str,
-    instrument: str | None,
-    side: str | None,
-    period_start: int | None,
-    period_end: int | None,
-    http_status: int | None,
-    content: bytes,
-    parser_version: str,
-    retrieved_at: str | None = None,
-) -> StoredPayload:
-    """Store the exact payload (idempotent: same endpoint + same bytes = same row)."""
+def store_payload(**fields) -> StoredPayload:
+    """Store the exact payload in the archive (see src/raw_archive.py)."""
     initialize_path_archive()
-    digest = sha256_hex(content)
 
     with get_path_connection() as connection:
-        row = connection.execute(
-            "SELECT payload_id FROM raw_payloads "
-            "WHERE source_id = ? AND endpoint = ? AND sha256 = ?",
-            (source_id, endpoint, digest),
-        ).fetchone()
-
-        if row is not None:
-            return StoredPayload(int(row["payload_id"]), digest, False)
-
-        cursor = connection.execute(
-            """
-            INSERT INTO raw_payloads (
-                source_id, kind, endpoint, instrument, side, period_start,
-                period_end, retrieved_at, http_status, sha256, size,
-                parser_version, content
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                source_id,
-                kind,
-                endpoint,
-                instrument,
-                side,
-                period_start,
-                period_end,
-                retrieved_at or now_iso(),
-                http_status,
-                digest,
-                len(content),
-                parser_version,
-                sqlite3.Binary(content),
-            ),
-        )
-        connection.commit()
-        return StoredPayload(int(cursor.lastrowid), digest, True)
+        return raw_archive.store_payload(connection, **fields)
 
 
 def load_payload(payload_id: int) -> tuple[bytes, str]:
@@ -290,22 +215,7 @@ def load_payload(payload_id: int) -> tuple[bytes, str]:
     initialize_path_archive()
 
     with get_path_connection() as connection:
-        row = connection.execute(
-            "SELECT content, sha256 FROM raw_payloads WHERE payload_id = ?",
-            (payload_id,),
-        ).fetchone()
-
-    if row is None:
-        raise KeyError(f"payload {payload_id} not found")
-
-    content = bytes(row["content"])
-
-    if sha256_hex(content) != row["sha256"]:
-        raise RuntimeError(
-            f"payload {payload_id} hash mismatch - REPRODUCIBILITY INCOMPLETE"
-        )
-
-    return content, row["sha256"]
+        return raw_archive.load_payload(connection, payload_id)
 
 
 def log_fetch(
@@ -319,18 +229,7 @@ def log_fetch(
     initialize_path_archive()
 
     with get_path_connection() as connection:
-        connection.execute(
-            """
-            INSERT INTO fetch_log (
-                attempted_at, source_id, endpoint, instrument, result,
-                http_status, detail
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            (now_iso(), source_id, endpoint, instrument, result, http_status,
-             (detail or "")[:500]),
-        )
-        connection.commit()
+        raw_archive.log_fetch(connection, source_id, endpoint, result, instrument, http_status, detail)
 
 
 # ----------------------------------------------------------------------
@@ -554,15 +453,24 @@ def iter_minutes(
         day += timedelta(days=1)
 
 
-def aggregate(minutes: Iterable[Bar], timeframe: str, require_complete: bool = True) -> list[Bar]:
-    """Aggregate in-session 1-minute bars into `timeframe` bars.
+def aggregate(
+    minutes: Iterable[Bar],
+    timeframe: str,
+    require_complete: bool = True,
+    unit_seconds: int = MINUTE,
+) -> list[Bar]:
+    """Aggregate in-session bars of `unit_seconds` (1-minute by default,
+    3600 for hourly input) into `timeframe` bars.
 
     With require_complete, a bar is produced only when every in-session
-    minute of its window is present (no guessing, module 122). The newest
+    unit of its window is present (no guessing, module 122). The newest
     window of a live series is typically incomplete and therefore omitted.
     """
-    if timeframe == "1min":
+    if TIMEFRAME_SECONDS[timeframe] == unit_seconds:
         return list(minutes)
+
+    if TIMEFRAME_SECONDS[timeframe] < unit_seconds:
+        raise ValueError(f"cannot build {timeframe} from {unit_seconds} s bars")
 
     groups: dict[int, list[Bar]] = {}
 
@@ -578,7 +486,7 @@ def aggregate(minutes: Iterable[Bar], timeframe: str, require_complete: bool = T
         if require_complete:
             expected = sum(
                 1
-                for ts in range(start, start + size, MINUTE)
+                for ts in range(start, start + size, unit_seconds)
                 if is_session_minute(ts)
             )
 
@@ -598,11 +506,177 @@ def aggregate(minutes: Iterable[Bar], timeframe: str, require_complete: bool = T
                 ac=parts[-1].ac,
                 volume=sum(p.volume for p in parts),
                 active=sum(p.active for p in parts),
-                minutes=len(parts),
+                minutes=sum(p.minutes for p in parts),
             )
         )
 
     return out
+
+
+# ----------------------------------------------------------------------
+# hourly history (one payload per month and side)
+# ----------------------------------------------------------------------
+
+def month_start_ts(year: int, month: int) -> int:
+    return int(datetime(year, month, 1, tzinfo=UTC).timestamp())
+
+
+def next_month(year: int, month: int) -> tuple[int, int]:
+    return (year + 1, 1) if month == 12 else (year, month + 1)
+
+
+@lru_cache(maxsize=512)
+def session_hours_of_month(year: int, month: int) -> tuple[int, ...]:
+    """Epoch seconds of every in-session hour of the month (FX session
+    boundaries fall on full UTC hours)."""
+    start = month_start_ts(year, month)
+    end = month_start_ts(*next_month(year, month))
+    return tuple(ts for ts in range(start, end, 3600) if is_session_minute(ts))
+
+
+def set_month(
+    *,
+    instrument: str,
+    year: int,
+    month: int,
+    source_id: str,
+    state: str,
+    bid_payload_id: int | None,
+    ask_payload_id: int | None,
+    expected_hours: int,
+    observed_hours: int,
+    active_hours: int,
+    quality_state: str,
+    note: str | None = None,
+) -> None:
+    if state not in DAY_STATES:
+        raise ValueError(f"state must be one of {DAY_STATES}")
+
+    initialize_path_archive()
+    label = f"{year:04d}-{month:02d}"
+    segment_id = f"SEG-{source_id}-{instrument.replace('/', '')}-{year:04d}{month:02d}"
+
+    with get_path_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO path_months (
+                instrument, month, source_id, state, bid_payload_id,
+                ask_payload_id, expected_hours, observed_hours, active_hours,
+                quality_state, segment_id, updated_at, note
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (instrument, month, source_id) DO UPDATE SET
+                state = excluded.state,
+                bid_payload_id = excluded.bid_payload_id,
+                ask_payload_id = excluded.ask_payload_id,
+                expected_hours = excluded.expected_hours,
+                observed_hours = excluded.observed_hours,
+                active_hours = excluded.active_hours,
+                quality_state = excluded.quality_state,
+                updated_at = excluded.updated_at,
+                note = excluded.note
+            WHERE path_months.state != 'COMPLETE'
+            """,
+            (instrument, label, source_id, state, bid_payload_id, ask_payload_id,
+             expected_hours, observed_hours, active_hours, quality_state,
+             segment_id, now_iso(), note),
+        )
+        connection.commit()
+
+
+def get_month(instrument: str, year: int, month: int, source_id: str) -> dict | None:
+    initialize_path_archive()
+
+    with get_path_connection() as connection:
+        row = connection.execute(
+            "SELECT * FROM path_months WHERE instrument = ? AND month = ? AND source_id = ?",
+            (instrument, f"{year:04d}-{month:02d}", source_id),
+        ).fetchone()
+
+    return dict(row) if row else None
+
+
+@lru_cache(maxsize=64)
+def _decoded_month(instrument: str, year: int, month: int, bid_id: int, ask_id: int) -> tuple[Bar, ...]:
+    from src.sources.dukascopy import decode_hour_candles, merge_sides
+
+    bid_content, _ = load_payload(bid_id)
+    ask_content, _ = load_payload(ask_id)
+    start = month_start_ts(year, month)
+    bids = decode_hour_candles(bid_content, instrument, start)
+    asks = decode_hour_candles(ask_content, instrument, start)
+    session = set(session_hours_of_month(year, month))
+    return tuple(b for b in merge_sides(bids, asks, unit_minutes=60) if b.ts in session)
+
+
+def month_hours(instrument: str, year: int, month: int, source_id: str = "DUKASCOPY_H1") -> tuple[Bar, ...]:
+    record = get_month(instrument, year, month, source_id)
+
+    if not record or not record["bid_payload_id"] or not record["ask_payload_id"]:
+        return ()
+
+    return _decoded_month(instrument, year, month, int(record["bid_payload_id"]), int(record["ask_payload_id"]))
+
+
+def rebuild_hourly_aggregates(
+    instrument: str,
+    first: tuple[int, int],
+    last: tuple[int, int],
+    source_id: str = "DUKASCOPY_H1",
+) -> dict:
+    """Store 1h / 4h / 1d bars built from COMPLETE monthly hour files.
+
+    Deterministic and idempotent (INSERT OR IGNORE). A 4h/1d bar is built
+    only when every in-session hour of its window is present.
+    """
+    initialize_path_archive()
+    counts = {"1h": 0, "4h": 0, "1d": 0}
+    hours: list[Bar] = []
+    year, month = first
+    # one month before: NY-aligned bars of the first day start the evening before
+    y0, m0 = (year - 1, 12) if month == 1 else (year, month - 1)
+    months = [(y0, m0)]
+
+    while (year, month) <= last:
+        months.append((year, month))
+        year, month = next_month(year, month)
+
+    months.append((year, month))
+
+    for y, m in months:
+        record = get_month(instrument, y, m, source_id)
+
+        if record and record["state"] == "COMPLETE":
+            hours.extend(month_hours(instrument, y, m, source_id))
+
+    lower = month_start_ts(*first)
+    upper = month_start_ts(*next_month(*last))
+    rows = []
+
+    for timeframe in ("1h", "4h", "1d"):
+        for bar in aggregate(hours, timeframe, require_complete=True, unit_seconds=3600):
+            if not (lower - 86400 <= bar.ts < upper):
+                continue
+
+            moment = datetime.fromtimestamp(bar.ts, tz=UTC)
+            segment = f"SEG-{source_id}-{instrument.replace('/', '')}-{moment:%Y%m}"
+            rows.append((instrument, timeframe, bar.ts, *bar[1:], source_id, "VALIDATED", segment))
+            counts[timeframe] += 1
+
+    with get_path_connection() as connection:
+        connection.executemany(
+            """
+            INSERT OR IGNORE INTO market_path (
+                instrument, timeframe, ts, bo, bh, bl, bc, ao, ah, al, ac,
+                volume, active, minutes, source_id, quality_state, segment_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            rows,
+        )
+        connection.commit()
+
+    return counts
 
 
 # ----------------------------------------------------------------------
@@ -731,15 +805,26 @@ def archive_summary(instrument: str) -> dict:
             """,
             (instrument,),
         ).fetchall()
+        months = connection.execute(
+            """
+            SELECT state, COUNT(*) AS n, MIN(month) AS first, MAX(month) AS last
+            FROM path_months WHERE instrument = ? GROUP BY state
+            """,
+            (instrument,),
+        ).fetchall()
         bars = connection.execute(
             """
-            SELECT timeframe, COUNT(*) AS n, MIN(ts) AS first, MAX(ts) AS last
-            FROM market_path WHERE instrument = ? GROUP BY timeframe
+            SELECT timeframe, source_id, COUNT(*) AS n, MIN(ts) AS first, MAX(ts) AS last
+            FROM market_path WHERE instrument = ? GROUP BY timeframe, source_id
             """,
             (instrument,),
         ).fetchall()
 
     return {
         "days": {r["state"]: {"n": r["n"], "first": r["first"], "last": r["last"]} for r in days},
-        "bars": {r["timeframe"]: {"n": r["n"], "first": r["first"], "last": r["last"]} for r in bars},
+        "months": {r["state"]: {"n": r["n"], "first": r["first"], "last": r["last"]} for r in months},
+        "bars": {
+            f"{r['timeframe']}/{r['source_id']}": {"n": r["n"], "first": r["first"], "last": r["last"]}
+            for r in bars
+        },
     }

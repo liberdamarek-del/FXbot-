@@ -1,25 +1,37 @@
-"""Download historical 1-minute BID/ASK history into the Market Path Archive.
+"""Download BID/ASK price history into the Market Path Archive.
 
-    python scripts/download_history.py                   # last 30 days, 12 pairs
-    python scripts/download_history.py --days 365        # one year
+    python scripts/download_history.py                    # 1-minute: last 30 days, 12 pairs
+    python scripts/download_history.py --days 120         # 1-minute: last 120 days
+    python scripts/download_history.py --hourly-years 10  # + hourly candles, 10 years back
     python scripts/download_history.py --from 2025-01-01 --to 2025-06-30
     python scripts/download_history.py --symbols EUR/USD,USD/JPY --days 90
-    python scripts/download_history.py --today           # + finished hours of today
-    python scripts/download_history.py --status          # only show what is stored
+    python scripts/download_history.py --today            # + finished hours of today
+    python scripts/download_history.py --status           # only show what is stored
 
 Source: Dukascopy public history (keyless, see src/sources/dukascopy.py).
-Every file is stored with its SHA-256; days are marked COMPLETE / PARTIAL /
-GAP / EMPTY, nothing is ever filled in. Re-running is safe: COMPLETE days
-are skipped, GAP days are tried again.
+Two layers:
+- hourly candles, one file per month and side: cheap long history for the
+  daily / 4h / 1h analysis and for backtests over many years,
+- 1-minute candles, one file per day and side: recent path, entry timing
+  and precise outcome resolution (which of SL / TP came first).
 
-Size (approx.): 1 pair x 1 year = 520 files, ~6 MB payload + ~5 MB bars.
-On a phone start with --days 90.
+Every file is stored with its SHA-256; days/months are marked COMPLETE /
+PARTIAL / GAP / EMPTY, nothing is ever filled in. Re-running is safe:
+COMPLETE periods are skipped, GAP periods are tried again.
+
+The server throttles clients that open connections too quickly. The
+download therefore runs sequentially, pauses between files and waits
+several minutes when the server stops answering; it simply continues
+where it stopped when started again.
+
+Size (approx.): 1 pair x 1 year of 1-minute data = ~520 files, ~11 MB;
+1 pair x 10 years of hourly data = 240 files, ~3 MB. On a phone start with
+--days 90 --hourly-years 5.
 """
 
 import argparse
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -31,18 +43,23 @@ from src.instruments import parse_symbols  # noqa: E402
 from src.path_archive import (  # noqa: E402
     archive_summary,
     initialize_path_archive,
-    list_days,
+    next_month,
     rebuild_aggregates,
+    rebuild_hourly_aggregates,
 )
 from src.sources.dukascopy import (  # noqa: E402
+    SOURCE_H1,
     SOURCE_M1,
     SourceUnavailable,
     ingest_day,
+    ingest_month,
     ingest_provisional_hours,
 )
 
 UTC = timezone.utc
 REBUILD_CHUNK_DAYS = 30
+THROTTLE_PAUSE = 180       # seconds to wait when the server stops answering
+MAX_THROTTLE_PAUSES = 20   # then give up for this run (re-run later)
 
 
 def _date(text: str) -> date:
@@ -58,26 +75,98 @@ def print_status(symbols: list[str]) -> None:
         summary = archive_summary(symbol)
         days = summary["days"]
         complete = days.get("COMPLETE", {})
-        line = f"{symbol}: dny COMPLETE {complete.get('n', 0)}"
+        line = f"{symbol}: 1min dny {complete.get('n', 0)}"
 
         if complete:
-            line += f" ({complete['first']} .. {complete['last']})"
+            line += f" ({complete['first']}..{complete['last']})"
 
         for state in ("PARTIAL", "GAP"):
             if state in days:
-                line += f" | {state} {days[state]['n']}"
+                line += f" {state} {days[state]['n']}"
 
-        bars = summary["bars"].get("1h")
+        months = summary.get("months", {}).get("COMPLETE")
 
-        if bars:
-            line += f" | svicky 1h {bars['n']}"
+        if months:
+            line += f" | 1h mesice {months['n']} ({months['first']}..{months['last']})"
 
         print(line)
 
     print("=" * 70)
 
 
-def ingest_range(symbols: list[str], first: date, last: date, workers: int) -> dict:
+def run_jobs(jobs: list, label: str) -> dict:
+    """Run (symbol, period, callable) jobs sequentially with throttle handling."""
+    totals: dict[str, int] = {}
+    started = time.monotonic()
+    pauses = 0
+    index = 0
+
+    while index < len(jobs):
+        symbol, period, call = jobs[index]
+
+        try:
+            state = call()
+        except SourceUnavailable as exc:
+            pauses += 1
+
+            if pauses > MAX_THROTTLE_PAUSES:
+                print(f"  server neodpovida opakovane - konec, spustte znovu pozdeji ({exc})")
+                totals["UNAVAILABLE"] = totals.get("UNAVAILABLE", 0) + len(jobs) - index
+                break
+
+            print(f"  server neodpovida ({symbol} {period}) - pauza {THROTTLE_PAUSE} s", flush=True)
+            time.sleep(THROTTLE_PAUSE)
+            continue            # same job again
+
+        totals[state] = totals.get(state, 0) + 1
+        index += 1
+
+        if state not in ("COMPLETE", "EMPTY", "PENDING"):
+            print(f"  {symbol} {period}: {state}")
+
+        if index % 50 == 0 or index == len(jobs):
+            rate = index / max(1e-9, time.monotonic() - started)
+            remaining = (len(jobs) - index) / rate if rate else 0
+            print(
+                f"  {label}: {index}/{len(jobs)} | {rate:.2f}/s | "
+                f"zbyva ~{remaining / 60:.0f} min | {totals}",
+                flush=True,
+            )
+
+    return totals
+
+
+def hourly(symbols: list[str], years: int, now: datetime) -> dict:
+    last = (now.year, now.month - 1) if now.month > 1 else (now.year - 1, 12)
+    first = (last[0] - years, last[1])
+    months = []
+    current = first
+
+    while current <= last:
+        months.append(current)
+        current = next_month(*current)
+
+    months.reverse()        # newest first
+    jobs = [
+        (symbol, f"{y}-{m:02d}", (lambda s=symbol, y=y, m=m: ingest_month(s, y, m, now)))
+        for (y, m) in months
+        for symbol in symbols
+    ]
+    totals = run_jobs(jobs, "1h mesice")
+
+    for symbol in symbols:
+        # yearly chunks keep memory small
+        start = first
+
+        while start <= last:
+            end = min(last, (start[0], 12))
+            rebuild_hourly_aggregates(symbol, start, end, SOURCE_H1)
+            start = (start[0] + 1, 1)
+
+    return totals
+
+
+def minutes(symbols: list[str], first: date, last: date, now: datetime) -> dict:
     days = []
     day = last
 
@@ -85,52 +174,18 @@ def ingest_range(symbols: list[str], first: date, last: date, workers: int) -> d
         days.append(day)
         day -= timedelta(days=1)
 
-    totals: dict[str, int] = {}
-    started = time.monotonic()
-    done = 0
-    touched: dict[str, list[date]] = {s: [] for s in symbols}
+    jobs = [
+        (symbol, day.isoformat(), (lambda s=symbol, d=day: ingest_day(s, d, now)))
+        for day in days
+        for symbol in symbols
+    ]
+    totals = run_jobs(jobs, "1min dny")
 
-    def one(job):
-        symbol, day = job
-
-        try:
-            return symbol, day, ingest_day(symbol, day)
-        except SourceUnavailable as exc:
-            return symbol, day, f"UNAVAILABLE ({str(exc)[-60:]})"
-
-    jobs = [(symbol, day) for day in days for symbol in symbols]
-
-    # one worker is fastest: parallel connections through the network
-    # proxy stalled for seconds each (measured 2026-09-30)
-    with ThreadPoolExecutor(max_workers=max(1, min(workers, 4))) as pool:
-        for symbol, day, state in pool.map(one, jobs):
-            key = state.split(" ")[0]
-            totals[key] = totals.get(key, 0) + 1
-            touched[symbol].append(day)
-            done += 1
-
-            if key not in ("COMPLETE", "EMPTY", "PENDING"):
-                print(f"  {symbol} {day}: {state}")
-
-            if done % 100 == 0 or done == len(jobs):
-                rate = done / max(1e-9, time.monotonic() - started)
-                remaining = (len(jobs) - done) / rate if rate else 0
-                print(
-                    f"  {done}/{len(jobs)} dnu x paru | {rate:.1f}/s | "
-                    f"zbyva ~{remaining / 60:.0f} min | {totals}",
-                    flush=True,
-                )
-
-    # stored aggregates (15min .. 1d), in chunks to keep memory small
     for symbol in symbols:
-        if not touched[symbol]:
-            continue
+        chunk_start = first
 
-        chunk_start = min(touched[symbol])
-        end = max(touched[symbol])
-
-        while chunk_start <= end:
-            chunk_end = min(end, chunk_start + timedelta(days=REBUILD_CHUNK_DAYS - 1))
+        while chunk_start <= last:
+            chunk_end = min(last, chunk_start + timedelta(days=REBUILD_CHUNK_DAYS - 1))
             rebuild_aggregates(symbol, chunk_start, chunk_end, SOURCE_M1)
             chunk_start = chunk_end + timedelta(days=1)
 
@@ -138,12 +193,12 @@ def ingest_range(symbols: list[str], first: date, last: date, workers: int) -> d
 
 
 def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(description="Download BID/ASK 1-minute history (Dukascopy).")
+    parser = argparse.ArgumentParser(description="Download BID/ASK history (Dukascopy).")
     parser.add_argument("--symbols", default=None, help="comma separated, default = 12 active pairs")
-    parser.add_argument("--days", type=int, default=30)
+    parser.add_argument("--days", type=int, default=30, help="1-minute history in days (0 = none)")
     parser.add_argument("--from", dest="first", type=_date, default=None)
     parser.add_argument("--to", dest="last", type=_date, default=None)
-    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--hourly-years", type=int, default=0, help="hourly history in years")
     parser.add_argument("--today", action="store_true", help="also fetch finished hours of today (provisional)")
     parser.add_argument("--status", action="store_true")
     args = parser.parse_args(argv)
@@ -156,24 +211,35 @@ def main(argv: list[str]) -> int:
         return 0
 
     now = datetime.now(UTC)
-    last = args.last or (now.date() - timedelta(days=1))
-    first = args.first or (last - timedelta(days=args.days - 1))
 
     print("=" * 70)
     print("FXBOT - STAHOVANI HISTORIE BID/ASK (Dukascopy)")
     print("=" * 70)
     print(f"pary: {', '.join(symbols)}")
-    print(f"obdobi: {first} .. {last} | archiv: {DATA_DIR / 'market_path.sqlite3'}")
+    print(f"archiv: {DATA_DIR / 'market_path.sqlite3'}")
+    problems = {}
 
-    totals = ingest_range(symbols, first, last, args.workers)
+    if args.hourly_years > 0:
+        print(f"hodinove svicky: {args.hourly_years} let zpet")
+        totals = hourly(symbols, args.hourly_years, now)
+        problems.update({k: v for k, v in totals.items() if k not in ("COMPLETE", "EMPTY", "PENDING")})
+
+    if args.days > 0 or args.first:
+        last = args.last or (now.date() - timedelta(days=1))
+        first = args.first or (last - timedelta(days=args.days - 1))
+        print(f"minutove svicky: {first} .. {last}")
+        totals = minutes(symbols, first, last, now)
+        problems.update({k: v for k, v in totals.items() if k not in ("COMPLETE", "EMPTY", "PENDING")})
 
     if args.today:
         for symbol in symbols:
-            count = ingest_provisional_hours(symbol, now.date(), now)
+            try:
+                count = ingest_provisional_hours(symbol, now.date(), now)
+            except SourceUnavailable:
+                count = 0
             print(f"  {symbol} dnes: {count} novych hodin (PROVISIONAL)")
 
     print_status(symbols)
-    problems = {k: v for k, v in totals.items() if k not in ("COMPLETE", "EMPTY", "PENDING")}
     print("VYSLEDEK:", "OK" if not problems else f"problemy {problems} - spustte znovu pozdeji")
     return 0
 
