@@ -1,0 +1,119 @@
+from dataclasses import dataclass
+from datetime import datetime
+from decimal import Decimal
+
+from src.paper_account import PaperAccount
+from src.paper_equity import EquityState, calculate_equity
+from src.position_simulator import PositionSimulator
+from src.trade_simulator import Side, Trade
+
+
+@dataclass(frozen=True)
+class PaperTradingState:
+    position_open: bool
+    side: Side | None
+    entry_price: Decimal | None
+    quantity: Decimal | None
+    cash: Decimal
+    realized_pnl: Decimal
+    unrealized_pnl: Decimal
+    equity: Decimal
+
+
+class PaperTradingEngine:
+    def __init__(
+        self,
+        initial_cash: Decimal,
+        quantity: Decimal,
+        entry_cost: Decimal = Decimal("0"),
+        exit_cost: Decimal = Decimal("0"),
+    ):
+        self.account = PaperAccount(initial_cash)
+
+        self.position_simulator = PositionSimulator(
+            quantity=quantity,
+            entry_cost=entry_cost,
+            exit_cost=exit_cost,
+        )
+
+    @property
+    def is_open(self) -> bool:
+        return self.position_simulator.is_open
+
+    def open_position(
+        self,
+        side: Side,
+        entry_time: datetime,
+        entry_price: Decimal,
+    ):
+        if self.is_open:
+            raise ValueError("position already open")
+
+        position_value = entry_price * self.position_simulator.quantity
+
+        self.account.reserve_cash(position_value)
+
+        try:
+            position = self.position_simulator.open(
+                side=side,
+                entry_time=entry_time,
+                entry_price=entry_price,
+            )
+        except Exception:
+            self.account.release_cash(position_value)
+            raise
+
+        return position
+
+    def close_position(
+        self,
+        exit_time: datetime,
+        exit_price: Decimal,
+    ) -> Trade:
+        if not self.is_open:
+            raise ValueError("no position is open")
+
+        position = self.position_simulator.position
+
+        if position is None:
+            raise ValueError("internal position state is inconsistent")
+
+        reserved = position.entry_price * position.quantity
+
+        trade = self.position_simulator.close(
+            exit_time=exit_time,
+            exit_price=exit_price,
+        )
+
+        self.account.release_cash(reserved)
+        self.account.apply_realized_pnl(trade.net_pnl)
+
+        return trade
+
+    def equity(
+        self,
+        market_price: Decimal,
+    ) -> EquityState:
+        return calculate_equity(
+            cash=self.account.cash,
+            position=self.position_simulator.position,
+            market_price=market_price,
+        )
+
+    def state(
+        self,
+        market_price: Decimal,
+    ) -> PaperTradingState:
+        equity = self.equity(market_price)
+        position = self.position_simulator.position
+
+        return PaperTradingState(
+            position_open=position is not None,
+            side=position.side if position else None,
+            entry_price=position.entry_price if position else None,
+            quantity=position.quantity if position else None,
+            cash=self.account.cash,
+            realized_pnl=self.account.realized_pnl,
+            unrealized_pnl=equity.unrealized_pnl,
+            equity=equity.equity,
+        )

@@ -1,0 +1,143 @@
+from datetime import datetime
+
+from src.backtest_engine import BacktestResult
+from src.database import get_connection
+
+
+def initialize_backtest_results() -> None:
+    with get_connection() as connection:
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS backtest_runs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_key TEXT NOT NULL UNIQUE,
+                created_at TEXT NOT NULL,
+                symbol TEXT NOT NULL,
+                timeframe TEXT NOT NULL,
+                source TEXT NOT NULL,
+                started_at TEXT,
+                finished_at TEXT,
+                bars_processed INTEGER NOT NULL,
+                strategy_name TEXT NOT NULL,
+                strategy_version TEXT NOT NULL,
+                status TEXT NOT NULL
+            )
+            """
+        )
+
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS ix_backtest_runs_lookup
+            ON backtest_runs(symbol, timeframe, created_at)
+            """
+        )
+
+        connection.commit()
+
+
+def save_backtest_result(
+    run_key: str,
+    created_at: datetime,
+    symbol: str,
+    timeframe: str,
+    source: str,
+    result: BacktestResult,
+    strategy_name: str,
+    strategy_version: str,
+    status: str = "COMPLETED",
+) -> int:
+    if not run_key.strip():
+        raise ValueError("run_key must not be empty")
+
+    if not symbol.strip():
+        raise ValueError("symbol must not be empty")
+
+    if not timeframe.strip():
+        raise ValueError("timeframe must not be empty")
+
+    if not source.strip():
+        raise ValueError("source must not be empty")
+
+    if not strategy_name.strip():
+        raise ValueError("strategy_name must not be empty")
+
+    if not strategy_version.strip():
+        raise ValueError("strategy_version must not be empty")
+
+    if created_at.tzinfo is None:
+        raise ValueError("created_at must contain timezone information")
+
+    if result.started_at is not None and result.started_at.tzinfo is None:
+        raise ValueError("result.started_at must contain timezone information")
+
+    if result.finished_at is not None and result.finished_at.tzinfo is None:
+        raise ValueError("result.finished_at must contain timezone information")
+
+    if result.bars_processed < 0:
+        raise ValueError("bars_processed must be >= 0")
+
+    initialize_backtest_results()
+
+    with get_connection() as connection:
+        cursor = connection.execute(
+            """
+            INSERT INTO backtest_runs (
+                run_key,
+                created_at,
+                symbol,
+                timeframe,
+                source,
+                started_at,
+                finished_at,
+                bars_processed,
+                strategy_name,
+                strategy_version,
+                status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                run_key,
+                created_at.isoformat(),
+                symbol,
+                timeframe,
+                source,
+                result.started_at.isoformat()
+                if result.started_at is not None
+                else None,
+                result.finished_at.isoformat()
+                if result.finished_at is not None
+                else None,
+                result.bars_processed,
+                strategy_name,
+                strategy_version,
+                status,
+            ),
+        )
+
+        connection.commit()
+        return int(cursor.lastrowid)
+
+
+def get_backtest_run(run_key: str):
+    with get_connection() as connection:
+        return connection.execute(
+            """
+            SELECT
+                id,
+                run_key,
+                created_at,
+                symbol,
+                timeframe,
+                source,
+                started_at,
+                finished_at,
+                bars_processed,
+                strategy_name,
+                strategy_version,
+                status
+            FROM backtest_runs
+            WHERE run_key = ?
+            """,
+            (run_key,),
+        ).fetchone()

@@ -1,0 +1,11 @@
+# local data, secrets and caches (never part of the code export)
+data/
+.env
+__pycache__/
+*.pyc
+# the project folder on the phone is also a Python venv
+bin/
+lib/
+lib64
+include/
+pyvenv.cfg
