@@ -104,14 +104,23 @@ def main(argv: list[str]) -> int:
           f"{result.blocked_flips} | teze trva {result.kept} | cas {time.monotonic() - started:.0f} s")
     print(LINE)
     bench = validation.benchmark(result)
-    print("VYSLEDEK vs PLACEBO (stejna rozhodnuti a geometrie, nahodny smer)")
+    print("VYSLEDEK vs KONTROLA (stejna rozhodnuti a geometrie; modul 74)")
     print_summary("model", bench["model"])
-    print_summary("placebo", bench["placebo"])
-    diff = bench["difference"]
+    print_summary("anti", bench["anti"])
+    paired = bench["paired"]
 
-    if diff.get("difference") is not None:
-        print(f"  rozdil E model-placebo {diff['difference']:+.3f}R (95% IS {diff['low']:+.3f} .. {diff['high']:+.3f})"
-              f" -> {'VYZNAMNY' if diff['significant'] else 'NEVYZNAMNY'}")
+    if paired.get("n", 0) >= 2:
+        print(f"  na rozhodnuti: model {paired['model_r_per_decision']:+.3f}R | nahodny smer (ocekavani) "
+              f"{paired['random_r_per_decision']:+.3f}R | n={paired['n']}")
+        print(f"  EDGE SMERU vs nahoda (parovy test) {paired['edge']:+.3f}R (95% IS {paired['low']:+.3f} .. "
+              f"{paired['high']:+.3f}) -> {'VYZNAMNY' if paired['significant'] else 'NEVYZNAMNY'}")
+
+    print(LINE)
+    print("KVALITA SMERU BEZ GEOMETRIE OBCHODU (pohyb mid ve smeru, ATR H1; nahoda = 0; modul 66)")
+
+    for hours, row in validation.signal_study(result.trades).items():
+        print(f"  {hours:>3} h: {row['mean_atr']:+.2f} ATR (IS {row['ci'][0]:+.2f}..{row['ci'][1]:+.2f},"
+              f" prekryvy -> optimisticky), zasah {row['hit_rate'] * 100:.0f}% (n={row['n']})")
 
     print(LINE)
     print("ROZPAD (modul 73)")

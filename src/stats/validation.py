@@ -42,10 +42,77 @@ def difference(model: Summary, control: Summary) -> dict:
             "significant": (diff - 1.96 * se) > 0}
 
 
+def signal_study(trades: list[dict], horizons=(24, 72, 120)) -> dict:
+    """Direction quality without trade geometry (module 66): mean forward
+    mid move in the predicted direction (in ATR(H1) at T0) and hit rate,
+    per horizon. Overlapping horizons make the samples dependent - the
+    interval is optimistic and stated as such."""
+    out = {}
+
+    for hours in horizons:
+        values = [t[f"fwd_{hours}h"] for t in trades if t.get(f"fwd_{hours}h") is not None]
+
+        if not values:
+            continue
+
+        mean = sum(values) / len(values)
+        sd = math.sqrt(sum((v - mean) ** 2 for v in values) / max(1, len(values) - 1))
+        out[hours] = {"n": len(values), "mean_atr": mean, "ci": (mean - 1.96 * sd / math.sqrt(len(values)),
+                                                                mean + 1.96 * sd / math.sqrt(len(values))),
+                      "hit_rate": sum(1 for v in values if v > 0) / len(values)}
+
+    return out
+
+
+def decision_r(trade: dict) -> float | None:
+    """P/L of one decision in R: closed trades their net R, a limit order
+    that never filled 0; unknown sequence / holes / open = not evaluable."""
+    state = trade.get("outcome_state")
+
+    if state in ("TP1_BEFORE_SL", "SL_BEFORE_TP1", "EXPIRED") and trade.get("r_net") is not None:
+        return float(trade["r_net"])
+
+    if state == "NOT_ACTIVATED":
+        return 0.0
+
+    return None
+
+
+def paired_edge(model: list[dict], anti: list[dict]) -> dict:
+    """Edge of the model's DIRECTION over a random direction on the very
+    same decisions (paired, module 74). For every decision:
+    d = (R_model - R_anti) / 2 = R_model - E[random direction]."""
+    anti_by_key = {(t["symbol"], t["t0"]): t for t in anti}
+    diffs, model_r, random_r = [], [], []
+
+    for trade in model:
+        other = anti_by_key.get((trade["symbol"], trade["t0"]))
+        a, b = decision_r(trade), decision_r(other) if other else None
+
+        if a is None or b is None:
+            continue
+
+        diffs.append((a - b) / 2)
+        model_r.append(a)
+        random_r.append((a + b) / 2)
+
+    if len(diffs) < 2:
+        return {"n": len(diffs)}
+
+    n = len(diffs)
+    mean = sum(diffs) / n
+    sd = math.sqrt(sum((d - mean) ** 2 for d in diffs) / (n - 1))
+    half = 1.96 * sd / math.sqrt(n)
+    return {"n": n, "model_r_per_decision": sum(model_r) / n, "random_r_per_decision": sum(random_r) / n,
+            "edge": mean, "low": mean - half, "high": mean + half, "significant": mean - half > 0}
+
+
 def benchmark(result) -> dict:
     model = summarize(result.trades, "model")
+    anti = summarize(result.anti, "anti-model (opacny smer)")
     placebo = summarize(result.placebo, "placebo (nahodny smer)")
-    return {"model": model, "placebo": placebo, "difference": difference(model, placebo)}
+    return {"model": model, "anti": anti, "placebo": placebo, "difference": difference(model, placebo),
+            "paired": paired_edge(result.trades, result.anti)}
 
 
 ABLATIONS = (

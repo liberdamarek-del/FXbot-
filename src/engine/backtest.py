@@ -31,6 +31,7 @@ from src.instruments import get_instrument
 
 UTC = timezone.utc
 H = 3600
+SIGNAL_HORIZONS = (24, 72, 120)      # pure direction study (module 66), independent of SL/TP
 
 
 @dataclass
@@ -51,6 +52,7 @@ class BacktestResult:
     config: BacktestConfig
     trades: list = field(default_factory=list)
     placebo: list = field(default_factory=list)
+    anti: list = field(default_factory=list)          # opposite direction, same geometry
     decisions: int = 0
     no_trade_reasons: dict = field(default_factory=dict)
     blocked_flips: int = 0
@@ -212,17 +214,24 @@ def run_symbol(series: PairSeries, config: BacktestConfig, result: BacktestResul
         outcome, known_at = _resolve(series, plan, h1_ts)
         record = _record(candidate, outcome, t, candidate.direction, known_at)
         record["fwd_move_atr"] = forward_move_atr(series, t, candidate.direction, p.horizon_hours)
+        for hours in SIGNAL_HORIZONS:
+            record[f"fwd_{hours}h"] = forward_move_atr(series, t, candidate.direction, hours)
         result.trades.append(record)
         book.open_thesis(candidate, f"BT-{series.symbol}-{t}", t, p.horizon_hours)
         open_trade = record
 
+        # ANTI-MODEL: the same decision and geometry in the opposite direction.
+        # A random-direction control is exactly the 50/50 mix of model and
+        # anti-model, so its expectation needs no random seed (module 74).
+        anti_direction = "SELL" if candidate.direction == "BUY" else "BUY"
+        anti_outcome, anti_known = _resolve(series, _plan(candidate, t, p, anti_direction), h1_ts)
+        anti_record = _record(candidate, anti_outcome, t, anti_direction, anti_known)
+        anti_record["fwd_move_atr"] = forward_move_atr(series, t, anti_direction, p.horizon_hours)
+        result.anti.append(anti_record)
+
         if rng is not None:
-            direction = rng.choice(("BUY", "SELL"))
-            placebo_plan = _plan(candidate, t, p, direction)
-            placebo_outcome, placebo_known = _resolve(series, placebo_plan, h1_ts)
-            placebo_record = _record(candidate, placebo_outcome, t, direction, placebo_known)
-            placebo_record["fwd_move_atr"] = forward_move_atr(series, t, direction, p.horizon_hours)
-            result.placebo.append(placebo_record)
+            # seeded random direction, kept for a concrete placebo trade list
+            result.placebo.append(record if rng.choice(("BUY", "SELL")) == candidate.direction else anti_record)
 
     result.decisions += decisions
     result.per_symbol_decisions[series.symbol] = decisions
