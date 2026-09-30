@@ -62,6 +62,17 @@ python fxbot.py resolve        # jen vyhodnotí otevřené predikce
 python fxbot.py paper          # papírový účet spočtený z evidence predikcí
 ```
 
+Automaticky každou hodinu (dopředné testování na telefonu):
+
+```sh
+pkg install cronie termux-services      # jednou; pak Termux restartovat
+sh scripts/termux_schedule.sh           # běh každou hodinu v :07 (po–pá) + fundamenty denně
+sh scripts/termux_schedule.sh --remove  # zrušit
+```
+
+S aplikací Termux:API (`pkg install termux-api`) přijde upozornění, když model zamkne novou predikci
+(`python fxbot.py run --notify`). Výstupy plánovaných běhů: `data/cron_run.log`, `python fxbot.py report`.
+
 Co znamenají části reportu:
 
 | Sekce | Význam (modul) |

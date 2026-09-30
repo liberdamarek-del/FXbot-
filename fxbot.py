@@ -55,12 +55,28 @@ def cmd_run(args) -> int:
 
     if result.get("report"):
         print(result["report"])
+
+        if args.notify and result.get("locked"):
+            notify_phone(result)
     else:
         print(f"BEH {result['run_id']} SELHAL: {result.get('error')}")
         print(result.get("traceback", ""))
 
     print(f"\nartefakty: {result.get('run_dir', '-')}")
     return 0 if result["state"].startswith("COMMITTED") else 1
+
+
+def notify_phone(result: dict) -> None:
+    """Termux:API notification about newly locked predictions (optional)."""
+    import shutil
+    import subprocess
+
+    if not shutil.which("termux-notification"):
+        return
+
+    lines = [line.strip() for line in result["report"].splitlines() if line.strip()[:2] in ("1.", "2.", "3.")]
+    subprocess.run(["termux-notification", "--title", f"FXBOT: {len(result['locked'])} nova predikce",
+                    "--content", "\n".join(lines[:3]) or result["run_id"]], check=False)
 
 
 def cmd_update(args) -> int:
@@ -214,6 +230,7 @@ def main(argv: list[str]) -> int:
     run.add_argument("--no-broker", action="store_true")
     run.add_argument("--symbols", default=None)
     run.add_argument("--balance", type=float, default=10000.0)
+    run.add_argument("--notify", action="store_true", help="Termux:API notification for new predictions")
 
     update = sub.add_parser("update", help="download new data only")
     update.add_argument("--symbols", default=None)
