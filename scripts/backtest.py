@@ -171,7 +171,10 @@ def main(argv: list[str]) -> int:
     if args.ablation:
         print(LINE)
         print("ABLACE (modul 75)")
-        validation.ablation(config, preloaded, progress=lambda text: print("   " + text))
+        for item in validation.ablation(config, preloaded, progress=lambda text: print("   " + text)):
+            pe = item["paired"]
+            if pe.get("n", 0) >= 2:
+                print(f"      edge smeru {pe['edge']:+.3f}R (IS {pe['low']:+.3f}..{pe['high']:+.3f}) {pe['verdict']}")
 
     if args.robustness:
         print(LINE)

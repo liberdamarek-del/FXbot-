@@ -129,10 +129,17 @@ def main(argv: list[str]) -> int:
     out += [f"| {count} | {key} |" for key, count in taxonomy_table(result.trades).items()]
     out += ["", "Nejcastejsi duvody NEOBCHODOVAT:", ""]
     out += [f"- {count}x {reason}" for reason, count in sorted(result.no_trade_reasons.items(), key=lambda kv: -kv[1])[:10]]
-    out += ["", "## 5. Ablace vrstev (modul 75)", "", HEADER]
+    out += ["", "## 5. Ablace vrstev (modul 75)", "",
+            "| varianta | predikci | vstupu | E na obchod [R] | meze E (neznamo) | edge smeru vs nahoda [R/rozhodnuti] | 95% IS |",
+            "|---|---|---|---|---|---|---|"]
 
-    for label, model, _ in validation.ablation(config, preloaded):
-        out.append(row(model))
+    for item in validation.ablation(config, preloaded):
+        s_, pe, b = item["summary"], item["paired"], item["bounds"]
+        bounds_text = f"{b['trade_worst']:+.3f} .. {b['trade_best']:+.3f}" if b.get("unknown") else "-"
+        edge = f"{pe['edge']:+.3f}" if pe.get("n", 0) >= 2 else "-"
+        ci = f"{pe['low']:+.3f} .. {pe['high']:+.3f}" if pe.get("n", 0) >= 2 else "-"
+        out.append(f"| {item['label']} | {s_.predictions} | {s_.triggered} | "
+                   f"{'-' if s_.expectancy is None else format(s_.expectancy, '+.3f')} | {bounds_text} | {edge} | {ci} |")
 
     if not args.quick:
         out += ["", "## 6. Robustnost (modul 76)", "", "| parametr | hodnota | E [R] | n | citlive |", "|---|---|---|---|---|"]

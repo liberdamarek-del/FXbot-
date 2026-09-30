@@ -148,17 +148,20 @@ ABLATIONS = (
 )
 
 
-def ablation(config: BacktestConfig, preloaded: dict, progress=None) -> list[tuple[str, Summary, Summary]]:
+def ablation(config: BacktestConfig, preloaded: dict, progress=None) -> list[dict]:
+    """Each layer switched off in turn; compared by the paired edge vs a
+    random direction and by the unknown-sequence bounds (not by E alone)."""
     rows = []
 
     for label, changes, fundamentals in ABLATIONS:
         variant = replace(config, params=config.params.with_changes(**changes), use_fundamentals=fundamentals,
                           label=label)
         result = run(variant, preloaded)
-        rows.append((label, summarize(result.trades, label), summarize(result.placebo, "placebo")))
+        rows.append({"label": label, "summary": summarize(result.trades, label),
+                     "paired": paired_edge(result.trades, result.anti), "bounds": unknown_bounds(result.trades)})
 
         if progress:
-            progress(rows[-1][1].line())
+            progress(rows[-1]["summary"].line())
 
     return rows
 
