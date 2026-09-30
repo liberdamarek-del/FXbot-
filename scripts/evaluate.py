@@ -101,6 +101,16 @@ def main(argv: list[str]) -> int:
                    f"(95% IS {paired['low']:+.3f} .. {paired['high']:+.3f}) -> "
                    f"{paired['verdict']}.**")
     out.append("")
+
+    for label, b in (("model", bench["bounds_model"]), ("anti-model", bench["bounds_anti"])):
+        if b.get("unknown"):
+            out.append(f"- {label}: **poradi neznamo** u {b['unknown']} obchodu ({b['share'] * 100:.0f} %; SL/TP a vstup "
+                       f"ve stejne hodinove svicce bez minutovych dat). Meze E na obchod: "
+                       f"**{b['trade_worst']:+.3f} R** (vse SL) .. **{b['trade_best']:+.3f} R** (vse TP1); "
+                       f"na rozhodnuti {b['decision_worst']:+.3f} .. {b['decision_best']:+.3f} R. Neznamy vysledek se "
+                       f"nehada (modul 61) - zuzi ho jen minutova data.")
+
+    out.append("")
     out += ["## 2. Kvalita smeru bez geometrie obchodu (modul 66)", "",
             "Prumerny pohyb mid ceny ve smeru modelu (v ATR H1 v case rozhodnuti); nahodny smer = 0.", "",
             "| horizont | pohyb [ATR] | 95% IS (optimisticky, prekryvy) | zasah | n |", "|---|---|---|---|---|"]

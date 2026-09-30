@@ -216,6 +216,9 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--today", action="store_true", help="also fetch finished hours of today (provisional)")
     parser.add_argument("--status", action="store_true")
     parser.add_argument("--rebuild", action="store_true", help="only rebuild stored bars from the archive")
+    parser.add_argument("--days-file", default=None,
+                        help="file with lines 'SYMBOL,YYYY-MM-DD': fetch exactly these 1-minute days "
+                             "(e.g. days whose hourly bars were ambiguous in a backtest)")
     args = parser.parse_args(argv)
 
     symbols = parse_symbols(args.symbols)
@@ -239,6 +242,25 @@ def main(argv: list[str]) -> int:
     print(f"pary: {', '.join(symbols)}")
     print(f"archiv: {DATA_DIR / 'market_path.sqlite3'}")
     problems = {}
+
+    if args.days_file:
+        wanted = []
+
+        for line in Path(args.days_file).read_text(encoding="utf-8").splitlines():
+            if "," in line:
+                symbol, day = line.strip().split(",")
+                wanted.append((symbol, date.fromisoformat(day)))
+
+        print(f"cilene dny: {len(wanted)}")
+
+        def rebuild_day(symbol: str, period: str) -> None:
+            day = date.fromisoformat(period)
+            rebuild_aggregates(symbol, day - timedelta(days=1), day + timedelta(days=1), SOURCE_M1)
+
+        jobs = [(s, d.isoformat(), (lambda s=s, d=d: ingest_day(s, d, now))) for s, d in wanted]
+        totals = run_jobs(jobs, "cilene 1min dny", rebuild_day)
+        problems.update({k: v for k, v in totals.items() if k not in ("COMPLETE", "EMPTY", "PENDING")})
+        args.days = 0
 
     if args.hourly_years > 0:
         print(f"hodinove svicky: {args.hourly_years} let zpet")

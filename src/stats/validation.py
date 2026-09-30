@@ -78,6 +78,26 @@ def decision_r(trade: dict) -> float | None:
     return None
 
 
+def unknown_bounds(trades: list[dict]) -> dict:
+    """SEQUENCE_UNKNOWN outcomes are never guessed (module 61, 90); their
+    possible effect is shown as bounds instead: worst case = every unknown
+    was -1 R, best case = every unknown reached TP1 (planned R:R)."""
+    closed = [float(t["r_net"]) for t in trades
+              if t.get("outcome_state") in ("TP1_BEFORE_SL", "SL_BEFORE_TP1", "EXPIRED") and t.get("r_net") is not None]
+    unknown = [t for t in trades if t.get("outcome_state") == "SEQUENCE_UNKNOWN"]
+    decisions = len(closed) + len(unknown) + sum(1 for t in trades if t.get("outcome_state") == "NOT_ACTIVATED")
+
+    if not closed and not unknown:
+        return {"unknown": 0}
+
+    worst = sum(closed) - len(unknown)
+    best = sum(closed) + sum(float(t.get("rr_net_planned") or 0.0) for t in unknown)
+    n_trades = len(closed) + len(unknown)
+    return {"unknown": len(unknown), "share": len(unknown) / max(1, n_trades),
+            "trade_worst": worst / n_trades, "trade_best": best / n_trades,
+            "decision_worst": worst / max(1, decisions), "decision_best": best / max(1, decisions)}
+
+
 def paired_edge(model: list[dict], anti: list[dict]) -> dict:
     """Edge of the model's DIRECTION over a random direction on the very
     same decisions (paired, module 74). For every decision:
@@ -115,7 +135,8 @@ def benchmark(result) -> dict:
     anti = summarize(result.anti, "anti-model (opacny smer)")
     placebo = summarize(result.placebo, "placebo (nahodny smer)")
     return {"model": model, "anti": anti, "placebo": placebo, "difference": difference(model, placebo),
-            "paired": paired_edge(result.trades, result.anti)}
+            "paired": paired_edge(result.trades, result.anti),
+            "bounds_model": unknown_bounds(result.trades), "bounds_anti": unknown_bounds(result.anti)}
 
 
 ABLATIONS = (

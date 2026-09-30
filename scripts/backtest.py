@@ -126,6 +126,11 @@ def main(argv: list[str]) -> int:
         print(f"  EDGE SMERU vs nahoda (parovy test) {paired['edge']:+.3f}R (95% IS {paired['low']:+.3f} .. "
               f"{paired['high']:+.3f}) -> {paired['verdict']}")
 
+    for label, b in (("model", bench["bounds_model"]), ("anti", bench["bounds_anti"])):
+        if b.get("unknown"):
+            print(f"  {label}: poradi neznamo u {b['unknown']} obchodu ({b['share'] * 100:.0f} %) -> E na obchod "
+                  f"{b['trade_worst']:+.3f} (vse SL) .. {b['trade_best']:+.3f} (vse TP1)")
+
     print(LINE)
     print("KVALITA SMERU BEZ GEOMETRIE OBCHODU (pohyb mid ve smeru, ATR H1; nahoda = 0; modul 66)")
 
