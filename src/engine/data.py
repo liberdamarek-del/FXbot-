@@ -42,6 +42,24 @@ def _canonical(symbol: str, timeframe: str, start_ts: int | None, end_ts: int | 
     return merge_bars(m1, h1)
 
 
+MIN_CANONICAL_H1 = 1500        # below this the Twelve Data fallback is used for history
+FALLBACK_DAYS = 120
+
+
+def earliest_twelve_data_minute(symbol: str) -> int | None:
+    from src.database import get_connection
+
+    try:
+        with get_connection() as connection:
+            row = connection.execute(
+                "SELECT MIN(bar_time) AS first FROM raw_bars WHERE symbol = ? AND timeframe = '1min' "
+                "AND source = 'TwelveData'", (symbol,)).fetchone()
+    except Exception:
+        return None
+
+    return int(datetime.fromisoformat(row["first"]).timestamp()) if row and row["first"] else None
+
+
 def twelve_data_minutes(symbol: str, start_ts: int, end_ts: int) -> list[Bar]:
     """Twelve Data 1-minute mid bars from the main database as Bars with
     bid = ask = mid (no spread information)."""
@@ -109,6 +127,15 @@ def load_pair(symbol: str, p: ModelParams, now_ts: int | None = None, live: bool
         last_day = days[-1]["day"] if days else None
         last_bar = max((b.ts for b in h1), default=0)
         after = last_bar + 3600 if last_bar else now_ts - 3 * 86400
+
+        if len(h1) < MIN_CANONICAL_H1:
+            # little or no canonical BID/ASK history (e.g. Dukascopy throttled):
+            # fall back to all stored Twelve Data minutes (mid, MODEL-PRICE) -
+            # backfill ladder, module 136
+            earliest = earliest_twelve_data_minute(symbol)
+
+            if earliest is not None:
+                after = min(after, max(earliest, now_ts - FALLBACK_DAYS * 86400))
         # the NY-aligned daily/4h bar that contains `after` must be rebuilt
         # from minutes as well, so start the head at the beginning of the
         # current daily bar

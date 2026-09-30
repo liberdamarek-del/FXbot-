@@ -45,6 +45,10 @@ Stahování historie může trvat dlouho (server Dukascopy omezuje frekvenci);
 dá se kdykoli přerušit a spustit znovu – pokračuje tam, kde skončil.
 Na telefonu před dlouhým stahováním: `termux-wake-lock`.
 
+Když Dukascopy nejde stáhnout, použije analýza jako náhradu minutovou historii
+z Twelve Data (jen střední ceny, bez bid/ask): `python scripts/update_data.py --days 60`
+(stojí asi 20 kreditů na pár; volný plán má 800 kreditů denně).
+
 ## 3. Denní použití
 
 ```sh
