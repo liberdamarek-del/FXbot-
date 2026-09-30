@@ -61,6 +61,7 @@ TESTS = [
     "test_e4_v78_pretests.py",
     "test_e5_run.py",
     "test_e6_stats_registry.py",
+    "test_e7_upgrade.py",
     "test_m39.py",
     "test_m310.py",
     "test_m311.py",
