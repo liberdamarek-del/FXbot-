@@ -339,12 +339,12 @@ def decide(
     candidate.reasons.append(
         f"{setup_type}: {'uroven' if level else 'EMA20 H1'} {instrument.fmt(anchor)}"
         + (f" ({level.timeframe}, {level.touches}x, {level.state})" if level else "")
-        + f", R:R {rr_net:.2f} po nakladech (TP1 z {tp1_source})"
+        + f", R:R {math.floor(rr_net * 100) / 100:.2f} po nakladech (TP1 z {tp1_source})"
     )
 
     rr_ok = rr_net >= p.min_rr - 1e-9
     candidate.gates.append(Gate("RR", "PASS" if rr_ok else "FAIL",
-                                f"R:R {rr_net:.2f} po nakladech (min {p.min_rr})"))
+                                f"R:R {math.floor(rr_net * 100) / 100:.2f} po nakladech (min {p.min_rr})"))
 
     if not rr_ok:
         shown = math.floor(rr_net * 100) / 100

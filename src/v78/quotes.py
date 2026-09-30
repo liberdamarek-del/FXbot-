@@ -141,11 +141,14 @@ class PairQuote:
 
 
 def conflict_check(observations: list[QuoteObservation], pip: float, window_s: float = 120.0,
-                   threshold_pips: float = 5.0) -> tuple[list[QuoteObservation], str | None]:
+                   threshold_pips: float = 5.0, volatility_pips: float = 0.0) -> tuple[list[QuoteObservation], str | None]:
     """Outlier / conflict gate (module 133). Compares only contemporaneous
-    observations (source times within window_s). >= 3 observations: an
-    outlier far from the median of the others is rejected. Exactly 2 that
-    disagree -> CONFLICT. Never averages."""
+    observations (source times within window_s). >= 3 observations: one
+    that is far from the median of the others - more than the threshold
+    AND more than 3x the dispersion of the others - is rejected. Exactly 2
+    that disagree -> CONFLICT. The threshold grows with volatility
+    (3x the recent 1-minute range when given). Never averages."""
+    threshold_pips = max(threshold_pips, 3.0 * volatility_pips)
     timed = [o for o in observations if o.source_ts is not None and o.rejected is None]
 
     if len(timed) < 2:
@@ -163,8 +166,10 @@ def conflict_check(observations: list[QuoteObservation], pip: float, window_s: f
             centre = statistics.median(others)
             spread_others = max(others) - min(others)
 
-            if abs(o.mid - centre) / pip > threshold_pips and spread_others / pip <= threshold_pips:
-                o.rejected = f"outlier: {abs(o.mid - centre) / pip:.1f} pip od shluku ostatnich zdroju"
+            deviation = abs(o.mid - centre) / pip
+
+            if deviation > threshold_pips and deviation > 3.0 * max(spread_others / pip, 1.0):
+                o.rejected = f"outlier: {deviation:.1f} pip od shluku ostatnich zdroju"
 
         return observations, None
 

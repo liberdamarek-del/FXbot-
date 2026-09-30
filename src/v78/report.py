@@ -21,10 +21,16 @@ DECISION_CZ = {
     "NO TRADE": "NEOBCHODOVAT",
 }
 EXECUTION_CZ = {
-    "EXECUTABLE": "exekucni (broker bid/ask)",
-    "MODEL-PRICE": "jen modelova cena",
-    "BROKER-BLOCKED": "broker kotace neplatna",
-    "DATA-BLOCKED": "DATA-BLOCKED",
+    "EXECUTABLE": "EXEKUCNI",
+    "MODEL-PRICE": "model-cena",
+    "BROKER-BLOCKED": "BROKER-BLOK",
+    "DATA-BLOCKED": "DATA-BLOK",
+}
+SOURCE_SHORT = {
+    "TWELVE_DATA": "12data",
+    "DUKASCOPY_TICK": "duka-tick",
+    "DUKASCOPY_M1": "duka-m1",
+    "OANDA": "oanda",
 }
 LINE = "=" * 78
 THIN = "-" * 78
@@ -52,8 +58,8 @@ def _age(seconds) -> str:
 
 
 def price_table(snapshot) -> list[str]:
-    out = ["CENY (T0 snapshot, modul 135)",
-           "par      bid        ask        mid        zdroj        cas zdroje      stari stav   exekuce"]
+    out = [f"CENY (T0 snapshot {snapshot.t0.astimezone(UTC):%Y-%m-%d}, cas zdroje UTC, modul 135)",
+           "par      bid        ask        mid        zdroj     cas     stari stav        exekuce"]
     now_ts = snapshot.t0.timestamp()
 
     for symbol, quote in snapshot.pairs.items():
@@ -67,9 +73,11 @@ def price_table(snapshot) -> list[str]:
         bid = instrument.fmt(c.bid) if c.bid is not None else "-"
         ask = instrument.fmt(c.ask) if c.ask is not None else "-"
         state = {"LAST_VALID_SESSION": "POSL.REL"}.get(quote.data_state, quote.data_state)
+        source = SOURCE_SHORT.get(c.source_id, c.source_id.lower()[:9])
+        clock = datetime.fromtimestamp(c.source_ts, tz=UTC).strftime("%H:%M") if c.source_ts else "-"
         out.append(
-            f"{symbol:<8} {bid:<10} {ask:<10} {instrument.fmt(c.mid):<10} {c.source_id[:12]:<12} "
-            f"{_t(c.source_ts):<15} {_age(c.age(now_ts)):>5} {state[:11]:<11} {EXECUTION_CZ.get(quote.execution, quote.execution)}"
+            f"{symbol:<8} {bid:<10} {ask:<10} {instrument.fmt(c.mid):<10} {source:<9} {clock:<7} "
+            f"{_age(c.age(now_ts)):>5} {state[:11]:<11} {EXECUTION_CZ.get(quote.execution, quote.execution)}"
         )
 
         if quote.data_state not in ("LIVE", "FRESH"):
@@ -209,7 +217,8 @@ def render(ctx: dict) -> str:
     out = [LINE, f"FXBOT {ctx['model_version']} ({ctx['implementation']}) - BEH {run.run_id}", LINE]
     out.append(f"T0 {run.t0.astimezone(UTC):%Y-%m-%d %H:%M:%S} UTC | predchozi oficialni T0: "
                f"{run.previous_t0.astimezone(UTC).strftime('%Y-%m-%d %H:%M') if run.previous_t0 else 'zadny (prvni beh)'}")
-    out.append(f"model: {ctx['model_load']} | parametry {p.fingerprint} | registr zdroju {ctx['register_version']}")
+    out.append(f"model: {ctx['model_load']}")
+    out.append(f"parametry {p.fingerprint} | registr zdroju {ctx['register_version']}")
 
     if ctx.get("blocked_critical"):
         out.append(THIN)

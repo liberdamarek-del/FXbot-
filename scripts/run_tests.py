@@ -55,6 +55,12 @@ TESTS = [
     "test_c1_indicators.py",
     "test_c2_analysis.py",
     "test_d1_resolver.py",
+    "test_e1_path_archive.py",
+    "test_e2_fundamentals.py",
+    "test_e3_engine.py",
+    "test_e4_v78_pretests.py",
+    "test_e5_run.py",
+    "test_e6_stats_registry.py",
     "test_m39.py",
     "test_m310.py",
     "test_m311.py",
@@ -85,8 +91,9 @@ TESTS = [
 def syntax_check() -> bool:
     ok = True
     files = sorted(
-        list((PROJECT_ROOT / "src").glob("*.py"))
+        list((PROJECT_ROOT / "src").rglob("*.py"))
         + list((PROJECT_ROOT / "scripts").glob("*.py"))
+        + [PROJECT_ROOT / "fxbot.py"]
         + list(PROJECT_ROOT.glob("test_*.py"))
         + list((PROJECT_ROOT / "tests").glob("*.py"))
     )
