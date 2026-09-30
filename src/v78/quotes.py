@@ -309,5 +309,8 @@ def source_consistency(a_bars, b_bars, pip: float) -> dict | None:
 
     p95 = diffs[min(len(diffs) - 1, int(0.95 * len(diffs)))]
     median = diffs[len(diffs) // 2]
-    state = "CONSISTENT" if median <= 1.0 and p95 <= 3.0 else "SOURCE_DRIFT"
+    # thresholds from the first real comparison (2026-09-30): Twelve Data vs
+    # Dukascopy mid differ by ~1 pip median, ~5 pip p95 on USD/JPY - normal
+    # feed differences; the V7.8.0 failure case was > 100 pips
+    state = "CONSISTENT" if median <= 2.0 and p95 <= 8.0 else "SOURCE_DRIFT"
     return {"minutes": len(diffs), "median_pips": round(median, 2), "p95_pips": round(p95, 2), "state": state}

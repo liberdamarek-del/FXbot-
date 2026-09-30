@@ -73,7 +73,7 @@ def cmd_update(args) -> int:
     print("Twelve Data (zivy 1min):", acquire_live(symbols, now, notes))
     path = acquire_path(symbols, now, args.days, notes)
     print("Dukascopy (bid/ask):", path["state"], f"| dnu {len(path['days'])} | hodin dnes {sum(path['hours'].values())}")
-    print("Fundamenty:", acquire_fundamentals(now, notes))
+    print("Fundamenty:", acquire_fundamentals(now, notes, force=True))
 
     for note in notes:
         print("POZOR:", note)

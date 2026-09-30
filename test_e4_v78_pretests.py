@@ -142,7 +142,7 @@ pairs = {"A": build_pair_quote("EUR/USD", [obs("EUR/USD", mid=1.13, age=5)], NOW
          "B": build_pair_quote("GBP/USD", [obs("GBP/USD", mid=1.32, age=50)], NOW)}
 assert skew_state(pairs) == (45.0, "CONDITIONAL")
 same = [Bar(k * 60, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1, 1, 1) for k in range(30)]
-drift = [Bar(k * 60, 1.1005, 1.1005, 1.1005, 1.1005, 1.1005, 1.1005, 1.1005, 1.1005, 1, 1, 1) for k in range(30)]
+drift = [Bar(k * 60, 1.1010, 1.1010, 1.1010, 1.1010, 1.1010, 1.1010, 1.1010, 1.1010, 1, 1, 1) for k in range(30)]
 assert source_consistency(same, same, 0.0001)["state"] == "CONSISTENT"
 assert source_consistency(same, drift, 0.0001)["state"] == "SOURCE_DRIFT"
 

@@ -128,16 +128,27 @@ def acquire_live(symbols: list[str], now: datetime, notes: list) -> dict:
             "budget": feed.budget.status()}
 
 
-def acquire_path(symbols: list[str], now: datetime, days: int, notes: list) -> dict:
+def acquire_path(symbols: list[str], now: datetime, days: int, notes: list, budget_s: float = 120.0) -> dict:
     """Canonical BID/ASK days since the last complete one + provisional
-    hours of today (backfill ladder, modules 136/137)."""
+    hours of today (backfill ladder, modules 136/137).
+
+    A run spends at most budget_s seconds here (the server may throttle);
+    whatever is left is fetched by the next run or by fxbot.py history."""
+    import time
+
     from src.sources.dukascopy import SourceUnavailable, ingest_day, ingest_provisional_hours
 
     summary = {"days": {}, "hours": {}, "state": "OK"}
     unavailable = False
+    deadline = time.monotonic() + budget_s
 
     for symbol in symbols:
         if unavailable:
+            break
+
+        if time.monotonic() > deadline:
+            summary["state"] = "BUDGET"
+            notes.append(f"Dukascopy: casovy limit {budget_s:.0f} s vycerpan - zbytek dalsim behem")
             break
 
         for back in range(days, 0, -1):
@@ -168,11 +179,35 @@ def acquire_path(symbols: list[str], now: datetime, days: int, notes: list) -> d
     return summary
 
 
-def acquire_fundamentals(now: datetime, notes: list) -> dict:
+FUNDAMENTALS_EVERY = timedelta(hours=6)
+
+
+def last_fundamental_update() -> datetime | None:
+    from src.fundamental.store import get_fund_connection, initialize_fundamentals
+
+    initialize_fundamentals()
+
+    with get_fund_connection() as connection:
+        row = connection.execute("SELECT MAX(attempted_at) AS t FROM fetch_log WHERE source_id = 'FRED' "
+                                 "AND result = 'OK'").fetchone()
+
+    return datetime.fromisoformat(row["t"]) if row and row["t"] else None
+
+
+def acquire_fundamentals(now: datetime, notes: list, force: bool = False) -> dict:
+    """Daily series change once a day: a full update at most every 6 hours
+    (the calendar is refreshed every run - schedules can move)."""
     from src.fundamental.adapters import update_all as update_fundamentals
     from src.fundamental.calendar import update_calendar
 
     out = {}
+    last = last_fundamental_update()
+
+    if not force and last is not None and now - last < FUNDAMENTALS_EVERY:
+        calendar = update_calendar(now)
+        out["FF_CALENDAR"] = "OK" if calendar.get("ok") else f"FAIL {calendar.get('detail')}"
+        out["series"] = f"aktualni (posledni stazeni {last:%H:%M} UTC)"
+        return out
 
     for result in update_fundamentals((now - timedelta(days=21)).date()):
         out[result.source] = "OK" if result.ok else f"FAIL {result.detail[:80]}"
@@ -406,8 +441,12 @@ def execute(options: RunOptions) -> dict:
             blocked.append("LIVE CENA NEOVERENA u vsech paru - zadne NOW (DATA-BLOCKED)")
 
         # ------------------------------------------------------ 8. coverage + delta
+        from src.data_update import settle_seconds
+
         start_ts = int((run.previous_t0 or (now - WORKING_WINDOW)).timestamp())
-        end_ts = int(now.timestamp())
+        # minutes still inside the settle delay are not published yet - not a gap
+        end_ts = int(now.timestamp() - settle_seconds() - 60)
+        end_ts -= end_ts % 60
         open_predictions = [p_ for p_ in list_predictions(limit=500)
                             if p_["direction"] != "NONE" and not any(
                                 o["outcome_state"] in ("TP1_BEFORE_SL", "SL_BEFORE_TP1", "SEQUENCE_UNKNOWN",
