@@ -43,6 +43,7 @@ class Plan:
     t0: int
     horizon_end: int
     slippage: float = 0.0
+    entry_mode: str = "limit"   # limit: fill at the entry level; confirm: zone touch + close back (CH-003)
 
 
 @dataclass
@@ -125,12 +126,47 @@ def resolve(
         out.triggered_at = first.ts
         out.executed_entry = executed
 
+    zone_touched = False
+    confirm = plan.entry_mode == "confirm" and not plan.is_now
+
     for index, bar in enumerate(path):
         out.missing_bars += check_missing(bar.ts)
         expected = bar.ts + bar_seconds
         fill_x, fav_x, adv_x = _levels(bar, plan.direction)
         tp_hit = sign * (fav_x - plan.tp1) >= 0
         sl_hit = sign * (adv_x - plan.stop) <= 0
+
+        if not triggered and confirm:
+            # ENTRY ZONE + TRIGGER + CONFIRMATION (module 52): the zone must be
+            # touched, then a bar must CLOSE back beyond the entry level in the
+            # trade direction; the entry is that close. The level failing
+            # (SL touched) before the confirmation = no trade, no loss.
+            if not zone_touched:
+                if sign * (fill_x - plan.entry) <= 0:
+                    zone_touched = True
+                elif tp_hit:
+                    return _finish(out, "NOT_ACTIVATED", bar.ts, None, "TP1 dosazen bez vstupu", plan, risk)
+                else:
+                    continue
+
+            if sl_hit:
+                return _finish(out, "NOT_ACTIVATED", bar.ts, None,
+                               "uroven padla pred potvrzenim - vstup se neuskutecnil", plan, risk)
+
+            if sign * (bar.mc - plan.entry) > 0:
+                triggered = True
+                executed = (bar.ac if plan.direction == "BUY" else bar.bc) + sign * plan.slippage
+                out.triggered_at = bar.ts + bar_seconds
+                out.executed_entry = executed
+                risk = sign * (executed - plan.stop)       # risk unit = actual risk at the confirmed entry
+
+                if risk <= 0 or sign * (plan.tp1 - executed) <= 0:
+                    return _finish(out, "NOT_ACTIVATED", bar.ts, None,
+                                   "potvrzeni az za TP1/SL - vstup se neuskutecnil", plan, max(risk, 1e-12))
+            elif tp_hit:
+                return _finish(out, "NOT_ACTIVATED", bar.ts, None, "TP1 dosazen bez potvrzeni vstupu", plan, risk)
+
+            continue
 
         if not triggered:
             touched = sign * (fill_x - plan.entry) <= 0

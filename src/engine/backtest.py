@@ -92,7 +92,7 @@ def _plan(candidate: Candidate, t: int, p: ModelParams, direction: str | None = 
         tp1 = entry + s1 * reward
 
     return Plan(direction, candidate.is_now, entry, stop, tp1, t, t + p.horizon_hours * H,
-                p.slippage_pips * instrument.pip)
+                p.slippage_pips * instrument.pip, p.entry_mode)
 
 
 def forward_move_atr(series: PairSeries, t: int, direction: str, hours: int) -> float | None:

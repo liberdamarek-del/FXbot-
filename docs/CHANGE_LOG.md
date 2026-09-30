@@ -30,3 +30,31 @@ evidence; a change that only looks better in one run is not adopted.
   `entry_offset_atr`. Tested only by walk-forward.
 - Direction accuracy over 24 h: 58 % (model) vs 51 % (placebo) on 81
   independent situations - descriptive only (sample guard, module 70).
+
+## CH-002 - swing horizon (H4 geometry + 72 h horizon)
+
+| Field | Value |
+|---|---|
+| Date | 2026-09-30 |
+| Root cause (hypothesis) | the fundamental clusters (20-day rate repricing, weekly positioning, carry) act over days to weeks, the trade horizon is 24 h |
+| Proposed rule | `--set atr_timeframe=4h --set horizon_hours=72` |
+| Result (4.5 months, not OOS) | paired edge vs random direction -0.030 R/decision (95 % CI -0.147..+0.087), not significant |
+| Proof class / decision | C / HOLD |
+
+## CH-003 - confirmed entry (module 52: ENTRY ZONE + TRIGGER + CONFIRMATION)
+
+| Field | Value |
+|---|---|
+| Date | 2026-09-30 |
+| Symptom | pullback limit entries were often run over: the level broke, SL hit, the move came later |
+| Proposed rule | WAIT entry only after the zone was touched AND an H1 bar closed back beyond the entry level; the level failing first = no trade (`--set entry_mode=confirm`) |
+| Result (4.5 months, not OOS) | win rate 26 % (champion 20 %), but E per decision -0.099 R vs random -0.067 R; paired edge -0.032 R (95 % CI -0.092..+0.028), not significant |
+| Proof class / decision | C / HOLD |
+
+## Method note: paired anti-model control (2026-09-30)
+
+A single seeded random-direction placebo varied by about +-0.25 R between
+seeds. Every backtest now also resolves the ANTI-MODEL (same decision and
+geometry, opposite direction). A random direction is exactly the 50/50
+mix of both, so the edge of the model's direction is tested PAIRED on the
+same decisions: d = (R_model - R_anti) / 2. Proof class B (measurement).

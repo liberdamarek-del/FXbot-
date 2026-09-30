@@ -170,6 +170,22 @@ assert out.outcome_state == "TP1_BEFORE_SL" and "1min" in out.granularity
 out = resolve(plan, amb, H, T0 + 30 * H, minute_loader=lambda a, b: minutes[:30])
 assert out.outcome_state == "SEQUENCE_UNKNOWN", "incomplete fine path: never guessed"
 
+# ---------------------------------------------------------------- M2. confirmation entry (CH-003, module 52)
+conf = Plan("BUY", False, 1.1000, 1.0990, 1.1030, T0, T0 + 24 * H, 0.0, "confirm")
+# hour 1: touches the zone but closes below the entry; hour 2: closes back above -> entry at that close
+path = [bar(T0, 1.0995, 1.1006, close=1.0997), bar(T0 + H, 1.0996, 1.1008, close=1.1005), bar(T0 + 2 * H, 1.1004, 1.1031)]
+out = resolve(conf, path, H, T0 + 30 * H)
+assert out.outcome_state == "TP1_BEFORE_SL" and out.triggered_at == T0 + 2 * H
+assert abs(out.executed_entry - (1.1005 + 0.0002)) < 1e-9, "entry = ASK close of the confirmation bar"
+assert abs(out.r_net - (1.1030 - 1.1007) / (1.1007 - 1.0990)) < 1e-9, "R in units of the actual risk at entry"
+# the level fails before a confirmation: no entry, no loss
+fail = [bar(T0, 1.0995, 1.1004, close=1.0996), bar(T0 + H, 1.0985, 1.0998, close=1.0987)]
+out = resolve(conf, fail, H, T0 + 30 * H)
+assert out.outcome_state == "NOT_ACTIVATED" and out.r_net is None and "padla" in out.notes[0]
+# limit mode on the same path: filled and stopped out
+limit = replace(conf, entry_mode="limit")
+assert resolve(limit, fail, H, T0 + 30 * H).outcome_state == "SL_BEFORE_TP1"
+
 # ---------------------------------------------------------------- N. placebo geometry
 cand = decide("EUR/USD", T0, tech(levels=[SUPPORT, RESIST]), fund([RATES_BUY]), NORMAL, FLAT, P, "CURRENT", 0.00002)
 cand = replace(cand, decision="WAIT FOR BUY", entry=1.1004, stop=1.0994, targets=[1.1030, 1.1040, 1.1050])

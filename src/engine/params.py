@@ -33,6 +33,7 @@ class ModelParams:
     no_chase_atr: float = 1.0            # move of x ATR in bias direction = no NOW (module 48)
     no_chase_bars: int = 4
     atr_timeframe: str = "1h"            # unit of the trade geometry: "1h" (champion) or "4h" (CH-001)
+    entry_mode: str = "limit"            # WAIT entry: "limit" (champion) or "confirm" (CH-003, module 52)
     momentum_days: int = 20              # time-series momentum lookback (D1 bars)
     # ---------------------------------------------------------------- R:R / costs
     min_rr: float = 1.5                  # module 55 default gate
