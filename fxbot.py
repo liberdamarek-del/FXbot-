@@ -21,6 +21,7 @@ Every command works on the project's data/ folder; tests never touch it.
 
 import argparse
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -44,6 +45,7 @@ def cmd_run(args) -> int:
     from src.instruments import parse_symbols
     from src.v78.run import RunOptions, execute
 
+    started = time.monotonic()
     broker = None if args.no_broker else from_env()
     result = execute(RunOptions(
         symbols=parse_symbols(args.symbols) if args.symbols else [],
@@ -63,6 +65,7 @@ def cmd_run(args) -> int:
         print(result.get("traceback", ""))
 
     print(f"\nartefakty: {result.get('run_dir', '-')}")
+    print(f"beh trval {time.monotonic() - started:.0f} s")
     return 0 if result["state"].startswith("COMMITTED") else 1
 
 

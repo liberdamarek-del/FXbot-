@@ -58,6 +58,7 @@ python fxbot.py run --no-lock  # jen analýza, nic se nezamyká do evidence
 python fxbot.py run --offline  # bez stahování (jen uložená data)
 python fxbot.py report         # znovu vypíše poslední report
 python fxbot.py status         # stav dat, archivu, evidence, registru modelu a zdrojů
+python fxbot.py review --weekly  # týdenní revize zamčených predikcí vč. kontroly směru proti náhodě
 python fxbot.py resolve        # jen vyhodnotí otevřené predikce
 python fxbot.py paper          # papírový účet spočtený z evidence predikcí
 ```
@@ -191,6 +192,7 @@ Data: `data/fxbot.sqlite3` (evidence, běhy, Twelve Data), `data/market_path.sql
 
 ## 10. Co musíme otestovat spolu
 
+Podrobný postup krok za krokem (co spustit, kdy a co mi poslat): **`docs/TESTOVANI_SPOLU.md`**.
 Tohle nejde ověřit bez vašeho zařízení a účtů:
 
 1. **Živý běh s vaším klíčem Twelve Data** – ceny FRESH, zamknutí predikcí, výdrž limitu kreditů.
