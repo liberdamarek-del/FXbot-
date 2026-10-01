@@ -1,0 +1,323 @@
+"""Current signals of the self-learning champion for the 12 live pairs, in
+Czech, for the dashboard (docs/NAVOD_PREHLED.md).
+
+    python scripts/signals_live.py            # -> data/live/stav.json (+ learning/forward_trades.json)
+
+Data: Yahoo Finance hourly quotes (last year; checked 2026-10-01 against the
+FXCM hourly closes the model learned on: median difference 0.3-3 pips),
+daily bars ending at the New York close; OECD 3-month rates from FRED with
+the same two-month lag as in the backtest; VIX from FRED (information only).
+
+The rule is the champion of scripts/self_learn.py (learning/champion_12_mesicne.json:
+>= 2 winning trades a month). Signals count only at the Friday close; run
+on Friday after 16:00 New York the last (still open) daily bar is the
+decision bar - the "decide 1 h before the close" variant of the backtest.
+
+Model forward test: every Friday signal is stored once in
+learning/forward_trades.json and resolved later on the hourly path
+(TP / SL / time, SL first when both in one hour), so the dashboard shows the
+model's own live record.
+"""
+
+import json
+import math
+import sys
+import time
+from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
+
+import numpy as np
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+
+import profit_lab2 as P  # noqa: E402
+import research_factors as RF  # noqa: E402
+import strategy_mining as SM  # noqa: E402
+from src.instruments import DEFAULT_ACTIVE, get_instrument  # noqa: E402
+from src.path_archive import trading_date  # noqa: E402
+from src.sources.http import fetch  # noqa: E402
+
+UTC = timezone.utc
+LEARNING = PROJECT_ROOT / "learning"
+CHAMPION = LEARNING / "champion_12_mesicne.json"
+FORWARD = LEARNING / "forward_trades.json"
+OUT = PROJECT_ROOT / "data" / "live" / "stav.json"
+YAHOO = {"EUR/USD": "EURUSD=X", "USD/JPY": "JPY=X", "GBP/USD": "GBPUSD=X", "USD/CHF": "CHF=X",
+         "AUD/USD": "AUDUSD=X", "USD/CAD": "CAD=X", "NZD/USD": "NZDUSD=X", "EUR/JPY": "EURJPY=X",
+         "GBP/JPY": "GBPJPY=X", "EUR/GBP": "EURGBP=X", "EUR/CHF": "EURCHF=X", "AUD/JPY": "AUDJPY=X"}
+CZK = {"EUR": "EURCZK=X", "USD": "CZK=X", "GBP": "GBPCZK=X", "AUD": "AUDCZK=X", "NZD": "NZDCZK=X"}
+REF_SL_MARGIN = 84.0
+TIER_NAMES = ("silny", "silny", "stredni", "slaby", "slaby", "slaby")
+CCY_CZ = {"USD": "americky dolar", "EUR": "euro", "JPY": "japonsky jen", "GBP": "britska libra",
+          "CHF": "svycarsky frank", "AUD": "australsky dolar", "CAD": "kanadsky dolar", "NZD": "novozelandsky dolar"}
+
+
+# ----------------------------------------------------------------------
+# data
+# ----------------------------------------------------------------------
+
+def yahoo_hourly(symbol: str, span: str = "1y") -> dict:
+    _, content, _ = fetch(f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1h&range={span}",
+                          retries=4)
+    r = json.loads(content)["chart"]["result"][0]
+    q = r["indicators"]["quote"][0]
+    rows = [(t, o, h, l, c) for t, o, h, l, c in zip(r["timestamp"], q["open"], q["high"], q["low"], q["close"])
+            if None not in (o, h, l, c) and h >= l > 0]
+    a = np.array(rows, dtype=float)
+    a[:, 0] = a[:, 0] // 3600 * 3600                    # the last bar carries the current minute
+    return {"ts": a[:, 0].astype(np.int64), "o": a[:, 1], "h": a[:, 2], "l": a[:, 3], "c": a[:, 4]}
+
+
+def daily(hb: dict) -> dict:
+    """Daily bars ending at the New York close (17:00 New York)."""
+    days, first, last = [], [], []
+    for k, t in enumerate(hb["ts"]):
+        d = trading_date(int(t))
+        if not days or d != days[-1]:
+            days.append(d)
+            first.append(k)
+            last.append(k)
+        else:
+            last[-1] = k
+    o = np.array([hb["o"][a] for a in first])
+    c = np.array([hb["c"][b] for b in last])
+    h = np.array([hb["h"][a:b + 1].max() for a, b in zip(first, last)])
+    l_ = np.array([hb["l"][a:b + 1].min() for a, b in zip(first, last)])
+    hours = np.array([b - a + 1 for a, b in zip(first, last)])
+    keep = (hours >= 18) | (np.arange(len(days)) == len(days) - 1)        # the current day may be partial
+    return {"days": [d for d, k in zip(days, keep) if k], "o": o[keep], "h": h[keep], "l": l_[keep], "c": c[keep],
+            "last_ts": np.array([hb["ts"][b] for b in last])[keep]}
+
+
+def refresh_rates() -> None:
+    RF.FRED_DIR.mkdir(parents=True, exist_ok=True)
+    ids = [i for ids in P.RATE_IDS.values() for i in ids] + ["VIXCLS"]
+    for sid in sorted(set(ids)):
+        try:
+            _, content, _ = fetch(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}", retries=3)
+            if content.startswith(b"observation_date"):
+                (RF.FRED_DIR / f"{sid}.csv").write_bytes(content)
+        except Exception as exc:                         # keep the cached series
+            print(f"FRED {sid}: {exc}", file=sys.stderr)
+
+
+# ----------------------------------------------------------------------
+# rule
+# ----------------------------------------------------------------------
+
+def champion() -> dict:
+    state = json.loads(CHAMPION.read_text())
+    return {"config": state["config"], "shares": list(state["eval"]["1"]["shares"]), "eval": state["eval"]}
+
+
+def rsi_trigger(closes: np.ndarray, n: int, level: float, side: int) -> float:
+    """Close of the decision day at which RSI(n) reaches `level` (BUY: falls
+    below it, SELL: `100 - level` from below), from the state of the day before."""
+    d = np.diff(closes, prepend=closes[0])
+    ag = SM.wilder(np.clip(d, 0, None), n)[-1]
+    al = SM.wilder(np.clip(-d, 0, None), n)[-1]
+    if side > 0:
+        move = (n - 1) * (ag * (100 - level) / level - al)
+        return float(closes[-1] - max(0.0, move))
+    hi = 100 - level
+    move = (n - 1) * (al * hi / (100 - hi) - ag)
+    return float(closes[-1] + max(0.0, move))
+
+
+def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) -> dict:
+    inst = get_instrument(pair)
+    hb = yahoo_hourly(YAHOO[pair])
+    D = daily(hb)
+    c, h, l_ = D["c"], D["h"], D["l"]
+    atr = SM.wilder(SM.true_range(h, l_, c), 14)
+    rsi2, rsi3 = SM.rsi(c, 2), SM.rsi(c, 3)
+    day = D["days"][-1]
+    kb, kq = (P.rate_at(rates[x], day.year, day.month, 2) for x in (inst.base, inst.quote))
+    ob, oq = (P.rate_at(rates[x], day.year, day.month, 5) for x in (inst.base, inst.quote))
+    carry = kb - kq
+    mom = (kb - kq) - (ob - oq)
+    base = cfg["base"]
+    out = {"par": pair, "cena": round(float(c[-1]), inst.decimals), "den": day.isoformat(),
+           "rsi2": round(float(rsi2[-1]), 1), "rsi3": round(float(rsi3[-1]), 1),
+           "atr": round(float(atr[-1]), inst.decimals), "atr_proc": round(float(atr[-1] / c[-1] * 100), 3),
+           "rozdil_sazeb": round(carry, 2), "zmena_sazeb_3m": round(mom, 2), "desetinna_mista": inst.decimals,
+           "signal": None}
+    # which direction and tier the fundamentals allow
+    allowed = []
+    for side in (1, -1):
+        for k, tier in enumerate(cfg["tiers"]):
+            if shares[k] <= 0:
+                continue
+            ok = side * mom >= tier["rates_thr"] - 1e-9
+            if tier["fund"] == "rates_up+carry":
+                ok = ok and np.sign(carry) == side
+            if ok:
+                allowed.append((side, k, tier))
+                break
+    if allowed:
+        side, k, tier = max(allowed, key=lambda a: shares[a[1]])
+        sig = tier.get("signal", base["signal"])
+        out["smer"] = "KOUPIT" if side > 0 else "PRODAT"
+        out["stupen"] = TIER_NAMES[k] if k < len(TIER_NAMES) else "slaby"
+        out["marze_zaklad"] = shares[k]
+        prev = c[:-1]                                     # Wilder state up to the day before the decision bar
+        trig = [rsi_trigger(prev, 2, 5.0, side)]
+        if "RSI3" in sig:
+            trig.append(rsi_trigger(prev, 3, 15.0, side))
+        level = max(trig) if side > 0 else min(trig)     # the easier of the two signals
+        out["spoustec"] = round(level, inst.decimals)
+        word, rel = ("KOUPIT", "pod") if side > 0 else ("PRODAT", "nad")
+        if day.weekday() == 4:
+            out["podminka"] = f"{word}, kdyz patecni zaviraci cena bude {rel} {level:.{inst.decimals}f}"
+        else:
+            out["podminka"] = (f"jen {word}; signal se vyhodnoti v patek (dnes by nastal pri cene {rel} "
+                               f"{level:.{inst.decimals}f})")
+        hit_rsi2 = rsi2[-1] < 5 if side > 0 else rsi2[-1] > 95
+        hit_rsi3 = ("RSI3" in sig) and (rsi3[-1] < 15 if side > 0 else rsi3[-1] > 85)
+        is_friday = day.weekday() == 4
+        if is_friday and (hit_rsi2 or hit_rsi3):
+            entry = float(c[-1])
+            tp = entry + side * base["tp"] * atr[-1]
+            sl = entry - side * base["sl"] * atr[-1]
+            sl_margin = base["sl"] * atr[-1] / entry * 100 * P.LEVERAGE
+            tp_margin = base["tp"] * atr[-1] / entry * 100 * P.LEVERAGE
+            mult = float(np.clip(REF_SL_MARGIN / sl_margin, 0.5, 2.0)) if cfg.get("sizing") == "vol" else 1.0
+            if tp_margin >= 10.0 - 1e-9:
+                out["signal"] = {
+                    "smer": out["smer"], "stupen": out["stupen"], "vstup": round(entry, inst.decimals),
+                    "tp": round(tp, inst.decimals), "sl": round(sl, inst.decimals),
+                    "marze_proc_uctu": round(shares[k] * mult * 100, 1),
+                    "zisk_tp_proc_marze": round(tp_margin, 1), "ztrata_sl_proc_marze": round(sl_margin, 1),
+                    "zavrit_nejpozdeji": (day + timedelta(days=28)).isoformat(),
+                    "duvod": (f"RSI(2) {rsi2[-1]:.0f}{', RSI(3) %.0f' % rsi3[-1] if 'RSI3' in sig else ''} = prudky "
+                              f"{'propad' if side > 0 else 'rust'}; rozdil sazeb {inst.base}-{inst.quote} se za 3 mesice "
+                              f"zmenil o {mom:+.2f} p.b. ve prospech {'nakupu' if side > 0 else 'prodeje'}"
+                              f"{', carry %+.2f %% ve smeru obchodu' % carry if tier['fund'] == 'rates_up+carry' else ''}")}
+    else:
+        out["smer"] = "NIC"
+        out["stupen"] = "-"
+        out["podminka"] = "fundamenty (sazby) ted nepodporuji zadny smer"
+    return out
+
+
+# ----------------------------------------------------------------------
+# model forward test
+# ----------------------------------------------------------------------
+
+def resolve_forward(trades: list, hourly_cache: dict) -> None:
+    """Close open model trades on the hourly path (SL first when both in one hour)."""
+    for t in trades:
+        if t["stav"] != "otevreny":
+            continue
+        hb = hourly_cache.get(t["par"])
+        if hb is None:
+            continue
+        side = 1 if t["smer"] == "KOUPIT" else -1
+        after = hb["ts"] > t["cas_vstupu"]
+        ts, hh, ll, cc = hb["ts"][after], hb["h"][after], hb["l"][after], hb["c"][after]
+        for j in range(len(ts)):
+            if (side > 0 and ll[j] <= t["sl"]) or (side < 0 and hh[j] >= t["sl"]):
+                t.update(stav="uzavreny", vystup=t["sl"], duvod_vystupu="SL", cas_vystupu=int(ts[j]) + 3600)
+                break
+            if (side > 0 and hh[j] >= t["tp"]) or (side < 0 and ll[j] <= t["tp"]):
+                t.update(stav="uzavreny", vystup=t["tp"], duvod_vystupu="TP", cas_vystupu=int(ts[j]) + 3600)
+                break
+            if j >= 480:                                 # 20 trading days of hourly bars
+                t.update(stav="uzavreny", vystup=float(cc[j]), duvod_vystupu="cas", cas_vystupu=int(ts[j]) + 3600)
+                break
+        if t["stav"] == "uzavreny":
+            move = side * (t["vystup"] - t["vstup"]) / t["vstup"] * 100
+            t["vysledek_proc_marze"] = round(move * P.LEVERAGE, 1)
+        elif len(cc):
+            t["prubezne_proc_marze"] = round(side * (float(cc[-1]) - t["vstup"]) / t["vstup"] * 100 * P.LEVERAGE, 1)
+
+
+def main() -> int:
+    started = time.monotonic()
+    refresh_rates()
+    rates = P.monthly_rates()
+    ch = champion()
+    cfg, shares = ch["config"], ch["shares"]
+    today = datetime.now(UTC).date()
+    pairs, cache = [], {}
+    for pair in DEFAULT_ACTIVE:
+        try:
+            pairs.append(evaluate_pair(pair, cfg, shares, rates, today))
+        except Exception as exc:
+            pairs.append({"par": pair, "chyba": f"data nedostupna: {type(exc).__name__}"})
+    for pair in DEFAULT_ACTIVE:
+        try:
+            cache[pair] = yahoo_hourly(YAHOO[pair], "3mo")
+        except Exception:
+            pass
+    czk = {}
+    for ccy, sym in CZK.items():
+        try:
+            czk[ccy] = round(float(yahoo_hourly(sym, "5d")["c"][-1]), 4)
+        except Exception:
+            czk[ccy] = None
+    # forward test bookkeeping
+    LEARNING.mkdir(exist_ok=True)
+    forward = json.loads(FORWARD.read_text()) if FORWARD.exists() else []
+    now = int(time.time())
+    for p in pairs:
+        s = p.get("signal")
+        if not s:
+            continue
+        key = f"{p['den']}_{p['par'].replace('/', '')}"
+        if any(t["id"] == key for t in forward):
+            continue
+        forward.append({"id": key, "par": p["par"], "smer": s["smer"], "stupen": s["stupen"], "den": p["den"],
+                        "cas_vstupu": now, "vstup": s["vstup"], "tp": s["tp"], "sl": s["sl"],
+                        "marze_proc_uctu": s["marze_proc_uctu"], "stav": "otevreny"})
+    resolve_forward(forward, cache)
+    FORWARD.write_text(json.dumps(forward, indent=1, ensure_ascii=False))
+    closed = [t for t in forward if t["stav"] == "uzavreny"]
+    # fundamentals per currency
+    day = max(date.fromisoformat(p["den"]) for p in pairs if "den" in p)
+    fund = []
+    for ccy in ("USD", "EUR", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD"):
+        now_r, old_r = P.rate_at(rates[ccy], day.year, day.month, 2), P.rate_at(rates[ccy], day.year, day.month, 5)
+        fund.append({"mena": ccy, "nazev": CCY_CZ[ccy], "sazba_3m": round(now_r, 2), "zmena_3m": round(now_r - old_r, 2)})
+    vix_rows = RF._csv("VIXCLS")
+    ev = ch["eval"]
+    state = {
+        "aktualizovano": datetime.now(UTC).isoformat(timespec="minutes"),
+        "den_dat": day.isoformat(), "je_patek": day.weekday() == 4,
+        "pravidlo": cfg["name"],
+        "pravidlo_popis": {"tp_atr": cfg["base"]["tp"], "sl_atr": cfg["base"]["sl"], "drzeni_dni": cfg["base"]["hold_days"],
+                           "stupne": [{"jmeno": TIER_NAMES[k] if k < len(TIER_NAMES) else "slaby",
+                                       "marze_proc_uctu": round(s * 100, 1), "prah_sazeb": t["rates_thr"],
+                                       "carry": t["fund"] == "rates_up+carry",
+                                       "signal": t.get("signal", cfg["base"]["signal"]).replace("D ", "")}
+                                      for k, (t, s) in enumerate(zip(cfg["tiers"], shares))]},
+        "backtest": {"test_2019_22": {"rocne": round(ev["0"]["test_cagr"] * 100, 1), "propad": round(ev["0"]["test_dd"] * 100, 1)},
+                     "test_2023_26": {"rocne": round(ev["1"]["test_cagr"] * 100, 1), "propad": round(ev["1"]["test_dd"] * 100, 1),
+                                      "ziskovych_mesicne": round(ev["1"]["test_wins_month"], 1)}},
+        "pary": pairs,
+        "signaly": [dict(par=p["par"], **p["signal"]) for p in pairs if p.get("signal")],
+        "fundamenty": fund,
+        "vix": {"hodnota": vix_rows[-1][1], "den": vix_rows[-1][0].isoformat()},
+        "czk": czk,
+        "model": {"obchody": forward[-200:],
+                  "uzavrenych": len(closed),
+                  "ziskovych": sum(1 for t in closed if t["vysledek_proc_marze"] > 0),
+                  "prumer_proc_marze": round(float(np.mean([t["vysledek_proc_marze"] for t in closed])), 1) if closed else None},
+    }
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(json.dumps(state, indent=1, ensure_ascii=False, default=str))
+    sig = state["signaly"]
+    print(f"{state['aktualizovano']} | data do {state['den_dat']} | signalu {len(sig)} | "
+          f"model: uzavreno {len(closed)} | {time.monotonic() - started:.0f} s")
+    for p in pairs:
+        print(f"  {p['par']:8} {p.get('smer', '-'):7} {p.get('stupen', '-'):8} RSI2 {p.get('rsi2', '-')} "
+              f"{p.get('podminka', p.get('chyba', ''))}")
+    for s in sig:
+        print(f"  SIGNAL {s['par']} {s['smer']} vstup {s['vstup']} TP {s['tp']} SL {s['sl']} marze {s['marze_proc_uctu']} %")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

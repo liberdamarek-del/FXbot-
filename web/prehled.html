@@ -1,0 +1,387 @@
+<title>FXBOT přehled</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one column of desk "sheets" (signals first, then watch list, fundamentals, journal);
+   two columns only where two short sheets sit side by side on wide screens. */
+:root {
+  --bg: #F3F6F5; --surface: #FFFFFF; --ink: #15211F; --muted: #5A6A66; --line: #D9E1DE;
+  --accent: #1D5C63; --accent-ink: #FFFFFF; --buy: #1C7444; --buy-bg: #E3F2E9; --sell: #AF3A2D; --sell-bg: #F8E6E3;
+  --warn: #8A5A00; --warn-bg: #FBF0D9; --chip: #E8EEEC;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-num: "JetBrains Mono", ui-monospace, "Cascadia Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1514; --surface: #17201E; --ink: #E4ECE9; --muted: #93A39F; --line: #2B3734;
+  --accent: #74B9BE; --accent-ink: #0F1514; --buy: #63C78F; --buy-bg: #183326; --sell: #F2806F; --sell-bg: #3A1F1B;
+  --warn: #E2AC45; --warn-bg: #3A2E14; --chip: #23302D; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F1514; --surface: #17201E; --ink: #E4ECE9; --muted: #93A39F; --line: #2B3734;
+  --accent: #74B9BE; --accent-ink: #0F1514; --buy: #63C78F; --buy-bg: #183326; --sell: #F2806F; --sell-bg: #3A1F1B;
+  --warn: #E2AC45; --warn-bg: #3A2E14; --chip: #23302D; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--f-body); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; display: grid; gap: 22px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 0.875rem; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+header.top { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; }
+.status { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.9rem; color: var(--muted); }
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.sheet > header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 12px; }
+.two { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.chip { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; background: var(--chip); color: var(--ink); white-space: nowrap; }
+.chip.buy { background: var(--buy-bg); color: var(--buy); }
+.chip.sell { background: var(--sell-bg); color: var(--sell); }
+.chip.strong { background: var(--accent); color: var(--accent-ink); }
+.chip.warn { background: var(--warn-bg); color: var(--warn); }
+.signals { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.signal { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 10px; border-left-width: 4px; }
+.signal.buy { border-left-color: var(--buy); }
+.signal.sell { border-left-color: var(--sell); }
+.signal .head { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; font-size: 0.95rem; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; text-align: right; font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.empty { border: 1px dashed var(--line); border-radius: 8px; padding: 16px; color: var(--muted); }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+td.r, th.r { text-align: right; }
+form.entry { display: grid; gap: 10px 14px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); align-items: end; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-size: 0.85rem; color: var(--muted); }
+input, select, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; }
+input:focus-visible, select:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button { font: inherit; font-weight: 600; border-radius: 6px; padding: 8px 14px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+button.ghost { background: transparent; color: var(--accent); }
+button.danger { border-color: var(--sell); background: transparent; color: var(--sell); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.trade { border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 8px; }
+.trade:first-child { border-top: 0; padding-top: 0; }
+.pos { color: var(--buy); } .neg { color: var(--sell); }
+.notice { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 10px 12px; font-size: 0.92rem; }
+.stats { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.stat { display: grid; gap: 2px; }
+.stat .v { font-family: var(--f-num); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+ol.steps { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 70ch; }
+details summary { cursor: pointer; font-weight: 600; }
+@media (prefers-reduced-motion: no-preference) { button { transition: filter .15s } button:hover { filter: brightness(1.08) } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>FXBOT přehled</h1>
+      <p class="muted">Páteční signály pro 12 měnových párů, fundamenty a tvůj obchodní deník.</p>
+    </div>
+    <div class="status" id="status"><span>Načítám data modelu…</span></div>
+  </header>
+
+  <section class="sheet" aria-labelledby="h-sig">
+    <header><h2 id="h-sig">Signály k obchodu</h2><span class="small muted" id="sig-note">Nové signály se počítají každý pátek ve 22:05 (náš čas).</span></header>
+    <div class="row small">
+      <label for="ucet" class="muted">Velikost mého účtu (Kč), jen pro přepočet:</label>
+      <input id="ucet" class="num" inputmode="decimal" style="max-width: 11em" placeholder="např. 100000">
+    </div>
+    <div class="signals" id="signals"><div class="empty">Zatím tu nejsou žádné signály. Objeví se v pátek večer, pokud se splní podmínky pravidla.</div></div>
+  </section>
+
+  <section class="sheet" aria-labelledby="h-watch">
+    <header><h2 id="h-watch">Sledované páry</h2><span class="small muted">Kam fundamenty dovolují obchodovat a jak daleko je cena od signálu.</span></header>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Pár</th><th class="r">Cena</th><th>Směr podle sazeb</th><th>Síla</th><th class="r">RSI(2)</th><th>Kdy bude signál</th></tr></thead>
+      <tbody id="pairs"><tr><td colspan="6" class="muted">Data se načítají…</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <div class="two">
+    <section class="sheet" aria-labelledby="h-fund">
+      <header><h2 id="h-fund">Fundamenty</h2><span class="small muted" id="vix"></span></header>
+      <p class="small muted">Úrokové sazby (3měsíční, OECD) se zpožděním 2 měsíců, jak je model používá. Měna, jejíž sazba roste rychleji, má vítr do zad.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Měna</th><th class="r">Sazba</th><th class="r">Změna za 3 měs.</th></tr></thead>
+        <tbody id="fund"><tr><td colspan="3" class="muted">Data se načítají…</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <section class="sheet" aria-labelledby="h-rule">
+      <header><h2 id="h-rule">Pravidlo modelu</h2></header>
+      <div id="rule" class="small"><p class="muted">Načítám…</p></div>
+    </section>
+  </div>
+
+  <section class="sheet" aria-labelledby="h-journal">
+    <header><h2 id="h-journal">Můj deník</h2><span class="small muted">Zapiš vstup a pak výstup. Výsledek se spočítá sám.</span></header>
+    <div class="notice" id="db-note" hidden></div>
+    <form class="entry" id="entry" autocomplete="off">
+      <div class="field"><label for="f-par">Pár</label><select id="f-par"></select></div>
+      <div class="field"><label for="f-smer">Směr</label><select id="f-smer"><option value="KOUPIT">KOUPIT (long)</option><option value="PRODAT">PRODAT (short)</option></select></div>
+      <div class="field"><label for="f-vstup">Vstupní cena</label><input id="f-vstup" class="num" inputmode="decimal" required></div>
+      <div class="field"><label for="f-sl">Stop loss</label><input id="f-sl" class="num" inputmode="decimal"></div>
+      <div class="field"><label for="f-tp">Take profit</label><input id="f-tp" class="num" inputmode="decimal"></div>
+      <div class="field"><label for="f-marze">Vložená marže (Kč)</label><input id="f-marze" class="num" inputmode="decimal" placeholder="nepovinné"></div>
+      <div class="field" style="grid-column: 1 / -1"><label for="f-pozn">Poznámka</label><input id="f-pozn" placeholder="např. podle signálu modelu"></div>
+      <div class="row"><button type="submit" id="f-ulozit">Vstoupil jsem</button><span class="small muted" id="f-msg" role="status"></span></div>
+    </form>
+    <div id="open-trades"></div>
+  </section>
+
+  <section class="sheet" aria-labelledby="h-res">
+    <header><h2 id="h-res">Výsledky</h2><span class="small muted">Ziskové procento je vždy z marže obchodu (páka 1:30).</span></header>
+    <h3>Moje uzavřené obchody</h3>
+    <div class="stats" id="my-stats"><div class="empty">Až zapíšeš a uzavřeš první obchod, uvidíš tu úspěšnost a zisk.</div></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Pár</th><th>Směr</th><th class="r">Vstup</th><th class="r">Výstup</th><th class="r">Pipy</th><th class="r">% marže</th><th class="r">Kč</th><th></th></tr></thead>
+      <tbody id="closed"></tbody>
+    </table></div>
+    <h3>Obchody modelu (dopředný test)</h3>
+    <div class="stats" id="model-stats"></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Týden</th><th>Pár</th><th>Směr</th><th class="r">Vstup</th><th class="r">TP</th><th class="r">SL</th><th>Stav</th><th class="r">% marže</th></tr></thead>
+      <tbody id="model"></tbody>
+    </table></div>
+  </section>
+
+  <section class="sheet" aria-labelledby="h-how">
+    <header><h2 id="h-how">Jak s tím pracovat</h2></header>
+    <ol class="steps">
+      <li>V pátek po 22:05 otevři tuto stránku. V části <b>Signály k obchodu</b> uvidíš páry, které model doporučuje.</li>
+      <li>Do 23:00 (zavření týdne v New Yorku) zadej u brokera obchod: směr, vstup za aktuální cenu, <b>stop loss</b> a <b>take profit</b> přesně podle karty. Velikost: marže uvedená v % účtu.</li>
+      <li>Hned obchod zapiš do <b>Mého deníku</b> (tlačítko „Zapsat podle signálu“ vyplní formulář za tebe).</li>
+      <li>Obchod nech běžet. Uzavře ho broker sám na TP nebo SL; pokud nedojde ani na jedno, zavři ho nejpozději v uvedený den.</li>
+      <li>Po uzavření klikni u obchodu na <b>Vystoupil jsem</b> a zadej výstupní cenu. Výsledek se spočítá a porovná s modelem.</li>
+    </ol>
+    <details class="small">
+      <summary>Slovníček</summary>
+      <p><b>KOUPIT / PRODAT</b> – sázka na růst / pokles prvního měnového kódu v páru (u EUR/USD na euro). <b>Take profit (TP)</b> – cena, kde se obchod uzavře se ziskem. <b>Stop loss (SL)</b> – cena, kde se obchod uzavře se ztrátou. <b>Marže</b> – část účtu, kterou broker na obchod zablokuje; při páce 1:30 je pozice 30× větší než marže. <b>Síla</b> – jak moc fundamenty (sazby) podporují obchod; silné signály mají větší pozici. <b>RSI(2)</b> – ukazatel krátkého propadu (pod 5) nebo růstu (nad 95).</p>
+    </details>
+    <p class="small muted">Výsledky modelu jsou zatím z historických dat (backtest). Skutečný důkaz je dopředný test v části Výsledky. Obchoduj jen peníze, jejichž ztrátu uneseš.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  const PAIRS = ["EUR/USD","USD/JPY","GBP/USD","USD/CHF","AUD/USD","USD/CAD","NZD/USD","EUR/JPY","GBP/JPY","EUR/GBP","EUR/CHF","AUD/JPY"];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const dec = (p) => p.endsWith("JPY") ? 3 : 5;
+  const pip = (p) => p.endsWith("JPY") ? 0.01 : 0.0001;
+  const fmt = (v, d = 2) => (v === null || v === undefined || isNaN(v)) ? "–" : Number(v).toLocaleString("cs-CZ", {minimumFractionDigits: d, maximumFractionDigits: d});
+  const sgn = (v, d = 1) => (v > 0 ? "+" : "") + fmt(v, d);
+  const parseNum = (s) => { const v = parseFloat(String(s).replace(/\s/g, "").replace(",", ".")); return isNaN(v) ? null : v; };
+  const praha = (iso) => { try { return new Date(iso).toLocaleString("cs-CZ", {timeZone: "Europe/Prague", day: "numeric", month: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit"}); } catch (e) { return iso; } };
+  const tierChip = (t) => t === "silny" ? '<span class="chip strong">silný</span>' : t === "stredni" ? '<span class="chip">střední</span>' : t === "slaby" ? '<span class="chip">slabý</span>' : '<span class="chip">–</span>';
+  const sideChip = (s) => s === "KOUPIT" ? '<span class="chip buy">KOUPIT</span>' : s === "PRODAT" ? '<span class="chip sell">PRODAT</span>' : '<span class="chip">nic</span>';
+  const CZ = { silny: "silný", stredni: "střední", slaby: "slabý" };
+
+  let state = null, journal = [], db = null, canWrite = true;
+
+  // account size (per-viewer convenience)
+  try { const v = localStorage.getItem("fx_ucet_kc"); if (v) $("ucet").value = v; } catch (e) {}
+  $("ucet").addEventListener("input", () => { try { localStorage.setItem("fx_ucet_kc", $("ucet").value); } catch (e) {} renderSignals(); });
+
+  $("f-par").innerHTML = PAIRS.map((p) => `<option>${p}</option>`).join("");
+
+  function renderStatus() {
+    if (!state) return;
+    $("status").innerHTML = `<span>Aktualizováno <b class="num">${esc(praha(state.aktualizovano))}</b></span><span>Ceny do <span class="num">${esc(state.den_dat)}</span></span>`;
+  }
+
+  function renderSignals() {
+    if (!state) return;
+    const acc = parseNum($("ucet").value);
+    const list = state.signaly || [];
+    $("sig-note").textContent = state.je_patek ? "Páteční vyhodnocení – zadej do 23:00 (náš čas)." : "Nové signály se počítají každý pátek ve 22:05 (náš čas).";
+    if (!list.length) {
+      $("signals").innerHTML = `<div class="empty">${state.je_patek ? "Tento pátek žádný pár nesplnil podmínky. Žádný obchod – i to je rozhodnutí." : "Teď není pátek, takže nový signál není. Podívej se do Sledovaných párů, které páry jsou blízko."}</div>`;
+      return;
+    }
+    $("signals").innerHTML = list.map((s, i) => {
+      const cls = s.smer === "KOUPIT" ? "buy" : "sell";
+      const base = s.par.split("/")[0];
+      const czk = state.czk && state.czk[base];
+      let money = "";
+      if (acc) {
+        const m = acc * s.marze_proc_uctu / 100;
+        const lots = czk ? (m * 30 / czk / 100000) : null;
+        money = `<dt>Marže</dt><dd>${fmt(m, 0)} Kč</dd><dt>Objem pozice</dt><dd>${fmt(m * 30, 0)} Kč${lots ? " ≈ " + fmt(lots, 2) + " lotu" : ""}</dd>`;
+      }
+      return `<article class="signal ${cls}">
+        <div class="head"><h3>${esc(s.par)}</h3><div class="row">${sideChip(s.smer)}${tierChip(s.stupen)}</div></div>
+        <dl class="kv">
+          <dt>Vstup (cena teď)</dt><dd>${fmt(s.vstup, dec(s.par))}</dd>
+          <dt>Take profit</dt><dd class="pos">${fmt(s.tp, dec(s.par))}</dd>
+          <dt>Stop loss</dt><dd class="neg">${fmt(s.sl, dec(s.par))}</dd>
+          <dt>Marže</dt><dd>${fmt(s.marze_proc_uctu, 1)} % účtu</dd>
+          ${money}
+          <dt>Při TP</dt><dd class="pos">+${fmt(s.zisk_tp_proc_marze, 0)} % marže</dd>
+          <dt>Při SL</dt><dd class="neg">−${fmt(s.ztrata_sl_proc_marze, 0)} % marže</dd>
+          <dt>Zavřít nejpozději</dt><dd>${esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ"))}</dd>
+        </dl>
+        <p class="small muted">${esc(s.duvod)}</p>
+        <div class="row"><button type="button" class="ghost" data-fill="${i}">Zapsat podle signálu</button></div>
+      </article>`;
+    }).join("");
+    $("signals").querySelectorAll("[data-fill]").forEach((b) => b.addEventListener("click", () => {
+      const s = list[+b.dataset.fill];
+      $("f-par").value = s.par; $("f-smer").value = s.smer;
+      $("f-vstup").value = s.vstup; $("f-sl").value = s.sl; $("f-tp").value = s.tp;
+      const accv = parseNum($("ucet").value);
+      if (accv) $("f-marze").value = Math.round(accv * s.marze_proc_uctu / 100);
+      $("f-pozn").value = `signál modelu ${state.den_dat} (${CZ[s.stupen] || s.stupen})`;
+      $("entry").scrollIntoView({behavior: "smooth", block: "start"});
+      $("f-vstup").focus();
+    }));
+  }
+
+  function renderPairs() {
+    if (!state) return;
+    $("pairs").innerHTML = (state.pary || []).map((p) => {
+      if (p.chyba) return `<tr><td>${esc(p.par)}</td><td colspan="5" class="muted">${esc(p.chyba)}</td></tr>`;
+      const rsiCls = p.rsi2 < 5 || p.rsi2 > 95 ? "chip warn" : "";
+      return `<tr><td><b>${esc(p.par)}</b></td><td class="r num">${fmt(p.cena, p.desetinna_mista)}</td>
+        <td>${sideChip(p.smer)}<div class="small muted">sazby ${sgn(p.zmena_sazeb_3m, 2)} p.b., rozdíl ${sgn(p.rozdil_sazeb, 2)} %</div></td>
+        <td>${tierChip(p.stupen)}</td><td class="r num"><span class="${rsiCls}">${fmt(p.rsi2, 0)}</span></td>
+        <td class="small">${esc(p.podminka || "")}</td></tr>`;
+    }).join("");
+  }
+
+  function renderFund() {
+    if (!state) return;
+    $("fund").innerHTML = (state.fundamenty || []).map((f) => `<tr><td><b>${esc(f.mena)}</b> <span class="small muted">${esc(f.nazev)}</span></td>
+      <td class="r num">${fmt(f.sazba_3m, 2)} %</td><td class="r num ${f.zmena_3m > 0 ? "pos" : f.zmena_3m < 0 ? "neg" : ""}">${sgn(f.zmena_3m, 2)}</td></tr>`).join("");
+    if (state.vix) $("vix").textContent = `Index strachu VIX: ${fmt(state.vix.hodnota, 1)} (${new Date(state.vix.den).toLocaleDateString("cs-CZ")})`;
+    const r = state.pravidlo_popis || {}, b = state.backtest || {};
+    const tiers = (r.stupne || []).filter((t) => t.marze_proc_uctu > 0).map((t) => `<li><b>${esc(CZ[t.jmeno] || t.jmeno)}</b>: sazby ve směru obchodu ≥ ${fmt(t.prah_sazeb, 2)} p.b.${t.carry ? " a kladný úrokový rozdíl" : ""}; signál ${esc(t.signal.replace("|", " nebo "))} → marže <b>${fmt(t.marze_proc_uctu, 0)} % účtu</b></li>`).join("");
+    $("rule").innerHTML = `<p>Rozhoduje se jen v pátek při zavření trhu. Model kupuje prudký krátký propad měny, které rostou úrokové sazby rychleji než té druhé (a prodává opačně).</p>
+      <ul>${tiers}</ul>
+      <p>Take profit ${fmt(r.tp_atr, 2)} × ATR, stop loss ${fmt(r.sl_atr, 1)} × ATR, nejdéle ${esc(r.drzeni_dni)} obchodních dní. ATR = průměrný denní rozkmit ceny.</p>
+      <p class="muted">Backtest (velikosti vybrané jen na starších datech): 2019–22 ${sgn(b.test_2019_22 && b.test_2019_22.rocne, 1)} % ročně (propad ${fmt(b.test_2019_22 && b.test_2019_22.propad, 0)} %), 2023–26 ${sgn(b.test_2023_26 && b.test_2023_26.rocne, 1)} % ročně (propad ${fmt(b.test_2023_26 && b.test_2023_26.propad, 0)} %).</p>`;
+  }
+
+  function result(t) {
+    const side = t.smer === "KOUPIT" ? 1 : -1;
+    const move = side * (t.vystup - t.vstup) / t.vstup * 100;
+    const pips = side * (t.vystup - t.vstup) / pip(t.par);
+    const margin = move * 30;
+    const kc = t.marze_kc ? t.marze_kc * margin / 100 : null;
+    return {pips, margin, kc};
+  }
+
+  function renderJournal() {
+    const open = journal.filter((t) => t.stav !== "uzavreny");
+    const closed = journal.filter((t) => t.stav === "uzavreny");
+    const cur = {};
+    (state && state.pary || []).forEach((p) => { cur[p.par] = p.cena; });
+    $("open-trades").innerHTML = open.length ? `<h3>Otevřené obchody</h3>` + open.map((t) => {
+      const side = t.smer === "KOUPIT" ? 1 : -1;
+      const now = cur[t.par];
+      const live = now ? side * (now - t.vstup) / t.vstup * 100 * 30 : null;
+      return `<div class="trade" data-id="${esc(t._id)}">
+        <div class="row">${sideChip(t.smer)}<b>${esc(t.par)}</b><span class="num">vstup ${fmt(t.vstup, dec(t.par))}</span>
+          ${t.sl ? `<span class="num neg">SL ${fmt(t.sl, dec(t.par))}</span>` : ""}${t.tp ? `<span class="num pos">TP ${fmt(t.tp, dec(t.par))}</span>` : ""}
+          ${live !== null ? `<span class="small muted">teď orientačně ${sgn(live, 1)} % marže</span>` : ""}</div>
+        <div class="small muted">${esc(praha(t.cas_vstupu))}${t.poznamka ? " · " + esc(t.poznamka) : ""}</div>
+        <div class="row"><input class="num" style="max-width:10em" inputmode="decimal" placeholder="výstupní cena" aria-label="Výstupní cena ${esc(t.par)}" data-exit>
+          <button type="button" data-close ${canWrite ? "" : "disabled"}>Vystoupil jsem</button>
+          <button type="button" class="danger" data-del ${canWrite ? "" : "disabled"}>Smazat</button><span class="small muted" data-msg></span></div>
+      </div>`;
+    }).join("") : "";
+    $("open-trades").querySelectorAll(".trade").forEach((el) => {
+      const id = el.dataset.id;
+      el.querySelector("[data-close]").addEventListener("click", async () => {
+        const v = parseNum(el.querySelector("[data-exit]").value);
+        const msg = el.querySelector("[data-msg]");
+        if (v === null) { msg.textContent = "Zadej výstupní cenu."; return; }
+        try { await db.collection("denik").doc(id).update({vystup: v, cas_vystupu: new Date().toISOString(), stav: "uzavreny"}); }
+        catch (e) { msg.textContent = "Uložení se nepovedlo – zkus to znovu."; }
+      });
+      const del = el.querySelector("[data-del]");
+      del.addEventListener("click", async () => {
+        if (del.dataset.sure !== "1") { del.dataset.sure = "1"; del.textContent = "Opravdu smazat?"; return; }
+        try { await db.collection("denik").doc(id).delete(); } catch (e) { el.querySelector("[data-msg]").textContent = "Smazání se nepovedlo."; }
+      });
+    });
+    // closed + stats
+    const rows = closed.map((t) => ({t, r: result(t)}));
+    $("closed").innerHTML = rows.map(({t, r}) => `<tr><td>${esc(t.par)}</td><td>${sideChip(t.smer)}</td>
+      <td class="r num">${fmt(t.vstup, dec(t.par))}</td><td class="r num">${fmt(t.vystup, dec(t.par))}</td>
+      <td class="r num ${r.pips >= 0 ? "pos" : "neg"}">${sgn(r.pips, 1)}</td><td class="r num ${r.margin >= 0 ? "pos" : "neg"}">${sgn(r.margin, 1)} %</td>
+      <td class="r num">${r.kc !== null ? sgn(r.kc, 0) : "–"}</td><td class="small muted">${esc(praha(t.cas_vystupu))}</td></tr>`).join("");
+    if (rows.length) {
+      const wins = rows.filter((x) => x.r.margin > 0).length;
+      const avg = rows.reduce((a, x) => a + x.r.margin, 0) / rows.length;
+      const kcs = rows.filter((x) => x.r.kc !== null);
+      const sumKc = kcs.reduce((a, x) => a + x.r.kc, 0);
+      $("my-stats").innerHTML = `<div class="stat"><span class="label">Uzavřeno</span><span class="v">${rows.length}</span></div>
+        <div class="stat"><span class="label">Úspěšnost</span><span class="v">${fmt(wins / rows.length * 100, 0)} %</span></div>
+        <div class="stat"><span class="label">Průměr na obchod</span><span class="v ${avg >= 0 ? "pos" : "neg"}">${sgn(avg, 1)} % marže</span></div>
+        <div class="stat"><span class="label">Celkem</span><span class="v ${sumKc >= 0 ? "pos" : "neg"}">${kcs.length ? sgn(sumKc, 0) + " Kč" : "–"}</span></div>`;
+    }
+  }
+
+  function renderModel() {
+    if (!state || !state.model) return;
+    const m = state.model;
+    const list = (m.obchody || []).slice().reverse();
+    $("model-stats").innerHTML = `<div class="stat"><span class="label">Signálů celkem</span><span class="v">${list.length}</span></div>
+      <div class="stat"><span class="label">Uzavřeno</span><span class="v">${m.uzavrenych}</span></div>
+      <div class="stat"><span class="label">Úspěšnost</span><span class="v">${m.uzavrenych ? fmt(m.ziskovych / m.uzavrenych * 100, 0) + " %" : "–"}</span></div>
+      <div class="stat"><span class="label">Průměr na obchod</span><span class="v">${m.prumer_proc_marze !== null && m.prumer_proc_marze !== undefined ? sgn(m.prumer_proc_marze, 1) + " %" : "–"}</span></div>`;
+    $("model").innerHTML = list.length ? list.map((t) => `<tr><td class="num">${esc(t.den)}</td><td>${esc(t.par)}</td><td>${sideChip(t.smer)}</td>
+      <td class="r num">${fmt(t.vstup, dec(t.par))}</td><td class="r num">${fmt(t.tp, dec(t.par))}</td><td class="r num">${fmt(t.sl, dec(t.par))}</td>
+      <td>${t.stav === "uzavreny" ? esc(t.duvod_vystupu === "TP" ? "zisk (TP)" : t.duvod_vystupu === "SL" ? "ztráta (SL)" : "zavřeno časem") : "otevřený"}</td>
+      <td class="r num ${(t.vysledek_proc_marze ?? t.prubezne_proc_marze ?? 0) >= 0 ? "pos" : "neg"}">${t.vysledek_proc_marze !== undefined ? sgn(t.vysledek_proc_marze, 1) : t.prubezne_proc_marze !== undefined ? "(" + sgn(t.prubezne_proc_marze, 1) + ")" : "–"}</td></tr>`).join("")
+      : `<tr><td colspan="8" class="muted">Dopředný test začíná prvním pátečním signálem.</td></tr>`;
+  }
+
+  function renderAll() { renderStatus(); renderSignals(); renderPairs(); renderFund(); renderModel(); renderJournal(); }
+
+  $("entry").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const msg = $("f-msg");
+    const vstup = parseNum($("f-vstup").value);
+    if (vstup === null) { msg.textContent = "Zadej vstupní cenu."; return; }
+    if (!db) { msg.textContent = "Deník teď není dostupný."; return; }
+    const doc = { par: $("f-par").value, smer: $("f-smer").value, vstup, sl: parseNum($("f-sl").value), tp: parseNum($("f-tp").value),
+      marze_kc: parseNum($("f-marze").value), poznamka: $("f-pozn").value.trim().slice(0, 300), cas_vstupu: new Date().toISOString(), stav: "otevreny" };
+    $("f-ulozit").disabled = true;
+    try { await db.collection("denik").add(doc); msg.textContent = "Uloženo."; ["f-vstup","f-sl","f-tp","f-marze","f-pozn"].forEach((k) => { $(k).value = ""; }); }
+    catch (e) { msg.textContent = e && e.code === "invalid_argument" ? "Do deníku nemáš právo zapisovat." : "Uložení se nepovedlo – zkus to znovu."; }
+    $("f-ulozit").disabled = false;
+  });
+
+  (async function boot() {
+    const cl = window.claude;
+    db = cl ? await cl.use("db") : null;
+    if (!db) {
+      $("db-note").hidden = false;
+      $("db-note").textContent = "Data se načítají jen v aplikaci Claude nebo na claude.ai, když jsi přihlášený.";
+      $("status").innerHTML = "<span>Data nejsou dostupná</span>";
+      return;
+    }
+    const user = await cl.use("user");
+    if (user && user.can) { try { const c = await user.can("data.write"); if (c === false) canWrite = false; } catch (e) {} }
+    if (!canWrite) { $("f-ulozit").disabled = true; $("db-note").hidden = false; $("db-note").textContent = "Tuto stránku můžeš jen číst; deník zapisuje její majitel."; }
+    db.doc("stav/aktualni").onSnapshot((snap) => {
+      if (snap.exists) { state = snap.data(); renderAll(); }
+      else { $("status").innerHTML = "<span>Model zatím nezapsal žádná data.</span>"; }
+    }, () => { $("status").innerHTML = "<span>Data modelu se nepodařilo načíst. Obnov stránku.</span>"; });
+    db.collection("denik").orderBy("cas_vstupu", "desc").onSnapshot((qs) => {
+      journal = qs.docs.map((d) => Object.assign({_id: d.id}, d.data()));
+      renderJournal();
+    }, () => { $("db-note").hidden = false; $("db-note").textContent = "Deník se nepodařilo načíst. Obnov stránku."; });
+  })();
+})();
+</script>

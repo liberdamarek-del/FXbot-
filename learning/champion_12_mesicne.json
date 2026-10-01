@@ -1,0 +1,105 @@
+{
+ "config": {
+  "name": "CH-009 (12 paru) + stop_4_atr + signal_i_rsi3",
+  "universe": "12",
+  "base": {
+   "signal": "D RSI2<5",
+   "weekly": true,
+   "tp": 0.75,
+   "sl": 4.0,
+   "hold_days": 20
+  },
+  "tiers": [
+   {
+    "fund": "rates_up+carry",
+    "rates_thr": 0.25,
+    "signal": "D RSI2<5|D RSI3<15"
+   },
+   {
+    "fund": "rates_up",
+    "rates_thr": 0.25
+   },
+   {
+    "fund": "rates_up",
+    "rates_thr": 0.1
+   },
+   {
+    "fund": "rates_up",
+    "rates_thr": 0.0
+   }
+  ],
+  "sizing": "flat",
+  "max_ccy": null
+ },
+ "eval": {
+  "0": {
+   "e_G1": 14.893698232268619,
+   "e_G2": 3.93818442986464,
+   "shares": [
+    0.2,
+    0.2,
+    0.06,
+    0.06
+   ],
+   "sel_cagr": 0.3491979220708421,
+   "sel_dd": 0.19713404013002056,
+   "test_cagr": 0.7505563743260251,
+   "test_dd": 0.25722855251536414,
+   "test_n_year": 44.25748709122203,
+   "test_win": 0.9204545454545454,
+   "test_wins_month": 3.306122448979592,
+   "test_months_2wins": 0.7755102040816326
+  },
+  "1": {
+   "e_G1": 7.100713089136854,
+   "e_G2": 6.14685667339252,
+   "shares": [
+    0.15,
+    0.15,
+    0.06,
+    0.06
+   ],
+   "sel_cagr": 0.38962708663100876,
+   "sel_dd": 0.19713404013002056,
+   "test_cagr": 0.2661220791033656,
+   "test_dd": 0.2164681301551581,
+   "test_n_year": 32.060862154676514,
+   "test_win": 0.8640776699029126,
+   "test_wins_month": 2.225,
+   "test_months_2wins": 0.65
+  }
+ },
+ "tried": [
+  "jen_sazby_carry",
+  "denni_limit_stupne",
+  "denni_limit_r14",
+  "cil_15_procent",
+  "velikost_podle_volatility",
+  "limit_meny_3",
+  "limit_meny_2",
+  "bez_extremnich_stopu",
+  "slabe_stupne_i_rsi3",
+  "drzeni_10_dni",
+  "tp_1_atr",
+  "stop_4_atr",
+  "stupen_carry_bez_sazeb",
+  "stupen_sazby_cb",
+  "signal_i_rsi3",
+  "signal_i_r14",
+  "prah_sazeb_015",
+  "patek_limit_05",
+  "denni_sazby_carry",
+  "vix_pod_30",
+  "vix_pod_25",
+  "vix_bez_skoku",
+  "stop_na_vstup_05",
+  "stop_na_vstup_06",
+  "stoji_5_dni",
+  "stoji_10_dni",
+  "potvrzeni_sazeb_cb",
+  "cot_neprehustene",
+  "trend_slabe_stupne",
+  "slabe_rsi3_i_r14",
+  "druhy_stupen_rsi3"
+ ]
+}

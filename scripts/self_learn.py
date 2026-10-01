@@ -51,8 +51,9 @@ CHAMPION = P.OUT / "champion.json"
 # close >= 2 winning trades a month on average and >= 2 in at least 70 % of the months (the user's condition)
 # since 2026-10-01 (user's decision) only the 12 pairs the bot follows live; the 41-pair states stay as
 # champion.json / champion_mesicne.json for the record
-PROFILES = {"max": {"state": P.OUT / "champion_12.json", "min_wpm": 0.0, "min_m2": 0.0},
-            "mesicne": {"state": P.OUT / "champion_12_mesicne.json", "min_wpm": 2.0, "min_m2": 0.7}}
+LEARNING = PROJECT_ROOT / "learning"                     # tracked in git: survives between sessions
+PROFILES = {"max": {"state": LEARNING / "champion_12.json", "min_wpm": 0.0, "min_m2": 0.0},
+            "mesicne": {"state": LEARNING / "champion_12_mesicne.json", "min_wpm": 2.0, "min_m2": 0.7}}
 PROFILE = PROFILES["max"]
 LOG = PROJECT_ROOT / "docs" / "UCENI_LOG.md"
 SPLITS = (((2012, 2018), (2019, 2022)), ((2012, 2022), (2023, 2026)))

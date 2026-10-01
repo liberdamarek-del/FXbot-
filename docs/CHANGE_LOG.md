@@ -261,3 +261,14 @@ Champion max (docs/SAMPION_12.md, `scripts/champion_report.py`), margins fitted 
 (dd 20 %), 32-44 trades a year, 2.2-3.3 winners a month. Weak point: with CB policy rates instead of
 OECD rates 2012-22 drawdown 53 %. Earlier evidence (R-010): rules of this family did not transfer
 to other markets - the forward test decides.
+
+## R-012 - learning round 3, live signals and the dashboard (2026-10-01)
+
+Round 3 (12 pairs, both profiles): break-even stop (0.5 / 0.6 ATR), stall exit (5 / 10 days), second
+rate measure confirmation (CB policy rates), COT crowding filter, SMA200 trend for weak tiers, more
+signals for weak / second tier - none improved both walk-forward tests; champions unchanged.
+Live: `scripts/signals_live.py` (Yahoo hourly, checked against FXCM: median 0.3-3 pips; FRED rates
+with the backtest's 2-month lag) -> dashboard https://claude.ai/artifact/9Z9eEZr8Ni6uVBa4zrmwuU
+(`web/prehled.html`, db: `stav/aktualni` written by Claude, `denik` = user's journal), model forward
+test in `learning/forward_trades.json`. Learning state moved to `learning/` (tracked). Weekly
+routines: Friday signals, Saturday learning (CLAUDE.md).
