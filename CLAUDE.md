@@ -27,8 +27,6 @@ The learning state (champions) lives in `learning/` (tracked); market data in `d
 re-downloaded by the scripts.
 
 ## Ideas queue for the Saturday learning
-- The user's own method (daily classic pivot points, entries at pivot resistance / support on the daily
-  chart, e.g. shorts EUR/CHF ~0.947 and USD/JPY 158.33 on 2026-10-01): implement pivot entries in
-  `scripts/profit_deep.py` and test as a separate candidate through the same walk-forward gate
-  (earlier test R-004 / docs/PIVOTY.md: classic pivots + SMA50 had no robust edge 2013-2026).
-
+- (done 2026-10-01, R-014) The user's pivot method (classic pivots day/week/month, fades at P/R1/R2 and
+  S1/S2, limit or confirmation, SMA50 with/against, rates filter, 1,080 variants, `scripts/pivot_lab2.py`,
+  docs/PIVOTY2.md): no robust edge on the 12 pairs 2012-2026 - do not re-test the same family.

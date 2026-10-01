@@ -285,3 +285,16 @@ signal and a conditional plan (entry = trigger price) to every pair; the dashboa
 probability of success, the plan, a 3-part split and a section with plans for the pairs ready to
 enter. Descriptive statistics only - the model's own rule still closes at TP1 (TP2/TP3 as single
 targets were rejected by the walk-forward gate, "tp_1_atr").
+
+## R-014 - the user's pivot method + SMA50, tested on every day (2026-10-01)
+
+`scripts/pivot_lab2.py` (docs/PIVOTY2.md): 12 live pairs, FXCM hourly 2012-2026, retail costs and
+swap; classic pivots of the previous day / week / month; fades at P, R1/S1, R2/S2 (the user's
+entries of 2026-10-01 were at the daily P and R2), limit or confirmation entry, filters none /
+SMA50 with / SMA50 against / weekly SMA50 / rate divergence, TP at the next level or 0.5 / 1.0 ATR,
+SL at the next level or 1 ATR, time to the period end or 5 / 10 / 20 days: 1,080 variants (960 with
+enough trades). Average result -0.8 % of the margin per trade in each of 2012-18, 2019-22, 2023-26;
+9 variants positive in all three periods, none with t > 1.3; the best walk-forward choices
+(monthly R1/S1, confirmation, SMA50 against) end at +1.4 % (t 0.4) and below in 2023-26, negative
+on the crosses. SMA50 against the trade is the least bad filter (-0.1 / -0.4 / -0.4 %). Not added to
+the model. Earlier: R-004 (216 variants) - same conclusion.
