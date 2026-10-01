@@ -109,3 +109,14 @@ No change of the model is proposed. Power: on 5.5 years t >= 3 needs an annual
 Sharpe >= 1.28; documented FX effects have 0.3-0.7. Next candidates (to be
 written into ROUNDS before testing): retail sentiment collected forward,
 intraday seasonality, factor premia after the 2022 rate divergence.
+
+## Result R-003 - trade geometry grid (2026-10-01)
+
+`scripts/geometry_grid.py` -> docs/GEOMETRIE.md. The model's decisions (2016-2026)
+re-played with 270 geometries (entry market / limit 0.25 / 0.5 ATR(H4), SL 0.5-3,
+TP 0.5-4 ATR(H4), holding 24/72/120 h), chosen on 2016-2021, shown on 2022-2026.
+No geometry is profitable in either period; win rate ranges 17-83 % with the
+expectancy always negative; paired direction edge |t| <= 2 everywhere; the reversed
+direction is not profitable either. Technical-only direction: same (edge +-0.01 R).
+No change proposed. (A first version weighted weeks equally in the edge and showed
+a spurious -0.05 R "edge"; fixed to a per-decision mean with week-clustered error.)
