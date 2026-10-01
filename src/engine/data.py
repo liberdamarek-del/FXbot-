@@ -13,6 +13,7 @@ data is never used to fabricate history and history is never relabelled
 as current).
 """
 
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
@@ -37,7 +38,16 @@ class PairSeries:
     h1_bars: list = None           # the H1 Bars (bid/ask) for outcome resolution
 
 
+# Canonical series source. Always Dukascopy, except in a separate research
+# archive built from FXCM hourly files (scripts/oos_fxcm.py sets "fxcm").
+CANONICAL_SOURCE = os.getenv("FXBOT_CANONICAL_SOURCE", "dukascopy").lower()
+
+
 def _canonical(symbol: str, timeframe: str, start_ts: int | None, end_ts: int | None) -> list[Bar]:
+    if CANONICAL_SOURCE == "fxcm":
+        return load_bars(symbol, timeframe, start_ts, end_ts, source_id="FXCM_H1") if timeframe in ("1h", "4h", "1d") \
+            else []
+
     m1 = load_bars(symbol, timeframe, start_ts, end_ts, source_id="DUKASCOPY_M1")
     h1 = load_bars(symbol, timeframe, start_ts, end_ts, source_id="DUKASCOPY_H1") if timeframe in ("1h", "4h", "1d") else []
     return merge_bars(m1, h1)

@@ -41,19 +41,23 @@ from src.path_archive import (
     Bar,
     get_day,
     is_session_minute,
+    load_payload,
     log_fetch,
     session_minutes_of_day,
     set_day,
     store_payload,
 )
-from src.sources.dukascopy import SourceUnavailable, _check_price, valid_minute
+from src.sources.dukascopy import SourceUnavailable, _check_price
 from src.sources.http import FetchError, fetch
 
 SOURCE_FXCM_M1 = "FXCM_M1"
+SOURCE_FXCM_H1 = "FXCM_H1"
 PARSER_VERSION = "fxcm-csv-1"
 BASE_URL = os.getenv("FXCM_BASE_URL", "https://candledata.fxcorporate.com/m1")
+HOURLY_URL = os.getenv("FXCM_HOURLY_URL", "https://candledata.fxcorporate.com/H1")
 HEADER = "DateTime,BidOpen,BidHigh,BidLow,BidClose,AskOpen,AskHigh,AskLow,AskClose"
 CLOSE_FILL_MINUTES = 60      # flat fill after the last tick only up to a session close this near
+CROSS_TOLERANCE_PIPS = 0.2   # FXCM files contain momentary crossed quotes (ask 0.1 pip below bid)
 
 UTC = timezone.utc
 
@@ -103,6 +107,20 @@ def week_candidates(day: date) -> list[tuple[int, int]]:
 # decoding (pure functions)
 # ----------------------------------------------------------------------
 
+def valid_bar(bar: Bar, pip: float) -> bool:
+    """Each side a consistent OHLC candle; ask below bid only by a momentary
+    cross of at most CROSS_TOLERANCE_PIPS (measured in the files: 0.1 pip,
+    e.g. EUR/USD 2018-03-27 19:00). The bar is accepted unchanged, never
+    repaired; a larger cross makes the bar invalid (a hole)."""
+    tolerance = CROSS_TOLERANCE_PIPS * pip + 1e-12
+    return (
+        bar.bl <= min(bar.bo, bar.bc) <= max(bar.bo, bar.bc) <= bar.bh
+        and bar.al <= min(bar.ao, bar.ac) <= max(bar.ao, bar.ac) <= bar.ah
+        and bar.ac >= bar.bc - tolerance
+        and bar.ao >= bar.bo - tolerance
+    )
+
+
 def _stamp(text: str) -> int:
     # MM/DD/YYYY HH:MM:SS(.fff); manual slicing is ~10x faster than strptime
     moment = datetime(int(text[6:10]), int(text[0:2]), int(text[3:5]), int(text[11:13]), int(text[14:16]),
@@ -110,7 +128,7 @@ def _stamp(text: str) -> int:
     return int(moment.timestamp())
 
 
-def decode_week(content: bytes, symbol: str) -> tuple[list[Bar], set[int]]:
+def decode_week(content: bytes, symbol: str, step: int = 60) -> tuple[list[Bar], set[int]]:
     """(observed 1-minute bid/ask bars oldest first, minutes of invalid rows).
 
     A row with a price outside the plausibility range of the pair raises
@@ -137,13 +155,13 @@ def decode_week(content: bytes, symbol: str) -> tuple[list[Bar], set[int]]:
 
         ts = _stamp(parts[0])
 
-        if ts % 60:
-            raise ValueError(f"FXCM row not on a minute: {parts[0]}")
+        if ts % step:
+            raise ValueError(f"FXCM row not on a {step} s boundary: {parts[0]}")
 
         values = [_check_price(instrument, float(x)) for x in parts[1:]]
-        bar = Bar(ts, *values, 0.0, 1, 1)
+        bar = Bar(ts, *values, 0.0, 1, step // 60)
 
-        if valid_minute(bar):
+        if valid_bar(bar, instrument.pip):
             bars[ts] = bar
         else:
             invalid.add(ts)
@@ -151,7 +169,7 @@ def decode_week(content: bytes, symbol: str) -> tuple[list[Bar], set[int]]:
     return [bars[k] for k in sorted(bars)], invalid - set(bars)
 
 
-def fill_week(observed: list[Bar], invalid: set[int] = frozenset()) -> list[Bar]:
+def fill_week(observed: list[Bar], invalid: set[int] = frozenset(), step: int = 60) -> list[Bar]:
     """Session minutes from the first observed minute to the end of the
     week: observed bars, and flat bars (volume 0, active 0) where no tick
     came. After the last tick the fill continues only when the session
@@ -160,7 +178,7 @@ def fill_week(observed: list[Bar], invalid: set[int] = frozenset()) -> list[Bar]
         return []
 
     by_ts = {b.ts: b for b in observed}
-    end = observed[-1].ts + 60
+    end = observed[-1].ts + step
     probe = end
 
     while is_session_minute(probe) and probe - end < CLOSE_FILL_MINUTES * 60:
@@ -172,12 +190,13 @@ def fill_week(observed: list[Bar], invalid: set[int] = frozenset()) -> list[Bar]
     out = []
     last = None
 
-    for ts in range(observed[0].ts, end, 60):
+    for ts in range(observed[0].ts, end, step):
         if ts in by_ts:
             last = by_ts[ts]
             out.append(last)
         elif last is not None and ts not in invalid and is_session_minute(ts):
-            out.append(Bar(ts, last.bc, last.bc, last.bc, last.bc, last.ac, last.ac, last.ac, last.ac, 0.0, 0, 1))
+            out.append(Bar(ts, last.bc, last.bc, last.bc, last.bc, last.ac, last.ac, last.ac, last.ac, 0.0, 0,
+                           step // 60))
 
     return out
 
@@ -226,6 +245,11 @@ def fetch_week(symbol: str, year: int, week: int) -> list[date]:
         parser_version=PARSER_VERSION,
     )
     log_fetch(SOURCE_FXCM_M1, endpoint, "OK", symbol, status, f"{len(content)} B sha256={stored.sha256[:12]}")
+    return register_week(symbol, stored.payload_id, observed, invalid)
+
+
+def register_week(symbol: str, payload_id: int, observed: list[Bar], invalid: set[int]) -> list[date]:
+    """Day states of one stored week file (a COMPLETE day is never downgraded)."""
     covered = []
 
     for day, bars in split_days(fill_week(observed, invalid)).items():
@@ -237,13 +261,30 @@ def fetch_week(symbol: str, year: int, week: int) -> list[date]:
         present = [b for b in bars if b.ts in expected]
         state = "COMPLETE" if len(present) == len(expected) else "PARTIAL"
         set_day(instrument=symbol, day=day, source_id=SOURCE_FXCM_M1, state=state,
-                bid_payload_id=stored.payload_id, ask_payload_id=stored.payload_id,
+                bid_payload_id=payload_id, ask_payload_id=payload_id,
                 expected_minutes=len(expected), observed_minutes=len(present),
                 active_minutes=sum(b.active for b in present), quality_state="SIDE-CORRECT",
                 note=None if state == "COMPLETE" else f"{len(expected) - len(present)} in-session minutes missing")
         covered.append(day)
 
     return covered
+
+
+def reprocess(symbol: str) -> int:
+    """Re-register the days of every stored week file (after a parser
+    change) without downloading anything. Returns the number of files."""
+    from src.path_archive import get_path_connection
+
+    with get_path_connection() as connection:
+        ids = [r[0] for r in connection.execute(
+            "SELECT payload_id FROM raw_payloads WHERE source_id = ? AND instrument = ? ORDER BY period_start",
+            (SOURCE_FXCM_M1, symbol))]
+
+    for payload_id in ids:
+        content, _ = load_payload(payload_id)
+        register_week(symbol, payload_id, *decode_week(content, symbol))
+
+    return len(ids)
 
 
 def ingest_day(symbol: str, day: date, tried: set | None = None) -> str:
@@ -281,3 +322,78 @@ def decode_day(symbol: str, day: date, payload_id: int) -> tuple[Bar, ...]:
 
     session = set(session_minutes_of_day(day))
     return tuple(b for b in _fxcm_week(symbol, payload_id) if b.ts in session)
+
+
+# ----------------------------------------------------------------------
+# hourly candles: canonical series of a RESEARCH archive only
+# ----------------------------------------------------------------------
+
+def fetch_hour_week(symbol: str, year: int, week: int) -> list[Bar]:
+    """One week of FXCM hourly BID/ASK candles (stored with its hash);
+    [] = not published. Used as the canonical series only in a separate
+    research archive (scripts/oos_fxcm.py), never next to Dukascopy."""
+    endpoint = "H1/" + week_endpoint(symbol, year, week)
+
+    try:
+        status, content, _ = fetch(f"{HOURLY_URL}/{week_endpoint(symbol, year, week)}", retries=3,
+                                   ok_statuses=(200, 404))
+    except FetchError as exc:
+        log_fetch(SOURCE_FXCM_H1, endpoint, "FAILED", symbol, None, str(exc))
+        raise FxcmUnavailable(f"{endpoint}: {exc}") from exc
+
+    if status == 404 or not content:
+        log_fetch(SOURCE_FXCM_H1, endpoint, "NOT_FOUND", symbol, status)
+        return []
+
+    try:
+        observed, invalid = decode_week(content, symbol, step=3600)
+    except (ValueError, OSError, EOFError) as exc:
+        log_fetch(SOURCE_FXCM_H1, endpoint, "PARSE_ERROR", symbol, status, str(exc))
+        return []
+
+    if not observed:
+        return []
+
+    stored = store_payload(
+        source_id=SOURCE_FXCM_H1, kind="H1_WEEK", endpoint=endpoint, instrument=symbol, side="BID+ASK",
+        period_start=observed[0].ts, period_end=observed[-1].ts + 3600, http_status=status, content=content,
+        parser_version=PARSER_VERSION,
+    )
+    log_fetch(SOURCE_FXCM_H1, endpoint, "OK", symbol, status, f"{len(content)} B sha256={stored.sha256[:12]}")
+    return fill_week(observed, invalid, step=3600)
+
+
+def hour_weeks(symbol: str, first: date, last: date) -> tuple[list[Bar], list[date]]:
+    """Hourly bars of every trading week whose Monday lies in [first, last]
+    (each week file verified by its timestamps). Returns (bars, Mondays
+    without a published file)."""
+    monday = trading_monday(first) or first + timedelta(days=2)
+    bars: dict[int, Bar] = {}
+    missing = []
+    fetched: set = set()
+
+    while monday <= last:
+        week_start = int(datetime(monday.year, monday.month, monday.day, tzinfo=UTC).timestamp()) - 2 * 3600 - 86400
+        week_end = week_start + 6 * 86400
+        found = False
+
+        for year, week in week_candidates(monday):
+            if (year, week) in fetched:
+                continue
+
+            fetched.add((year, week))
+            got = fetch_hour_week(symbol, year, week)
+
+            for bar in got:
+                bars[bar.ts] = bar
+
+            if any(week_start <= b.ts < week_end for b in got):
+                found = True
+                break
+
+        if not found and not any(week_start <= ts < week_end for ts in bars):
+            missing.append(monday)
+
+        monday += timedelta(days=7)
+
+    return [bars[k] for k in sorted(bars)], missing

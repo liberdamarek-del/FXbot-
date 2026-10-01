@@ -75,6 +75,10 @@ assert by_ts[gap].active == 0 and by_ts[gap].bh == by_ts[gap].bl == by_ts[gap - 
 assert open_ts not in by_ts, "nothing before the first tick"
 assert close_ts - 60 in by_ts, "after the last tick the session closes within the fill limit: filled to the close"
 
+# a momentary cross of 0.1 pip (seen in the real files) is accepted unchanged
+tiny, tiny_invalid = fxcm.decode_week(week_file([row(open_ts + 600, 1.09500, spread=-0.00001)]), "EUR/USD")
+assert len(tiny) == 1 and not tiny_invalid and tiny[0].ac == 1.09499
+
 try:
     fxcm.decode_week(gzip.compress(b"Date,Open\n1,2\n"), "EUR/USD")
     raise AssertionError("wrong header must raise")

@@ -28,7 +28,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.engine.backtest import BacktestConfig, run  # noqa: E402  (loads .env first)
-from src.engine.data import load_pair  # noqa: E402
+from src.engine.data import CANONICAL_SOURCE, load_pair  # noqa: E402
 from src.engine.params import DEFAULT_PARAMS  # noqa: E402
 from src.instruments import parse_symbols  # noqa: E402
 from src.stats import validation  # noqa: E402
@@ -61,6 +61,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--out", default=str(PROJECT_ROOT / "docs" / "BACKTEST_REPORT.md"))
     parser.add_argument("--warmup-days", type=int, default=120)
+    parser.add_argument("--label", default=None, help="text in the title (e.g. OUT-OF-SAMPLE period)")
     args = parser.parse_args(argv)
     started = time.monotonic()
     p = DEFAULT_PARAMS
@@ -76,15 +77,20 @@ def main(argv: list[str]) -> int:
     last = max(preloaded[s].h1.ts[-1] for s in available)
     start = first + args.warmup_days * 86400
     config = BacktestConfig(available, start, last, p)
-    out = [f"# Vyhodnoceni modelu na historii (vygenerovano {datetime.now(UTC):%Y-%m-%d %H:%M} UTC)", ""]
+    title = f"# Vyhodnoceni modelu na historii{' - ' + args.label if args.label else ''}"
+    out = [title, "", f"_vygenerovano {datetime.now(UTC):%Y-%m-%d %H:%M} UTC_", ""]
     out.append(f"- pary: {', '.join(available)}")
     out.append(f"- rozhodnuti: {datetime.fromtimestamp(start, tz=UTC):%Y-%m-%d} .. "
                f"{datetime.fromtimestamp(last, tz=UTC):%Y-%m-%d}, kazdou H4 svicku; zahrati indikatoru "
                f"{args.warmup_days} dni")
     out.append(f"- parametry (champion): `{p.fingerprint}`; naklady: spread z dat + {p.broker_markup_pips} pip "
                f"prirazka + {p.slippage_pips} pip skluz na stranu")
-    out.append("- ceny: Dukascopy BID/ASK (hodinove svicky; minutove kde jsou archivovane, jinak FXCM minuty jen pro "
-               "poradi v nejasne hodine) - verejne ceny, ne ceny vaseho brokera")
+    if CANONICAL_SOURCE == "fxcm":
+        out.append("- ceny: FXCM BID/ASK (hodinove svicky, minutove pro poradi v nejasne hodine; samostatny "
+                   "vyzkumny archiv) - verejne ceny, ne ceny vaseho brokera")
+    else:
+        out.append("- ceny: Dukascopy BID/ASK (hodinove svicky; minutove kde jsou archivovane, jinak FXCM minuty jen "
+                   "pro poradi v nejasne hodine) - verejne ceny, ne ceny vaseho brokera")
     out.append("- udalostni vrstva (kalendar) VYPNUTA - volny kalendar nema historii")
     out.append("")
 

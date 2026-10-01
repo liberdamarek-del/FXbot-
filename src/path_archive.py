@@ -710,6 +710,37 @@ def rebuild_hourly_aggregates(
     return counts
 
 
+def store_hourly_series(instrument: str, hours: list[Bar], source_id: str) -> dict:
+    """Store 1h bars and the 4h / 1d bars built from them (complete windows
+    only, NY aligned) under `source_id`. For a research archive whose
+    canonical source is not Dukascopy (scripts/oos_fxcm.py)."""
+    initialize_path_archive()
+    counts = {"1h": 0, "4h": 0, "1d": 0}
+    rows = []
+
+    for timeframe in ("1h", "4h", "1d"):
+        for bar in aggregate(hours, timeframe, require_complete=True, unit_seconds=3600):
+            moment = datetime.fromtimestamp(bar.ts, tz=UTC)
+            segment = f"SEG-{source_id}-{instrument.replace('/', '')}-{moment:%Y%m}"
+            rows.append((instrument, timeframe, bar.ts, *bar[1:], source_id, "VALIDATED", segment))
+            counts[timeframe] += 1
+
+    with get_path_connection() as connection:
+        connection.executemany(
+            """
+            INSERT OR IGNORE INTO market_path (
+                instrument, timeframe, ts, bo, bh, bl, bc, ao, ah, al, ac,
+                volume, active, minutes, source_id, quality_state, segment_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            rows,
+        )
+        connection.commit()
+
+    return counts
+
+
 # ----------------------------------------------------------------------
 # stored aggregates
 # ----------------------------------------------------------------------
