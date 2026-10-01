@@ -26,7 +26,9 @@ python fxbot.py test             # izolované testy – nikdy nesahají na vaše
 ```
 
 Volitelně rozbalte i `FXBOT_V78_DATA.tar.gz` (stažená historie bid/ask a fundamentů),
-ať ji telefon nemusí stahovat znovu.
+ať ji telefon nemusí stahovat znovu. Minutová data FXCM pro přesné vyhodnocení backtestu
+v balíčku nejsou (≈175 MB); stáhnou se za pár minut:
+`python fxbot.py history --source fxcm --from 2023-08-01`.
 
 ### PC (Linux / Windows / macOS)
 
