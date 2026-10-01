@@ -1,5 +1,10 @@
 # Jak se model sám učí – a co se zatím naučil
 
+> **Od 2026-10-01 (rozhodnutí uživatele) se učí jen na 12 párech, které bot sleduje živě.** Aktuální
+> šampion a jeho pravidla: **`docs/SAMPION_12.md`** (test 2023–26: +28,6 % ročně, propad 20 %,
+> 2,2 ziskového obchodu měsíčně). Kontrola „funguje i jinde“: zvlášť na 7 párech s USD a na 5 křížích.
+> Části níže o 41 párech jsou záznam předchozího kroku.
+
 Stav k 2026-10-01. Deník všech pokusů: `docs/UCENI_LOG.md`. Kód: `scripts/self_learn.py`.
 
 ## 1. Proč 10 % na obchod ≠ 10 % na účet

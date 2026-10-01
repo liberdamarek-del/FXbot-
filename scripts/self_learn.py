@@ -14,13 +14,13 @@ strongest first) + universe + sizing + portfolio limits. Its tier margins are
 always re-fitted on the selection years only (largest annual return with the
 max drawdown <= DD_MAX). Two walk-forward splits:
     select 2012-2018 -> test 2019-2022,   select 2012-2022 -> test 2023-2026.
-Universe: all 41 pairs (25 FXCM + 16 HistData). Gate: a candidate replaces
+Universe: the 12 pairs the bot follows live (DEFAULT_ACTIVE, FXCM hourly
+2012-2026; the 41-pair runs of R-010 are kept in the log). Gate: a candidate replaces
 the champion only if in BOTH test periods its annual return is higher by
 >= MIN_GAIN and its drawdown stays within the risk budget (max(DD_MAX, the
 champion's) + DD_SLACK), AND in the
 last test period (2023-2026) its trades earn on average > 0 in each market
-group separately (G1 = FXCM pairs, G2 = HistData pairs) - a rule must work
-also on markets where it was not found (docs/DVA_TRHY.md). Note: each experiment looks at the same test years again, so a
+group separately (12 pairs: G1 = the 7 USD pairs, G2 = the 5 crosses). Note: each experiment looks at the same test years again, so a
 small part of every accepted gain is luck; the forward test (ledger) stays
 the final judge. Nothing here trades or touches the production database.
 """
@@ -44,12 +44,15 @@ import fxcm_universe as U  # noqa: E402
 import portfolio_sim as PS  # noqa: E402
 import profit_deep as D  # noqa: E402
 import profit_lab2 as P  # noqa: E402
+from src.instruments import DEFAULT_ACTIVE  # noqa: E402
 
 CHAMPION = P.OUT / "champion.json"
 # learning profiles: "max" = the largest annual return; "mesicne" = the same, but only configurations that
 # close >= 2 winning trades a month on average and >= 2 in at least 70 % of the months (the user's condition)
-PROFILES = {"max": {"state": P.OUT / "champion.json", "min_wpm": 0.0, "min_m2": 0.0},
-            "mesicne": {"state": P.OUT / "champion_mesicne.json", "min_wpm": 2.0, "min_m2": 0.7}}
+# since 2026-10-01 (user's decision) only the 12 pairs the bot follows live; the 41-pair states stay as
+# champion.json / champion_mesicne.json for the record
+PROFILES = {"max": {"state": P.OUT / "champion_12.json", "min_wpm": 0.0, "min_m2": 0.0},
+            "mesicne": {"state": P.OUT / "champion_12_mesicne.json", "min_wpm": 2.0, "min_m2": 0.7}}
 PROFILE = PROFILES["max"]
 LOG = PROJECT_ROOT / "docs" / "UCENI_LOG.md"
 SPLITS = (((2012, 2018), (2019, 2022)), ((2012, 2022), (2023, 2026)))
@@ -60,8 +63,8 @@ SHARE_STEPS = (0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.12, 0.15, 0.
 REF_SL_MARGIN = 84.0                 # median stop of the champion in % of the margin (vol sizing anchor)
 
 START = {                            # CH-009 rule set as pre-registered (docs/CHANGE_LOG.md), on all 41 pairs
-    "name": "CH-009 (41 paru)",
-    "universe": "all",
+    "name": "CH-009 (12 paru)",
+    "universe": "12",
     "base": {"signal": "D RSI2<5", "weekly": True, "tp": 0.75, "sl": 3.0, "hold_days": 20},
     "tiers": [{"fund": "rates_up+carry", "rates_thr": 0.25}, {"fund": "rates_up", "rates_thr": 0.25},
               {"fund": "rates_up", "rates_thr": 0.10}, {"fund": "rates_up", "rates_thr": 0.0}],
@@ -77,8 +80,25 @@ START = {                            # CH-009 rule set as pre-registered (docs/C
 _trades_cache: dict = {}
 
 
+def symbols_of(cfg: dict) -> list[str]:
+    universe = cfg.get("universe", "12")
+    if universe == "all":
+        return U.universe_all()
+    if universe == "fxcm":
+        return U.universe()
+    return [p for p in U.universe() if p in DEFAULT_ACTIVE]         # the 12 live pairs
+
+
+def group_one(cfg: dict) -> set:
+    """First of the two market groups of the gate: 12 pairs -> the 7 USD pairs
+    (the 5 crosses are the second group); 41 pairs -> the 25 FXCM pairs."""
+    if cfg.get("universe", "12") in ("all", "fxcm"):
+        return set(U.universe())
+    return {p for p in symbols_of(cfg) if "USD" in p}
+
+
 def trade_lists(cfg: dict) -> list[list[dict]]:
-    symbols = U.universe_all() if cfg.get("universe", "all") == "all" else U.universe()
+    symbols = symbols_of(cfg)
     out = []
     for tier in cfg["tiers"]:
         fields = {**cfg["base"], **tier}
@@ -120,7 +140,7 @@ def evaluate(cfg: dict) -> dict:
             out[k] = None
             continue
         r_test = PS.run_portfolio(lists, list(sh), test, cfg.get("max_ccy"))
-        g1 = set(U.universe())
+        g1 = group_one(cfg)
         e_g = {g: [t["margin_pct"] for t in r_test["trades"] if (t["pair"] in g1) == (g == "G1")] for g in ("G1", "G2")}
         out[k] = {"e_G1": float(np.mean(e_g["G1"])) if e_g["G1"] else 0.0,
                   "e_G2": float(np.mean(e_g["G2"])) if e_g["G2"] else 0.0,"shares": sh, "sel_cagr": cagr, "sel_dd": r_sel["max_dd"], "test_cagr": r_test["cagr"],

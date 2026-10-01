@@ -250,3 +250,14 @@ winners a month. Profile "mesicne" (>= 2 winners a month): CH-009 on 41 pairs st
 +17.8 % (dd 35 %) / +10.7 % (dd 21 %). Rejected 21 other experiments (daily limit tiers, VIX filter,
 holding, targets, stops, currency limits, signals). Note: every experiment reuses the same test
 years, so a part of every accepted gain is luck; the forward test decides.
+
+## Result R-011 - self-learning on the 12 live pairs only (2026-10-01, user's decision)
+
+`scripts/self_learn.py` now uses the 12 DEFAULT_ACTIVE pairs (FXCM hourly 2012-2026); group gate
+inside them: 7 USD pairs vs 5 crosses. Accepted on top of CH-009: volatility sizing and the
+RSI(3) < 15 signal in the strongest tier (profile max); stop 4 ATR + RSI(3) (profile mesicne).
+Champion max (docs/SAMPION_12.md, `scripts/champion_report.py`), margins fitted on 2012-2022
+(20 / 20 / 3 / 3 % of the equity): test 2019-22 +74.2 % a year (dd 25 %), test 2023-26 +28.6 %
+(dd 20 %), 32-44 trades a year, 2.2-3.3 winners a month. Weak point: with CB policy rates instead of
+OECD rates 2012-22 drawdown 53 %. Earlier evidence (R-010): rules of this family did not transfer
+to other markets - the forward test decides.
