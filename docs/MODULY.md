@@ -67,7 +67,7 @@ Generovano z `src/v78/manifest.py` (`python fxbot.py verify-model --list`).
 | 60 | Prediction lock, ledger, path link | implementovano | `prediction_ledger.py, v78/run.py` |  |
 | 61 | Lifecycle + automatic path resolver | implementovano | `v78/audit.py, engine/resolution.py` |  |
 | 62 | Outcome resolution + path coverage | implementovano | `engine/resolution.py` |  |
-| 63 | Side-correct historical validation | implementovano | `engine/resolution.py` |  |
+| 63 | Side-correct historical validation | implementovano | `engine/resolution.py, sources/fxcm.py` | second 1-minute source decides an ambiguous hour only with the same events |
 | 64 | Cost, spread, slippage, gap layers | implementovano | `engine/decision.py, engine/resolution.py` |  |
 | 65 | MFE/MAE, timing, full-path audit | implementovano | `engine/resolution.py` |  |
 | 66 | Forecast accuracy | implementovano | `stats/performance.py` |  |
@@ -87,7 +87,7 @@ Generovano z `src/v78/manifest.py` (`python fxbot.py verify-model --list`).
 | 80 | Model change log, impact, rollback, release | implementovano | `stats/registry.py` |  |
 | 81 | Every-run historical self-audit + gap recovery | implementovano | `v78/run.py, v78/audit.py` |  |
 | 82 | Review cadence | castecne | `scripts/review.py` | on demand; no scheduler on the phone |
-| 83 | V7.7.0 final run procedure | nahrazeno 145 | `v78/run.py` | superseded by module 145 |
+| 83 | V7.7.0 final run procedure | nahrazeno modulem 145 | `v78/run.py` | superseded by module 145 |
 | 84 | Performance dashboard and user output | implementovano | `v78/report.py` |  |
 | 85 | What did the model miss / what to change | implementovano | `v78/report.py` |  |
 | 86 | Market path archive - canonical role | implementovano | `path_archive.py` |  |
@@ -126,13 +126,13 @@ Generovano z `src/v78/manifest.py` (`python fxbot.py verify-model --list`).
 | 119 | Freshness and data-state gate 2.0 | implementovano | `v78/quotes.py` |  |
 | 120 | Source conflict and failover matrix 2.0 | implementovano | `v78/quotes.py` |  |
 | 121 | Live vs historical path separation | implementovano | `engine/data.py` |  |
-| 122 | Continuous market path ingestion | implementovano | `sources/dukascopy.py, data_update.py` |  |
+| 122 | Continuous market path ingestion | implementovano | `sources/dukascopy.py, sources/fxcm.py, data_update.py` |  |
 | 123 | Path coverage and gap certificate 2.0 | implementovano | `v78/coverage.py` |  |
 | 124 | Raw payload provenance hash and replay | implementovano | `raw_archive.py` |  |
 | 125 | Environment capability gate | implementovano | `v78/sources.py` |  |
 | 126 | Mandatory pre-change improvement test gate | implementovano | `stats/registry.py` |  |
 | 127 | V7.7.1 release and promotion gate | implementovano | `stats/registry.py` |  |
-| 128 | V7.7.1 final run procedure | nahrazeno 145 | `v78/run.py` | superseded by module 145 |
+| 128 | V7.7.1 final run procedure | nahrazeno modulem 145 | `v78/run.py` | superseded by module 145 |
 | 129 | Global price source matrix | implementovano | `v78/sources.py` |  |
 | 130 | Web ticker observation adapter | nedostupne | `v78/sources.py` | deliberately not implemented: no web scraping; interface for API/broker sources only |
 | 131 | Dynamic widget / rendered-snapshot gate | nedostupne | `-` | no renderer in this runtime; nothing is fabricated |
@@ -140,7 +140,7 @@ Generovano z `src/v78/manifest.py` (`python fxbot.py verify-model --list`).
 | 133 | Multi-source validation and outlier gate | implementovano | `v78/quotes.py` |  |
 | 134 | Market session and closed-market mode | castecne | `market_session.py, v78/quotes.py` | holidays not modelled |
 | 135 | User-facing current price contract | implementovano | `v78/report.py` |  |
-| 136 | Historical backfill source ladder | implementovano | `v78/run.py` |  |
+| 136 | Historical backfill source ladder | implementovano | `v78/run.py, v78/coverage.py` | path: Dukascopy day > FXCM week > Dukascopy ticks > Twelve Data mid |
 | 137 | Between-run market path reconstruction | implementovano | `v78/coverage.py` |  |
 | 138 | Prediction state machine | implementovano | `engine/thesis.py` |  |
 | 139 | No-instant-flip gate | implementovano | `engine/thesis.py` |  |
@@ -151,4 +151,4 @@ Generovano z `src/v78/manifest.py` (`python fxbot.py verify-model --list`).
 | 144 | Pre-change hold / stability gate | implementovano | `stats/registry.py` |  |
 | 145 | V7.8.0 final run procedure | implementovano | `v78/run.py` |  |
 
-Soucty: implementovano 110, castecne 27, nedostupne 7, nahrazeno 145 2
+Soucty: implementovano 110, castecne 27, nedostupne 7, nahrazeno modulem 145: 2
