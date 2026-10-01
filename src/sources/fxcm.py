@@ -57,7 +57,10 @@ BASE_URL = os.getenv("FXCM_BASE_URL", "https://candledata.fxcorporate.com/m1")
 HOURLY_URL = os.getenv("FXCM_HOURLY_URL", "https://candledata.fxcorporate.com/H1")
 HEADER = "DateTime,BidOpen,BidHigh,BidLow,BidClose,AskOpen,AskHigh,AskLow,AskClose"
 CLOSE_FILL_MINUTES = 60      # flat fill after the last tick only up to a session close this near
-CROSS_TOLERANCE_PIPS = 0.2   # FXCM files contain momentary crossed quotes (ask 0.1 pip below bid)
+# FXCM files contain momentary crossed quotes (close/open ask below bid).
+# Measured 2026-10-01 on 1.06 M EUR/USD + USD/CAD minutes 2016-2023: cross
+# > 0.2 pip in 0.24-0.35 %, > 0.5 pip in 0.02 %, > 1 pip in 0.005 %, > 5 pip 0.
+CROSS_TOLERANCE_PIPS = 1.0
 
 UTC = timezone.utc
 
@@ -109,9 +112,9 @@ def week_candidates(day: date) -> list[tuple[int, int]]:
 
 def valid_bar(bar: Bar, pip: float) -> bool:
     """Each side a consistent OHLC candle; ask below bid only by a momentary
-    cross of at most CROSS_TOLERANCE_PIPS (measured in the files: 0.1 pip,
-    e.g. EUR/USD 2018-03-27 19:00). The bar is accepted unchanged, never
-    repaired; a larger cross makes the bar invalid (a hole)."""
+    cross of at most CROSS_TOLERANCE_PIPS (e.g. EUR/USD 2018-03-27 19:00:
+    0.1 pip). The bar is accepted unchanged, never repaired; a larger cross
+    makes the bar invalid (a hole)."""
     tolerance = CROSS_TOLERANCE_PIPS * pip + 1e-12
     return (
         bar.bl <= min(bar.bo, bar.bc) <= max(bar.bo, bar.bc) <= bar.bh
