@@ -131,3 +131,22 @@ in all three periods; best ranked +0.041 R -> -0.019 / +0.015 R. SMA50 filters a
 ~0.004 R over their reversal; the pivot-side filter ~0.045 R, still negative overall.
 New: `fxbot.py journal` records the user's own trades in the ledger (MANUAL), resolved
 and reviewed (`review --manual`) with the paired control - to measure discretionary skill.
+
+## Result R-005 - strategy mining (2026-10-01)
+
+`scripts/strategy_mining.py` -> docs/STRATEGIE.md: 230 indicator settings (daily +
+weekly chart) x 6 fundamental filters x both signs x holding 1/3/5 days = 7 846 rules,
+ranked on 2016-09..2021-12. 0 of the best 30 passed both control periods (random
+signals: 0 %). Best 30 on 2022-2026: mean +0.056 ATR/trade, 52.2 % winners (model
+V7.8.0: -0.035..+0.008, 48-49 %) - not significant, not repeated on 2014-2016. Top-20
+vote and walk-forward logistic regression: negative out of sample.
+
+## CH-005 - CHALLENGER "FUND_DIP" (pre-registered 2026-10-01, forward test only)
+
+| Field | Value |
+|---|---|
+| Source | the common pattern of the best mined rules (R-005) - selected after seeing 2016-2026, so ONLY a forward test can confirm it |
+| Rule | direction = fundamentals (>= 1 cluster of carry / 20-day rates / VIX risk / policy trend for, none against); enter at the daily close when Williams %R(9) <= -90 for BUY (>= -10 for SELL) |
+| Exit | after 5 trading days; protective SL 3 x ATR(D1), TP 3 x ATR(D1) (beyond the tested time-exit rule) |
+| Tool | `python scripts/signals_today.py [--lock]` - today's state and the trigger price per pair; `--lock` records triggered signals in the ledger as CHALLENGER-FUND-DIP |
+| Promotion | only if the forward paired edge vs random is significant after >= 100 trades (`review`) |

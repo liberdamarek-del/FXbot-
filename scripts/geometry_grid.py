@@ -3,6 +3,7 @@ time turn the model's direction into a profit? (modules 52-55, 74-77)
 
     python scripts/geometry_grid.py collect          # model decisions 2023-2026 (Dukascopy archive)
     python scripts/geometry_grid.py collect --fxcm   # model decisions 2016-2023 (FXCM research archive)
+    python scripts/geometry_grid.py collect --early  # model decisions 2013-2016 (FXCM early archive)
     python scripts/geometry_grid.py grid             # 270 geometries x (model, technical only) -> docs/GEOMETRIE.md
 
 The expensive part (the full technical + fundamental analysis at every H4
@@ -33,9 +34,10 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 FXCM = "--fxcm" in sys.argv
+EARLY = "--early" in sys.argv       # 2013-2016 (data/early_fxcm, hourly only)
 
-if FXCM:
-    os.environ["DATA_DIR"] = "data/oos_fxcm"
+if FXCM or EARLY:
+    os.environ["DATA_DIR"] = "data/early_fxcm" if EARLY else "data/oos_fxcm"
     os.environ["FXBOT_CANONICAL_SOURCE"] = "fxcm"
 
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -94,7 +96,7 @@ def collect() -> None:
                                   "no_trade_reasons": result.no_trade_reasons, "gate_failures": result.gate_failures}
         print(f"{label}: {result.decisions} rozhodnuti, {len(decisions)} obchodu se smerem", flush=True)
 
-    name = "decisions_fxcm.pkl" if FXCM else "decisions_dukascopy.pkl"
+    name = "decisions_early.pkl" if EARLY else "decisions_fxcm.pkl" if FXCM else "decisions_dukascopy.pkl"
     (RESEARCH / name).write_bytes(pickle.dumps(out))
     print(f"ulozeno {RESEARCH / name}")
 
