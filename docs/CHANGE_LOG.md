@@ -162,3 +162,14 @@ halves (all: best single rule of the last 24-36 months), none with t >= 2. The m
 chosen on 2017-2021 (monthly, 36 months, best rule): 2022-2026 +0.0225 ATR/day (t 0.4)
 vs V7.8.0 -0.04 (t -2.3). Deployed as CHALLENGER CH-006 (`fxbot.py adaptive --lock`,
 daily in Termux); promotion only after a significant forward result.
+
+## Result R-007 / CH-007 "75+" - high win-rate system (2026-10-01)
+
+`scripts/winrate_lab.py` (97 200 systems) and `scripts/winrate_lab2.py` (16 848 systems; limit entries,
+Connors exit, signal pairs, cost filter) on hourly BID/ASK 2014-2026 with costs. Round 1 (chosen on
+2014-2019): RSI2<5/SMA200, 78.8 / 82.9 / 73.4 % winners. Round 2: 331 systems keep >= 75 % winners and
+a profit in 2014-19, 2020-22 AND 2023-26. Deployed: LIMIT 0.5 ATR below the close, RSI(3) < 15, close
+above SMA(200), ATR above its 30th percentile; TP 0.4 / SL 2.0 ATR, max 5 days (mirrored for SELL):
+479 trades, 83.3 % winners, +0.045 R per trade, t +2.5, max drawdown -7.7 R. Chosen with knowledge of
+all periods -> forward test (`fxbot.py signals75 --lock`, daily) is the independent proof. Note: the
+win rate comes from the small TP / wide SL; the expectancy per trade is small.

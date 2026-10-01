@@ -14,6 +14,7 @@ PYTHON="$(command -v python)"
 LINE="7 * * * 1-5 cd $PROJECT && $PYTHON fxbot.py run --notify >> $PROJECT/data/cron_run.log 2>&1"
 FUND="17 6 * * * cd $PROJECT && $PYTHON fxbot.py fundamentals --days 30 >> $PROJECT/data/cron_fund.log 2>&1"
 ADAPT="35 21 * * 1-5 cd $PROJECT && $PYTHON fxbot.py adaptive --lock >> $PROJECT/data/cron_adaptive.log 2>&1"
+S75="40 21 * * 1-5 cd $PROJECT && $PYTHON fxbot.py signals75 --lock >> $PROJECT/data/cron_signals75.log 2>&1"
 
 if [ "$1" = "--remove" ]; then
     crontab -l 2>/dev/null | grep -v "fxbot.py" | crontab -
@@ -22,7 +23,7 @@ if [ "$1" = "--remove" ]; then
 fi
 
 command -v crontab >/dev/null || { echo "chybi cron: pkg install cronie termux-services"; exit 1; }
-(crontab -l 2>/dev/null | grep -v "fxbot.py"; echo "$LINE"; echo "$FUND"; echo "$ADAPT") | crontab -
+(crontab -l 2>/dev/null | grep -v "fxbot.py"; echo "$LINE"; echo "$FUND"; echo "$ADAPT"; echo "$S75") | crontab -
 sv-enable crond 2>/dev/null || crond
-echo "FXBOT bezi kazdou hodinu v :07 (po-pa), fundamenty denne v 06:17, adaptivni vyzyvatel v 21:35 (cas telefonu)"
+echo "FXBOT bezi kazdou hodinu v :07 (po-pa), fundamenty denne v 06:17, adaptivni vyzyvatel v 21:35 a system 75+ v 21:40 (cas telefonu)"
 crontab -l | grep fxbot

@@ -65,6 +65,7 @@ python fxbot.py journal BUY USD/JPY 158.32 --sl 157.40 --tp 160.00   # zapsat V�
 python fxbot.py review --all --manual   # vyhodnocení vašich obchodů proti náhodě
 python scripts/signals_today.py --lock   # vyzyvatel CH-005: dnesni signaly a vstupni ceny (zapise do evidence)
 python fxbot.py adaptive --lock          # samoucici se vyzyvatel CH-006 (mesicni preuceni; Termux: pkg install python-numpy)
+python fxbot.py signals75 --lock         # system CH-007 '75+' (83 % uspesnych v backtestu 2014-2026): prikazy a vstupni ceny
 python fxbot.py resolve        # jen vyhodnotí otevřené predikce
 python fxbot.py paper          # papírový účet spočtený z evidence predikcí
 ```
