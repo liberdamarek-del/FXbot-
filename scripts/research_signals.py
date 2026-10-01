@@ -5,6 +5,7 @@ with a protocol that cannot fool itself (modules 66, 74-80, 126, 144).
     python scripts/research_signals.py extract    # signal table 2014-2026 -> data/research/signals.pkl (~3 min)
     python scripts/research_signals.py discover   # DISCOVERY period only; locks the candidates
     python scripts/research_signals.py confirm    # locked candidates on the two untouched periods, ONCE
+    ... discover --round 2 / confirm --round 2    # next pre-registered round (see ROUNDS)
 
 Why not tune the full model: one backtest run tests one rule set, and every
 look at the result is a chance to fit noise. Here every signal is one
@@ -59,7 +60,7 @@ from src.path_archive import Bar  # noqa: E402
 UTC = timezone.utc
 RESEARCH = PROJECT_ROOT / "data" / "research"
 SIGNALS_FILE = RESEARCH / "signals.pkl"
-CANDIDATES_FILE = RESEARCH / "candidates.json"
+ROUND = 1                  # set by --round N; every round has its own locked candidate file
 ARCHIVES = {
     "early": PROJECT_ROOT / "data" / "early_fxcm" / "market_path.sqlite3",
     "oos": PROJECT_ROOT / "data" / "oos_fxcm" / "market_path.sqlite3",
@@ -221,6 +222,16 @@ def extract() -> None:
             long_diff = _diff(fb["long"], fq["long"])
             long_diff_20 = _diff(fb["long_20"], fq["long_20"])
             policy_trend = _diff(_diff(fb["policy"], fb["policy_6m"]), _diff(fq["policy"], fq["policy_6m"]))
+            vix_ok = vix is not None and vix_7 is not None
+            spx = fund.value("GLOBAL.NASDAQ", t)      # US equities; S&P 500 history starts only 2016-09
+            day = datetime.fromtimestamp(t, tz=UTC).date()
+            month_start = day.replace(day=1)
+            spx_prev = fund._series("GLOBAL.NASDAQ").asof_date(t, month_start - timedelta(days=1))
+            next_month = (month_start + timedelta(days=32)).replace(day=1)
+            weekdays_left = sum(1 for k in range(1, (next_month - day).days) if (day + timedelta(days=k)).weekday() < 5)
+            usd_side = 1.0 if b == "USD" else -1.0 if q == "USD" else 0.0
+            cot_base = _diff(fb["cot_z"], fq["cot_z"])
+            rates_20 = _diff(carry, carry_20)
             row = {
                 "symbol": symbol, "t": t, "day": datetime.fromtimestamp(t, tz=UTC).date(), "source": sources[i],
                 # technical (positive = base expected up if the signal works as trend)
@@ -241,6 +252,15 @@ def extract() -> None:
                 "RISK_VIX_LEVEL": None if vix is None or not beta else -(vix - 20.0) * beta,
                 "OIL_20D": None if not oil or not oil_28 or oil <= 0 or oil_28 <= 0 or not oil_link
                 else math.log(oil / oil_28) * oil_link,
+                # round 2: conditional hypotheses from the FX literature (fixed before testing)
+                "CARRY_CALM": carry if carry is not None and vix_ok and vix < 20 and vix <= vix_7 else None,
+                "REVERSAL_AFTER_SHOCK": -mom(5) if d1.atr_pct[i] is not None and d1.atr_pct[i] >= 0.8
+                and abs(mom(5)) >= 1.0 else None,
+                "MOM60_CLEAN_TREND": mom(60) if d1.er20[i] is not None and d1.er20[i] >= 0.35 else None,
+                "COT_EXTREME": -cot_base if cot_base is not None and abs(cot_base) >= 1.5 else None,
+                "RATES_SHOCK": rates_20 if rates_20 is not None and abs(rates_20) >= 0.15 else None,
+                "MONTH_END_USD": (spx / spx_prev.value - 1.0) * -usd_side
+                if usd_side and weekdays_left <= 2 and spx and spx_prev and spx_prev.value else None,
                 # modifiers (not directional)
                 "ER20": d1.er20[i], "ATR_PCT": d1.atr_pct[i],
             }
@@ -272,9 +292,23 @@ def extract() -> None:
 # statistics
 # ----------------------------------------------------------------------
 
-SIGNALS = ("MOM_1", "MOM_5", "MOM_20", "MOM_60", "MOM_120", "MOM_250", "EMA20_DIST", "EMA50_DIST", "EMA200_DIST",
-           "EMA50_200", "RSI14", "RANGE20_POS", "BREAKOUT_20", "CARRY", "RATES_20D", "RATES_60D", "LONG_RATES_20D",
-           "POLICY_TREND", "COT_Z", "COT_4W", "RISK_VIX_1W", "RISK_VIX_LEVEL", "OIL_20D")
+ROUNDS = {
+    # round 1 (2026-10-01): standard technical and fundamental signals
+    1: ("MOM_1", "MOM_5", "MOM_20", "MOM_60", "MOM_120", "MOM_250", "EMA20_DIST", "EMA50_DIST", "EMA200_DIST",
+        "EMA50_200", "RSI14", "RANGE20_POS", "BREAKOUT_20", "CARRY", "RATES_20D", "RATES_60D", "LONG_RATES_20D",
+        "POLICY_TREND", "COT_Z", "COT_4W", "RISK_VIX_1W", "RISK_VIX_LEVEL", "OIL_20D"),
+    # round 2 (2026-10-01, fixed after round 1 found nothing): conditional
+    # effects reported in the FX literature - carry only in calm markets
+    # (carry crashes in stress), reversal after a volatility shock (liquidity
+    # provision), momentum only in an efficient trend, contrarian at
+    # positioning extremes, continuation after a rate repricing shock, USD
+    # month-end hedge rebalancing after US equity gains (sell USD)
+    2: ("CARRY_CALM", "REVERSAL_AFTER_SHOCK", "MOM60_CLEAN_TREND", "COT_EXTREME", "RATES_SHOCK", "MONTH_END_USD"),
+}
+
+
+def candidates_file() -> Path:
+    return RESEARCH / ("candidates.json" if ROUND == 1 else f"candidates_r{ROUND}.json")
 
 
 def in_period(row: dict, period: tuple[date, date], h: int) -> bool:
@@ -345,6 +379,8 @@ def _load() -> list[dict]:
 
 
 def discover() -> None:
+    CANDIDATES_FILE = candidates_file()
+
     if CANDIDATES_FILE.exists():
         raise SystemExit(f"{CANDIDATES_FILE} uz existuje - kandidati jsou zamceni. Novy objev = novy soubor "
                          f"(smazat jen s novym zapisem v docs/CHANGE_LOG.md).")
@@ -355,7 +391,7 @@ def discover() -> None:
     halves = ((first, middle), (middle + timedelta(days=1), last))
     results = []
 
-    for signal in SIGNALS:
+    for signal in ROUNDS[ROUND]:
         for h in HORIZONS:
             for sign, label in ((1.0, "trend"), (-1.0, "proti")):
                 full = evaluate(rows, signal, sign, h, PERIODS["DISCOVERY"])
@@ -375,7 +411,7 @@ def discover() -> None:
     CANDIDATES_FILE.write_text(payload)
     digest = hashlib.sha256(payload.encode()).hexdigest()
 
-    out = ["# Vyzkum signalu - OBJEV (jen 2016-09 .. 2021-12)", "",
+    out = [f"# Vyzkum signalu - kolo {ROUND} - OBJEV (jen 2016-09 .. 2021-12)", "",
            f"_vygenerovano {datetime.now(UTC):%Y-%m-%d %H:%M} UTC; {tested} testu (signal x smer x horizont)_", "",
            "Obchod = vstup na dennim zaveru ve smeru signalu (trend) nebo proti nemu (proti), vystup po h obchodnich "
            "dnech. Jednotky: ATR(D1) na obchod. net = po nakladech (typicky retail spread + 0.4 pip skluz) a swapu "
@@ -392,13 +428,15 @@ def discover() -> None:
 
     out += ["", f"**Zamceni kandidati ({len(candidates)}):** " +
             (", ".join(f"{c['signal']} {c['direction']} {c['h']} d" for c in candidates) or "zadny"),
-            "", f"Soubor `data/research/candidates.json`, SHA-256 `{digest}`. Potvrzeni: "
-            "`python scripts/research_signals.py confirm` (jednou, na obdobich EARLY a HOLDOUT)."]
-    (PROJECT_ROOT / "docs" / "VYZKUM_OBJEVY.md").write_text("\n".join(out) + "\n", encoding="utf-8")
+            "", f"Soubor `data/research/{CANDIDATES_FILE.name}`, SHA-256 `{digest}`. Potvrzeni: "
+            f"`python scripts/research_signals.py confirm --round {ROUND}` (jednou, na obdobich EARLY a HOLDOUT)."]
+    (PROJECT_ROOT / "docs" / f"VYZKUM_OBJEVY_K{ROUND}.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print("\n".join(out))
 
 
 def confirm() -> None:
+    CANDIDATES_FILE = candidates_file()
+
     if not CANDIDATES_FILE.exists():
         raise SystemExit("nejdriv: python scripts/research_signals.py discover")
 
@@ -406,10 +444,11 @@ def confirm() -> None:
     digest = hashlib.sha256(payload.encode()).hexdigest()
     lock = json.loads(payload)
     rows = _load()
-    out = ["# Vyzkum signalu - POTVRZENI na datech, ktera vyber nevidel", "",
+    out = [f"# Vyzkum signalu - kolo {ROUND} - POTVRZENI na datech, ktera vyber nevidel", "",
            f"_vygenerovano {datetime.now(UTC):%Y-%m-%d %H:%M} UTC; kandidati `candidates.json` SHA-256 `{digest}` "
            f"(zamceno {lock['created']})_", "",
-           f"Prosel = kladny net v EARLY i HOLDOUT a t >= {CONFIRM_T} na obou dohromady.", "",
+           f"Prosel = kladny net v EARLY i HOLDOUT (obdobi bez dat se nepocita) a t >= {CONFIRM_T} na obou "
+           f"dohromady.", "",
            "| signal | smer | h | obdobi | dnu | obchodu | win | net | net t | gross | gross t |",
            "|---|---|---|---|---|---|---|---|---|---|---|"]
     passed = []
@@ -423,14 +462,17 @@ def confirm() -> None:
                        f"{_fmt(r['win'], '.0%')} | {_fmt(r['net'])} | {_fmt(r['net_t'], '+.2f')} | "
                        f"{_fmt(r['gross'])} | {_fmt(r['gross_t'], '+.2f')} |")
 
-        ok = (all((res[k]["net"] or -1) > 0 for k in res) and (both["net_t"] or 0) >= CONFIRM_T)
+        # a period without data for the signal (n < 10 days) does not count
+        with_data = [k for k in res if res[k]["n_days"] >= 10]
+        ok = (bool(with_data) and all((res[k]["net"] or -1) > 0 for k in with_data)
+              and (both["net_t"] or 0) >= CONFIRM_T)
 
         if ok:
             passed.append(c)
 
     out += ["", f"**Proslo: {len(passed)} z {len(lock['candidates'])}** " +
             (", ".join(f"{c['signal']} {c['direction']} {c['h']} d" for c in passed) or "")]
-    (PROJECT_ROOT / "docs" / "VYZKUM_POTVRZENI.md").write_text("\n".join(out) + "\n", encoding="utf-8")
+    (PROJECT_ROOT / "docs" / f"VYZKUM_POTVRZENI_K{ROUND}.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print("\n".join(out))
 
 
@@ -461,9 +503,13 @@ def _combined(rows: list[dict], c: dict, names: tuple) -> dict:
 
 
 def main(argv: list[str]) -> int:
+    global ROUND
     commands = {"extract": extract, "discover": discover, "confirm": confirm}
 
-    if not argv or argv[0] not in commands:
+    if "--round" in argv:
+        ROUND = int(argv[argv.index("--round") + 1])
+
+    if not argv or argv[0] not in commands or ROUND not in ROUNDS:
         print(__doc__)
         return 1
 
