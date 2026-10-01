@@ -61,6 +61,7 @@ from src.sources.dukascopy import (  # noqa: E402
 UTC = timezone.utc
 REBUILD_CHUNK_DAYS = 30
 THROTTLE_PAUSE = int(os.getenv("DOWNLOAD_THROTTLE_PAUSE", "60"))           # seconds to wait when the server stops answering
+MAX_PAUSE = int(os.getenv("DOWNLOAD_MAX_PAUSE", "1800"))                    # the pause doubles up to this while it keeps refusing
 MAX_THROTTLE_PAUSES = int(os.getenv("DOWNLOAD_MAX_THROTTLE_PAUSES", "30"))  # then give up for this run (re-run later)
 
 
@@ -101,6 +102,7 @@ def run_jobs(jobs: list, label: str, on_complete=None) -> dict:
     totals: dict[str, int] = {}
     started = time.monotonic()
     pauses = 0
+    pause = THROTTLE_PAUSE
     index = 0
 
     while index < len(jobs):
@@ -116,11 +118,14 @@ def run_jobs(jobs: list, label: str, on_complete=None) -> dict:
                 totals["UNAVAILABLE"] = totals.get("UNAVAILABLE", 0) + len(jobs) - index
                 break
 
-            print(f"  server neodpovida ({symbol} {period}) - pauza {THROTTLE_PAUSE} s "
+            limit = "limit pozadavku" if "429" in str(exc) else "neodpovida"
+            print(f"  server {limit} ({symbol} {period}) - pauza {pause} s "
                   f"[{datetime.now(UTC):%H:%M}]", flush=True)
-            time.sleep(THROTTLE_PAUSE)
+            time.sleep(pause)
+            pause = min(2 * pause, MAX_PAUSE)
             continue            # same job again
 
+        pause = THROTTLE_PAUSE
         totals[state] = totals.get(state, 0) + 1
         index += 1
 

@@ -305,6 +305,13 @@ def _get(url: str) -> tuple[int, bytes]:
 
             error = f"HTTP {status}"
 
+            if status == 429:
+                # rate limit of the free datafeed: retrying within seconds only
+                # extends it - the caller pauses for minutes instead
+                _retries[0] += 1
+                _retry_reasons[error] = _retry_reasons.get(error, 0) + 1
+                raise SourceUnavailable(f"{url}: HTTP 429 (limit pozadavku serveru)")
+
         _retries[0] += 1
         _retry_reasons[error] = _retry_reasons.get(error, 0) + 1
 
