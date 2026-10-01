@@ -61,6 +61,8 @@ python fxbot.py run --offline  # bez stahování (jen uložená data)
 python fxbot.py report         # znovu vypíše poslední report
 python fxbot.py status         # stav dat, archivu, evidence, registru modelu a zdrojů
 python fxbot.py review --weekly  # týdenní revize zamčených predikcí vč. kontroly směru proti náhodě
+python fxbot.py journal BUY USD/JPY 158.32 --sl 157.40 --tp 160.00   # zapsat VÁŠ obchod (bot ho vyhodnotí)
+python fxbot.py review --all --manual   # vyhodnocení vašich obchodů proti náhodě
 python fxbot.py resolve        # jen vyhodnotí otevřené predikce
 python fxbot.py paper          # papírový účet spočtený z evidence predikcí
 ```

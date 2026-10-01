@@ -173,6 +173,20 @@ assert abs(a_entry - 1.3436) < 1e-9 and abs(a_stop - 1.3451) < 1e-9 and abs(a_tp
 assert control_outcome(locked, t_lock + timedelta(minutes=5)).outcome_state is None  # horizon still open
 assert all(c["symbol"] and c["outcome_state"] for c in ledger_controls(0.0, t_lock + timedelta(minutes=5)))
 
+# ---------------------------------------------------------------- the user's own trade (fxbot.py journal)
+import fxbot  # noqa: E402
+from src.v78.audit import audit_all  # noqa: E402
+
+p0 = analysis.series.h1.close[-1]
+entry_time = (NOW - timedelta(minutes=100)).strftime("%Y-%m-%d %H:%M")
+assert fxbot.main(["journal", "BUY", "EUR/USD", f"{p0:.5f}", "--sl", f"{p0 - 0.0100:.5f}", "--tp", f"{p0 + 0.0100:.5f}",
+                   "--time", entry_time, "--horizon", "1h", "--note", "pivot S1 + SMA50"]) == 0
+assert fxbot.main(["journal", "BUY", "EUR/USD", f"{p0:.5f}", "--sl", f"{p0 + 0.01:.5f}", "--tp", f"{p0 + 0.02:.5f}"]) == 1, \
+    "a BUY with the SL above the entry is rejected"
+manual = [i for i in audit_all(NOW) if i.decision == "BUY NOW" and i.symbol == "EUR/USD"]
+assert manual and manual[-1].status in ("CLOSED", "UNRESOLVED", "OPEN"), manual
+assert fxbot._script("review").main(["--all", "--manual"]) == 0
+
 # ---------------------------------------------------------------- backtest replay on the same archive
 from src.engine.backtest import BacktestConfig, run as run_backtest  # noqa: E402
 from src.stats.validation import benchmark  # noqa: E402
@@ -198,6 +212,7 @@ print("T14 CZECH OUTPUT CONTRACT (PRICES, TOP-3, CERTIFICATES): PASS")
 print("PREVIOUS OFFICIAL T0 CONTINUITY: PASS")
 print(f"LOCKED IN RUN 1: {len(result['locked'])} (immutable, linked to run): PASS")
 print("FORWARD ANTI-MODEL CONTROL (MIRRORED PLAN AT T0): PASS")
+print("USER TRADE JOURNAL (LOCK, AUTO-RESOLVE, MANUAL REVIEW): PASS")
 print(f"BACKTEST REPLAY {sequential.decisions} DECISIONS, {len(sequential.trades)} TRADES, PARALLEL = SEQUENTIAL: PASS")
 print("RESULT: PASS")
 print("=" * 60)

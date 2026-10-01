@@ -4,6 +4,7 @@
     python scripts/review.py --weekly     # last 7 days: repeated mechanisms, regimes
     python scripts/review.py --monthly    # last 30 days: release-level view, decay
     python scripts/review.py --all        # whole forward test (everything locked so far)
+    python scripts/review.py --all --manual   # only YOUR trades (fxbot.py journal)
 
 Reads only the immutable ledger. A single event never changes a production
 rule: the review lists change CANDIDATES (1 case = observation, 2 =
@@ -34,13 +35,14 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--weekly", action="store_true")
     parser.add_argument("--monthly", action="store_true")
     parser.add_argument("--all", action="store_true")
+    parser.add_argument("--manual", action="store_true", help="only the user's own trades (journal)")
     args = parser.parse_args(argv)
     initialize_database()
     initialize_ledger()
     days = 100000 if args.all else 30 if args.monthly else 7 if args.weekly else 1
     now = datetime.now(UTC)
     since = 0.0 if args.all else (now - timedelta(days=days)).timestamp()
-    everything = ledger_trades()
+    everything = [t for t in ledger_trades() if (t["model_version"] == "MANUAL") == args.manual]
     trades = [t for t in everything if t["t0"] >= since]
     label = {1: "DENNI", 7: "TYDENNI", 30: "MESICNI"}.get(days, "CELKOVA")
 
@@ -51,6 +53,8 @@ def main(argv: list[str]) -> int:
     print(summarize(trades, "obdobi").line())
     print(summarize(everything, "cela historie").line())
     print_control(trades, ledger_controls(since, now))
+    if args.manual:
+        print("(jen rucni obchody z 'fxbot.py journal')")
 
     if days >= 7:
         for name, key in (("par", "symbol"), ("rozhodnuti", "decision"), ("duvera", "confidence"),

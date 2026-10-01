@@ -120,3 +120,14 @@ expectancy always negative; paired direction edge |t| <= 2 everywhere; the rever
 direction is not profitable either. Technical-only direction: same (edge +-0.01 R).
 No change proposed. (A first version weighted weeks equally in the edge and showed
 a spurious -0.05 R "edge"; fixed to a per-decision mean with week-clustered error.)
+
+## Result R-004 - the user's method: classic pivots + SMA 50 (2026-10-01)
+
+`scripts/pivot_lab.py` -> docs/PIVOTY.md: 216 variants (pivots of the previous day /
+week / month; entries bounce at P, bounce at S1, break of R1, market; filters none /
+SMA50 D1 / SMA50 W1 / both / pivot side, each also reversed as control; holding 1 or
+5 days), ranked on 2016-09..2021-12, shown on 2014-2016 and 2022-2026. None positive
+in all three periods; best ranked +0.041 R -> -0.019 / +0.015 R. SMA50 filters add
+~0.004 R over their reversal; the pivot-side filter ~0.045 R, still negative overall.
+New: `fxbot.py journal` records the user's own trades in the ledger (MANUAL), resolved
+and reviewed (`review --manual`) with the paired control - to measure discretionary skill.

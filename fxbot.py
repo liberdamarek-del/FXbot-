@@ -10,7 +10,9 @@
     python fxbot.py resolve          # jen vyhodnotit otevrene predikce
     python fxbot.py status           # stav dat, archivu, evidence a registru modelu
     python fxbot.py paper            # papirovy ucet z evidence predikci
-    python fxbot.py review [--weekly|--monthly|--all]   # revize predikci (modul 82)
+    python fxbot.py review [--weekly|--monthly|--all] [--manual]   # revize predikci (modul 82)
+    python fxbot.py journal BUY USD/JPY 158.32 --sl 157.40 --tp 160.00 [--time "2026-10-01 06:30"] [--horizon 120h]
+                                     # zapsat VAS rucni obchod; bot ho sam vyhodnoti (deni k)
     python fxbot.py report           # posledni zprava behu
     python fxbot.py verify-model [cesta.docx]   # kontrola Wordu (moduly 0-145)
     python fxbot.py setkey           # ulozit a otestovat klic Twelve Data
@@ -223,6 +225,46 @@ def cmd_verify_model(args) -> int:
     return 0 if result["status"] == "MODEL LOAD COMPLETE" else 1
 
 
+def cmd_journal(args) -> int:
+    """Lock the user's own trade in the immutable ledger (model_version
+    MANUAL). It is resolved by every run on the BID/ASK path like any model
+    prediction and reviewed with `review --manual`, incl. the paired control
+    against a random direction - the only way to measure a discretionary
+    method (pivots, SMA, judgement) objectively."""
+    from src.database import initialize_database
+    from src.instruments import get_instrument
+    from src.prediction_ledger import PredictionRejected, initialize_ledger, lock_prediction
+
+    initialize_database()
+    initialize_ledger()
+    side = args.side.upper()
+    symbol = args.symbol.upper()
+    instrument = get_instrument(symbol)
+    now = datetime.now(timezone.utc)
+    t0 = now if not args.time else datetime.fromisoformat(args.time).replace(tzinfo=timezone.utc)
+    q = lambda v: round(v, instrument.decimals)
+
+    try:
+        pid = lock_prediction(
+            model_version="MANUAL", run_id="MANUAL", t0=t0, instrument=symbol, decision=f"{side} NOW",
+            reference_price=q(args.price), price_source="MANUAL (obchod uzivatele)", price_timestamp=t0,
+            data_state="CURRENT", data_quality="C", forecast_mode="MANUAL", setup_type=args.setup,
+            entry=q(args.price), stop_loss=q(args.sl), tp1=q(args.tp), primary_horizon=args.horizon,
+            thesis=args.note or "rucni obchod uzivatele", counterforce="neuvedeno",
+            invalidation=f"SL {q(args.sl)}", reasons=[args.note or "rucni obchod"],
+            inputs={"entry_mode": "limit", "analysis_price": args.price, "manual": True}, now=now)
+    except PredictionRejected as exc:
+        print(f"ZAMITNUTO: {exc}")
+        return 1
+
+    risk = abs(args.price - args.sl) / instrument.pip
+    reward = abs(args.tp - args.price) / instrument.pip
+    print(f"zapsano {pid}: {side} {symbol} {q(args.price)} SL {q(args.sl)} ({risk:.0f} pip) TP {q(args.tp)} "
+          f"({reward:.0f} pip, R:R {reward / risk:.2f}), horizont {args.horizon}")
+    print("vyhodnoti se samo pri kazdem 'python fxbot.py run'; prehled: python fxbot.py review --all --manual")
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="fxbot", description="FXBOT V7.8.0 implementation")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -254,6 +296,16 @@ def main(argv: list[str]) -> int:
     verify = sub.add_parser("verify-model", help="check the model Word document")
     verify.add_argument("path", nargs="?")
     verify.add_argument("--list", action="store_true")
+    journal = sub.add_parser("journal", help="record your own trade (evaluated automatically)")
+    journal.add_argument("side", choices=("BUY", "SELL", "buy", "sell"))
+    journal.add_argument("symbol")
+    journal.add_argument("price", type=float)
+    journal.add_argument("--sl", type=float, required=True)
+    journal.add_argument("--tp", type=float, required=True)
+    journal.add_argument("--time", default=None, help="entry time UTC 'YYYY-MM-DD HH:MM' (default now)")
+    journal.add_argument("--horizon", default="120h", help="max holding, e.g. 24h, 72h, 120h")
+    journal.add_argument("--setup", default="MANUAL", help="e.g. PIVOT_S1, SMA50_PULLBACK")
+    journal.add_argument("--note", default=None)
 
     if argv and argv[0] in ("history", "fundamentals", "backtest", "setkey", "test", "review"):
         name = {"history": "download_history", "fundamentals": "update_fundamentals", "backtest": "backtest",
@@ -263,7 +315,7 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
     return {
         "run": cmd_run, "update": cmd_update, "resolve": cmd_resolve, "status": cmd_status,
-        "paper": cmd_paper, "report": cmd_report, "verify-model": cmd_verify_model,
+        "paper": cmd_paper, "report": cmd_report, "verify-model": cmd_verify_model, "journal": cmd_journal,
     }[args.command](args)
 
 
