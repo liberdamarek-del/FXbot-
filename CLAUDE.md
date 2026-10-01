@@ -19,6 +19,7 @@ add markets.
   (FRED). Then add 3-5 new, economically motivated experiments to `EXPERIMENTS` in `scripts/self_learn.py`
   (not repeats of rejected ones in docs/UCENI_LOG.md), run `python scripts/self_learn.py` and
   `python scripts/self_learn.py --profile mesicne`; if a champion changed: `python scripts/champion_report.py --profile mesicne`,
+  `python scripts/pair_stats.py` (pair ranking on the dashboard),
   `python scripts/signals_live.py` and update the dashboard. Note results in docs/UCENI_LOG.md (automatic)
   and docs/CHANGE_LOG.md; commit and push to main.
 

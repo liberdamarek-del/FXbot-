@@ -162,6 +162,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
         out["smer"] = "KOUPIT" if side > 0 else "PRODAT"
         out["stupen"] = TIER_NAMES[k] if k < len(TIER_NAMES) else "slaby"
         out["marze_zaklad"] = shares[k]
+        out["stupen_index"] = k
         prev = c[:-1]                                     # Wilder state up to the day before the decision bar
         trig = [rsi_trigger(prev, 2, 5.0, side)]
         if "RSI3" in sig:
@@ -177,6 +178,8 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
         hit_rsi2 = rsi2[-1] < 5 if side > 0 else rsi2[-1] > 95
         hit_rsi3 = ("RSI3" in sig) and (rsi3[-1] < 15 if side > 0 else rsi3[-1] > 85)
         is_friday = day.weekday() == 4
+        out["v_pasmu"] = bool(hit_rsi2 or hit_rsi3)
+        out["cil_ok"] = bool(base["tp"] * atr[-1] / c[-1] * 100 * P.LEVERAGE >= 10.0 - 1e-9)
         if is_friday and (hit_rsi2 or hit_rsi3):
             entry = float(c[-1])
             tp = entry + side * base["tp"] * atr[-1]
@@ -200,6 +203,30 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
         out["stupen"] = "-"
         out["podminka"] = "fundamenty (sazby) ted nepodporuji zadny smer"
     return out
+
+
+def rank_pairs(pairs: list) -> None:
+    """Attach the historical success of the applicable tier on each pair
+    (learning/pair_stats.json) and sort: signal now first, then pairs the
+    fundamentals allow, each by the estimated success and average result."""
+    path = LEARNING / "pair_stats.json"
+    stats = json.loads(path.read_text()) if path.exists() else {"stupne": []}
+    for p in pairs:
+        k = p.get("stupen_index")
+        if k is None or k >= len(stats["stupne"]):
+            continue
+        st = stats["stupne"][k]["pary"].get(p["par"])
+        if st:
+            p.update(odhad_uspesnosti=st["odhad_uspesnosti"], odhad_prumer=st["odhad_prumer"],
+                     uspesnost_hist=st["uspesnost"], n_hist=st["n"], prumer_hist=st["prumer_proc_marze"])
+    for p in pairs:
+        p["skupina"] = ("signal" if p.get("signal") else "pripraven" if p.get("v_pasmu") and p.get("cil_ok")
+                        else "povoleny" if p.get("smer") in ("KOUPIT", "PRODAT") else "nic")
+    order = {"signal": 3, "pripraven": 2, "povoleny": 1, "nic": 0}
+    pairs.sort(key=lambda p: (order[p["skupina"]], p.get("odhad_uspesnosti") or 0, p.get("odhad_prumer") or 0),
+               reverse=True)
+    for i, p in enumerate(pairs, 1):
+        p["poradi"] = i
 
 
 # ----------------------------------------------------------------------
@@ -252,6 +279,7 @@ def main() -> int:
             cache[pair] = yahoo_hourly(YAHOO[pair], "3mo")
         except Exception:
             pass
+    rank_pairs(pairs)
     czk = {}
     for ccy, sym in CZK.items():
         try:
@@ -297,7 +325,9 @@ def main() -> int:
                      "test_2023_26": {"rocne": round(ev["1"]["test_cagr"] * 100, 1), "propad": round(ev["1"]["test_dd"] * 100, 1),
                                       "ziskovych_mesicne": round(ev["1"]["test_wins_month"], 1)}},
         "pary": pairs,
-        "signaly": [dict(par=p["par"], **p["signal"]) for p in pairs if p.get("signal")],
+        "signaly": [dict(par=p["par"], odhad_uspesnosti=p.get("odhad_uspesnosti"), uspesnost_hist=p.get("uspesnost_hist"),
+                         n_hist=p.get("n_hist"), **p["signal"]) for p in pairs if p.get("signal")],
+        "razeni": "signal, pak pripravene ke vstupu, pak ostatni povolene, nakonec bez smeru; uvnitr podle odhadu uspesnosti",
         "fundamenty": fund,
         "vix": {"hodnota": vix_rows[-1][1], "den": vix_rows[-1][0].isoformat()},
         "czk": czk,

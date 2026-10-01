@@ -98,10 +98,10 @@ details summary { cursor: pointer; font-weight: 600; }
   </section>
 
   <section class="sheet" aria-labelledby="h-watch">
-    <header><h2 id="h-watch">Sledované páry</h2><span class="small muted">Kam fundamenty dovolují obchodovat a jak daleko je cena od signálu.</span></header>
+    <header><h2 id="h-watch">Sledované páry</h2><span class="small muted">Seřazeno od nejvíc doporučeného: nahoře signály, pak páry připravené ke vstupu, pak ostatní. Uvnitř podle odhadované úspěšnosti.</span></header>
     <div class="tablewrap"><table>
-      <thead><tr><th>Pár</th><th class="r">Cena</th><th>Směr podle sazeb</th><th>Síla</th><th class="r">RSI(2)</th><th>Kdy bude signál</th></tr></thead>
-      <tbody id="pairs"><tr><td colspan="6" class="muted">Data se načítají…</td></tr></tbody>
+      <thead><tr><th class="r">#</th><th>Pár</th><th>Stav</th><th class="r">Odhad úspěšnosti</th><th>Směr podle sazeb</th><th>Síla</th><th class="r">Cena</th><th class="r">RSI(2)</th><th>Kdy bude signál</th></tr></thead>
+      <tbody id="pairs"><tr><td colspan="9" class="muted">Data se načítají…</td></tr></tbody>
     </table></div>
   </section>
 
@@ -164,7 +164,7 @@ details summary { cursor: pointer; font-weight: 600; }
     </ol>
     <details class="small">
       <summary>Slovníček</summary>
-      <p><b>KOUPIT / PRODAT</b> – sázka na růst / pokles prvního měnového kódu v páru (u EUR/USD na euro). <b>Take profit (TP)</b> – cena, kde se obchod uzavře se ziskem. <b>Stop loss (SL)</b> – cena, kde se obchod uzavře se ztrátou. <b>Marže</b> – část účtu, kterou broker na obchod zablokuje; při páce 1:30 je pozice 30× větší než marže. <b>Síla</b> – jak moc fundamenty (sazby) podporují obchod; silné signály mají větší pozici. <b>RSI(2)</b> – ukazatel krátkého propadu (pod 5) nebo růstu (nad 95).</p>
+      <p><b>Odhad úspěšnosti</b> – kolik procent obchodů podle tohoto pravidla vyšlo v letech 2012–2026 na daném páru se stejnou silou signálu (u párů s málo obchody opatrně přitaženo k průměru). Není to záruka. <b>Připraven</b> – cena je už teď v pásmu signálu; pokud tam zůstane do pátečního zavření, bude obchod. <b>KOUPIT / PRODAT</b> – sázka na růst / pokles prvního měnového kódu v páru (u EUR/USD na euro). <b>Take profit (TP)</b> – cena, kde se obchod uzavře se ziskem. <b>Stop loss (SL)</b> – cena, kde se obchod uzavře se ztrátou. <b>Marže</b> – část účtu, kterou broker na obchod zablokuje; při páce 1:30 je pozice 30× větší než marže. <b>Síla</b> – jak moc fundamenty (sazby) podporují obchod; silné signály mají větší pozici. <b>RSI(2)</b> – ukazatel krátkého propadu (pod 5) nebo růstu (nad 95).</p>
     </details>
     <p class="small muted">Výsledky modelu jsou zatím z historických dat (backtest). Skutečný důkaz je dopředný test v části Výsledky. Obchoduj jen peníze, jejichž ztrátu uneseš.</p>
   </section>
@@ -201,7 +201,7 @@ details summary { cursor: pointer; font-weight: 600; }
   function renderSignals() {
     if (!state) return;
     const acc = parseNum($("ucet").value);
-    const list = state.signaly || [];
+    const list = (state.signaly || []).slice().sort((a, b) => (b.odhad_uspesnosti || 0) - (a.odhad_uspesnosti || 0));
     $("sig-note").textContent = state.je_patek ? "Páteční vyhodnocení – zadej do 23:00 (náš čas)." : "Nové signály se počítají každý pátek ve 22:05 (náš čas).";
     if (!list.length) {
       $("signals").innerHTML = `<div class="empty">${state.je_patek ? "Tento pátek žádný pár nesplnil podmínky. Žádný obchod – i to je rozhodnutí." : "Teď není pátek, takže nový signál není. Podívej se do Sledovaných párů, které páry jsou blízko."}</div>`;
@@ -220,6 +220,7 @@ details summary { cursor: pointer; font-weight: 600; }
       return `<article class="signal ${cls}">
         <div class="head"><h3>${esc(s.par)}</h3><div class="row">${sideChip(s.smer)}${tierChip(s.stupen)}</div></div>
         <dl class="kv">
+          <dt>Odhad úspěšnosti</dt><dd>${s.odhad_uspesnosti !== undefined && s.odhad_uspesnosti !== null ? fmt(s.odhad_uspesnosti, 0) + " %" : "–"}</dd>
           <dt>Vstup (cena teď)</dt><dd>${fmt(s.vstup, dec(s.par))}</dd>
           <dt>Take profit</dt><dd class="pos">${fmt(s.tp, dec(s.par))}</dd>
           <dt>Stop loss</dt><dd class="neg">${fmt(s.sl, dec(s.par))}</dd>
@@ -245,15 +246,32 @@ details summary { cursor: pointer; font-weight: 600; }
     }));
   }
 
+  const GROUP = { signal: [3, '<span class="chip strong">signál</span>'], pripraven: [2, '<span class="chip warn">připraven</span>'],
+                  povoleny: [1, '<span class="chip">čeká</span>'], nic: [0, '<span class="chip">bez směru</span>'] };
+  function ranked(list) {
+    return list.slice().sort((a, b) => {
+      if (a.poradi && b.poradi) return a.poradi - b.poradi;
+      const ga = (GROUP[a.skupina] || [0])[0], gb = (GROUP[b.skupina] || [0])[0];
+      return gb - ga || (b.odhad_uspesnosti || 0) - (a.odhad_uspesnosti || 0);
+    });
+  }
+  function successCell(p) {
+    if (p.odhad_uspesnosti === undefined || p.odhad_uspesnosti === null) return "–";
+    const hist = p.n_hist ? `<div class="small muted">historie ${fmt(Math.round(p.n_hist * (p.uspesnost_hist || 0) / 100), 0)} z ${p.n_hist}</div>` : `<div class="small muted">bez historie</div>`;
+    return `<b>${fmt(p.odhad_uspesnosti, 0)} %</b>${hist}`;
+  }
   function renderPairs() {
     if (!state) return;
-    $("pairs").innerHTML = (state.pary || []).map((p) => {
-      if (p.chyba) return `<tr><td>${esc(p.par)}</td><td colspan="5" class="muted">${esc(p.chyba)}</td></tr>`;
+    $("pairs").innerHTML = ranked(state.pary || []).map((p, i) => {
+      if (p.chyba) return `<tr><td class="r num">${i + 1}</td><td>${esc(p.par)}</td><td colspan="7" class="muted">${esc(p.chyba)}</td></tr>`;
       const rsiCls = p.rsi2 < 5 || p.rsi2 > 95 ? "chip warn" : "";
-      return `<tr><td><b>${esc(p.par)}</b></td><td class="r num">${fmt(p.cena, p.desetinna_mista)}</td>
+      const goal = (p.smer !== "NIC" && p.cil_ok === false) ? `<div class="small muted">teď by cíl nedosáhl 10 % marže (malý pohyb ceny), proto se neobchoduje</div>` : "";
+      return `<tr><td class="r num">${i + 1}</td><td><b>${esc(p.par)}</b></td><td>${(GROUP[p.skupina] || GROUP.nic)[1]}</td>
+        <td class="r num">${successCell(p)}</td>
         <td>${sideChip(p.smer)}<div class="small muted">sazby ${sgn(p.zmena_sazeb_3m, 2)} p.b., rozdíl ${sgn(p.rozdil_sazeb, 2)} %</div></td>
-        <td>${tierChip(p.stupen)}</td><td class="r num"><span class="${rsiCls}">${fmt(p.rsi2, 0)}</span></td>
-        <td class="small">${esc(p.podminka || "")}</td></tr>`;
+        <td>${tierChip(p.stupen)}</td><td class="r num">${fmt(p.cena, p.desetinna_mista)}</td>
+        <td class="r num"><span class="${rsiCls}">${fmt(p.rsi2, 0)}</span></td>
+        <td class="small">${esc(p.podminka || "")}${goal}</td></tr>`;
     }).join("");
   }
 

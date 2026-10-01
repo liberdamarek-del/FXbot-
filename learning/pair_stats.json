@@ -1,0 +1,422 @@
+{
+ "pravidlo": "CH-009 (12 paru) + stop_4_atr + signal_i_rsi3",
+ "prior_n": 20,
+ "stupne": [
+  {
+   "index": 0,
+   "obchodu": 86,
+   "uspesnost": 94.2,
+   "prumer_proc_marze": 17.1,
+   "pary": {
+    "EUR/USD": {
+     "n": 3,
+     "ziskovych": 3,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 22.1,
+     "odhad_uspesnosti": 94.9,
+     "odhad_prumer": 17.8
+    },
+    "USD/JPY": {
+     "n": 9,
+     "ziskovych": 9,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 26.9,
+     "odhad_uspesnosti": 96.0,
+     "odhad_prumer": 20.2
+    },
+    "GBP/USD": {
+     "n": 12,
+     "ziskovych": 10,
+     "uspesnost": 83.3,
+     "prumer_proc_marze": 4.3,
+     "odhad_uspesnosti": 90.1,
+     "odhad_prumer": 12.3
+    },
+    "USD/CHF": {
+     "n": 13,
+     "ziskovych": 13,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 23.0,
+     "odhad_uspesnosti": 96.5,
+     "odhad_prumer": 19.5
+    },
+    "AUD/USD": {
+     "n": 9,
+     "ziskovych": 9,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 22.7,
+     "odhad_uspesnosti": 96.0,
+     "odhad_prumer": 18.9
+    },
+    "USD/CAD": {
+     "n": 6,
+     "ziskovych": 6,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 18.5,
+     "odhad_uspesnosti": 95.5,
+     "odhad_prumer": 17.4
+    },
+    "NZD/USD": {
+     "n": 12,
+     "ziskovych": 10,
+     "uspesnost": 83.3,
+     "prumer_proc_marze": 13.2,
+     "odhad_uspesnosti": 90.1,
+     "odhad_prumer": 15.6
+    },
+    "EUR/JPY": {
+     "n": 3,
+     "ziskovych": 3,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 27.0,
+     "odhad_uspesnosti": 94.9,
+     "odhad_prumer": 18.4
+    },
+    "GBP/JPY": {
+     "n": 3,
+     "ziskovych": 3,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 29.5,
+     "odhad_uspesnosti": 94.9,
+     "odhad_prumer": 18.8
+    },
+    "EUR/GBP": {
+     "n": 5,
+     "ziskovych": 5,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 14.0,
+     "odhad_uspesnosti": 95.3,
+     "odhad_prumer": 16.5
+    },
+    "EUR/CHF": {
+     "n": 5,
+     "ziskovych": 5,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 16.8,
+     "odhad_uspesnosti": 95.3,
+     "odhad_prumer": 17.1
+    },
+    "AUD/JPY": {
+     "n": 6,
+     "ziskovych": 5,
+     "uspesnost": 83.3,
+     "prumer_proc_marze": 3.1,
+     "odhad_uspesnosti": 91.7,
+     "odhad_prumer": 13.9
+    }
+   }
+  },
+  {
+   "index": 1,
+   "obchodu": 114,
+   "uspesnost": 93.0,
+   "prumer_proc_marze": 15.1,
+   "pary": {
+    "EUR/USD": {
+     "n": 6,
+     "ziskovych": 6,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 17.6,
+     "odhad_uspesnosti": 94.6,
+     "odhad_prumer": 15.7
+    },
+    "USD/JPY": {
+     "n": 13,
+     "ziskovych": 12,
+     "uspesnost": 92.3,
+     "prumer_proc_marze": 13.0,
+     "odhad_uspesnosti": 92.7,
+     "odhad_prumer": 14.2
+    },
+    "GBP/USD": {
+     "n": 11,
+     "ziskovych": 10,
+     "uspesnost": 90.9,
+     "prumer_proc_marze": 13.1,
+     "odhad_uspesnosti": 92.2,
+     "odhad_prumer": 14.3
+    },
+    "USD/CHF": {
+     "n": 15,
+     "ziskovych": 15,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 18.9,
+     "odhad_uspesnosti": 96.0,
+     "odhad_prumer": 16.7
+    },
+    "AUD/USD": {
+     "n": 14,
+     "ziskovych": 13,
+     "uspesnost": 92.9,
+     "prumer_proc_marze": 16.5,
+     "odhad_uspesnosti": 92.9,
+     "odhad_prumer": 15.7
+    },
+    "USD/CAD": {
+     "n": 5,
+     "ziskovych": 5,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 18.3,
+     "odhad_uspesnosti": 94.4,
+     "odhad_prumer": 15.7
+    },
+    "NZD/USD": {
+     "n": 18,
+     "ziskovych": 17,
+     "uspesnost": 94.4,
+     "prumer_proc_marze": 22.1,
+     "odhad_uspesnosti": 93.7,
+     "odhad_prumer": 18.4
+    },
+    "EUR/JPY": {
+     "n": 2,
+     "ziskovych": 2,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 26.7,
+     "odhad_uspesnosti": 93.6,
+     "odhad_prumer": 16.1
+    },
+    "GBP/JPY": {
+     "n": 6,
+     "ziskovych": 4,
+     "uspesnost": 66.7,
+     "prumer_proc_marze": 0.9,
+     "odhad_uspesnosti": 86.9,
+     "odhad_prumer": 11.8
+    },
+    "EUR/GBP": {
+     "n": 6,
+     "ziskovych": 6,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 14.0,
+     "odhad_uspesnosti": 94.6,
+     "odhad_prumer": 14.8
+    },
+    "EUR/CHF": {
+     "n": 4,
+     "ziskovych": 4,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 13.5,
+     "odhad_uspesnosti": 94.2,
+     "odhad_prumer": 14.8
+    },
+    "AUD/JPY": {
+     "n": 14,
+     "ziskovych": 12,
+     "uspesnost": 85.7,
+     "prumer_proc_marze": 6.9,
+     "odhad_uspesnosti": 90.0,
+     "odhad_prumer": 11.7
+    }
+   }
+  },
+  {
+   "index": 2,
+   "obchodu": 235,
+   "uspesnost": 88.9,
+   "prumer_proc_marze": 9.0,
+   "pary": {
+    "EUR/USD": {
+     "n": 19,
+     "ziskovych": 19,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 15.1,
+     "odhad_uspesnosti": 94.3,
+     "odhad_prumer": 11.9
+    },
+    "USD/JPY": {
+     "n": 19,
+     "ziskovych": 17,
+     "uspesnost": 89.5,
+     "prumer_proc_marze": 7.5,
+     "odhad_uspesnosti": 89.2,
+     "odhad_prumer": 8.2
+    },
+    "GBP/USD": {
+     "n": 25,
+     "ziskovych": 23,
+     "uspesnost": 92.0,
+     "prumer_proc_marze": 11.9,
+     "odhad_uspesnosti": 90.6,
+     "odhad_prumer": 10.6
+    },
+    "USD/CHF": {
+     "n": 25,
+     "ziskovych": 22,
+     "uspesnost": 88.0,
+     "prumer_proc_marze": 10.1,
+     "odhad_uspesnosti": 88.4,
+     "odhad_prumer": 9.6
+    },
+    "AUD/USD": {
+     "n": 26,
+     "ziskovych": 22,
+     "uspesnost": 84.6,
+     "prumer_proc_marze": 4.8,
+     "odhad_uspesnosti": 86.5,
+     "odhad_prumer": 6.6
+    },
+    "USD/CAD": {
+     "n": 18,
+     "ziskovych": 18,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 15.4,
+     "odhad_uspesnosti": 94.2,
+     "odhad_prumer": 12.0
+    },
+    "NZD/USD": {
+     "n": 33,
+     "ziskovych": 30,
+     "uspesnost": 90.9,
+     "prumer_proc_marze": 15.7,
+     "odhad_uspesnosti": 90.2,
+     "odhad_prumer": 13.2
+    },
+    "EUR/JPY": {
+     "n": 6,
+     "ziskovych": 3,
+     "uspesnost": 50.0,
+     "prumer_proc_marze": -26.3,
+     "odhad_uspesnosti": 80.0,
+     "odhad_prumer": 0.8
+    },
+    "GBP/JPY": {
+     "n": 17,
+     "ziskovych": 13,
+     "uspesnost": 76.5,
+     "prumer_proc_marze": -1.6,
+     "odhad_uspesnosti": 83.2,
+     "odhad_prumer": 4.1
+    },
+    "EUR/GBP": {
+     "n": 15,
+     "ziskovych": 13,
+     "uspesnost": 86.7,
+     "prumer_proc_marze": 2.4,
+     "odhad_uspesnosti": 88.0,
+     "odhad_prumer": 6.1
+    },
+    "EUR/CHF": {
+     "n": 7,
+     "ziskovych": 7,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 13.7,
+     "odhad_uspesnosti": 91.8,
+     "odhad_prumer": 10.2
+    },
+    "AUD/JPY": {
+     "n": 25,
+     "ziskovych": 22,
+     "uspesnost": 88.0,
+     "prumer_proc_marze": 10.7,
+     "odhad_uspesnosti": 88.4,
+     "odhad_prumer": 9.9
+    }
+   }
+  },
+  {
+   "index": 3,
+   "obchodu": 481,
+   "uspesnost": 88.4,
+   "prumer_proc_marze": 7.8,
+   "pary": {
+    "EUR/USD": {
+     "n": 34,
+     "ziskovych": 32,
+     "uspesnost": 94.1,
+     "prumer_proc_marze": 12.2,
+     "odhad_uspesnosti": 92.0,
+     "odhad_prumer": 10.6
+    },
+    "USD/JPY": {
+     "n": 44,
+     "ziskovych": 39,
+     "uspesnost": 88.6,
+     "prumer_proc_marze": 6.9,
+     "odhad_uspesnosti": 88.5,
+     "odhad_prumer": 7.2
+    },
+    "GBP/USD": {
+     "n": 42,
+     "ziskovych": 38,
+     "uspesnost": 90.5,
+     "prumer_proc_marze": 8.7,
+     "odhad_uspesnosti": 89.8,
+     "odhad_prumer": 8.4
+    },
+    "USD/CHF": {
+     "n": 42,
+     "ziskovych": 38,
+     "uspesnost": 90.5,
+     "prumer_proc_marze": 10.2,
+     "odhad_uspesnosti": 89.8,
+     "odhad_prumer": 9.4
+    },
+    "AUD/USD": {
+     "n": 40,
+     "ziskovych": 35,
+     "uspesnost": 87.5,
+     "prumer_proc_marze": 7.7,
+     "odhad_uspesnosti": 87.8,
+     "odhad_prumer": 7.7
+    },
+    "USD/CAD": {
+     "n": 37,
+     "ziskovych": 33,
+     "uspesnost": 89.2,
+     "prumer_proc_marze": 6.4,
+     "odhad_uspesnosti": 88.9,
+     "odhad_prumer": 6.9
+    },
+    "NZD/USD": {
+     "n": 47,
+     "ziskovych": 41,
+     "uspesnost": 87.2,
+     "prumer_proc_marze": 10.7,
+     "odhad_uspesnosti": 87.6,
+     "odhad_prumer": 9.8
+    },
+    "EUR/JPY": {
+     "n": 45,
+     "ziskovych": 38,
+     "uspesnost": 84.4,
+     "prumer_proc_marze": 3.0,
+     "odhad_uspesnosti": 85.6,
+     "odhad_prumer": 4.5
+    },
+    "GBP/JPY": {
+     "n": 43,
+     "ziskovych": 35,
+     "uspesnost": 81.4,
+     "prumer_proc_marze": 1.7,
+     "odhad_uspesnosti": 83.6,
+     "odhad_prumer": 3.6
+    },
+    "EUR/GBP": {
+     "n": 35,
+     "ziskovych": 33,
+     "uspesnost": 94.3,
+     "prumer_proc_marze": 10.2,
+     "odhad_uspesnosti": 92.1,
+     "odhad_prumer": 9.3
+    },
+    "EUR/CHF": {
+     "n": 18,
+     "ziskovych": 16,
+     "uspesnost": 88.9,
+     "prumer_proc_marze": 7.5,
+     "odhad_uspesnosti": 88.6,
+     "odhad_prumer": 7.7
+    },
+    "AUD/JPY": {
+     "n": 54,
+     "ziskovych": 47,
+     "uspesnost": 87.0,
+     "prumer_proc_marze": 9.5,
+     "odhad_uspesnosti": 87.4,
+     "odhad_prumer": 9.0
+    }
+   }
+  }
+ ]
+}
