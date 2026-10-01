@@ -203,3 +203,28 @@ month m-2 for a decision in month m; momentum = D(m-2) - D(m-5).
   D(m-2) in the trade direction; F7 = F5 with TP >= 0.5 % of the price.
 * Success criterion of the forward test: after >= 50 trades the mean result >= +5 % of the margin with
   a week-clustered t >= 2 and winners >= 80 %; otherwise rejected. No promotion, no real money before.
+
+## Result R-009 - annual account return instead of profit per trade (2026-10-01)
+
+Questions of the user: why only Friday, 20 trades x 10 % or 40 trades x 7 %, the largest annual
+return with >= 2-3 winning trades a month. Account simulation trade by trade with compounding, one
+position per pair, margin cap 100 % (`scripts/portfolio_sim.py`). Weekday split of F1
+(`scripts/weekday_tradeoff.py`, docs/DNY_A_POCET.md): only Friday works (+10.8 / +11.5 / +10.3 %
+per trade; Monday-Thursday -11..+14 %, unstable). Trade-off (rate threshold 0.40 .. 0): at the same
+margin more trades earn more (20/yr +11 %, 76/yr +21 % a year at 5 %), at the same drawdown (<= 20 %)
+fewer, better trades win (+23 % vs +8 %). Rejected: 56 statistically selected rules combined
+(2012-22 +25 %, 2023-26 +10 % a year, drawdown 27 %), fitted weights (overfit), per-tier exits
+(2012-22 +37 %, 2023-26 +16 %), trend following (losses), other weekdays. Accepted: tiered sizing
+(`scripts/portfolio_tiers.py`, docs/PORTFOLIO_STUPNE.md), sizes chosen on 2012-2022:
+2012-22 +23.5 % a year, drawdown 19 %; 2023-26 +24.2 %, drawdown 16 %; 76 trades a year, 85 %
+winners, 5.3 winning trades a month, 87 % of months with >= 2. Summary: docs/ROCNI_VYNOS_VYSLEDEK.md.
+
+## CH-009 - CHALLENGER "SAZBY+PROPAD STUPNE" (pre-registered 2026-10-01, forward test only)
+
+The CH-008 rule (Friday close, RSI(2) < 5 / > 95, TP 0.75 ATR, SL 3 ATR, 20 days, TP >= 0.333 % of the
+price, one position per pair) for all trades whose 3-month rate-difference change (OECD 3m, lag 2
+months) is in the trade direction, sized by its size: >= 0.25 pp -> margin 8 % of the equity;
+>= 0.10 pp -> 3 %; >= 0 -> 2 %; total margin <= 100 % of the equity. Safety switch: a tier whose
+closed trades of the last 24 months sum to a loss (>= 5 trades) is off until the sum is positive.
+Success criterion of the forward test: after 12 months or >= 60 trades the account return >= +8 %
+a year with a drawdown <= 25 %; otherwise rejected. No real money before.

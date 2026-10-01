@@ -30,6 +30,7 @@ class Rule:
     name: str
     signal: str = "D RSI2<5"          # key of profit_lab2.signal_defs()
     weekly: bool = True               # decide only at the week close
+    weekday: int = -1                 # 0-4 = decide only on this weekday's close (overrides weekly)
     trend: str | None = None
     fund: str | None = "rates_up"
     rates_lag: int = 2                # months: rate known at the decision
@@ -46,6 +47,7 @@ class Rule:
     cost_x: float = 1.0               # spread + slippage multiplier
     rates_src: str = "oecd"           # "oecd" = monthly 3m interbank (FRED), "y2" = daily 2y yields (fundamentals DB)
     max_sl_margin: float = 1e9        # skip trades whose stop is wider than this % of the margin
+    exit_kind: str = "ATR"            # "ATR" = tp/sl in ATR multiples, "PCT" = tp/sl in % of the price
 
 
 _cache: dict = {}
@@ -124,9 +126,14 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         ts, hh, hl, hc = s["ts"], s["h"], s["l"], s["c"]
         L = P.HOLD_BARS[rule.hold_days]
         busy_until = -1
-        signal = {sd: np.nan_to_num(defs[rule.signal][0 if sd > 0 else 1](I)).astype(bool) for sd in (1, -1)}
+        names = rule.signal.split("|")
+        signal = {sd: np.logical_or.reduce([np.nan_to_num(defs[nm][0 if sd > 0 else 1](I)).astype(bool)
+                                            for nm in names]) for sd in (1, -1)}
         for i in range(260, len(s["days"]) - 1):
-            if rule.weekly and not I["week_end"][i]:
+            if rule.weekday >= 0:
+                if s["days"][i].weekday() != rule.weekday:
+                    continue
+            elif rule.weekly and not I["week_end"][i]:
                 continue
             atr = I["atr"][i]
             if np.isnan(atr):
@@ -139,6 +146,11 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 if rule.fund == "rates_up" and not (side * I["rates_mom"][i] >= rule.rates_thr):
                     continue
                 if rule.fund == "carry" and not (np.sign(I["carry"][i]) == side):
+                    continue
+                if rule.fund == "carry2" and not (side * I["carry"][i] >= 2.0):
+                    continue
+                if rule.fund == "rates_or_carry" and not (side * I["rates_mom"][i] >= rule.rates_thr
+                                                          or np.sign(I["carry"][i]) == side):
                     continue
                 if rule.fund == "rates_up+carry" and not (side * I["rates_mom"][i] >= rule.rates_thr
                                                           and np.sign(I["carry"][i]) == side):
@@ -160,7 +172,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 else:
                     fill = k0
                     entry, first, adv0 = hc[k0] + side * half, k0 + 1, 0.0
-                TP, SL = rule.tp * atr, rule.sl * atr
+                if rule.exit_kind == "PCT":
+                    TP, SL = rule.tp / 100 * entry, rule.sl / 100 * entry
+                else:
+                    TP, SL = rule.tp * atr, rule.sl * atr
                 if TP / entry * 100 < rule.min_tp_pct - 1e-9 or SL / entry * 100 * P.LEVERAGE > rule.max_sl_margin:
                     continue
                 result, reason, exit_k = None, "CAS", first + L - 1

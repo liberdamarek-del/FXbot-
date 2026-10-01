@@ -168,6 +168,10 @@ Co z toho plyne:
 * Dřívější kladné číslo (+0,12 R) bylo zkreslené tím, že nejasné hodiny (převážně ztráty)
   byly vynechané; po doplnění minutových dat FXCM zmizelo (`docs/CHANGE_LOG.md`).
 
+**Nejvyšší roční zhodnocení: `docs/ROCNI_VYNOS_VYSLEDEK.md`.** Odstupňované portfolio CH-009 (páteční
+propad + sazby, marže 8 / 3 / 2 % účtu podle síly signálu): 2012–22 +23,5 % ročně, test 2023–26 +24,2 %
+ročně, max. propad 16–19 %, 76 obchodů ročně, 5 ziskových měsíčně – zatím jen backtest.
+
 **Zisk ≥ 10 % marže na obchod (páka 1:30): `docs/ZISK10_VYSLEDEK.md`.** Pravidlo F1 (týdenní
 propad RSI(2) + rozcházející se sazby, 25 párů 2012–2026): 267 obchodů, 89 % úspěšných, +10,9 % marže
 na obchod; v testu 2023–26 (při výběru nepoužitém) +10,3 %. Předem registrováno jako vyzyvatel CH-008

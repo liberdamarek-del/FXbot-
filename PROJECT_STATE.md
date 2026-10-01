@@ -80,6 +80,9 @@ Profit search (R-008, docs/ZISK10_VYSLEDEK.md): 25-pair FXCM hourly universe 201
 (scripts/profit_deep.py). F1 = weekly RSI(2) dip + OECD rate divergence (lagged 2 months):
 267 trades, 89 % winners, +10.9 % of the margin per trade at 1:30; test 2023-26 +10.3 %.
 Pre-registered as CH-008 (forward test only; signal script not written yet).
+Annual return (R-009, docs/ROCNI_VYNOS_VYSLEDEK.md): only the Friday decision works; tiered sizing
+by rate divergence (8 / 3 / 2 % margin, scripts/portfolio_tiers.py): 2012-22 +23.5 % a year,
+2023-26 +24.2 %, drawdown 16-19 %, 76 trades a year. Pre-registered as CH-009.
 
 ## Still open
 
