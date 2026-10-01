@@ -64,6 +64,7 @@ python fxbot.py review --weekly  # týdenní revize zamčených predikcí vč. k
 python fxbot.py journal BUY USD/JPY 158.32 --sl 157.40 --tp 160.00   # zapsat VÁŠ obchod (bot ho vyhodnotí)
 python fxbot.py review --all --manual   # vyhodnocení vašich obchodů proti náhodě
 python scripts/signals_today.py --lock   # vyzyvatel CH-005: dnesni signaly a vstupni ceny (zapise do evidence)
+python fxbot.py adaptive --lock          # samoucici se vyzyvatel CH-006 (mesicni preuceni; Termux: pkg install python-numpy)
 python fxbot.py resolve        # jen vyhodnotí otevřené predikce
 python fxbot.py paper          # papírový účet spočtený z evidence predikcí
 ```
@@ -165,6 +166,8 @@ Co z toho plyne:
   výchozí → žádná změna se nepovyšuje (HOLD).
 * Dřívější kladné číslo (+0,12 R) bylo zkreslené tím, že nejasné hodiny (převážně ztráty)
   byly vynechané; po doplnění minutových dat FXCM zmizelo (`docs/CHANGE_LOG.md`).
+
+Návrh zjednodušení modelu (12 modulů místo 146, učící se jádro): **`docs/NAVRH_NOVEHO_MODELU.md`**.
 
 Co s tím dál: **`docs/VYZKUM_POSTUP.md`** – pevný postup hledání výhody (objev → zamčení →
 jednorázové potvrzení) a výsledky prvních tří kol (180 testů standardních technických,

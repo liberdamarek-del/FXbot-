@@ -150,3 +150,15 @@ vote and walk-forward logistic regression: negative out of sample.
 | Exit | after 5 trading days; protective SL 3 x ATR(D1), TP 3 x ATR(D1) (beyond the tested time-exit rule) |
 | Tool | `python scripts/signals_today.py [--lock]` - today's state and the trigger price per pair; `--lock` records triggered signals in the ledger as CHALLENGER-FUND-DIP |
 | Promotion | only if the forward paired edge vs random is significant after >= 100 trades (`review`) |
+
+## Result R-006 / CH-006 - adaptive rule selection (2026-10-01)
+
+`scripts/adaptive_lab.py` -> docs/ADAPTIVNI.md: 8 280 rules, 64 meta-models (re-learn every
+1/3/6/12 months on the trailing 6/12/24/36 months, trade the best 1/5/20/50 rules),
+2017-01..2026-09, every decision from the past only. Persistence: the best decile of
+the trailing year is the least bad next month (-0.017 vs -0.03..-0.04 ATR) - real but
+smaller than costs. 21 of 64 meta-models positive on 2022-2026, 6 positive in both
+halves (all: best single rule of the last 24-36 months), none with t >= 2. The meta-model
+chosen on 2017-2021 (monthly, 36 months, best rule): 2022-2026 +0.0225 ATR/day (t 0.4)
+vs V7.8.0 -0.04 (t -2.3). Deployed as CHALLENGER CH-006 (`fxbot.py adaptive --lock`,
+daily in Termux); promotion only after a significant forward result.
