@@ -260,7 +260,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 trades.append({"pair": symbol, "side": side, "day": s["days"][i], "entry": entry,
                                "t_in": int(ts[fill]), "t_out": int(ts[exit_k]) + 3600, "reason": reason,
                                "price_pct": pct, "margin_pct": pct * P.LEVERAGE, "days": held,
-                               "tp_pct": TP / entry * 100 * P.LEVERAGE, "sl_pct": SL / entry * 100 * P.LEVERAGE})
+                               "tp_pct": TP / entry * 100 * P.LEVERAGE, "sl_pct": SL / entry * 100 * P.LEVERAGE,
+                               "mfe_atr": best / atr})               # best move for the trade before its exit
                 busy_until = exit_k
     return sorted(trades, key=lambda t: t["t_in"])
 

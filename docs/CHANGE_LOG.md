@@ -272,3 +272,16 @@ with the backtest's 2-month lag) -> dashboard https://claude.ai/artifact/9Z9eEZr
 (`web/prehled.html`, db: `stav/aktualni` written by Claude, `denik` = user's journal), model forward
 test in `learning/forward_trades.json`. Learning state moved to `learning/` (tracked). Weekly
 routines: Friday signals, Saturday learning (CLAUDE.md).
+
+## R-013 - trade plan with three targets and probabilities on the dashboard (2026-10-01)
+
+`scripts/pair_stats.py` now gives, per tier and pair (12 pairs, hourly path 2012-2026, SL 4 ATR,
+20 days, only trades with TP1 >= 10 % of the margin): probability of reaching TP1 (0.75 ATR, the
+model's target), TP2 (1.0 ATR) and TP3 (1.5 ATR) before the stop, from each trade's best move
+(simulator records `mfe_atr`), and the average result of a position closed at each target; shrunk
+toward the tier average (20 pseudo-trades). Strongest tier: 96 / 89 / 68 %, averages +17.1 / +21.5 /
++19.0 % of the margin. `signals_live.py` adds a plan (entry, TP1-TP3, SL, probabilities) to every
+signal and a conditional plan (entry = trigger price) to every pair; the dashboard shows the
+probability of success, the plan, a 3-part split and a section with plans for the pairs ready to
+enter. Descriptive statistics only - the model's own rule still closes at TP1 (TP2/TP3 as single
+targets were rejected by the walk-forward gate, "tp_1_atr").

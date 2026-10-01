@@ -51,6 +51,13 @@ header.top { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baselin
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; font-size: 0.95rem; }
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; text-align: right; font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.plan { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.plan th, .plan td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); text-align: right; }
+.plan th:first-child, .plan td:first-child { text-align: left; }
+.plan tr.slrow td { border-bottom: 0; }
+.prob { display: flex; align-items: baseline; gap: 8px; }
+.prob .big { font-family: var(--f-num); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.instr { background: var(--chip); border-radius: 6px; padding: 8px 10px; font-size: 0.95rem; }
 .empty { border: 1px dashed var(--line); border-radius: 8px; padding: 16px; color: var(--muted); }
 .tablewrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
@@ -97,10 +104,15 @@ details summary { cursor: pointer; font-weight: 600; }
     <div class="signals" id="signals"><div class="empty">Zatím tu nejsou žádné signály. Objeví se v pátek večer, pokud se splní podmínky pravidla.</div></div>
   </section>
 
+  <section class="sheet" aria-labelledby="h-ready">
+    <header><h2 id="h-ready">Připravené ke vstupu – plán na pátek</h2><span class="small muted">Páry, kde je cena už teď v pásmu signálu. Obchod platí, jen když podmínka trvá i při pátečním zavření.</span></header>
+    <div class="signals" id="ready"><div class="empty">Teď není žádný pár v pásmu signálu.</div></div>
+  </section>
+
   <section class="sheet" aria-labelledby="h-watch">
-    <header><h2 id="h-watch">Sledované páry</h2><span class="small muted">Seřazeno od nejvíc doporučeného: nahoře signály, pak páry připravené ke vstupu, pak ostatní. Uvnitř podle odhadované úspěšnosti.</span></header>
+    <header><h2 id="h-watch">Sledované páry</h2><span class="small muted">Seřazeno od nejvíc doporučeného: nahoře signály, pak páry připravené ke vstupu, pak ostatní. Uvnitř podle pravděpodobnosti úspěchu.</span></header>
     <div class="tablewrap"><table>
-      <thead><tr><th class="r">#</th><th>Pár</th><th>Stav</th><th class="r">Odhad úspěšnosti</th><th>Směr podle sazeb</th><th>Síla</th><th class="r">Cena</th><th class="r">RSI(2)</th><th>Kdy bude signál</th></tr></thead>
+      <thead><tr><th class="r">#</th><th>Pár</th><th>Stav</th><th class="r">Pravděpodobnost úspěchu</th><th>Směr podle sazeb</th><th>Síla</th><th class="r">Cena</th><th class="r">RSI(2)</th><th>Kdy bude signál</th></tr></thead>
       <tbody id="pairs"><tr><td colspan="9" class="muted">Data se načítají…</td></tr></tbody>
     </table></div>
   </section>
@@ -157,14 +169,14 @@ details summary { cursor: pointer; font-weight: 600; }
     <header><h2 id="h-how">Jak s tím pracovat</h2></header>
     <ol class="steps">
       <li>V pátek po 22:05 otevři tuto stránku. V části <b>Signály k obchodu</b> uvidíš páry, které model doporučuje.</li>
-      <li>Do 23:00 (zavření týdne v New Yorku) zadej u brokera obchod: směr, vstup za aktuální cenu, <b>stop loss</b> a <b>take profit</b> přesně podle karty. Velikost: marže uvedená v % účtu.</li>
+      <li>Do 23:00 (zavření týdne v New Yorku) zadej u brokera obchod přesně podle karty: směr, vstup za aktuální cenu, pozici rozděl na 3 části s cíli <b>TP1, TP2, TP3</b> a stejným <b>stop lossem</b>. Velikost: marže uvedená v % účtu.</li>
       <li>Hned obchod zapiš do <b>Mého deníku</b> (tlačítko „Zapsat podle signálu“ vyplní formulář za tebe).</li>
       <li>Obchod nech běžet. Uzavře ho broker sám na TP nebo SL; pokud nedojde ani na jedno, zavři ho nejpozději v uvedený den.</li>
       <li>Po uzavření klikni u obchodu na <b>Vystoupil jsem</b> a zadej výstupní cenu. Výsledek se spočítá a porovná s modelem.</li>
     </ol>
     <details class="small">
       <summary>Slovníček</summary>
-      <p><b>Odhad úspěšnosti</b> – kolik procent obchodů podle tohoto pravidla vyšlo v letech 2012–2026 na daném páru se stejnou silou signálu (u párů s málo obchody opatrně přitaženo k průměru). Není to záruka. <b>Připraven</b> – cena je už teď v pásmu signálu; pokud tam zůstane do pátečního zavření, bude obchod. <b>KOUPIT / PRODAT</b> – sázka na růst / pokles prvního měnového kódu v páru (u EUR/USD na euro). <b>Take profit (TP)</b> – cena, kde se obchod uzavře se ziskem. <b>Stop loss (SL)</b> – cena, kde se obchod uzavře se ztrátou. <b>Marže</b> – část účtu, kterou broker na obchod zablokuje; při páce 1:30 je pozice 30× větší než marže. <b>Síla</b> – jak moc fundamenty (sazby) podporují obchod; silné signály mají větší pozici. <b>RSI(2)</b> – ukazatel krátkého propadu (pod 5) nebo růstu (nad 95).</p>
+      <p><b>Pravděpodobnost úspěchu</b> – jak často v letech 2012–2026 cena u stejného páru a stejné síly signálu došla na TP1 dřív než na stop loss (u párů s málo obchody opatrně přitaženo k průměru). U TP2 a TP3 je pravděpodobnost nižší, zisk vyšší. Není to záruka. <b>TP1, TP2, TP3</b> – tři cíle; pozici rozděl na tři stejné části, každá se zavře na svém cíli. <b>Připraven</b> – cena je už teď v pásmu signálu; pokud tam zůstane do pátečního zavření, bude obchod. <b>KOUPIT / PRODAT</b> – sázka na růst / pokles prvního měnového kódu v páru (u EUR/USD na euro). <b>Take profit (TP)</b> – cena, kde se obchod uzavře se ziskem. <b>Stop loss (SL)</b> – cena, kde se obchod uzavře se ztrátou. <b>Marže</b> – část účtu, kterou broker na obchod zablokuje; při páce 1:30 je pozice 30× větší než marže. <b>Síla</b> – jak moc fundamenty (sazby) podporují obchod; silné signály mají větší pozici. <b>RSI(2)</b> – ukazatel krátkého propadu (pod 5) nebo růstu (nad 95).</p>
     </details>
     <p class="small muted">Výsledky modelu jsou zatím z historických dat (backtest). Skutečný důkaz je dopředný test v části Výsledky. Obchoduj jen peníze, jejichž ztrátu uneseš.</p>
   </section>
@@ -189,7 +201,7 @@ details summary { cursor: pointer; font-weight: 600; }
 
   // account size (per-viewer convenience)
   try { const v = localStorage.getItem("fx_ucet_kc"); if (v) $("ucet").value = v; } catch (e) {}
-  $("ucet").addEventListener("input", () => { try { localStorage.setItem("fx_ucet_kc", $("ucet").value); } catch (e) {} renderSignals(); });
+  $("ucet").addEventListener("input", () => { try { localStorage.setItem("fx_ucet_kc", $("ucet").value); } catch (e) {} renderSignals(); renderReady(); });
 
   $("f-par").innerHTML = PAIRS.map((p) => `<option>${p}</option>`).join("");
 
@@ -198,46 +210,61 @@ details summary { cursor: pointer; font-weight: 600; }
     $("status").innerHTML = `<span>Aktualizováno <b class="num">${esc(praha(state.aktualizovano))}</b></span><span>Ceny do <span class="num">${esc(state.den_dat)}</span></span>`;
   }
 
+  function planTable(par, plan, side) {
+    const d = dec(par);
+    const rows = (plan.tp || []).map((t) => `<tr><td>TP${t.cislo}</td><td class="num pos">${fmt(t.cena, d)}</td>
+      <td class="num pos">+${fmt(t.proc_marze, 0)} %</td><td class="num">${t.pravdepodobnost !== undefined ? fmt(t.pravdepodobnost, 0) + " %" : "–"}</td></tr>`).join("");
+    return `<table class="plan"><thead><tr><th>Cíl</th><th>Cena</th><th>Zisk z marže</th><th>Pravděpodobnost</th></tr></thead>
+      <tbody>${rows}<tr class="slrow"><td>Stop loss</td><td class="num neg">${fmt(plan.sl.cena, d)}</td><td class="num neg">−${fmt(plan.sl.proc_marze, 0)} %</td><td class="small muted">pro všechny části</td></tr></tbody></table>`;
+  }
+  function planCard(s, plan, kind, i) {
+    const cls = s.smer === "KOUPIT" ? "buy" : "sell";
+    const d = dec(s.par);
+    const acc = parseNum($("ucet").value);
+    const base = s.par.split("/")[0];
+    const czk = state.czk && state.czk[base];
+    const marze = s.marze_proc_uctu !== undefined ? s.marze_proc_uctu : (s.marze_zaklad || 0) * 100;
+    let money = "";
+    if (acc && marze) {
+      const m = acc * marze / 100;
+      const lots = czk ? (m * 30 / czk / 100000) : null;
+      money = ` = <b class="num">${fmt(m, 0)} Kč</b>, objem ${fmt(m * 30, 0)} Kč${lots ? " ≈ " + fmt(lots, 2) + " lotu" : ""} (každá třetina ${fmt(m / 3, 0)} Kč${lots ? " ≈ " + fmt(lots / 3, 2) + " lotu" : ""})`;
+    }
+    const prob = plan.pravdepodobnost_uspechu;
+    const instr = kind === "trh"
+      ? `<b>${s.smer}</b> ${esc(s.par)} za tržní cenu teď (do 23:00), kolem <b class="num">${fmt(plan.vstup, d)}</b>.`
+      : `Pokud bude v pátek mezi 22:00 a 23:00 cena ${s.smer === "KOUPIT" ? "pod" : "nad"} <b class="num">${fmt(plan.vstup, d)}</b>, ${s.smer === "KOUPIT" ? "KOUPIT" : "PRODAT"} za tržní cenu. Ceny cílů a stopu se pak posunou se vstupem – na stránce budou v pátek ve 22:05 přesně.`;
+    return `<article class="signal ${cls}">
+      <div class="head"><h3>${esc(s.par)}</h3><div class="row">${sideChip(s.smer)}${tierChip(s.stupen)}</div></div>
+      <div class="prob"><span class="big">${prob !== undefined && prob !== null ? fmt(prob, 0) + " %" : "–"}</span><span class="small muted">pravděpodobnost úspěchu (dosažení TP1 před stop lossem v historii)</span></div>
+      <div class="instr">${instr}</div>
+      ${planTable(s.par, plan, s.smer)}
+      <p class="small">Velikost: marže <b>${fmt(marze, 1)} % účtu</b>${money}. Rozděl pozici na <b>3 stejné části</b> s cíli TP1, TP2 a TP3, stop loss stejný pro všechny${plan.prumer_rozdeleni_3 !== undefined ? ` (historický průměr takového rozdělení ${sgn(plan.prumer_rozdeleni_3, 1)} % marže na obchod)` : ""}. Zavřít nejpozději za 4 týdny${s.zavrit_nejpozdeji ? ", tj. " + esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ")) : ""}.</p>
+      ${s.duvod ? `<p class="small muted">${esc(s.duvod)}</p>` : ""}
+      ${kind === "trh" ? `<div class="row"><button type="button" class="ghost" data-fill="${i}">Zapsat podle signálu</button></div>` : ""}
+    </article>`;
+  }
+  function renderReady() {
+    if (!state) return;
+    const list = ranked(state.pary || []).filter((p) => p.skupina === "pripraven" && p.plan);
+    $("ready").innerHTML = list.length ? list.map((p, i) => planCard(p, p.plan, "podminka", i)).join("")
+      : `<div class="empty">Teď není žádný pár v pásmu signálu. Které páry se blíží, uvidíš ve Sledovaných párech.</div>`;
+  }
+
   function renderSignals() {
     if (!state) return;
     const acc = parseNum($("ucet").value);
-    const list = (state.signaly || []).slice().sort((a, b) => (b.odhad_uspesnosti || 0) - (a.odhad_uspesnosti || 0));
+    const list = (state.signaly || []).slice().sort((a, b) => (b.pravdepodobnost_uspechu || b.odhad_uspesnosti || 0) - (a.pravdepodobnost_uspechu || a.odhad_uspesnosti || 0));
     $("sig-note").textContent = state.je_patek ? "Páteční vyhodnocení – zadej do 23:00 (náš čas)." : "Nové signály se počítají každý pátek ve 22:05 (náš čas).";
     if (!list.length) {
       $("signals").innerHTML = `<div class="empty">${state.je_patek ? "Tento pátek žádný pár nesplnil podmínky. Žádný obchod – i to je rozhodnutí." : "Teď není pátek, takže nový signál není. Podívej se do Sledovaných párů, které páry jsou blízko."}</div>`;
       return;
     }
-    $("signals").innerHTML = list.map((s, i) => {
-      const cls = s.smer === "KOUPIT" ? "buy" : "sell";
-      const base = s.par.split("/")[0];
-      const czk = state.czk && state.czk[base];
-      let money = "";
-      if (acc) {
-        const m = acc * s.marze_proc_uctu / 100;
-        const lots = czk ? (m * 30 / czk / 100000) : null;
-        money = `<dt>Marže</dt><dd>${fmt(m, 0)} Kč</dd><dt>Objem pozice</dt><dd>${fmt(m * 30, 0)} Kč${lots ? " ≈ " + fmt(lots, 2) + " lotu" : ""}</dd>`;
-      }
-      return `<article class="signal ${cls}">
-        <div class="head"><h3>${esc(s.par)}</h3><div class="row">${sideChip(s.smer)}${tierChip(s.stupen)}</div></div>
-        <dl class="kv">
-          <dt>Odhad úspěšnosti</dt><dd>${s.odhad_uspesnosti !== undefined && s.odhad_uspesnosti !== null ? fmt(s.odhad_uspesnosti, 0) + " %" : "–"}</dd>
-          <dt>Vstup (cena teď)</dt><dd>${fmt(s.vstup, dec(s.par))}</dd>
-          <dt>Take profit</dt><dd class="pos">${fmt(s.tp, dec(s.par))}</dd>
-          <dt>Stop loss</dt><dd class="neg">${fmt(s.sl, dec(s.par))}</dd>
-          <dt>Marže</dt><dd>${fmt(s.marze_proc_uctu, 1)} % účtu</dd>
-          ${money}
-          <dt>Při TP</dt><dd class="pos">+${fmt(s.zisk_tp_proc_marze, 0)} % marže</dd>
-          <dt>Při SL</dt><dd class="neg">−${fmt(s.ztrata_sl_proc_marze, 0)} % marže</dd>
-          <dt>Zavřít nejpozději</dt><dd>${esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ"))}</dd>
-        </dl>
-        <p class="small muted">${esc(s.duvod)}</p>
-        <div class="row"><button type="button" class="ghost" data-fill="${i}">Zapsat podle signálu</button></div>
-      </article>`;
-    }).join("");
+    $("signals").innerHTML = list.map((s, i) => planCard(s, s.plan || {vstup: s.vstup, tp: [{cislo: 1, cena: s.tp, proc_marze: s.zisk_tp_proc_marze}], sl: {cena: s.sl, proc_marze: s.ztrata_sl_proc_marze}}, "trh", i)).join("");
     $("signals").querySelectorAll("[data-fill]").forEach((b) => b.addEventListener("click", () => {
       const s = list[+b.dataset.fill];
       $("f-par").value = s.par; $("f-smer").value = s.smer;
-      $("f-vstup").value = s.vstup; $("f-sl").value = s.sl; $("f-tp").value = s.tp;
+      $("f-vstup").value = s.vstup; $("f-sl").value = s.sl; $("f-tp").value = (s.plan && s.plan.tp && s.plan.tp[0]) ? s.plan.tp[0].cena : s.tp;
       const accv = parseNum($("ucet").value);
       if (accv) $("f-marze").value = Math.round(accv * s.marze_proc_uctu / 100);
       $("f-pozn").value = `signál modelu ${state.den_dat} (${CZ[s.stupen] || s.stupen})`;
@@ -252,13 +279,14 @@ details summary { cursor: pointer; font-weight: 600; }
     return list.slice().sort((a, b) => {
       if (a.poradi && b.poradi) return a.poradi - b.poradi;
       const ga = (GROUP[a.skupina] || [0])[0], gb = (GROUP[b.skupina] || [0])[0];
-      return gb - ga || (b.odhad_uspesnosti || 0) - (a.odhad_uspesnosti || 0);
+      return gb - ga || (b.pravdepodobnost_uspechu || b.odhad_uspesnosti || 0) - (a.pravdepodobnost_uspechu || a.odhad_uspesnosti || 0);
     });
   }
   function successCell(p) {
-    if (p.odhad_uspesnosti === undefined || p.odhad_uspesnosti === null) return "–";
-    const hist = p.n_hist ? `<div class="small muted">historie ${fmt(Math.round(p.n_hist * (p.uspesnost_hist || 0) / 100), 0)} z ${p.n_hist}</div>` : `<div class="small muted">bez historie</div>`;
-    return `<b>${fmt(p.odhad_uspesnosti, 0)} %</b>${hist}`;
+    const v = p.pravdepodobnost_uspechu !== undefined && p.pravdepodobnost_uspechu !== null ? p.pravdepodobnost_uspechu : p.odhad_uspesnosti;
+    if (v === undefined || v === null) return "–";
+    const hist = p.n_hist ? `<div class="small muted">historie ${fmt(Math.round(p.n_hist * (p.uspesnost_hist || 0) / 100), 0)} z ${p.n_hist} ziskových</div>` : `<div class="small muted">bez historie</div>`;
+    return `<b>${fmt(v, 0)} %</b>${hist}`;
   }
   function renderPairs() {
     if (!state) return;
@@ -364,7 +392,7 @@ details summary { cursor: pointer; font-weight: 600; }
       : `<tr><td colspan="8" class="muted">Dopředný test začíná prvním pátečním signálem.</td></tr>`;
   }
 
-  function renderAll() { renderStatus(); renderSignals(); renderPairs(); renderFund(); renderModel(); renderJournal(); }
+  function renderAll() { renderStatus(); renderSignals(); renderReady(); renderPairs(); renderFund(); renderModel(); renderJournal(); }
 
   $("entry").addEventListener("submit", async (ev) => {
     ev.preventDefault();

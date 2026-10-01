@@ -126,6 +126,20 @@ def rsi_trigger(closes: np.ndarray, n: int, level: float, side: int) -> float:
     return float(closes[-1] + max(0.0, move))
 
 
+TP_LEVELS = (0.75, 1.0, 1.5)               # replaced by learning/pair_stats.json "tp_atr" when present
+
+
+def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, kind: str) -> dict:
+    """Entry, three targets and the stop for one trade (prices and % of the margin)."""
+    stats_path = LEARNING / "pair_stats.json"
+    levels = json.loads(stats_path.read_text()).get("tp_atr", TP_LEVELS) if stats_path.exists() else TP_LEVELS
+    tps = [{"cislo": i + 1, "atr": L, "cena": round(entry + side * L * atr, decimals),
+            "proc_marze": round(L * atr / entry * 100 * P.LEVERAGE, 1)} for i, L in enumerate(levels)]
+    return {"typ": kind, "vstup": round(entry, decimals), "tp": tps,
+            "sl": {"atr": base["sl"], "cena": round(entry - side * base["sl"] * atr, decimals),
+                   "proc_marze": round(base["sl"] * atr / entry * 100 * P.LEVERAGE, 1)}}
+
+
 def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) -> dict:
     inst = get_instrument(pair)
     hb = yahoo_hourly(YAHOO[pair])
@@ -169,6 +183,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
             trig.append(rsi_trigger(prev, 3, 15.0, side))
         level = max(trig) if side > 0 else min(trig)     # the easier of the two signals
         out["spoustec"] = round(level, inst.decimals)
+        out["plan"] = make_plan(side, level, float(atr[-1]), base, inst.decimals, "podminka")
         word, rel = ("KOUPIT", "pod") if side > 0 else ("PRODAT", "nad")
         if day.weekday() == 4:
             out["podminka"] = f"{word}, kdyz patecni zaviraci cena bude {rel} {level:.{inst.decimals}f}"
@@ -194,6 +209,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
                     "marze_proc_uctu": round(shares[k] * mult * 100, 1),
                     "zisk_tp_proc_marze": round(tp_margin, 1), "ztrata_sl_proc_marze": round(sl_margin, 1),
                     "zavrit_nejpozdeji": (day + timedelta(days=28)).isoformat(),
+                    "plan": make_plan(side, entry, float(atr[-1]), base, inst.decimals, "trh"),
                     "duvod": (f"RSI(2) {rsi2[-1]:.0f}{', RSI(3) %.0f' % rsi3[-1] if 'RSI3' in sig else ''} = prudky "
                               f"{'propad' if side > 0 else 'rust'}; rozdil sazeb {inst.base}-{inst.quote} se za 3 mesice "
                               f"zmenil o {mom:+.2f} p.b. ve prospech {'nakupu' if side > 0 else 'prodeje'}"
@@ -219,11 +235,22 @@ def rank_pairs(pairs: list) -> None:
         if st:
             p.update(odhad_uspesnosti=st["odhad_uspesnosti"], odhad_prumer=st["odhad_prumer"],
                      uspesnost_hist=st["uspesnost"], n_hist=st["n"], prumer_hist=st["prumer_proc_marze"])
+            levels = st.get("tp", [])
+            for plan in (p.get("plan"), (p.get("signal") or {}).get("plan")):
+                if not plan:
+                    continue
+                for tp, lv in zip(plan["tp"], levels):
+                    tp["pravdepodobnost"] = lv["pravdepodobnost"]
+                    tp["prumer_proc_marze"] = lv["prumer_proc_marze"]
+                plan["pravdepodobnost_uspechu"] = levels[0]["pravdepodobnost"] if levels else None
+                plan["prumer_rozdeleni_3"] = st.get("prumer_rozdeleni_3")
+            if levels:
+                p["pravdepodobnost_uspechu"] = levels[0]["pravdepodobnost"]
     for p in pairs:
         p["skupina"] = ("signal" if p.get("signal") else "pripraven" if p.get("v_pasmu") and p.get("cil_ok")
                         else "povoleny" if p.get("smer") in ("KOUPIT", "PRODAT") else "nic")
     order = {"signal": 3, "pripraven": 2, "povoleny": 1, "nic": 0}
-    pairs.sort(key=lambda p: (order[p["skupina"]], p.get("odhad_uspesnosti") or 0, p.get("odhad_prumer") or 0),
+    pairs.sort(key=lambda p: (order[p["skupina"]], p.get("pravdepodobnost_uspechu") or 0, p.get("odhad_prumer") or 0),
                reverse=True)
     for i, p in enumerate(pairs, 1):
         p["poradi"] = i
@@ -326,7 +353,8 @@ def main() -> int:
                                       "ziskovych_mesicne": round(ev["1"]["test_wins_month"], 1)}},
         "pary": pairs,
         "signaly": [dict(par=p["par"], odhad_uspesnosti=p.get("odhad_uspesnosti"), uspesnost_hist=p.get("uspesnost_hist"),
-                         n_hist=p.get("n_hist"), **p["signal"]) for p in pairs if p.get("signal")],
+                         n_hist=p.get("n_hist"), pravdepodobnost_uspechu=p.get("pravdepodobnost_uspechu"), **p["signal"])
+                    for p in pairs if p.get("signal")],
         "razeni": "signal, pak pripravene ke vstupu, pak ostatni povolene, nakonec bez smeru; uvnitr podle odhadu uspesnosti",
         "fundamenty": fund,
         "vix": {"hodnota": vix_rows[-1][1], "den": vix_rows[-1][0].isoformat()},

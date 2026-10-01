@@ -25,3 +25,10 @@ add markets.
 
 The learning state (champions) lives in `learning/` (tracked); market data in `data/` is not in git and is
 re-downloaded by the scripts.
+
+## Ideas queue for the Saturday learning
+- The user's own method (daily classic pivot points, entries at pivot resistance / support on the daily
+  chart, e.g. shorts EUR/CHF ~0.947 and USD/JPY 158.33 on 2026-10-01): implement pivot entries in
+  `scripts/profit_deep.py` and test as a separate candidate through the same walk-forward gate
+  (earlier test R-004 / docs/PIVOTY.md: classic pivots + SMA50 had no robust edge 2013-2026).
+
