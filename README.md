@@ -154,6 +154,7 @@ tím se cena stane exekuční (`EXEKUCNI`) a certifikát přestane hlásit BROKE
 |---|---|---|
 | Twelve Data (váš klíč) | 1min OHLC mid, živě | živá cena NOW (modelová), čelo cesty |
 | Dukascopy | 1min a 1h **BID+ASK** historie, hodinové ticky | kanonická historie, vyhodnocení bid/ask, spread |
+| FXCM (veřejné týdenní soubory) | 1min **BID+ASK** po týdnech, zpoždění ~1 týden | druhý zdroj cesty: vyhodnocení tam, kde Dukascopy den chybí; nikdy ne pro analýzu |
 | BIS | sazby 8 centrálních bank | carry, trend politiky |
 | FRED, ECB, MoF, BoE, BoC, RBA | 2/5/10leté výnosy, VIX, S&P 500, HY spread, ropa | přecenění sazeb, riziko, komodity |
 | CFTC | pozicování (Traders in Financial Futures) | přeplněnost |
@@ -211,6 +212,7 @@ Tohle nejde ověřit bez vašeho zařízení a účtů:
 |---|---|
 | `ModuleNotFoundError: lzma` (Termux) | `pkg install xz-utils` a znovu `pkg install python` |
 | `server neodpovida ... pauza` při stahování | server Dukascopy omezuje frekvenci; nechte běžet, pokračuje sám |
+| `server limit pozadavku` (HTTP 429) | Dukascopy vás dočasně blokuje (pauzy se samy prodlužují až na 30 min). Minutová data pro vyhodnocení lze vzít z FXCM: `python fxbot.py history --source fxcm --days 60` |
 | `LIVE CENA NEOVERENA` u všech párů | chybí klíč Twelve Data (`python fxbot.py setkey`) nebo je trh zavřený |
 | `KEY-REQUIRED` u TWELVE_DATA | klíč není v `.env` |
 | běh je pomalý | `python fxbot.py run --symbols EUR/USD,USD/JPY` (méně párů) |

@@ -83,8 +83,8 @@ def main(argv: list[str]) -> int:
                f"{args.warmup_days} dni")
     out.append(f"- parametry (champion): `{p.fingerprint}`; naklady: spread z dat + {p.broker_markup_pips} pip "
                f"prirazka + {p.slippage_pips} pip skluz na stranu")
-    out.append("- ceny: Dukascopy BID/ASK (hodinove svicky; minutove kde jsou archivovane) - verejne ECN ceny, "
-               "ne ceny vaseho brokera")
+    out.append("- ceny: Dukascopy BID/ASK (hodinove svicky; minutove kde jsou archivovane, jinak FXCM minuty jen pro "
+               "poradi v nejasne hodine) - verejne ceny, ne ceny vaseho brokera")
     out.append("- udalostni vrstva (kalendar) VYPNUTA - volny kalendar nema historii")
     out.append("")
 
@@ -109,6 +109,19 @@ def main(argv: list[str]) -> int:
                        f"**{b['trade_worst']:+.3f} R** (vse SL) .. **{b['trade_best']:+.3f} R** (vse TP1); "
                        f"na rozhodnuti {b['decision_worst']:+.3f} .. {b['decision_best']:+.3f} R. Neznamy vysledek se "
                        f"nehada (modul 61) - zuzi ho jen minutova data.")
+
+    resolved_by = {}
+
+    for t in result.trades:
+        if t.get("outcome_state") in ("TP1_BEFORE_SL", "SL_BEFORE_TP1", "NOT_ACTIVATED", "EXPIRED"):
+            g = t.get("granularity") or "-"
+            label = ("1 min FXCM (druhy zdroj, stejne udalosti)" if "FXCM" in g else
+                     "1 min Dukascopy" if g.startswith("1min") else "hodinove svicky")
+            resolved_by[label] = resolved_by.get(label, 0) + 1
+
+    if resolved_by:
+        out.append("- model, cim byl vysledek rozhodnut: " +
+                   ", ".join(f"{k} {v}" for k, v in sorted(resolved_by.items(), key=lambda kv: -kv[1])))
 
     out.append("")
     out += ["## 2. Kvalita smeru bez geometrie obchodu (modul 66)", "",

@@ -58,3 +58,27 @@ seeds. Every backtest now also resolves the ANTI-MODEL (same decision and
 geometry, opposite direction). A random direction is exactly the 50/50
 mix of both, so the edge of the model's direction is tested PAIRED on the
 same decisions: d = (R_model - R_anti) / 2. Proof class B (measurement).
+
+## Method note: unknown sequence was a selection bias (2026-10-01)
+
+With hourly bars only, 12 % of the model's trades ended SEQUENCE_UNKNOWN
+(entry and SL/TP1, or SL and TP1, inside one hour) and were excluded from
+the expectancy. Their possible effect was shown as bounds (-0.145 .. +0.694 R
+per trade). After the FXCM 1-minute path (below) resolved half of them,
+the 2.5-year expectancy moved from +0.116 R to -0.066 R per trade: the
+excluded hours were mostly losers (a limit entry run over within the same
+hour). The paired direction edge did not change (+0.022 -> +0.018 R per
+decision, not significant). Lesson: an E that excludes unknowns is not
+evidence; only the paired edge and the bounds are reported as results.
+
+## D-001 - second 1-minute path source (data layer, not a model change)
+
+| Field | Value |
+|---|---|
+| Date | 2026-10-01 |
+| Symptom | Dukascopy free datafeed answered HTTP 429 for > 6 h to the cloud runtime; 1-minute days for ambiguous hours could not be fetched |
+| Change | FXCM public week files (1-minute BID+ASK, `src/sources/fxcm.py`) as second path source |
+| Guard | never used for the canonical bars or the live series (module 9); its minutes decide an ambiguous Dukascopy hour only when they show the same events (fill/SL/TP1) in that hour, otherwise SEQUENCE_UNKNOWN stays |
+| Measured agreement | week 2026-09-21..25, 12 pairs: median mid difference 0.05-0.20 pip, hourly BID high/low within 0.5 pip in 59-97 % of hours (worst GBP/JPY) |
+| Effect | model trades with unknown order 12 % -> 6 % |
+| Predictions affected | none (only outcome resolution); proof class B (measurement) |
