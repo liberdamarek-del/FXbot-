@@ -80,6 +80,20 @@ _ALL = (
     _pair("GBP/CHF", 0.7, 3.5),
     _pair("CAD/JPY", 40.0, 250.0),
     _pair("NZD/JPY", 30.0, 200.0),
+    # remaining crosses of the 8 currencies (research universe; FXCM has no
+    # CHF/JPY, GBP/AUD history)
+    _pair("AUD/CAD", 0.5, 1.6),
+    _pair("AUD/CHF", 0.3, 1.6),
+    _pair("AUD/NZD", 0.7, 1.6),
+    _pair("CAD/CHF", 0.3, 1.6),
+    _pair("CHF/JPY", 40.0, 300.0),
+    _pair("EUR/AUD", 0.9, 2.8),
+    _pair("EUR/NZD", 1.0, 3.0),
+    _pair("GBP/AUD", 1.1, 3.2),
+    _pair("GBP/CAD", 1.1, 3.2),
+    _pair("GBP/NZD", 1.2, 3.8),
+    _pair("NZD/CAD", 0.5, 1.4),
+    _pair("NZD/CHF", 0.3, 1.4),
 )
 
 INSTRUMENTS: dict[str, Instrument] = {i.symbol: i for i in _ALL}

@@ -173,3 +173,33 @@ above SMA(200), ATR above its 30th percentile; TP 0.4 / SL 2.0 ATR, max 5 days (
 479 trades, 83.3 % winners, +0.045 R per trade, t +2.5, max drawdown -7.7 R. Chosen with knowledge of
 all periods -> forward test (`fxbot.py signals75 --lock`, daily) is the independent proof. Note: the
 win rate comes from the small TP / wide SL; the expectancy per trade is small.
+
+## Result R-008 - profit per trade >= 10 % of the margin at 1:30 (2026-10-01)
+
+Round 1 (`scripts/profit_lab.py`, 12 pairs, daily bars, 43 740 systems, docs/ZISK10.md): the >= 75 %
+systems chosen on 2014-2022 failed on 2023-26. Round 2 (`scripts/profit_lab2.py`, 213 840 systems):
+25 crosses of the 8 majors, FXCM hourly BID/ASK 2012-01..2026-09 from one source
+(`scripts/fxcm_universe.py`, raw week files + sha256 manifest), the trade path resolved hourly,
+carry / rate momentum from OECD 3m interbank rates known two months back. Selection on 2012-18 AND
+2019-22, test 2023-26 (docs/ZISK10_K2.md). Trade-by-trade check with one position per pair
+(`scripts/profit_deep.py`, docs/ZISK10_OVERENI.md). Finalist F1 (weekly RSI(2) dip + rate
+divergence): 267 trades, 89 % winners, +10.9 % of the margin per trade (t 5.7, week-clustered);
+2012-18 / 2019-22 / 2023-26 = +10.8 / +11.5 / +10.3 %. Controls: the dip alone +3.2 / +1.1 / +4.4 %,
+the rate filter alone -2.6 / -2.3 / +0.1 %. Fails with current 2y yields instead of lagged realized
+rates. Selection bias: systems with >= 10 % in both selection periods averaged +4..5 % in the test.
+Summary for the user: docs/ZISK10_VYSLEDEK.md.
+
+## CH-008 - CHALLENGER "SAZBY+PROPAD" (pre-registered 2026-10-01, forward test only)
+
+Universe: the 25 pairs of `scripts/fxcm_universe.universe()`. Decision once a week at the Friday
+New York close (or up to 1 h before it). Rate difference D(m) = OECD 3m interbank rate of the base
+minus the quote currency (FRED IR3TIB01*M156N; JPY before 2002 INTDSRJPM193N), monthly, the value of
+month m-2 for a decision in month m; momentum = D(m-2) - D(m-5).
+* BUY when RSI(2) of the daily closes < 5 and momentum >= +0.25 pp; SELL when RSI(2) > 95 and
+  momentum <= -0.25 pp.
+* Market entry, TP = 0.75 x ATR(14) daily, SL = 3 x ATR(14), close after 20 trading days; only when
+  TP >= 0.333 % of the price (10 % of the margin at 1:30); at most one position per pair.
+* Variants evaluated alongside (chosen after seeing the test period, lower evidence): F5 = + carry
+  D(m-2) in the trade direction; F7 = F5 with TP >= 0.5 % of the price.
+* Success criterion of the forward test: after >= 50 trades the mean result >= +5 % of the margin with
+  a week-clustered t >= 2 and winners >= 80 %; otherwise rejected. No promotion, no real money before.

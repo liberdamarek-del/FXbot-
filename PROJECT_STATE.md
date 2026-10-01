@@ -75,6 +75,12 @@ The implemented V7.8.0 model is NOT profitable and shows no direction edge
 out of sample (docs/CHANGE_LOG.md R-001). The software (data, analysis,
 locking, resolution, statistics) is complete; the trading hypothesis is not.
 
+Profit search (R-008, docs/ZISK10_VYSLEDEK.md): 25-pair FXCM hourly universe 2012-2026
+(scripts/fxcm_universe.py), 213 840 systems (scripts/profit_lab2.py), trade-by-trade check
+(scripts/profit_deep.py). F1 = weekly RSI(2) dip + OECD rate divergence (lagged 2 months):
+267 trades, 89 % winners, +10.9 % of the margin per trade at 1:30; test 2023-26 +10.3 %.
+Pre-registered as CH-008 (forward test only; signal script not written yet).
+
 ## Still open
 
 | Sev | Item |
@@ -82,6 +88,7 @@ locking, resolution, statistics) is complete; the trading hypothesis is not.
 | HIGH | Live run with the user's Twelve Data key on the phone (NEOVERENO) |
 | HIGH | Forward test 2-4 weeks: locked predictions resolved on future data |
 | HIGH | New, pre-registered hypotheses (change log) tested OOS 2016-2023 before any forward use |
+| HIGH | CH-008 weekly signals in the bot (25 pairs at the Friday close, OECD rates monthly) + ledger lock |
 | MEDIUM | Broker bid/ask (OANDA practice or other API) - XTB has no public API |
 | MEDIUM | broker_markup_pips 0.5 is an estimate of retail spread (compare with XTB) |
 | LOW | holidays other than 25 Dec / 1 Jan not modelled |

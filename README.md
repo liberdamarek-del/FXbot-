@@ -168,6 +168,11 @@ Co z toho plyne:
 * Dřívější kladné číslo (+0,12 R) bylo zkreslené tím, že nejasné hodiny (převážně ztráty)
   byly vynechané; po doplnění minutových dat FXCM zmizelo (`docs/CHANGE_LOG.md`).
 
+**Zisk ≥ 10 % marže na obchod (páka 1:30): `docs/ZISK10_VYSLEDEK.md`.** Pravidlo F1 (týdenní
+propad RSI(2) + rozcházející se sazby, 25 párů 2012–2026): 267 obchodů, 89 % úspěšných, +10,9 % marže
+na obchod; v testu 2023–26 (při výběru nepoužitém) +10,3 %. Předem registrováno jako vyzyvatel CH-008
+– zatím jen backtest, rozhoduje dopředný test.
+
 Návrh zjednodušení modelu (12 modulů místo 146, učící se jádro): **`docs/NAVRH_NOVEHO_MODELU.md`**.
 
 Co s tím dál: **`docs/VYZKUM_POSTUP.md`** – pevný postup hledání výhody (objev → zamčení →
