@@ -50,6 +50,10 @@ class Rule:
     exit_kind: str = "ATR"            # "ATR" = tp/sl in ATR multiples, "PCT" = tp/sl in % of the price
     max_vix: float = 1e9              # no new trade when the VIX close of the decision day is above this
     max_vix_rise: float = 1e9         # ... or when it rose more than this (points) over 5 trading days
+    be_atr: float = 0.0               # > 0: after a favourable move of be_atr x ATR the stop moves to the entry
+    stall_days: int = 0               # > 0: close at the end of this trading day if the trade is not in profit
+    confirm_src: str = ""             # second rate measure that must point the same way ("policylag")
+    max_cot: float = 1e9              # skip when speculators are crowded in the trade direction (COT z-score diff)
 
 
 _cache: dict = {}
@@ -109,6 +113,28 @@ def vix_on(days) -> tuple[np.ndarray, np.ndarray]:
     return np.array(level), np.array(rise)
 
 
+def extra(symbol: str, s: dict, I: dict, what: str, rule) -> np.ndarray:
+    """Lazily computed inputs: a second rate measure (confirm:<src>) or the
+    COT crowding difference (base minus quote speculator z-score, 0 for USD)."""
+    if what in I:
+        return I[what]
+    if what.startswith("confirm:"):
+        src = what.split(":", 1)[1]
+        lag = rule.rates_lag if src.endswith("lag") else 0
+        kind = "policy" if src.startswith("policy") else "short"
+        I[what] = y2_rates(symbol, s["close_ts"], rule.rates_window, lag, kind)[1]
+    elif what == "cot":
+        import research_signals as RS
+        fund = _cache.setdefault("fund", RS.Fundamentals())
+        inst = get_instrument(symbol)
+
+        def z(ccy, t):
+            v = fund.currency(ccy, int(t))["cot_z"]
+            return np.nan if v is None else v
+        I[what] = np.array([z(inst.base, t) - z(inst.quote, t) for t in s["close_ts"]])
+    return I[what]
+
+
 def prepared(symbol: str, lag: int, window: int, early: int = 0, src: str = "oecd"):
     key = (symbol, lag, window, early, src)
     if key not in _cache:
@@ -166,6 +192,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     continue
                 if I["vix"][i] > rule.max_vix or I["vix_rise"][i] > rule.max_vix_rise:
                     continue
+                if rule.confirm_src and not (side * extra(symbol, s, I, "confirm:" + rule.confirm_src, rule)[i] >= 0):
+                    continue
+                if rule.max_cot < 1e9 and side * extra(symbol, s, I, "cot", rule)[i] > rule.max_cot:
+                    continue
                 if rule.fund == "rates_up" and not (side * I["rates_mom"][i] >= rule.rates_thr):
                     continue
                 if rule.fund == "carry" and not (np.sign(I["carry"][i]) == side):
@@ -202,17 +232,26 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 if TP / entry * 100 < rule.min_tp_pct - 1e-9 or SL / entry * 100 * P.LEVERAGE > rule.max_sl_margin:
                     continue
                 result, reason, exit_k = None, "CAS", first + L - 1
+                stop, best = SL, 0.0
                 for j in range(first, first + L):
                     fav = (hh[j] - half - entry) if side > 0 else (entry - (hl[j] + half))
                     adv = (entry - (hl[j] - half)) if side > 0 else ((hh[j] + half) - entry)
                     if j == first:
                         adv = max(adv, adv0)
-                    if adv >= SL:
-                        result, reason, exit_k = -SL, "SL", j
+                    if adv >= stop:
+                        result, reason, exit_k = -stop, "SL" if stop == SL else "BE", j
                         break
                     if fav >= TP:
                         result, reason, exit_k = TP, "TP", j
                         break
+                    best = max(best, fav)
+                    if rule.be_atr and best >= rule.be_atr * atr:
+                        stop = 0.0                               # from the next hour: out at the entry price
+                    if rule.stall_days and j == first + rule.stall_days * 24 - 1:
+                        now = (hc[j] - half - entry) if side > 0 else (entry - (hc[j] + half))
+                        if now <= 0:
+                            result, reason, exit_k = now, "STALL", j
+                            break
                 if result is None:
                     result = (hc[exit_k] - half - entry) if side > 0 else (entry - (hc[exit_k] + half))
                 held = (ts[exit_k] + 3600 - ts[fill]) / 86400

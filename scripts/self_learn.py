@@ -173,7 +173,8 @@ def better(cand: dict, champ: dict) -> bool:
 def _with(cfg, **changes):
     new = copy.deepcopy(cfg)
     for k, v in changes.items():
-        if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr"):
+        if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
+                 "be_atr", "stall_days"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -232,6 +233,25 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: [{**x, "max_vix": 25.0} for x in t])),
     ("vix_bez_skoku", "neotevirat, kdyz VIX za 5 dni vzrostl o vic nez 5 bodu",
      lambda c: _tiers(c, lambda t: [{**x, "max_vix_rise": 5.0} for x in t])),
+    # round 3 (2026-10-01): exits, confirmation, crowding, trend for the weak tiers
+    ("stop_na_vstup_05", "po pohybu 0.5 ATR ve smeru obchodu se stop posune na vstupni cenu",
+     lambda c: _with(c, be_atr=0.5)),
+    ("stop_na_vstup_06", "po pohybu 0.6 ATR ve smeru obchodu se stop posune na vstupni cenu",
+     lambda c: _with(c, be_atr=0.6)),
+    ("stoji_5_dni", "kdyz obchod po 5 obchodnich dnech neni v zisku, zavrit",
+     lambda c: _with(c, stall_days=5)),
+    ("stoji_10_dni", "kdyz obchod po 10 obchodnich dnech neni v zisku, zavrit",
+     lambda c: _with(c, stall_days=10)),
+    ("potvrzeni_sazeb_cb", "novy nejvyssi stupen: nejsilnejsi signal + sazby centralnich bank ukazuji stejnym smerem",
+     lambda c: _tiers(c, lambda t: [{**t[0], "confirm_src": "policylag"}] + t)),
+    ("cot_neprehustene", "neobchodovat, kdyz jsou spekulanti (COT) presyceni ve smeru obchodu (rozdil z > 1)",
+     lambda c: _tiers(c, lambda t: [{**x, "max_cot": 1.0} for x in t])),
+    ("trend_slabe_stupne", "slabsi stupne jen ve smeru trendu (SMA200)",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "trend": "sma200"} for x in t[2:]])),
+    ("slabe_rsi3_i_r14", "slabsi stupne berou i signaly RSI(3) < 15 a %R14 < 10",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "signal": "D RSI2<5|D RSI3<15|D %R14<10"} for x in t[2:]])),
+    ("druhy_stupen_rsi3", "druhy stupen (sazby >= 0.25 bez carry) bere i RSI(3) < 15",
+     lambda c: _tiers(c, lambda t: t[:1] + [{**t[1], "signal": "D RSI2<5|D RSI3<15"}] + t[2:])),
 ]
 
 
