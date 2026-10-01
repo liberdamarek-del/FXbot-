@@ -280,12 +280,15 @@ def run(config: BacktestConfig, preloaded: dict | None = None, progress=None,
     workers = min(len(jobs), workers if workers is not None else (WORKERS or os.cpu_count() or 1))
     _SHARED = preloaded or {}
 
+    pool, parts = None, map(_run_one, jobs)
+
     if workers > 1 and "fork" in multiprocessing.get_all_start_methods():
-        # fork: the workers share the preloaded history (copy-on-write)
-        pool = multiprocessing.get_context("fork").Pool(workers)
-        parts = pool.imap(_run_one, jobs)
-    else:
-        pool, parts = None, map(_run_one, jobs)
+        try:
+            # fork: the workers share the preloaded history (copy-on-write)
+            pool = multiprocessing.get_context("fork").Pool(workers)
+            parts = pool.imap(_run_one, jobs)
+        except (ImportError, OSError):
+            pass            # e.g. Termux without sem_open: sequential, same results
 
     try:
         for symbol, part, n_h1 in parts:
