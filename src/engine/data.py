@@ -41,6 +41,9 @@ class PairSeries:
 # Canonical series source. Always Dukascopy, except in a separate research
 # archive built from FXCM hourly files (scripts/oos_fxcm.py sets "fxcm").
 CANONICAL_SOURCE = os.getenv("FXBOT_CANONICAL_SOURCE", "dukascopy").lower()
+# minutes of the same source as the canonical bars (FXCM H1 files equal the
+# aggregated FXCM minutes in 99.6 % of hours, measured 2026-10-01)
+CANONICAL_MINUTES = "FXCM_M1" if CANONICAL_SOURCE == "fxcm" else "DUKASCOPY_M1"
 
 
 def _canonical(symbol: str, timeframe: str, start_ts: int | None, end_ts: int | None) -> list[Bar]:
@@ -203,7 +206,7 @@ def minute_loader(symbol: str, second_source: bool = True):
             bars, source = day_minutes_with_source(symbol, day, allow_provisional=False, second_source=second_source)
             out += [b for b in bars if start_ts <= b.ts < end_ts]
 
-            if source is not None and source != "DUKASCOPY_M1":
+            if source is not None and source != CANONICAL_MINUTES:
                 out.cross_source, out.source_id = True, source
 
             day += timedelta(days=1)
