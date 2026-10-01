@@ -161,13 +161,18 @@ def main(argv: list[str]) -> int:
                    f"{'-' if s_.expectancy is None else format(s_.expectancy, '+.3f')} | {bounds_text} | {edge} | {ci} |")
 
     if not args.quick:
-        out += ["", "## 6. Robustnost (modul 76)", "", "| parametr | hodnota | E [R] | n | citlive |", "|---|---|---|---|---|"]
+        out += ["", "## 6. Robustnost (modul 76)", "",
+                "| parametr | hodnota | obchodu | E [R] | meze E (neznamo) | edge smeru vs nahoda | 95% IS | znamenko E se otoci |",
+                "|---|---|---|---|---|---|---|---|"]
 
         for item in validation.robustness(config, preloaded, bench["model"]):
-            s = item["summary"]
-            out.append(f"| {item['param']} | {item['value']} | "
-                       f"{'-' if s.expectancy is None else format(s.expectancy, '+.3f')} | {len(s.r_values)} | "
-                       f"{'ANO' if item['sensitive'] else 'ne'} |")
+            s, pe, b = item["summary"], item["paired"], item["bounds"]
+            bounds_text = f"{b['trade_worst']:+.3f} .. {b['trade_best']:+.3f}" if b.get("unknown") else "-"
+            edge = f"{pe['edge']:+.3f}" if pe.get("n", 0) >= 2 else "-"
+            ci = f"{pe['low']:+.3f} .. {pe['high']:+.3f}" if pe.get("n", 0) >= 2 else "-"
+            out.append(f"| {item['param']} | {item['value']} | {len(s.r_values)} | "
+                       f"{'-' if s.expectancy is None else format(s.expectancy, '+.3f')} | {bounds_text} | {edge} | "
+                       f"{ci} | {'ANO' if item['sensitive'] else 'ne'} |")
 
         out += ["", "## 7. Walk-forward out-of-sample (modul 77)", ""]
         wf = validation.walk_forward(available, start, last, p, list(validation.DEFAULT_GRID), preloaded)

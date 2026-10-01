@@ -184,10 +184,12 @@ def robustness(config: BacktestConfig, preloaded: dict, baseline: Summary | None
     for name, values in PERTURBATIONS.items():
         for value in values:
             variant = replace(config, params=config.params.with_changes(**{name: value}), placebo_seed=None)
-            summary = summarize(run(variant, preloaded).trades, f"{name}={value}")
+            result = run(variant, preloaded)
+            summary = summarize(result.trades, f"{name}={value}")
             flips = (baseline.expectancy is not None and summary.expectancy is not None
                      and (baseline.expectancy > 0) != (summary.expectancy > 0))
-            rows.append({"param": name, "value": value, "summary": summary, "sensitive": flips})
+            rows.append({"param": name, "value": value, "summary": summary, "sensitive": flips,
+                         "paired": paired_edge(result.trades, result.anti), "bounds": unknown_bounds(result.trades)})
 
             if progress:
                 progress(summary.line() + ("  SENSITIVE" if flips else ""))
