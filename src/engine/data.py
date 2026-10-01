@@ -19,7 +19,8 @@ from decimal import Decimal
 
 from src.engine.params import ModelParams
 from src.engine.series import PriceSeries, merge_bars
-from src.path_archive import Bar, aggregate, day_minutes, list_days, load_bars
+from src.engine.resolution import MinuteList
+from src.path_archive import Bar, aggregate, day_minutes, day_minutes_with_source, list_days, load_bars
 
 UTC = timezone.utc
 
@@ -179,15 +180,22 @@ def _seconds(timeframe: str) -> int:
     return {"1h": 3600, "4h": 14400, "1d": 86400}[timeframe]
 
 
-def minute_loader(symbol: str):
-    """Callback for src/engine/resolution: archived 1-minute bars of a window."""
-    def load(start_ts: int, end_ts: int) -> list[Bar]:
-        out = []
+def minute_loader(symbol: str, second_source: bool = True):
+    """Callback for src/engine/resolution: archived 1-minute bars of a window
+    (Dukascopy; FXCM where Dukascopy has no day - marked cross-source, it
+    then only decides when it confirms the coarse bar's events)."""
+    def load(start_ts: int, end_ts: int) -> MinuteList:
+        out = MinuteList()
         day = datetime.fromtimestamp(start_ts, tz=UTC).date()
         last = datetime.fromtimestamp(end_ts - 1, tz=UTC).date()
 
         while day <= last:
-            out += [b for b in day_minutes(symbol, day, allow_provisional=False) if start_ts <= b.ts < end_ts]
+            bars, source = day_minutes_with_source(symbol, day, allow_provisional=False, second_source=second_source)
+            out += [b for b in bars if start_ts <= b.ts < end_ts]
+
+            if source is not None and source != "DUKASCOPY_M1":
+                out.cross_source, out.source_id = True, source
+
             day += timedelta(days=1)
 
         return out

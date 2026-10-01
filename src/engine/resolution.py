@@ -16,6 +16,10 @@ Sequence (module 61, 90): when one bar contains two decisive levels
 (entry + SL/TP, or SL + TP) the finer 1-minute path is consulted if it is
 archived; if the order still cannot be proven the result is
 SEQUENCE_UNKNOWN. A later close is never used as intrabar evidence.
+Minutes from ANOTHER source than the coarse bar (FXCM under a Dukascopy
+hour, src/sources/fxcm.py) decide only when they show the very same events
+inside that bar (fill, SL, TP1 - each touched or not exactly as in the
+coarse bar); a disagreement between the sources keeps the order unknown.
 
 Coverage (module 62, 123): a missing in-session bar before the decisive
 bar makes the result UNRESOLVED (the hole could hide an earlier hit).
@@ -31,6 +35,14 @@ from typing import Callable, Iterable
 from src.path_archive import Bar, is_session_minute
 
 FINAL = ("TP1_BEFORE_SL", "SL_BEFORE_TP1", "SEQUENCE_UNKNOWN", "EXPIRED", "NOT_ACTIVATED")
+
+
+class MinuteList(list):
+    """Minutes returned by a minute loader; cross_source = they come from
+    another source than the coarse bars they refine."""
+
+    cross_source: bool = False
+    source_id: str | None = None
 
 
 @dataclass
@@ -182,7 +194,8 @@ def resolve(
             out.executed_entry = executed
 
             if sl_hit or tp_hit:
-                finer = _finer(plan, bar, bar_seconds, minute_loader, triggered_before=False)
+                finer = _finer(plan, bar, bar_seconds, minute_loader, triggered_before=False,
+                               coarse=(sl_hit, tp_hit))
 
                 if finer is not None:
                     return _merge(out, finer, plan, risk, mfe, mae)
@@ -196,7 +209,8 @@ def resolve(
         adverse = sign * (executed - adv_x) / risk
 
         if sl_hit and tp_hit:
-            finer = _finer(plan, bar, bar_seconds, minute_loader, triggered_before=True, executed=executed)
+            finer = _finer(plan, bar, bar_seconds, minute_loader, triggered_before=True, executed=executed,
+                           coarse=(True, True))
 
             if finer is not None:
                 return _merge(out, finer, plan, risk, mfe, mae)
@@ -266,8 +280,10 @@ def _finish(out: Outcome, state: str, when: int, exit_price: float | None, note:
     return out
 
 
-def _finer(plan: Plan, bar: Bar, bar_seconds: int, loader, triggered_before: bool, executed: float | None = None):
-    """Re-resolve one ambiguous coarse bar on archived 1-minute bars."""
+def _finer(plan: Plan, bar: Bar, bar_seconds: int, loader, triggered_before: bool, executed: float | None = None,
+           coarse: tuple[bool, bool] = (True, True)):
+    """Re-resolve one ambiguous coarse bar on archived 1-minute bars.
+    Returns (state, when, fill_ts, exit_price, source_label) or None."""
     if loader is None or bar_seconds == 60:
         return None
 
@@ -277,10 +293,35 @@ def _finer(plan: Plan, bar: Bar, bar_seconds: int, loader, triggered_before: boo
     if not minutes or len(minutes) != len(expected):
         return None           # the fine path is not complete: stays unknown
 
+    cross = getattr(minutes, "cross_source", False)
+
+    if cross and not same_events(plan, minutes, triggered_before, coarse):
+        return None           # the second source saw other events: stays unknown
+
     sub = Plan(plan.direction, plan.is_now and not triggered_before, plan.entry, plan.stop, plan.tp1,
                bar.ts, bar.ts + bar_seconds, plan.slippage)
     result = resolve_minutes_inside(sub, minutes, triggered_before, executed)
-    return result
+
+    if result is None:
+        return None
+
+    label = getattr(minutes, "source_id", None) if cross else None
+    return (*result, label)
+
+
+def same_events(plan: Plan, minutes: list[Bar], triggered_before: bool, coarse: tuple[bool, bool]) -> bool:
+    """True when the minutes touch the fill (if still pending), SL and TP1
+    exactly as the coarse bar did (cross-source refinement)."""
+    sign = 1.0 if plan.direction == "BUY" else -1.0
+    fill = sl = tp = False
+
+    for bar in minutes:
+        fill_x, fav_x, adv_x = _levels(bar, plan.direction)
+        fill = fill or sign * (fill_x - plan.entry) <= 0
+        sl = sl or sign * (adv_x - plan.stop) <= 0
+        tp = tp or sign * (fav_x - plan.tp1) >= 0
+
+    return (triggered_before or fill) and (sl, tp) == tuple(coarse)
 
 
 def resolve_minutes_inside(plan: Plan, minutes: list[Bar], triggered_before: bool, executed: float | None):
@@ -319,7 +360,8 @@ def resolve_minutes_inside(plan: Plan, minutes: list[Bar], triggered_before: boo
 
 
 def _merge(out: Outcome, finer, plan: Plan, risk: float, mfe: float, mae: float) -> Outcome:
-    state, when, fill_ts, exit_price = finer
+    state, when, fill_ts, exit_price, cross_source = finer
+    how = f"upresneno na 1 min, {cross_source} potvrzuje" if cross_source else "upresneno na 1 min"
     sign = 1.0 if plan.direction == "BUY" else -1.0
 
     if state == "CONTINUE":
@@ -332,16 +374,16 @@ def _merge(out: Outcome, finer, plan: Plan, risk: float, mfe: float, mae: float)
     if state == "NOT_ACTIVATED":
         out.triggered_at = None
         out.executed_entry = None
-        return _finish(out, "NOT_ACTIVATED", when, None, "TP1 bez vstupu (upresneno na 1 min)", plan, risk)
+        return _finish(out, "NOT_ACTIVATED", when, None, f"TP1 bez vstupu ({how})", plan, risk)
 
     if fill_ts is not None:
         out.triggered_at = fill_ts
 
-    out.granularity = "1min (upresneno)"
+    out.granularity = f"1min {cross_source} (upresneno)" if cross_source else "1min (upresneno)"
 
     if state == "SL_BEFORE_TP1":
         out.mfe_r, out.mae_r = mfe, max(mae, 1.0)
-        return _finish(out, state, when, exit_price, "SL drive nez TP1 (upresneno na 1 min)", plan, risk)
+        return _finish(out, state, when, exit_price, f"SL drive nez TP1 ({how})", plan, risk)
 
     out.mfe_r, out.mae_r = max(mfe, sign * (plan.tp1 - (out.executed_entry or plan.entry)) / risk), mae
-    return _finish(out, state, when, exit_price, "TP1 drive nez SL (upresneno na 1 min)", plan, risk)
+    return _finish(out, state, when, exit_price, f"TP1 drive nez SL ({how})", plan, risk)

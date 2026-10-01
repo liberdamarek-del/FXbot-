@@ -7,6 +7,8 @@
     python scripts/download_history.py --symbols EUR/USD,USD/JPY --days 90
     python scripts/download_history.py --today            # + finished hours of today
     python scripts/download_history.py --status           # only show what is stored
+    python scripts/download_history.py --source fxcm --days-file data/ambiguous_days_model.txt
+                                                          # 1-minute days from FXCM (second source)
 
 Source: Dukascopy public history (keyless, see src/sources/dukascopy.py).
 Two layers:
@@ -14,6 +16,10 @@ Two layers:
   daily / 4h / 1h analysis and for backtests over many years,
 - 1-minute candles, one file per day and side: recent path, entry timing
   and precise outcome resolution (which of SL / TP came first).
+
+--source fxcm takes the 1-minute days from the FXCM public week files
+instead (src/sources/fxcm.py): used for outcome checks only, never for the
+canonical bars, and only for days Dukascopy does not have.
 
 Every file is stored with its SHA-256; days/months are marked COMPLETE /
 PARTIAL / GAP / EMPTY, nothing is ever filled in. Re-running is safe:
@@ -43,6 +49,7 @@ from src.config import DATA_DIR  # noqa: E402  (loads .env first)
 from src.instruments import parse_symbols  # noqa: E402
 from src.path_archive import (  # noqa: E402
     archive_summary,
+    get_day,
     initialize_path_archive,
     next_month,
     rebuild_aggregates,
@@ -57,6 +64,7 @@ from src.sources.dukascopy import (  # noqa: E402
     ingest_month,
     ingest_provisional_hours,
 )
+from src.sources.fxcm import ingest_day as fxcm_ingest_day  # noqa: E402
 
 UTC = timezone.utc
 REBUILD_CHUNK_DAYS = 30
@@ -86,6 +94,11 @@ def print_status(symbols: list[str]) -> None:
         for state in ("PARTIAL", "GAP"):
             if state in days:
                 line += f" {state} {days[state]['n']}"
+
+        fxcm = summary.get("days_fxcm", {})
+
+        if fxcm:
+            line += " | FXCM dny " + " ".join(f"{k} {v['n']}" for k, v in sorted(fxcm.items()))
 
         months = summary.get("months", {}).get("COMPLETE")
 
@@ -211,6 +224,32 @@ def minutes(symbols: list[str], first: date, last: date, now: datetime) -> dict:
     return totals
 
 
+def days_wanted(args, symbols: list[str], now: datetime) -> list[tuple[str, date]]:
+    if args.days_file:
+        wanted = []
+
+        for line in Path(args.days_file).read_text(encoding="utf-8").splitlines():
+            if "," in line:
+                symbol, day = line.strip().split(",")
+                wanted.append((symbol, date.fromisoformat(day)))
+
+        return wanted
+
+    last = args.last or (now.date() - timedelta(days=1))
+    first = args.first or (last - timedelta(days=max(1, args.days) - 1))
+    days = [first + timedelta(days=k) for k in range((last - first).days + 1)]
+    return [(s, d) for d in reversed(days) for s in symbols]
+
+
+def fxcm_day(symbol: str, day: date, tried: set) -> str:
+    duka = get_day(symbol, day, SOURCE_M1)
+
+    if duka and duka["state"] == "COMPLETE":
+        return "COMPLETE"           # the canonical day exists: nothing to do
+
+    return fxcm_ingest_day(symbol, day, tried)
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Download BID/ASK history (Dukascopy).")
     parser.add_argument("--symbols", default=None, help="comma separated, default = 12 active pairs")
@@ -221,6 +260,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--today", action="store_true", help="also fetch finished hours of today (provisional)")
     parser.add_argument("--status", action="store_true")
     parser.add_argument("--rebuild", action="store_true", help="only rebuild stored bars from the archive")
+    parser.add_argument("--source", choices=("dukascopy", "fxcm"), default="dukascopy",
+                        help="1-minute days from Dukascopy (canonical) or FXCM (second source, path checks only)")
     parser.add_argument("--days-file", default=None,
                         help="file with lines 'SYMBOL,YYYY-MM-DD': fetch exactly these 1-minute days "
                              "(e.g. days whose hourly bars were ambiguous in a backtest)")
@@ -242,11 +283,22 @@ def main(argv: list[str]) -> int:
     now = datetime.now(UTC)
 
     print("=" * 70)
-    print("FXBOT - STAHOVANI HISTORIE BID/ASK (Dukascopy)")
+    print(f"FXBOT - STAHOVANI HISTORIE BID/ASK ({'FXCM' if args.source == 'fxcm' else 'Dukascopy'})")
     print("=" * 70)
     print(f"pary: {', '.join(symbols)}")
     print(f"archiv: {DATA_DIR / 'market_path.sqlite3'}")
     problems = {}
+
+    if args.source == "fxcm":
+        wanted = days_wanted(args, symbols, now)
+        print(f"FXCM 1min dny: {len(wanted)} (jen kde Dukascopy den chybi)")
+        tried: set = set()
+        jobs = [(s, d.isoformat(), (lambda s=s, d=d: fxcm_day(s, d, tried))) for s, d in wanted]
+        totals = run_jobs(jobs, "FXCM 1min dny")
+        problems.update({k: v for k, v in totals.items() if k not in ("COMPLETE", "EMPTY", "PENDING", "PARTIAL")})
+        print_status(symbols)
+        print("VYSLEDEK:", "OK" if not problems else f"nedostupne {problems} (FXCM tyden nezverejnen)")
+        return 0
 
     if args.days_file:
         wanted = []

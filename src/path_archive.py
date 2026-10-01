@@ -410,29 +410,60 @@ def _decoded_day(instrument: str, day_iso: str, bid_id: int, ask_id: int) -> tup
     return tuple(b for b in merge_sides(bids, asks) if b.ts in session)
 
 
+@lru_cache(maxsize=32)
+def _fxcm_week(instrument: str, payload_id: int) -> tuple[Bar, ...]:
+    from src.sources.fxcm import decode_week, fill_week
+
+    content, _ = load_payload(payload_id)
+    return tuple(fill_week(*decode_week(content, instrument)))
+
+
 def day_minutes(instrument: str, day: date, allow_provisional: bool = True) -> tuple[Bar, ...]:
     """In-session 1-minute bid/ask bars of one UTC day ((), when not stored).
 
     Canonical daily candles are preferred; the provisional tick-built
     minutes (current day, src/sources/dukascopy.py) are used only when no
-    canonical day exists and allow_provisional is True.
+    canonical day exists and allow_provisional is True. Only the canonical
+    source (Dukascopy): this feeds the aggregates and the live series.
     """
+    return day_minutes_with_source(instrument, day, allow_provisional, second_source=False)[0]
+
+
+def day_minutes_with_source(
+    instrument: str,
+    day: date,
+    allow_provisional: bool = True,
+    second_source: bool = True,
+) -> tuple[tuple[Bar, ...], str | None]:
+    """(minutes, source_id) of one UTC day: Dukascopy 1-minute day, then -
+    with second_source - the FXCM week file (src/sources/fxcm.py), then the
+    provisional Dukascopy ticks. For path checks (outcome resolution) only."""
     from src.sources.dukascopy import SOURCE_M1, SOURCE_TICK, provisional_minutes
 
     record = get_day(instrument, day, SOURCE_M1)
 
     if record and record["bid_payload_id"] and record["ask_payload_id"]:
-        return _decoded_day(
+        bars = _decoded_day(
             instrument,
             day.isoformat(),
             int(record["bid_payload_id"]),
             int(record["ask_payload_id"]),
         )
+        return bars, SOURCE_M1
+
+    if second_source:
+        from src.sources.fxcm import SOURCE_FXCM_M1, decode_day
+
+        record = get_day(instrument, day, SOURCE_FXCM_M1)
+
+        if record and record["state"] in ("COMPLETE", "PARTIAL") and record["bid_payload_id"]:
+            return decode_day(instrument, day, int(record["bid_payload_id"])), SOURCE_FXCM_M1
 
     if allow_provisional:
-        return provisional_minutes(instrument, day)
+        bars = provisional_minutes(instrument, day)
+        return bars, (SOURCE_TICK if bars else None)
 
-    return ()
+    return (), None
 
 
 def iter_minutes(
@@ -801,7 +832,14 @@ def archive_summary(instrument: str) -> dict:
         days = connection.execute(
             """
             SELECT state, COUNT(*) AS n, MIN(day) AS first, MAX(day) AS last
-            FROM path_days WHERE instrument = ? GROUP BY state
+            FROM path_days WHERE instrument = ? AND source_id = 'DUKASCOPY_M1' GROUP BY state
+            """,
+            (instrument,),
+        ).fetchall()
+        second = connection.execute(
+            """
+            SELECT state, COUNT(*) AS n, MIN(day) AS first, MAX(day) AS last
+            FROM path_days WHERE instrument = ? AND source_id = 'FXCM_M1' GROUP BY state
             """,
             (instrument,),
         ).fetchall()
@@ -822,6 +860,7 @@ def archive_summary(instrument: str) -> dict:
 
     return {
         "days": {r["state"]: {"n": r["n"], "first": r["first"], "last": r["last"]} for r in days},
+        "days_fxcm": {r["state"]: {"n": r["n"], "first": r["first"], "last": r["last"]} for r in second},
         "months": {r["state"]: {"n": r["n"], "first": r["first"], "last": r["last"]} for r in months},
         "bars": {
             f"{r['timeframe']}/{r['source_id']}": {"n": r["n"], "first": r["first"], "last": r["last"]}
@@ -841,7 +880,8 @@ def rebuild_all(instrument: str) -> dict:
             "SELECT month FROM path_months WHERE instrument = ? AND state = 'COMPLETE' ORDER BY month",
             (instrument,))]
         days = [r["day"] for r in connection.execute(
-            "SELECT day FROM path_days WHERE instrument = ? AND state = 'COMPLETE' ORDER BY day",
+            "SELECT day FROM path_days WHERE instrument = ? AND state = 'COMPLETE' AND source_id = 'DUKASCOPY_M1' "
+            "ORDER BY day",
             (instrument,))]
 
     years = sorted({m[:4] for m in months})

@@ -30,6 +30,7 @@ SOURCE_SHORT = {
     "TWELVE_DATA": "12data",
     "DUKASCOPY_TICK": "duka-tick",
     "DUKASCOPY_M1": "duka-m1",
+    "FXCM_M1": "fxcm-m1",
     "OANDA": "oanda",
 }
 LINE = "=" * 78

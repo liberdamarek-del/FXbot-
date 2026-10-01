@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
 from src.engine.data import twelve_data_minutes
-from src.path_archive import Bar, day_minutes, is_session_minute
+from src.path_archive import Bar, day_minutes_with_source, is_session_minute
 
 UTC = timezone.utc
 
@@ -33,12 +33,8 @@ def path_minutes(symbol: str, start_ts: int, end_ts: int) -> tuple[list[Bar], di
     last_day = datetime.fromtimestamp(max(start_ts, end_ts - 1), tz=UTC).date()
 
     while day <= last_day:
-        canonical = day_minutes(symbol, day, allow_provisional=False)
-        layer = "DUKASCOPY_M1"
-
-        if not canonical:
-            canonical = day_minutes(symbol, day, allow_provisional=True)
-            layer = "DUKASCOPY_TICK"
+        # Dukascopy day, else the FXCM week file, else provisional Dukascopy ticks
+        canonical, layer = day_minutes_with_source(symbol, day, allow_provisional=True, second_source=True)
 
         for bar in canonical:
             if start_ts <= bar.ts < end_ts:
