@@ -160,7 +160,9 @@ def _returns_by_date(values: list[tuple[date, float]]) -> dict[date, float]:
     out = {}
 
     for (d0, v0), (d1, v1) in zip(values, values[1:]):
-        if v0 and v1:
+        # a log return needs two positive prices (WTI settled at -37 USD on
+        # 2020-04-20): such a day has no return, nothing is substituted
+        if v0 and v1 and v0 > 0 and v1 > 0:
             out[d1] = math.log(v1 / v0)
 
     return out

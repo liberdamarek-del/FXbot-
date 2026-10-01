@@ -24,6 +24,10 @@ BLOKOVANO / NEOVERENO.
 | Staged commit + read-back, run package, certificates | HOTOVO | src/v78/persist.py, report.py |
 | Quote contract, freshness 2.0, skew, conflict/outlier, closed mode | HOTOVO | src/v78/quotes.py |
 | Market Path Archive: bid/ask 1min (days) + 1h (months), hashes | HOTOVO | src/path_archive.py, src/sources/dukascopy.py |
+| Second 1-minute path source FXCM (outcome checks only, D-001) | HOTOVO | src/sources/fxcm.py |
+| Out-of-sample research archive 2016-2023 (FXCM canonical) | HOTOVO | scripts/oos_fxcm.py |
+| Forward-test review with paired anti-model control | HOTOVO | scripts/review.py, src/v78/audit.py |
+| Parallel backtest (per pair, identical results, Termux fallback) | HOTOVO | src/engine/backtest.py |
 | Coverage certificate, between-run delta | HOTOVO | src/v78/coverage.py |
 | Fundamentals point-in-time: 8 keyless sources, revisions, calendar | HOTOVO | src/fundamental/ |
 | Technical D1/H4/H1, level lifetime, setups | HOTOVO | src/engine/technical.py |
@@ -34,7 +38,7 @@ BLOKOVANO / NEOVERENO.
 | Registry champion/challenger, change log, promotion gate | HOTOVO | src/stats/registry.py |
 | Broker interface, paper account, OANDA quotes | HOTOVO / OANDA NEOVERENO | src/broker/ |
 | One CLI | HOTOVO | fxbot.py |
-| Tests E1-E6 incl. Word pre-change register T01-T14 | HOTOVO (47/47 PASS) | test_e*.py |
+| Tests E1-E8 incl. Word pre-change register T01-T14 | HOTOVO (49/49 PASS) | test_e*.py |
 
 Manifest: 110 IMPLEMENTED, 27 PARTIAL, 7 NOT_AVAILABLE (26 options, 27 flows,
 28 fiscal, 29 China, 32 geopolitics, 130 web tickers, 131 rendered widgets),
@@ -52,6 +56,13 @@ Manifest: 110 IMPLEMENTED, 27 PARTIAL, 7 NOT_AVAILABLE (26 options, 27 flows,
   ForexFactory weekly feed. RUNTIME-FAIL / not usable: SNB daily yields
   (cube stopped 2025-07), RBNZ (403), Yahoo (429), Stooq (blocked).
 - Twelve Data /quote has last_quote_at (timestamped) but no bid/ask.
+- 2026-10-01: Dukascopy answered HTTP 429 for > 6 h to the cloud runtime
+  (no published limits). The downloader now doubles its pause up to 30 min.
+- FXCM public candle files (candledata.fxcorporate.com, m1 and H1, 2012+):
+  week numbering differs between years (file content decides), some weeks
+  missing, ~1 week publication lag, momentary crossed quotes (> 1 pip in
+  0.005 % of minutes). Agreement with Dukascopy: median mid difference
+  0.05-0.20 pip; FXCM H1 = aggregated FXCM M1 in 99.6 % of hours.
 
 ## Still open
 
