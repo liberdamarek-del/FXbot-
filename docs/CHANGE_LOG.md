@@ -94,3 +94,18 @@ evidence; only the paired edge and the bounds are reported as results.
 | In-sample 2023-11 .. 2026-09 (docs/BACKTEST_REPORT.md) | edge +0.022 R (-0.006 .. +0.049), E -0.063 R; walk-forward choice worse than default |
 | Conclusion | the V7.8.0 rules as implemented have no demonstrable direction edge; after costs they lose. Proof class A (OOS measurement). Champion stays the reference for forward testing only - not for real trades |
 | Next | new hypotheses only via this log, designed on 2023-2026 and tested on 2016-2023 (or the reverse), then forward |
+
+## Result R-002 - signal research rounds 1-3 (2026-10-01)
+
+Protocol and results: docs/VYZKUM_POSTUP.md (rules committed before each round).
+
+| Round | Tested | Discovery | Confirmation |
+|---|---|---|---|
+| 1 | 23 standard technical/fundamental signals x 2 directions x 1/5/20 days, 12 pairs, 2016-09..2021-12 | 0 of 138 (best t 1.2) | - (control periods untouched) |
+| 2 | 6 conditional literature effects | 0 of 36 (best t 1.6) | - (control periods untouched) |
+| 3 | 7 currency factors, 13 currencies, FRED 1990-2012 | CARRY_MOM3 (+4.8 % p.a., t 2.93) | 2013-2026: -0.8 % p.a. gross, -3.1 % retail -> NOT confirmed |
+
+No change of the model is proposed. Power: on 5.5 years t >= 3 needs an annual
+Sharpe >= 1.28; documented FX effects have 0.3-0.7. Next candidates (to be
+written into ROUNDS before testing): retail sentiment collected forward,
+intraday seasonality, factor premia after the 2022 rate divergence.

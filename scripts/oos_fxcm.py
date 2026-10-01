@@ -4,6 +4,7 @@
     python scripts/oos_fxcm.py evaluate    # full evaluation -> docs/OOS_REPORT.md
     python scripts/oos_fxcm.py reprocess   # rebuild days/bars from the stored files (after a parser change)
     python scripts/oos_fxcm.py status
+    python scripts/oos_fxcm.py download --early   # hourly 2013-01 .. 2016-09 -> data/early_fxcm (research control period)
 
 Why: every parameter and every rule change so far (CH-001..CH-003) was
 looked at only on 2023-08 .. 2026-09 (Dukascopy). The years before that are
@@ -25,9 +26,10 @@ from datetime import date, timedelta
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-OOS_DIR = PROJECT_ROOT / "data" / "oos_fxcm"
-FIRST = date(2016, 6, 1)           # 4 months of warm-up before the first decision
-LAST = date(2023, 7, 31)           # the in-sample period starts 2023-08
+EARLY = "--early" in sys.argv    # second control period of scripts/research_signals.py (hourly only)
+OOS_DIR = PROJECT_ROOT / "data" / ("early_fxcm" if EARLY else "oos_fxcm")
+FIRST = date(2013, 1, 7) if EARLY else date(2016, 6, 1)    # 4 months of warm-up before the first decision
+LAST = date(2016, 9, 30) if EARLY else date(2023, 7, 31)   # the in-sample period starts 2023-08
 
 os.environ["DATA_DIR"] = str(OOS_DIR.relative_to(PROJECT_ROOT))
 os.environ["FXBOT_CANONICAL_SOURCE"] = "fxcm"
@@ -58,6 +60,9 @@ def download(symbols: list[str]) -> None:
         counts = store_hourly_series(symbol, hours, SOURCE_FXCM_H1)
         print(f"{symbol}: hodiny {counts} | chybejici tydny {len(missing)} "
               f"{[d.isoformat() for d in missing[:6]]} | {time.monotonic() - started:.0f} s", flush=True)
+
+    if EARLY:
+        return
 
     tried: set = set()
     days = [FIRST + timedelta(days=k) for k in range((LAST - FIRST).days + 1)]

@@ -163,8 +163,10 @@ Co z toho plyne:
 * Dřívější kladné číslo (+0,12 R) bylo zkreslené tím, že nejasné hodiny (převážně ztráty)
   byly vynechané; po doplnění minutových dat FXCM zmizelo (`docs/CHANGE_LOG.md`).
 
-Co s tím dál (spolu, viz `docs/TESTOVANI_SPOLU.md`): dopředný test zamčených predikcí
-a nové hypotézy jen přes changelog + test na datech, na kterých nebyly navrženy.
+Co s tím dál: **`docs/VYZKUM_POSTUP.md`** – pevný postup hledání výhody (objev → zamčení →
+jednorázové potvrzení) a výsledky prvních tří kol (180 testů standardních technických,
+fundamentálních i faktorových signálů – nic se nepotvrdilo) a co může reálně pomoci.
+Dopředný test spolu: `docs/TESTOVANI_SPOLU.md`.
 
 ## 6. Připojení brokera
 
