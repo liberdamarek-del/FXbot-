@@ -228,3 +228,25 @@ months) is in the trade direction, sized by its size: >= 0.25 pp -> margin 8 % o
 closed trades of the last 24 months sum to a loss (>= 5 trades) is off until the sum is positive.
 Success criterion of the forward test: after 12 months or >= 60 trades the account return >= +8 %
 a year with a drawdown <= 25 %; otherwise rejected. No real money before.
+
+## Result R-010 - test on never-seen markets and the self-learning loop (2026-10-01)
+
+Data D-002: HistData.com 1-minute BID 2012-01..2026-09 for 16 pairs FXCM does not publish (USD/NOK,
+EUR/NOK, USD/SEK, EUR/SEK, USD/MXN, USD/ZAR, ZAR/JPY, USD/PLN, EUR/PLN, USD/HUF, EUR/HUF, USD/CZK,
+EUR/CZK, CHF/JPY, EUR/CAD, GBP/AUD) -> hourly arrays (`scripts/histdata_universe.py`; timestamps
+are New York local time WITH daylight saving although the site says EST - measured against FXCM
+EUR/USD 2018: median 0.1-0.2 pip). OECD 3m rates for PLN, HUF, CZK added (TRY has none after 2008).
+Result: on the 16 new pairs F1 earns +8.3 / -0.8 / -2.4 % per trade (2012-18 / 2019-22 / 2023-26),
+CH-009 +0.2 % a year 2012-22 (drawdown 56 %) and -3.1 % in 2023-26: the CH-008 / CH-009 results on
+the 25 FXCM pairs were partly selection luck. Systems chosen on the FXCM pairs average ~0 % on the
+new pairs (`scripts/cross_market.py`, docs/DVA_TRHY.md). Only the strongest tier (rates >= 0.25 pp
++ carry) stays positive on both groups.
+Self-learning loop `scripts/self_learn.py` (docs/UCENI.md, docs/UCENI_LOG.md): champion +
+experiments, tier margins re-fitted on selection years only, walk-forward 2012-18 -> 2019-22 and
+2012-22 -> 2023-26, gate = higher annual return in both tests by >= 1 pp, drawdown within the 20 %
+budget + 3 pp, positive trades in 2023-26 on both market groups. Profile "max": accepted "strongest
+tier only" and "volatility sizing" -> tests +22.9 % (dd 22 %) and +19.1 % (dd 20 %) a year, 1.4-1.9
+winners a month. Profile "mesicne" (>= 2 winners a month): CH-009 on 41 pairs stays champion ->
++17.8 % (dd 35 %) / +10.7 % (dd 21 %). Rejected 21 other experiments (daily limit tiers, VIX filter,
+holding, targets, stops, currency limits, signals). Note: every experiment reuses the same test
+years, so a part of every accepted gain is luck; the forward test decides.

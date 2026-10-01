@@ -1,5 +1,9 @@
 # Nejvyšší roční zhodnocení účtu – výsledek
 
+> **Oprava (2026-10-01, později týž den):** na 16 nových párech, které model nikdy neviděl, CH-009
+> nefunguje (2012–22 +0,2 % ročně, 2023–26 −3,1 %). Níže uvedených +24 % ročně platí jen pro 25 párů
+> FXCM, na kterých se hledalo. Aktuální, poctivější čísla a samoučení: **`docs/UCENI.md`**.
+
 Stav k 2026-10-01. Data: hodinové BID/ASK ceny FXCM 2012–2026, 25 párů, náklady (spread + skluz),
 swap, složené úročení, nejvýš jedna pozice na pár, součet marží ≤ 100 % účtu. Velikosti a pravidla
 vybrané jen na letech 2012–2022, roky **2023–2026 jsou test**. Podrobné tabulky:

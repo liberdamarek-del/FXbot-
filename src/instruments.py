@@ -61,6 +61,12 @@ def _pair(symbol: str, low: float, high: float) -> Instrument:
     )
 
 
+def _custom(symbol: str, pip: float, decimals: int, low: float, high: float) -> Instrument:
+    base, quote = symbol.split("/")
+    return Instrument(symbol=symbol, base=base, quote=quote, pip=pip, decimals=decimals,
+                      dukascopy_code=base + quote, dukascopy_scale=10 ** decimals, min_price=low, max_price=high)
+
+
 # Plausibility ranges are deliberately wide (decades of history fit inside);
 # they only catch scale/parser errors.
 _ALL = (
@@ -94,6 +100,20 @@ _ALL = (
     _pair("GBP/NZD", 1.2, 3.8),
     _pair("NZD/CAD", 0.5, 1.4),
     _pair("NZD/CHF", 0.3, 1.4),
+    # Scandinavian and emerging currencies (research universe, HistData 1-minute history)
+    _pair("USD/NOK", 4.0, 16.0),
+    _pair("EUR/NOK", 6.0, 16.0),
+    _pair("USD/SEK", 4.0, 16.0),
+    _pair("EUR/SEK", 7.0, 16.0),
+    _pair("USD/MXN", 8.0, 35.0),
+    _pair("USD/ZAR", 5.0, 30.0),
+    _pair("ZAR/JPY", 3.0, 20.0),
+    _pair("USD/PLN", 2.0, 7.0),
+    _pair("EUR/PLN", 3.0, 6.5),
+    _custom("USD/HUF", 0.01, 3, 120.0, 500.0),
+    _custom("EUR/HUF", 0.01, 3, 200.0, 500.0),
+    _custom("USD/CZK", 0.001, 4, 12.0, 35.0),
+    _custom("EUR/CZK", 0.001, 4, 20.0, 35.0),
 )
 
 INSTRUMENTS: dict[str, Instrument] = {i.symbol: i for i in _ALL}

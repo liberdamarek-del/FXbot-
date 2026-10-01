@@ -41,8 +41,8 @@ DD_MAX = 0.20
 SEL, TEST = (2012, 2022), (2023, 2026)
 
 
-def tier_lists(variant=None) -> list[list[dict]]:
-    return [D.simulate(variant(r) if variant else r) for r in TIERS.values()]
+def tier_lists(variant=None, symbols=None) -> list[list[dict]]:
+    return [D.simulate(variant(r) if variant else r, symbols) for r in TIERS.values()]
 
 
 def choose(lists) -> list[tuple]:

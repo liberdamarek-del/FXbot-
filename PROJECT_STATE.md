@@ -84,6 +84,11 @@ Annual return (R-009, docs/ROCNI_VYNOS_VYSLEDEK.md): only the Friday decision wo
 by rate divergence (8 / 3 / 2 % margin, scripts/portfolio_tiers.py): 2012-22 +23.5 % a year,
 2023-26 +24.2 %, drawdown 16-19 %, 76 trades a year. Pre-registered as CH-009.
 
+Never-seen markets (R-010, docs/UCENI.md): 16 HistData pairs (scripts/histdata_universe.py); CH-009
+fails there (+0.2 % a year 2012-22, -3.1 % 2023-26). Self-learning loop scripts/self_learn.py
+(walk-forward + cross-market gate): champion "max" +19.1 % a year in 2023-26 (dd 20 %), champion
+"mesicne" +10.7 % (dd 21 %).
+
 ## Still open
 
 | Sev | Item |

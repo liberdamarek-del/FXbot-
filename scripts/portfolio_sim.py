@@ -54,7 +54,13 @@ def families(cands: list[dict]) -> list[dict]:
     return list(best.values())
 
 
-def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026)) -> dict:
+def _legs(trade: dict) -> tuple[str, str]:
+    """(currency bought, currency sold) of a trade."""
+    base, quote = trade["pair"].split("/")
+    return (base, quote) if trade["side"] > 0 else (quote, base)
+
+
+def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_ccy: int | None = None) -> dict:
     """Chronological account with compounding, one position per pair. `share`
     = margin share of the equity per trade, one number or one per list."""
     shares = list(share) if isinstance(share, (list, tuple)) else [share] * len(trade_lists)
@@ -92,8 +98,13 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026)) -> d
         close_until(t_in)
         if tr["pair"] in busy:
             continue
+        if max_ccy:                                   # at most max_ccy open trades long (short) one currency
+            bought, sold = _legs(tr)
+            legs = [_legs(x[3]) for x in open_pos]
+            if sum(1 for b, _ in legs if b == bought) >= max_ccy or sum(1 for _, q in legs if q == sold) >= max_ccy:
+                continue
         used = sum(m for _, _, m, _ in open_pos)
-        margin = shares[rank] * equity
+        margin = shares[rank] * equity * tr.get("size_mult", 1.0)
         if used + margin > MARGIN_CAP * equity:
             continue
         max_used = max(max_used, (used + margin) / equity)

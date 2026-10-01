@@ -48,6 +48,8 @@ class Rule:
     rates_src: str = "oecd"           # "oecd" = monthly 3m interbank (FRED), "y2" = daily 2y yields (fundamentals DB)
     max_sl_margin: float = 1e9        # skip trades whose stop is wider than this % of the margin
     exit_kind: str = "ATR"            # "ATR" = tp/sl in ATR multiples, "PCT" = tp/sl in % of the price
+    max_vix: float = 1e9              # no new trade when the VIX close of the decision day is above this
+    max_vix_rise: float = 1e9         # ... or when it rose more than this (points) over 5 trading days
 
 
 _cache: dict = {}
@@ -89,6 +91,24 @@ def y2_rates(symbol: str, close_ts: np.ndarray, window_months: int, lag_months: 
     return now, now - old
 
 
+def vix_on(days) -> tuple[np.ndarray, np.ndarray]:
+    """VIX close (FRED VIXCLS, 16:15 New York, known at the 17:00 FX close) of
+    each trading day and its change over the last 5 VIX closes."""
+    import bisect
+
+    import research_factors as RF
+    if "vix" not in _cache:
+        rows = RF._csv("VIXCLS")
+        _cache["vix"] = ([d for d, _ in rows], np.array([v for _, v in rows]))
+    dates, values = _cache["vix"]
+    level, rise = [], []
+    for d in days:
+        k = bisect.bisect_right(dates, d) - 1
+        level.append(values[k] if k >= 0 else np.nan)
+        rise.append(values[k] - values[k - 5] if k >= 5 else np.nan)
+    return np.array(level), np.array(rise)
+
+
 def prepared(symbol: str, lag: int, window: int, early: int = 0, src: str = "oecd"):
     key = (symbol, lag, window, early, src)
     if key not in _cache:
@@ -104,6 +124,7 @@ def prepared(symbol: str, lag: int, window: int, early: int = 0, src: str = "oec
             old.append(np.nan if ob is None or oq is None else ob - oq)
         I["carry"] = np.array(known)
         I["rates_mom"] = np.array(known) - np.array(old)
+        I["vix"], I["vix_rise"] = vix_on(s["days"])
         if src == "y2":
             I["carry"], I["rates_mom"] = y2_rates(symbol, s["close_ts"], window)
         elif src == "y2lag":
@@ -142,6 +163,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 if not signal[side][i]:
                     continue
                 if rule.trend and I[rule.trend][i] != side:
+                    continue
+                if I["vix"][i] > rule.max_vix or I["vix_rise"][i] > rule.max_vix_rise:
                     continue
                 if rule.fund == "rates_up" and not (side * I["rates_mom"][i] >= rule.rates_thr):
                     continue

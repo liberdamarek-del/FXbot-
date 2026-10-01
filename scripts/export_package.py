@@ -3,6 +3,8 @@
     python scripts/export_package.py            # code only -> dist/FXBOT_V78.tar.gz
     python scripts/export_package.py --data     # + dist/FXBOT_V78_DATA.tar.gz (history archive, fundamentals)
     python scripts/export_package.py --data --with-fxcm   # incl. the FXCM 1-minute weeks (+~175 MB)
+    python scripts/export_package.py --research # + dist/FXBOT_RESEARCH.tar.gz (41-pair hourly arrays,
+                                                #   FRED series, learning state; ~110 MB) for the labs
 
 The code package contains every tracked project file (no data/, no .env,
 no caches). The data package contains consistent copies (SQLite backup
@@ -70,10 +72,28 @@ def data_package(target: Path, with_fxcm: bool = False) -> Path:
     return target
 
 
+RESEARCH_PATTERNS = ("data/research/fxcm_h1/*.npz", "data/research/fxcm_h1/manifest.tsv",
+                     "data/research/histdata_h1/*.npz", "data/research/histdata_h1/manifest.tsv",
+                     "data/research/fred/*.csv", "data/research/profit2/champion*.json",
+                     "data/research/daily_history.pkl", "data/research/signals.pkl")
+
+
+def research_package(target: Path) -> Path:
+    """Hourly arrays of the 41-pair research universe (the raw week / year
+    files stay out: their sha256 are in the manifests and the download
+    scripts fetch them again), FRED series and the self-learning state."""
+    with tarfile.open(target, "w:gz") as archive:
+        for pattern in RESEARCH_PATTERNS:
+            for path in sorted(PROJECT_ROOT.glob(pattern)):
+                archive.add(path, arcname=str(path.relative_to(PROJECT_ROOT)))
+    return target
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Build delivery packages")
     parser.add_argument("--data", action="store_true")
     parser.add_argument("--with-fxcm", action="store_true", help="include the FXCM 1-minute week files")
+    parser.add_argument("--research", action="store_true", help="research arrays and learning state")
     parser.add_argument("--out", default=str(PROJECT_ROOT / "dist"))
     args = parser.parse_args(argv)
     out = Path(args.out)
@@ -84,6 +104,10 @@ def main(argv: list[str]) -> int:
     if args.data:
         data = data_package(out / "FXBOT_V78_DATA.tar.gz", args.with_fxcm)
         print(f"data: {data} ({data.stat().st_size / 1e6:.1f} MB)")
+
+    if args.research:
+        research = research_package(out / "FXBOT_RESEARCH.tar.gz")
+        print(f"vyzkum: {research} ({research.stat().st_size / 1e6:.1f} MB)")
 
     return 0
 

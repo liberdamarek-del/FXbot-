@@ -168,7 +168,11 @@ Co z toho plyne:
 * Dřívější kladné číslo (+0,12 R) bylo zkreslené tím, že nejasné hodiny (převážně ztráty)
   byly vynechané; po doplnění minutových dat FXCM zmizelo (`docs/CHANGE_LOG.md`).
 
-**Nejvyšší roční zhodnocení: `docs/ROCNI_VYNOS_VYSLEDEK.md`.** Odstupňované portfolio CH-009 (páteční
+**Samoučení a aktuální stav: `docs/UCENI.md`** (deník pokusů `docs/UCENI_LOG.md`, spuštění
+`python scripts/self_learn.py` a `python scripts/self_learn.py --profile mesicne`). Na 41 párech (vč. 16 trhů,
+které model nikdy neviděl): šampion „max“ v testu 2023–26 +19 % ročně při propadu 20 %.
+
+**Nejvyšší roční zhodnocení: `docs/ROCNI_VYNOS_VYSLEDEK.md`** (pozor – opraveno, viz `docs/UCENI.md`). Odstupňované portfolio CH-009 (páteční
 propad + sazby, marže 8 / 3 / 2 % účtu podle síly signálu): 2012–22 +23,5 % ročně, test 2023–26 +24,2 %
 ročně, max. propad 16–19 %, 76 obchodů ročně, 5 ziskových měsíčně – zatím jen backtest.
 

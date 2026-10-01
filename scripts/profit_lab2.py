@@ -6,6 +6,8 @@ on a 25-pair universe (FXCM hourly BID/ASK 2012-2026, one source).
 
 Differences to profit_lab.py (round 1, 12 pairs, daily bars):
 - 25 crosses of the 8 major currencies, 2012-2026 from FXCM only (scripts/fxcm_universe.py);
+  since R-010 the build also covers the 16 HistData pairs (fxcm_universe.universe_all(); the
+  report docs/ZISK10_K2.md was made on the 25 FXCM pairs);
 - the trade path is resolved on hourly bars (TP and SL in the same hour = SL);
 - exits in ATR multiples and in fixed % of the price (0.333 % = 10 % of the margin);
 - carry = OECD 3-month interbank rate difference known two months back
@@ -56,7 +58,11 @@ SPREAD_PIPS = {"EUR/USD": 0.8, "USD/JPY": 0.9, "GBP/USD": 1.2, "USD/CHF": 1.4, "
                "NZD/USD": 1.5, "EUR/JPY": 1.5, "GBP/JPY": 2.5, "EUR/GBP": 1.2, "EUR/CHF": 1.6, "AUD/JPY": 1.6,
                "CAD/JPY": 2.0, "NZD/JPY": 2.2, "GBP/CHF": 2.6, "AUD/CAD": 2.0, "AUD/CHF": 2.0, "AUD/NZD": 2.5,
                "CAD/CHF": 2.2, "EUR/AUD": 2.2, "EUR/NZD": 3.5, "GBP/CAD": 3.2, "GBP/NZD": 4.5, "NZD/CAD": 2.6,
-               "NZD/CHF": 2.6}
+               "NZD/CHF": 2.6,
+               # HistData pairs (BID only): typical retail spreads in pips of the instrument
+               "USD/NOK": 40, "EUR/NOK": 40, "USD/SEK": 40, "EUR/SEK": 40, "USD/MXN": 60, "USD/ZAR": 100,
+               "ZAR/JPY": 3.0, "USD/PLN": 30, "EUR/PLN": 25, "USD/HUF": 30, "EUR/HUF": 30, "USD/CZK": 20,
+               "EUR/CZK": 15, "CHF/JPY": 2.5, "EUR/CAD": 2.5, "GBP/AUD": 3.0}
 SLIPPAGE_PIPS = 0.4
 FIN_MARKUP = 1.0
 
@@ -66,7 +72,8 @@ FIN_MARKUP = 1.0
 # ----------------------------------------------------------------------
 
 RATE_IDS = {"USD": [RF.US_RATE], **{c: v[2] for c, v in RF.CURRENCIES.items() if c in
-                                    ("EUR", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD")}}
+                                    ("EUR", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "NOK", "SEK", "MXN", "ZAR")},
+            "PLN": ["IR3TIB01PLM156N"], "HUF": ["IR3TIB01HUM156N"], "CZK": ["IR3TIB01CZM156N"]}
 
 
 def monthly_rates() -> dict:
@@ -219,7 +226,7 @@ def build() -> int:
     defs = signal_defs()
     meta = meta_list()
     blocks = {en: {"O": [], "V": [], "M": [], "dates": [], "pairs": [], "sides": []} for en, _ in ENTRIES}
-    for symbol in U.universe():
+    for symbol in U.universe_all():
         t0 = time.monotonic()
         s = series(symbol)
         I = indicators(s, rates, symbol)

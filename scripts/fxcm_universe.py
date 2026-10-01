@@ -215,9 +215,23 @@ def _missing_weeks(ts: np.ndarray) -> list[date]:
     return out
 
 
+HISTDATA = PROJECT_ROOT / "data" / "research" / "histdata_h1"     # scripts/histdata_universe.py
+
+
+def universe_all() -> list[str]:
+    """FXCM pairs + the HistData pairs that have been built."""
+    from histdata_universe import PAIRS
+
+    return universe() + [p for p in PAIRS if (HISTDATA / f"{p.replace('/', '')}.npz").exists()]
+
+
 def load(symbol: str) -> dict:
-    """Hourly arrays of one pair: ts (bar open, UTC) and BID/ASK OHLC."""
-    data = np.load(ROOT / f"{symbol.replace('/', '')}.npz")
+    """Hourly arrays of one pair: ts (bar open, UTC) and BID/ASK OHLC
+    (FXCM; for the pairs FXCM does not publish the HistData BID series)."""
+    path = ROOT / f"{symbol.replace('/', '')}.npz"
+    if not path.exists():
+        path = HISTDATA / f"{symbol.replace('/', '')}.npz"
+    data = np.load(path)
     return {k: data[k] for k in ("ts",) + FIELDS}
 
 
