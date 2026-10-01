@@ -121,8 +121,9 @@ def main(argv: list[str]) -> int:
     for t in result.trades:
         if t.get("outcome_state") in ("TP1_BEFORE_SL", "SL_BEFORE_TP1", "NOT_ACTIVATED", "EXPIRED"):
             g = t.get("granularity") or "-"
+            same = "1 min FXCM (stejny zdroj)" if CANONICAL_SOURCE == "fxcm" else "1 min Dukascopy"
             label = ("1 min FXCM (druhy zdroj, stejne udalosti)" if "FXCM" in g else
-                     "1 min Dukascopy" if g.startswith("1min") else "hodinove svicky")
+                     same if g.startswith("1min") else "hodinove svicky")
             resolved_by[label] = resolved_by.get(label, 0) + 1
 
     if resolved_by:

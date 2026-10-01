@@ -82,3 +82,15 @@ evidence; only the paired edge and the bounds are reported as results.
 | Measured agreement | week 2026-09-21..25, 12 pairs: median mid difference 0.05-0.20 pip, hourly BID high/low within 0.5 pip in 59-97 % of hours (worst GBP/JPY) |
 | Effect | model trades with unknown order 12 % -> 6 % |
 | Predictions affected | none (only outcome resolution); proof class B (measurement) |
+
+## Result R-001 - out-of-sample test of the champion (2026-10-01)
+
+| Field | Value |
+|---|---|
+| Data | FXCM BID/ASK, 12 pairs, decisions 2016-09-26 .. 2023-08-11 (never used for any design or parameter choice), fundamentals point-in-time, event layer ablated; `python scripts/oos_fxcm.py evaluate --quick` -> docs/OOS_REPORT.md |
+| Model | 10 640 predictions, E -0.076 R per trade (95 % CI -0.123 .. -0.029), unknown order 2 % (bounds -0.090 .. -0.034) |
+| Paired direction edge vs random | -0.005 R per decision (95 % CI -0.022 .. +0.012): none |
+| Direction only (mid move in model direction) | 24 h -0.08, 72 h -0.17, 120 h -0.22 ATR (overlapping, optimistic CI excludes 0) |
+| In-sample 2023-11 .. 2026-09 (docs/BACKTEST_REPORT.md) | edge +0.022 R (-0.006 .. +0.049), E -0.063 R; walk-forward choice worse than default |
+| Conclusion | the V7.8.0 rules as implemented have no demonstrable direction edge; after costs they lose. Proof class A (OOS measurement). Champion stays the reference for forward testing only - not for real trades |
+| Next | new hypotheses only via this log, designed on 2023-2026 and tested on 2016-2023 (or the reverse), then forward |

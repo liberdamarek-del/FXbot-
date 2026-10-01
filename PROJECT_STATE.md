@@ -15,7 +15,7 @@ BLOKOVANO / NEOVERENO.
 - A material model change goes through the change log + OOS gate
   (src/stats/registry.py); nothing is promoted automatically.
 
-## Block E (2026-09-30): V7.8.0 implementation
+## Block E (2026-09-30 .. 10-01): V7.8.0 implementation
 
 | Area | State | Where |
 |---|---|---|
@@ -64,13 +64,24 @@ Manifest: 110 IMPLEMENTED, 27 PARTIAL, 7 NOT_AVAILABLE (26 options, 27 flows,
   0.005 % of minutes). Agreement with Dukascopy: median mid difference
   0.05-0.20 pip; FXCM H1 = aggregated FXCM M1 in 99.6 % of hours.
 
+## Results on real data (2026-10-01)
+
+| Period | Predictions | E per trade | Paired direction edge vs random |
+|---|---|---|---|
+| 2023-11 .. 2026-09 (Dukascopy, in-sample) | 3 958 | -0.063 R | +0.022 R (95 % CI -0.006 .. +0.049), not significant |
+| 2016-09 .. 2023-08 (FXCM, out-of-sample) | 10 640 | -0.076 R (CI -0.123 .. -0.029) | -0.005 R (CI -0.022 .. +0.012), none |
+
+The implemented V7.8.0 model is NOT profitable and shows no direction edge
+out of sample (docs/CHANGE_LOG.md R-001). The software (data, analysis,
+locking, resolution, statistics) is complete; the trading hypothesis is not.
+
 ## Still open
 
 | Sev | Item |
 |---|---|
 | HIGH | Live run with the user's Twelve Data key on the phone (NEOVERENO) |
 | HIGH | Forward test 2-4 weeks: locked predictions resolved on future data |
-| MEDIUM | Statistical evidence: backtest on >= 3 years once the archive is filled |
+| HIGH | New, pre-registered hypotheses (change log) tested OOS 2016-2023 before any forward use |
 | MEDIUM | Broker bid/ask (OANDA practice or other API) - XTB has no public API |
 | MEDIUM | broker_markup_pips 0.5 is an estimate of retail spread (compare with XTB) |
 | LOW | holidays other than 25 Dec / 1 Jan not modelled |

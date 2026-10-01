@@ -137,6 +137,35 @@ směr modelu něco přidává.
   statisticky významně lepší, horší drawdown ne) – **nikdy automaticky**,
 * report navrhuje „kandidáty změn“ z chyb (taxonomie modulu 69), ale nic sám nemění.
 
+## 5a. Co zatím ukázalo testování na reálných datech
+
+Podrobně: `docs/BACKTEST_REPORT.md` (2023–2026) a `docs/OOS_REPORT.md` (2016–2023, data,
+která model při ladění nikdy neviděl). Shrnutí:
+
+| | 2023-11 – 2026-09 (Dukascopy) | 2016-10 – 2023-07 (FXCM, out-of-sample) |
+|---|---|---|
+| predikcí se směrem | 3 958 | 10 640 |
+| E na obchod (po nákladech) | −0,063 R (95% IS −0,145..+0,019) | −0,076 R (95% IS −0,123..−0,029) |
+| **edge směru proti náhodě** | **+0,022 R / rozhodnutí (−0,006..+0,049), nevýznamný** | **−0,005 R / rozhodnutí (−0,022..+0,012), žádný** |
+| neznámé pořadí SL/TP | 6 % (meze E −0,120..+0,091) | 2 % (meze E −0,090..−0,034) |
+
+Co z toho plyne:
+
+* Na letech 2023–2026 je směr modelu o málo lepší než náhoda (neprůkazně); **na 7 letech
+  2016–2023, která model nikdy neviděl, žádná výhoda není** (edge −0,005 R) a čistý směr
+  je dokonce mírně proti pozdějšímu pohybu ceny (−0,08 až −0,22 ATR za 24–120 h).
+  Náklady (spread + přirážka + skluz ≈ −0,03 až −0,06 R na rozhodnutí) pak dělají výsledek
+  záporný. **Model V7.8.0 v této podobě není ziskový – nepoužívejte ho pro skutečné obchody.**
+* Fundamentální vrstva přidává k edge ~+0,01 R (nevýznamné); kalibrace tříd důvěry A/B/C
+  nesedí (A není spolehlivě lepší než C).
+* Parametry vybrané z minulosti (walk-forward) byly v následujících obdobích horší než
+  výchozí → žádná změna se nepovyšuje (HOLD).
+* Dřívější kladné číslo (+0,12 R) bylo zkreslené tím, že nejasné hodiny (převážně ztráty)
+  byly vynechané; po doplnění minutových dat FXCM zmizelo (`docs/CHANGE_LOG.md`).
+
+Co s tím dál (spolu, viz `docs/TESTOVANI_SPOLU.md`): dopředný test zamčených predikcí
+a nové hypotézy jen přes changelog + test na datech, na kterých nebyly navrženy.
+
 ## 6. Připojení brokera
 
 Rozhraní je v `src/broker/base.py`. Adaptér vrací kotace **bid/ask s časem brokera**;
