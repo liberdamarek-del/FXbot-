@@ -38,14 +38,15 @@ pair + 0.4 pip slippage per round trip; financing = short-rate difference
 Gross = mid-price move only (random direction = 0).
 """
 
-import json
 import hashlib
+import json
 import math
 import pickle
 import sqlite3
 import sys
 import time
 from datetime import date, datetime, timedelta, timezone
+from functools import lru_cache
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -106,25 +107,75 @@ def _daily_bars(db: Path, symbol: str, source: str) -> list[Bar]:
     return [Bar(*row) for row in rows]
 
 
-def stitched_daily(symbol: str) -> tuple[list[Bar], list[str]]:
-    """One daily series 2013-2026: FXCM early archive, FXCM research archive,
-    Dukascopy from 2023-08 (the sources differ by ~0.1 pip, measured)."""
+HISTORY_CACHE = RESEARCH / "daily_history.pkl"     # FXCM daily bars before 2023-08 (ships in the data package)
+
+
+def _history_before_dukascopy(symbol: str) -> list[Bar]:
+    """FXCM daily bars 2013 .. 2023-07 from the research archives; cached so
+    that a phone without the 1 GB archives still has the long history."""
     early = _daily_bars(ARCHIVES["early"], symbol, "FXCM_H1")
     oos = _daily_bars(ARCHIVES["oos"], symbol, "FXCM_H1")
+    cache = pickle.loads(HISTORY_CACHE.read_bytes()) if HISTORY_CACHE.exists() else {}
+
+    if early or oos:
+        first_oos = oos[0].ts if oos else DUKASCOPY_FROM
+        bars = [b for b in early if b.ts < first_oos] + [b for b in oos if b.ts < DUKASCOPY_FROM]
+        if [tuple(b) for b in bars] != cache.get(symbol):
+            cache[symbol] = [tuple(b) for b in bars]
+            RESEARCH.mkdir(parents=True, exist_ok=True)
+            HISTORY_CACHE.write_bytes(pickle.dumps(cache))
+        return bars
+
+    return [Bar(*row) for row in cache.get(symbol, [])]
+
+
+def _fxcm_fill(symbol: str, bars: list[Bar]) -> list[Bar]:
+    """Daily bars from the FXCM 1-minute weeks of the main archive for the
+    holes between Dukascopy daily bars (longer than a weekend, e.g.
+    2026-09-01 .. 09-20); only days with >= 1200 of their minutes."""
+    from src.path_archive import aggregate, day_minutes_with_source
+
+    have = {b.ts for b in bars}
+    out = []
+
+    for a, b in zip(bars, bars[1:]):
+        if b.ts - a.ts <= 4 * 86400:
+            continue
+
+        minutes = []
+        day = datetime.fromtimestamp(a.ts + 86400, tz=UTC).date()
+
+        while day <= datetime.fromtimestamp(b.ts, tz=UTC).date():
+            mins, source = day_minutes_with_source(symbol, day, allow_provisional=False, second_source=True)
+            if source == "FXCM_M1":
+                minutes.extend(mins)
+            day += timedelta(days=1)
+
+        out += [x for x in aggregate(minutes, "1d", require_complete=False)
+                if x.ts not in have and a.ts < x.ts < b.ts and x.minutes >= 1200]
+
+    return out
+
+
+@lru_cache(maxsize=32)
+def stitched_daily(symbol: str) -> tuple[list[Bar], list[str]]:
+    """One daily series 2013-2026: FXCM history (research archives or their
+    cache), Dukascopy from 2023-08, holes in the Dukascopy era filled from the
+    FXCM 1-minute weeks (the sources differ by ~0.1 pip, measured)."""
+    history = _history_before_dukascopy(symbol)
     duka = {b.ts: b for b in _daily_bars(ARCHIVES["main"], symbol, "DUKASCOPY_H1")}
     duka.update({b.ts: b for b in _daily_bars(ARCHIVES["main"], symbol, "DUKASCOPY_M1")})
-    first_oos = oos[0].ts if oos else DUKASCOPY_FROM
-    bars, sources = [], []
+    recent = [duka[k] for k in sorted(duka) if k >= DUKASCOPY_FROM]
+    labels = {b.ts: "DUKASCOPY" for b in recent}
 
-    for part, label, keep in ((early, "FXCM", lambda b: b.ts < first_oos),
-                              (oos, "FXCM", lambda b: b.ts < DUKASCOPY_FROM),
-                              ([duka[k] for k in sorted(duka)], "DUKASCOPY", lambda b: b.ts >= DUKASCOPY_FROM)):
-        for bar in part:
-            if keep(bar):
-                bars.append(bar)
-                sources.append(label)
+    if recent:
+        for b in _fxcm_fill(symbol, recent):
+            recent.append(b)
+            labels[b.ts] = "FXCM"
+        recent.sort(key=lambda b: b.ts)
 
-    return bars, sources
+    bars = history + recent
+    return bars, ["FXCM"] * len(history) + [labels[b.ts] for b in recent]
 
 
 class Fundamentals:

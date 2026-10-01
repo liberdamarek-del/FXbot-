@@ -12,7 +12,8 @@
     python fxbot.py paper            # papirovy ucet z evidence predikci
     python fxbot.py review [--weekly|--monthly|--all] [--manual]   # revize predikci (modul 82)
     python fxbot.py journal BUY USD/JPY 158.32 --sl 157.40 --tp 160.00 [--time "2026-10-01 06:30"] [--horizon 120h]
-                                     # zapsat VAS rucni obchod; bot ho sam vyhodnoti (deni k)
+                                     # zapsat VAS rucni obchod; bot ho sam vyhodnoti (denik)
+    python fxbot.py adaptive [--lock]    # samoucici se vyzyvatel CH-006: mesicni preuceni + dnesni signaly
     python fxbot.py report           # posledni zprava behu
     python fxbot.py verify-model [cesta.docx]   # kontrola Wordu (moduly 0-145)
     python fxbot.py setkey           # ulozit a otestovat klic Twelve Data
@@ -287,6 +288,7 @@ def main(argv: list[str]) -> int:
     sub.add_parser("setkey", help="store and test the Twelve Data key", add_help=False)
     sub.add_parser("test", help="isolated test suite", add_help=False)
     sub.add_parser("review", help="daily/weekly/monthly review (scripts/review.py)", add_help=False)
+    sub.add_parser("adaptive", help="self-learning challenger CH-006 (scripts/adaptive_today.py)", add_help=False)
     sub.add_parser("resolve", help="resolve open predictions")
     status = sub.add_parser("status", help="state of data and model")
     status.add_argument("--symbols", default=None)
@@ -307,9 +309,9 @@ def main(argv: list[str]) -> int:
     journal.add_argument("--setup", default="MANUAL", help="e.g. PIVOT_S1, SMA50_PULLBACK")
     journal.add_argument("--note", default=None)
 
-    if argv and argv[0] in ("history", "fundamentals", "backtest", "setkey", "test", "review"):
+    if argv and argv[0] in ("history", "fundamentals", "backtest", "setkey", "test", "review", "adaptive"):
         name = {"history": "download_history", "fundamentals": "update_fundamentals", "backtest": "backtest",
-                "setkey": "set_api_key", "test": "run_tests", "review": "review"}[argv[0]]
+                "setkey": "set_api_key", "test": "run_tests", "review": "review", "adaptive": "adaptive_today"}[argv[0]]
         return _script(name).main(argv[1:])
 
     args = parser.parse_args(argv)

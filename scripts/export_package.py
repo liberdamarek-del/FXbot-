@@ -62,6 +62,11 @@ def data_package(target: Path, with_fxcm: bool = False) -> Path:
                     src.close()
                 archive.add(copy, arcname=f"data/{name}")
 
+            # long daily history 2013-2023 for the self-learning challenger (CH-006)
+            history = PROJECT_ROOT / "data" / "research" / "daily_history.pkl"
+            if history.exists():
+                archive.add(history, arcname="data/research/daily_history.pkl")
+
     return target
 
 
