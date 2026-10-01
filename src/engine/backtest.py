@@ -17,6 +17,8 @@ live run (src/engine/pipeline.py), on the archived BID/ASK path:
 """
 
 import bisect
+import multiprocessing
+import os
 import random
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -237,21 +239,70 @@ def run_symbol(series: PairSeries, config: BacktestConfig, result: BacktestResul
     result.per_symbol_decisions[series.symbol] = decisions
 
 
-def run(config: BacktestConfig, preloaded: dict | None = None, progress=None) -> BacktestResult:
+# pairs are replayed independently (the placebo is seeded per pair), so they
+# can run in parallel processes with identical results; 0 = all CPU cores
+WORKERS = int(os.getenv("FXBOT_WORKERS", "0"))
+_SHARED: dict = {}
+
+
+def _run_one(job: tuple) -> tuple:
+    symbol, config = job
+    series = _SHARED.get(symbol) or load_pair(symbol, config.params)
+
+    if len(series.h1) < 500:
+        return symbol, None, len(series.h1)
+
+    part = BacktestResult(config)
+    run_symbol(series, config, part)
+    return symbol, part, len(series.h1)
+
+
+def _merge(result: BacktestResult, part: BacktestResult) -> None:
+    result.trades += part.trades
+    result.placebo += part.placebo
+    result.anti += part.anti
+    result.decisions += part.decisions
+    result.blocked_flips += part.blocked_flips
+    result.kept += part.kept
+    result.per_symbol_decisions.update(part.per_symbol_decisions)
+
+    for target, source in ((result.no_trade_reasons, part.no_trade_reasons),
+                           (result.gate_failures, part.gate_failures)):
+        for key, count in source.items():
+            target[key] = target.get(key, 0) + count
+
+
+def run(config: BacktestConfig, preloaded: dict | None = None, progress=None,
+        workers: int | None = None) -> BacktestResult:
+    global _SHARED
     result = BacktestResult(config)
+    jobs = [(symbol, config) for symbol in config.symbols]
+    workers = min(len(jobs), workers if workers is not None else (WORKERS or os.cpu_count() or 1))
+    _SHARED = preloaded or {}
 
-    for symbol in config.symbols:
-        series = (preloaded or {}).get(symbol) or load_pair(symbol, config.params)
+    if workers > 1 and "fork" in multiprocessing.get_all_start_methods():
+        # fork: the workers share the preloaded history (copy-on-write)
+        pool = multiprocessing.get_context("fork").Pool(workers)
+        parts = pool.imap(_run_one, jobs)
+    else:
+        pool, parts = None, map(_run_one, jobs)
 
-        if len(series.h1) < 500:
+    try:
+        for symbol, part, n_h1 in parts:
+            if part is None:
+                if progress:
+                    progress(f"{symbol}: malo historie ({n_h1} H1 svicek) - preskoceno")
+                continue
+
+            _merge(result, part)
+
             if progress:
-                progress(f"{symbol}: malo historie ({len(series.h1)} H1 svicek) - preskoceno")
-            continue
-
-        run_symbol(series, config, result)
-
-        if progress:
-            progress(f"{symbol}: {result.per_symbol_decisions.get(symbol, 0)} rozhodnuti, "
-                     f"obchodu celkem {len(result.trades)}")
+                progress(f"{symbol}: {result.per_symbol_decisions.get(symbol, 0)} rozhodnuti, "
+                         f"obchodu celkem {len(result.trades)}")
+    finally:
+        if pool is not None:
+            pool.close()
+            pool.join()
+        _SHARED = {}
 
     return result

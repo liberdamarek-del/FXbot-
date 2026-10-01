@@ -173,6 +173,21 @@ assert abs(a_entry - 1.3436) < 1e-9 and abs(a_stop - 1.3451) < 1e-9 and abs(a_tp
 assert control_outcome(locked, t_lock + timedelta(minutes=5)).outcome_state is None  # horizon still open
 assert all(c["symbol"] and c["outcome_state"] for c in ledger_controls(0.0, t_lock + timedelta(minutes=5)))
 
+# ---------------------------------------------------------------- backtest replay on the same archive
+from src.engine.backtest import BacktestConfig, run as run_backtest  # noqa: E402
+from src.stats.validation import benchmark  # noqa: E402
+
+bt_start = int((NOW - timedelta(days=200)).timestamp())
+bt_config = BacktestConfig(SYMBOLS, bt_start, int(NOW.timestamp()), P)
+sequential = run_backtest(bt_config, workers=1)
+parallel = run_backtest(bt_config, workers=2)
+row_key = lambda rows: [(r["symbol"], r["t0"], r["direction"], r["outcome_state"], r["r_net"]) for r in rows]
+assert sequential.decisions > 0 and sequential.decisions == parallel.decisions
+assert row_key(sequential.trades) == row_key(parallel.trades) and row_key(sequential.anti) == row_key(parallel.anti)
+assert len(sequential.anti) == len(sequential.trades), "every model trade has its anti-model twin"
+assert all(a["direction"] != m["direction"] for m, a in zip(sequential.trades, sequential.anti))
+assert set(benchmark(sequential)) >= {"model", "anti", "paired", "bounds_model"}
+
 print("=" * 60)
 print("E5 V7.8.0 RUN PROCEDURE (END-TO-END, OFFLINE)")
 print("=" * 60)
@@ -183,5 +198,6 @@ print("T14 CZECH OUTPUT CONTRACT (PRICES, TOP-3, CERTIFICATES): PASS")
 print("PREVIOUS OFFICIAL T0 CONTINUITY: PASS")
 print(f"LOCKED IN RUN 1: {len(result['locked'])} (immutable, linked to run): PASS")
 print("FORWARD ANTI-MODEL CONTROL (MIRRORED PLAN AT T0): PASS")
+print(f"BACKTEST REPLAY {sequential.decisions} DECISIONS, {len(sequential.trades)} TRADES, PARALLEL = SEQUENTIAL: PASS")
 print("RESULT: PASS")
 print("=" * 60)
