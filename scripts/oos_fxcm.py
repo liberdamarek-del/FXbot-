@@ -2,6 +2,7 @@
 
     python scripts/oos_fxcm.py download    # FXCM hourly + 1-minute files 2016-06 .. 2023-07 (~20 min, ~0.6 GB)
     python scripts/oos_fxcm.py evaluate    # full evaluation -> docs/OOS_REPORT.md
+    python scripts/oos_fxcm.py reprocess   # rebuild days/bars from the stored files (after a parser change)
     python scripts/oos_fxcm.py status
 
 Why: every parameter and every rule change so far (CH-001..CH-003) was
@@ -38,8 +39,14 @@ if not _link.exists():
     _link.symlink_to(PROJECT_ROOT / "data" / "fundamentals.sqlite3")
 
 from src.instruments import parse_symbols  # noqa: E402
-from src.path_archive import archive_summary, initialize_path_archive, store_hourly_series  # noqa: E402
-from src.sources.fxcm import SOURCE_FXCM_H1, hour_weeks, ingest_day  # noqa: E402
+from src.path_archive import (  # noqa: E402
+    archive_summary,
+    get_path_connection,
+    initialize_path_archive,
+    load_payload,
+    store_hourly_series,
+)
+from src.sources.fxcm import SOURCE_FXCM_H1, decode_week, fill_week, hour_weeks, ingest_day, reprocess  # noqa: E402
 
 
 def download(symbols: list[str]) -> None:
@@ -66,6 +73,25 @@ def download(symbols: list[str]) -> None:
         print(f"{symbol}: 1min dny {states} | {time.monotonic() - started:.0f} s", flush=True)
 
 
+def reprocess_all(symbols: list[str]) -> None:
+    for symbol in symbols:
+        with get_path_connection() as connection:
+            ids = [r[0] for r in connection.execute(
+                "SELECT payload_id FROM raw_payloads WHERE source_id = ? AND instrument = ? ORDER BY period_start",
+                (SOURCE_FXCM_H1, symbol))]
+
+        hours = {}
+
+        for payload_id in ids:
+            content, _ = load_payload(payload_id)
+
+            for bar in fill_week(*decode_week(content, symbol, step=3600), step=3600):
+                hours[bar.ts] = bar
+
+        counts = store_hourly_series(symbol, [hours[k] for k in sorted(hours)], SOURCE_FXCM_H1)
+        print(f"{symbol}: nove hodinove svicky {counts} | minutove tydny {reprocess(symbol)}", flush=True)
+
+
 def status(symbols: list[str]) -> None:
     for symbol in symbols:
         summary = archive_summary(symbol)
@@ -74,7 +100,7 @@ def status(symbols: list[str]) -> None:
 
 
 def main(argv: list[str]) -> int:
-    if not argv or argv[0] not in ("download", "evaluate", "status"):
+    if not argv or argv[0] not in ("download", "evaluate", "status", "reprocess"):
         print(__doc__)
         return 1
 
@@ -82,6 +108,11 @@ def main(argv: list[str]) -> int:
 
     if argv[0] == "download":
         download(symbols)
+        status(symbols)
+        return 0
+
+    if argv[0] == "reprocess":
+        reprocess_all(symbols)
         status(symbols)
         return 0
 
