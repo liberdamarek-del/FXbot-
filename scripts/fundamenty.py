@@ -36,6 +36,7 @@ MONTHS = ["january", "february", "march", "april", "may", "june", "july", "augus
           "november", "december"]
 MON = {m[:3]: k + 1 for k, m in enumerate(MONTHS)}
 CB_OF = {"USD": "FED", "EUR": "ECB", "JPY": "BOJ", "GBP": "BOE"}
+CB_OF_ALL = {**CB_OF, "CHF": "SNB", "AUD": "RBA"}          # wider set (R-023 experiment)
 
 
 def _get(url: str) -> str:
@@ -184,6 +185,33 @@ def boe() -> list[str]:
     return sorted(out)
 
 
+def snb() -> list[str]:
+    """Scheduled quarterly SNB assessments (March, June, September, December) from the decisions page."""
+    page = _get("https://www.snb.ch/en/the-snb/mandates-goals/monetary-policy/decisions")
+    out = set()
+    for d, m, y in re.findall(r"(\d{1,2}) (January|February|March|April|May|June|July|August|September|October|"
+                              r"November|December) (20\d\d)", page):
+        mm = MON[m[:3].lower()]
+        if int(y) >= FIRST and mm in (3, 6, 9, 12):
+            out.add(date(int(y), mm, int(d)).isoformat())
+    return sorted(out)
+
+
+def rba() -> list[str]:
+    """RBA monetary policy decisions (media releases "...: Monetary Policy Decision")."""
+    out = set()
+    for year in range(FIRST, LAST):
+        page = _try(f"https://www.rba.gov.au/media-releases/{year}/")
+        if not page:
+            continue
+        for item in re.findall(r'<(?:article|li) class="item[^"]*".*?</(?:article|li)>', page, re.S):
+            if "Monetary Policy Decision" in item:
+                m = re.search(r'<time datetime="(\d{4}-\d{2}-\d{2})"', item)
+                if m:
+                    out.add(m.group(1))
+    return sorted(out)
+
+
 def alfred(rid: int) -> list[str]:
     page = _get(f"https://alfred.stlouisfed.org/release/downloaddates?rid={rid}&ff=txt")
     return sorted({d for d in re.findall(r"^(\d{4}-\d{2}-\d{2})\s*$", page, re.M) if d >= f"{FIRST}"})
@@ -239,7 +267,7 @@ def macro() -> dict:
 def download() -> int:
     events, errors = {}, []
     for name, job in (("FED", fed), ("ECB", lambda: sorted(set(ecb()) | set(ecb_future()))),
-                      ("BOJ", lambda: sorted(set(boj()) | set(boj_future()))), ("BOE", boe),
+                      ("BOJ", lambda: sorted(set(boj()) | set(boj_future()))), ("BOE", boe), ("SNB", snb), ("RBA", rba),
                       ("US_NFP", lambda: alfred(50)), ("US_CPI", lambda: alfred(10))):
         try:
             events[name] = job()

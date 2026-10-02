@@ -427,3 +427,11 @@ New simulator options `exit_before_us` (USD pairs: in profit at the NY close bef
 `exit_friday_profit` (in profit at a Friday close). Both rejected in both profiles on top of the new
 champions (monthly: 2019-22 +88.3 % / +79.2 % vs +87.2 %, 2023-26 +37.1 % / +36.6 % vs +39.5 %; return
 per drawdown not better). The exit before central bank decisions stays the only accepted exit rule.
+
+## R-023 - learning run 2026-10-02 17:40: exit also before SNB / RBA decisions - rejected
+
+`scripts/fundamenty.py` now also downloads SNB (scheduled quarterly assessments 2012-2026, 59) and RBA
+(monetary policy decisions 2012-2026, 153) dates; BoC history is not available from the site (only the
+last ~4 years), RBNZ refuses (403). New option `cb_all` (exit before decisions of the 6 banks). Monthly
+profile: 2019-22 +84.5 % (champion +87.2 %), 2023-26 +38.5 % (+39.5 %), same drawdowns - no gain; max
+profile also lower. The exit before decisions stays limited to Fed, ECB, BoJ and BoE.

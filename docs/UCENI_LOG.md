@@ -1078,3 +1078,15 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+74.7%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +108% / +49%, vynos/propad 2.87; 2023-26: **+23.7%** rocne, propad 29%, 2.3 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +15% / +43%, vynos/propad 0.83
 * sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
 
+### 2026-10-02 - [champion_12_mesicne] zavrit_pred_cb_zisk_i_snb_rba: zamitnuto
+
+* obchod v zisku zavrit den pred rozhodnutim i SNB (CHF) a RBA (AUD)
+* kandidat: 2019-22: **+84.5%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +94% / +79%, vynos/propad 4.35; 2023-26: **+38.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +23% / +75%, vynos/propad 1.40
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-02 - [champion_12] zavrit_pred_cb_zisk_i_snb_rba: zamitnuto
+
+* obchod v zisku zavrit den pred rozhodnutim i SNB (CHF) a RBA (AUD)
+* kandidat: 2019-22: **+78.2%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +111% / +53%, vynos/propad 3.00; 2023-26: **+25.4%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +15% / +48%, vynos/propad 0.92
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+

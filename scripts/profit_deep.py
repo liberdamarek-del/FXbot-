@@ -70,6 +70,7 @@ class Rule:
     vix_size: bool = False            # size factor 17 / VIX of the decision day, 0.5-1.5 (Moreira, Muir 2017)
     tp_parts: tuple = ()              # split the position into equal parts with these targets (ATR), e.g. (0.75, 1.0, 1.5)
     exit_before_us: bool = False      # USD pairs: close in profit at the NY close before a US NFP / CPI release
+    cb_all: bool = False              # exit_before_cb also before SNB (CHF) and RBA (AUD) decisions
     exit_friday_profit: bool = False  # close in profit at a Friday NY close (weekend gap risk), not on the entry day
     knife_days: int = 0               # > 0: do not buy a close that is the lowest of this many days (sell: highest)
 
@@ -205,7 +206,9 @@ def news(symbol: str, s: dict, I: dict, what: str) -> np.ndarray:
     elif what == "next_us":
         dates = set(_event_dates(["US_NFP", "US_CPI"])) if "USD" in (inst.base, inst.quote) else set()
         I[what] = np.array([i + 1 < len(days) and days[i + 1] in dates for i in range(len(days))])
-    elif what in ("next_decision", "next_fed"):
+    elif what in ("next_decision", "next_fed", "next_decision_all"):
+        if what == "next_decision_all":
+            banks = [F.CB_OF_ALL[c] for c in (inst.base, inst.quote) if c in F.CB_OF_ALL]
         dates = set(_event_dates(["FED"] if what == "next_fed" else banks))
         I[what] = np.array([i + 1 < len(days) and days[i + 1] in dates for i in range(len(days))])
     elif what == "jump":
@@ -285,7 +288,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         is_close = np.zeros(len(ts), bool)
         is_close[s["last"]] = True                              # New York close bars: daily marks
         if rule.exit_before_cb:
-            cb_next = news(symbol, s, I, "next_fed" if rule.exit_before_cb == "fed_long_usd" else "next_decision")
+            cb_next = news(symbol, s, I, "next_fed" if rule.exit_before_cb == "fed_long_usd"
+                           else "next_decision_all" if rule.cb_all else "next_decision")
         if rule.exit_before_us:
             us_next = news(symbol, s, I, "next_us")
         if rule.exit_before_cb or rule.exit_before_us or rule.exit_friday_profit:
