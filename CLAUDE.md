@@ -47,6 +47,10 @@ re-downloaded by the scripts.
 - (done 2026-10-02, R-018) cross-asset lead-lag (gold, oil, copper, equities, VIX, yields -> next day),
   64 technical/fundamental/cross signals per pair with short-window walk-forward selection, per-pair adaptive
   filter of the rule (3/6/12 months) - nothing robust; do not repeat. docs/VYZKUM_POHYBY_2026-10-02.md.
+- (done 2026-10-02 noon, R-019) exit in profit before a central bank decision: accepted in profile max,
+  in mesicne rejected only on 2023-26 drawdown (28 % > 23 %). Next idea there: the same exit with smaller
+  weak-tier margins or vol sizing; exit only for the strong tiers. Rejected: always exit, risk vs S&P 5d,
+  EUR/GBP tier without rates.
 - Next: macro trends (CPI y/y, unemployment; OECD SDMX in data/research/fundamenty/macro.json - JPY CPI ends
   2021, AUD monthly only from 2025, EUR/CHF/NZD unemployment missing: find sources first, e.g. Eurostat, e-Stat);
   meeting dates of SNB, RBA, BoC, RBNZ (sources reachable except RBNZ); BoE dates 8/2015-12/2016 missing;

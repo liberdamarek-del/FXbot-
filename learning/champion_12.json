@@ -1,13 +1,14 @@
 {
  "config": {
-  "name": "CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3",
+  "name": "CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk",
   "universe": "12",
   "base": {
    "signal": "D RSI2<5",
    "weekly": true,
    "tp": 0.75,
    "sl": 3.0,
-   "hold_days": 20
+   "hold_days": 20,
+   "exit_before_cb": "zisk"
   },
   "tiers": [
    {
@@ -33,47 +34,47 @@
  },
  "eval": {
   "0": {
-   "e_G1": 14.682829793387663,
-   "e_G2": 4.331229569596273,
+   "e_G1": 14.138246180235067,
+   "e_G2": 6.292533640379904,
    "shares": [
     0.2,
     0.2,
     0.08,
     0.04
    ],
-   "sel_cagr": 0.2567091148969174,
-   "sel_dd": 0.19573519745204915,
-   "test_cagr": 0.7108107842323115,
-   "test_dd": 0.26064797712317156,
-   "test_n_year": 44.25748709122203,
-   "test_win": 0.9147727272727273,
-   "test_wins_month": 3.2857142857142856,
+   "sel_cagr": 0.2561084689059594,
+   "sel_dd": 0.19573519745204904,
+   "test_cagr": 0.8104222926832765,
+   "test_dd": 0.26064797712317167,
+   "test_n_year": 44.50895008605852,
+   "test_win": 0.9265536723163842,
+   "test_wins_month": 3.3469387755102042,
    "test_months_2wins": 0.7755102040816326,
    "blocks": [
-    1.069417164272064,
-    0.43386953581136734
+    1.137803066677984,
+    0.5585736237543895
    ]
   },
   "1": {
-   "e_G1": 5.560716904426737,
-   "e_G2": 3.471751809431442,
+   "e_G1": 5.3604529923445465,
+   "e_G2": 4.774682837028685,
    "shares": [
     0.15,
     0.15,
     0.06,
     0.04
    ],
-   "sel_cagr": 0.32034151938111344,
-   "sel_dd": 0.1954859828423785,
-   "test_cagr": 0.1981709640495779,
-   "test_dd": 0.2717230792124199,
-   "test_n_year": 32.372132661032595,
-   "test_win": 0.8461538461538461,
-   "test_wins_month": 2.2,
-   "test_months_2wins": 0.625,
+   "sel_cagr": 0.3440856723236998,
+   "sel_dd": 0.19548598284237872,
+   "test_cagr": 0.2604318822338132,
+   "test_dd": 0.2760323434698315,
+   "test_n_year": 32.683403167388676,
+   "test_win": 0.8571428571428571,
+   "test_wins_month": 2.25,
+   "test_months_2wins": 0.65,
    "blocks": [
-    0.09251076414561288,
-    0.4175105122932792
+    0.16280709948145433,
+    0.47601289308746786
    ]
   }
  },
@@ -122,7 +123,11 @@
   "zpravy_pred_polovina_po_vetsi",
   "adaptivni_par_3m",
   "adaptivni_par_6m",
-  "adaptivni_par_12m"
+  "adaptivni_par_12m",
+  "riziko_proti_akciim_5d",
+  "eurgbp_navrat_stupen",
+  "zavrit_pred_cb_zisk",
+  "zavrit_pred_cb_vzdy"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v2"
 }

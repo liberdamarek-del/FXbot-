@@ -109,9 +109,10 @@ def trade_lists(cfg: dict) -> list[list[dict]]:
     out = []
     for tier in cfg["tiers"]:
         fields = {**cfg["base"], **tier}
-        key = (tuple(symbols), json.dumps(fields, sort_keys=True))
+        syms = [p for p in symbols if p in fields.pop("pairs", symbols)]     # a tier may be limited to some pairs
+        key = (tuple(syms), json.dumps(fields, sort_keys=True))
         if key not in _trades_cache:
-            _trades_cache[key] = D.simulate(replace(D.Rule("cfg"), **fields), symbols)
+            _trades_cache[key] = D.simulate(replace(D.Rule("cfg"), **fields), syms)
         trades = [dict(t) for t in _trades_cache[key]]
         if cfg["sizing"] == "vol":
             for t in trades:
@@ -213,7 +214,7 @@ def _with(cfg, **changes):
     new = copy.deepcopy(cfg)
     for k, v in changes.items():
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
-                 "be_atr", "stall_days"):
+                 "be_atr", "stall_days", "exit_before_cb"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -325,6 +326,16 @@ EXPERIMENTS = [
      lambda c: _with(c, recent=[6, 0.0])),
     ("adaptivni_par_12m", "par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 12 mesicu",
      lambda c: _with(c, recent=[12, 0.0])),
+    # round 7 (2026-10-02 noon, from docs/KRATKE_OKNO.md / PROC_SE_TRHY_HYBOU.md): risk currencies revert against
+    # the 5-day equity move; EUR/GBP is the most mean-reverting pair; event risk before a decision
+    ("riziko_proti_akciim_5d", "rizikove meny (AUD, NZD, CAD proti JPY, CHF) kupovat jen po 5dennim poklesu S&P 500, "
+     "prodavat jen po rustu", lambda c: _tiers(c, lambda t: [{**x, "risk_contra": 5} for x in t])),
+    ("eurgbp_navrat_stupen", "novy slaby stupen jen pro EUR/GBP: navrat po propadu RSI(2) < 5 bez filtru sazeb",
+     lambda c: _tiers(c, lambda t: t + [{"fund": None, "signal": "D RSI2<5|D RSI3<15", "pairs": ["EUR/GBP"]}])),
+    ("zavrit_pred_cb_zisk", "obchod v zisku zavrit pri zavreni dne pred rozhodnutim centralni banky jedne z men",
+     lambda c: _with(c, exit_before_cb="zisk")),
+    ("zavrit_pred_cb_vzdy", "kazdy obchod zavrit pri zavreni dne pred rozhodnutim centralni banky jedne z men",
+     lambda c: _with(c, exit_before_cb="vzdy")),
 ]
 
 

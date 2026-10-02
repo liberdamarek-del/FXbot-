@@ -374,3 +374,15 @@ institutions / politicians, per-pair and whole-sample tests, validity over 14 da
   34 combos stable in all periods ~ chance (mean reversion on EUR/GBP, EUR/USD, fading news moves).
 - Gate (round 6): trade a pair only while the rule worked on it in the last 3 / 6 / 12 months - all rejected
   (2023-26 +15.6 / +12.2 / +4.7 % vs +19.8 %). New `recent` option in self_learn. Nothing enters the model.
+
+## R-019 - learning run 2026-10-02 noon (round 7): exit before a central bank decision ACCEPTED in profile "max"
+
+New simulator options: `exit_before_cb` ("zisk" / "vzdy": close at the New York close of the day before a
+scheduled Fed/ECB/BoJ/BoE decision of either currency - only when in profit / always), `risk_contra`
+(risk currencies only against the k-day S&P 500 move), tiers limited to some pairs (`pairs`).
+- `zavrit_pred_cb_zisk`: profile max ACCEPTED - 2019-22 +81.0 % (champion +71.1 %), dd 26 % (26 %);
+  2023-26 +26.0 % (+19.8 %), dd 28 % (27 %); better in all 4 two-year blocks. Profile mesicne (live signals)
+  rejected only on the drawdown: 2019-22 +87.2 % (+72.8 %) dd 19 %, 2023-26 +39.5 % (+20.9 %) but dd 28 %
+  > 23 % allowed (sizes fitted on 2012-22 are larger). Live signals (mesicne champion) unchanged.
+- `zavrit_pred_cb_vzdy`: rejected (closing losing trades too costs). `riziko_proti_akciim_5d`: rejected
+  (fewer trades; mesicne no valid sizes). `eurgbp_navrat_stupen`: rejected.

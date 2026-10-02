@@ -62,6 +62,10 @@ class Rule:
     min_jump_atr: float = 0.0         # only when such a shock happened
     cb_size: float = 1.0              # position size factor when a central bank of either currency decides within 7 days
     cb_week_size: float = 1.0         # position size factor when a central bank of either currency decided this week
+    risk_contra: int = 0              # > 0: buy risk (AUD, NZD, CAD vs JPY, CHF) only after the S&P 500 fell over this
+                                      # many days, sell it only after it rose (docs/KRATKE_OKNO.md)
+    exit_before_cb: str = ""          # "vzdy" / "zisk": close at the NY close before a decision of either currency's
+                                      # central bank (always / only when in profit)
 
 
 _cache: dict = {}
@@ -145,6 +149,7 @@ def extra(symbol: str, s: dict, I: dict, what: str, rule) -> np.ndarray:
 
 # months without a source for a central bank (scripts/fundamenty.py could not read them): no filter there
 EVENT_GAPS = {"BOE": ("2015-08-01", "2016-12-31")}
+RISK_SCORE = {"AUD": 1, "NZD": 1, "CAD": 1, "JPY": -1, "CHF": -1}     # textbook risk / safe-haven currencies
 
 
 def _event_dates(names) -> list:
@@ -180,6 +185,20 @@ def news(symbol: str, s: dict, I: dict, what: str) -> np.ndarray:
             k = bisect.bisect_left(dates, d - timedelta(days=4))
             out.append(k < len(dates) and dates[k] <= d)
         I[what] = np.array(out)
+    elif what.startswith("sp500:"):
+        import vyzkum_data as V
+        k = int(what.split(":")[1])
+        ser = _cache.setdefault("sp500", V.yahoo_daily("^GSPC"))
+        keys = sorted(ser)
+        out = np.full(len(days), np.nan)
+        for i, d in enumerate(days):                          # last S&P close on or before the FX day
+            j = bisect.bisect_right(keys, d) - 1
+            if j >= k:
+                out[i] = ser[keys[j]] / ser[keys[j - k]] - 1
+        I[what] = out
+    elif what == "next_decision":
+        dates = set(_event_dates(banks))
+        I[what] = np.array([i + 1 < len(days) and days[i + 1] in dates for i in range(len(days))])
     elif what == "jump":
         rng = s["h"] - s["l"]
         first = s["first"]
@@ -230,6 +249,9 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         busy_until = -1
         is_close = np.zeros(len(ts), bool)
         is_close[s["last"]] = True                              # New York close bars: daily marks
+        if rule.exit_before_cb:
+            cb_next = news(symbol, s, I, "next_decision")
+            day_of = np.searchsorted(s["last"], np.arange(len(ts)))
         names = rule.signal.split("|")
         signal = {sd: np.logical_or.reduce([np.nan_to_num(defs[nm][0 if sd > 0 else 1](I)).astype(bool)
                                             for nm in names]) for sd in (1, -1)}
@@ -263,6 +285,11 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     continue
                 if rule.min_jump_atr and not news(symbol, s, I, "jump")[i] >= rule.min_jump_atr:
                     continue
+                if rule.risk_contra:
+                    risk = RISK_SCORE.get(inst.base, 0) - RISK_SCORE.get(inst.quote, 0)
+                    sp = news(symbol, s, I, f"sp500:{rule.risk_contra}")[i]
+                    if risk and not (side * risk * sp <= 0):       # NaN (no S&P close) also skips
+                        continue
                 if rule.fund == "rates_up" and not (side * I["rates_mom"][i] >= rule.rates_thr):
                     continue
                 if rule.fund == "carry" and not (np.sign(I["carry"][i]) == side):
@@ -316,6 +343,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     if is_close[j]:
                         now_close = (hc[j] - half - entry) if side > 0 else (entry - (hc[j] + half))
                         marks.append((int(ts[j]) + 3600, now_close / entry * 100))
+                        if rule.exit_before_cb and j > first and cb_next[day_of[j]] and \
+                                (rule.exit_before_cb == "vzdy" or now_close > 0):
+                            result, reason, exit_k = now_close, "CB", j
+                            break
                     if rule.be_atr and best >= rule.be_atr * atr:
                         stop = 0.0                               # from the next hour: out at the entry price
                     if rule.stall_days and j == first + rule.stall_days * 24 - 1:
