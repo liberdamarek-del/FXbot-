@@ -65,7 +65,9 @@ class Rule:
     risk_contra: int = 0              # > 0: buy risk (AUD, NZD, CAD vs JPY, CHF) only after the S&P 500 fell over this
                                       # many days, sell it only after it rose (docs/KRATKE_OKNO.md)
     exit_before_cb: str = ""          # "vzdy" / "zisk": close at the NY close before a decision of either currency's
-                                      # central bank (always / only when in profit)
+                                      # central bank (always / only when in profit); "fed_long_usd": only long-USD trades
+                                      # before an FOMC decision (Mueller, Tahbaz-Salehi, Vedolin 2017: USD falls on FOMC days)
+    vix_size: bool = False            # size factor 17 / VIX of the decision day, 0.5-1.5 (Moreira, Muir 2017)
 
 
 _cache: dict = {}
@@ -196,8 +198,8 @@ def news(symbol: str, s: dict, I: dict, what: str) -> np.ndarray:
             if j >= k:
                 out[i] = ser[keys[j]] / ser[keys[j - k]] - 1
         I[what] = out
-    elif what == "next_decision":
-        dates = set(_event_dates(banks))
+    elif what in ("next_decision", "next_fed"):
+        dates = set(_event_dates(["FED"] if what == "next_fed" else banks))
         I[what] = np.array([i + 1 < len(days) and days[i + 1] in dates for i in range(len(days))])
     elif what == "jump":
         rng = s["h"] - s["l"]
@@ -237,6 +239,32 @@ def prepared(symbol: str, lag: int, window: int, early: int = 0, src: str = "oec
     return _cache[key]
 
 
+def fomc_addon(symbols) -> list[dict]:
+    """Add-on trades (Mueller, Tahbaz-Salehi, Vedolin 2017): short USD against each currency from the New
+    York close before a scheduled FOMC decision to the close of the decision day (docs/ANOMALIE.md)."""
+    fed = set(_event_dates(["FED"]))
+    trades = []
+    for symbol in symbols:
+        inst = get_instrument(symbol)
+        if "USD" not in (inst.base, inst.quote):
+            continue
+        s = P.series(symbol)
+        side = -1 if inst.base == "USD" else 1
+        half = (P.SPREAD_PIPS[symbol] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip
+        for i in range(1, len(s["days"])):
+            if s["days"][i] not in fed:
+                continue
+            k0, k1 = s["last"][i - 1], s["last"][i]
+            entry = s["c"][k0] + side * half
+            out = s["c"][k1] - side * half
+            pct = side * (out - entry) / entry * 100
+            trades.append({"pair": symbol, "side": side, "day": s["days"][i - 1], "entry": entry,
+                           "t_in": int(s["ts"][k0]) + 3600, "t_out": int(s["ts"][k1]) + 3600, "reason": "FOMC",
+                           "price_pct": pct, "margin_pct": pct * P.LEVERAGE, "days": 1.0, "tp_pct": 0.0,
+                           "sl_pct": 84.0, "mfe_atr": 0.0, "marks": []})
+    return sorted(trades, key=lambda t: t["t_in"])
+
+
 def simulate(rule: Rule, symbols=None) -> list[dict]:
     defs = P.signal_defs()
     trades = []
@@ -250,7 +278,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         is_close = np.zeros(len(ts), bool)
         is_close[s["last"]] = True                              # New York close bars: daily marks
         if rule.exit_before_cb:
-            cb_next = news(symbol, s, I, "next_decision")
+            cb_next = news(symbol, s, I, "next_fed" if rule.exit_before_cb == "fed_long_usd" else "next_decision")
             day_of = np.searchsorted(s["last"], np.arange(len(ts)))
         names = rule.signal.split("|")
         signal = {sd: np.logical_or.reduce([np.nan_to_num(defs[nm][0 if sd > 0 else 1](I)).astype(bool)
@@ -343,8 +371,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     if is_close[j]:
                         now_close = (hc[j] - half - entry) if side > 0 else (entry - (hc[j] + half))
                         marks.append((int(ts[j]) + 3600, now_close / entry * 100))
+                        usd_long = (inst.base == "USD") == (side > 0) and "USD" in (inst.base, inst.quote)
                         if rule.exit_before_cb and j > first and cb_next[day_of[j]] and \
-                                (rule.exit_before_cb == "vzdy" or now_close > 0):
+                                (rule.exit_before_cb == "vzdy" or (rule.exit_before_cb == "zisk" and now_close > 0)
+                                 or (rule.exit_before_cb == "fed_long_usd" and usd_long)):
                             result, reason, exit_k = now_close, "CB", j
                             break
                     if rule.be_atr and best >= rule.be_atr * atr:
@@ -368,6 +398,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                                "size_factor": (rule.cb_size if rule.cb_size != 1.0 and news(symbol, s, I, "cb_ahead:7")[i]
                                                else 1.0)
                                * (rule.cb_week_size if rule.cb_week_size != 1.0 and news(symbol, s, I, "cb_week")[i]
+                                  else 1.0)
+                               * (float(np.clip(17.0 / I["vix"][i], 0.5, 1.5)) if rule.vix_size and I["vix"][i] > 0
                                   else 1.0)})
                 busy_until = exit_k
     return sorted(trades, key=lambda t: t["t_in"])

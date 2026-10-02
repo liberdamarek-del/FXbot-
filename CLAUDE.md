@@ -51,6 +51,9 @@ re-downloaded by the scripts.
   in mesicne rejected only on 2023-26 drawdown (28 % > 23 %). Next idea there: the same exit with smaller
   weak-tier margins or vol sizing; exit only for the strong tiers. Rejected: always exit, risk vs S&P 5d,
   EUR/GBP tier without rates.
+- (done 2026-10-02 afternoon, R-020) literature anomalies (FOMC day, fixes, home hours, month-end
+  rebalancing, dollar carry, momentum, value) and gate rounds 8-9 - all rejected; docs/ANOMALIE.md. Open
+  question for the user: monthly profile with exit in profit before decisions + margin cap 15 %.
 - Next: macro trends (CPI y/y, unemployment; OECD SDMX in data/research/fundamenty/macro.json - JPY CPI ends
   2021, AUD monthly only from 2025, EUR/CHF/NZD unemployment missing: find sources first, e.g. Eurostat, e-Stat);
   meeting dates of SNB, RBA, BoC, RBNZ (sources reachable except RBNZ); BoE dates 8/2015-12/2016 missing;

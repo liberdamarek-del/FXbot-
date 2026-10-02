@@ -126,7 +126,13 @@
   "riziko_proti_akciim_5d",
   "eurgbp_navrat_stupen",
   "zavrit_pred_cb_zisk",
-  "zavrit_pred_cb_vzdy"
+  "zavrit_pred_cb_vzdy",
+  "fomc_doplnek",
+  "velikost_podle_vix",
+  "zavrit_long_usd_pred_fomc",
+  "zavrit_pred_cb_zisk_silne",
+  "zavrit_pred_cb_zisk_marze15",
+  "zavrit_pred_cb_zisk_marze12"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v2"
 }

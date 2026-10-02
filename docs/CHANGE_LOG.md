@@ -386,3 +386,21 @@ scheduled Fed/ECB/BoJ/BoE decision of either currency - only when in profit / al
   > 23 % allowed (sizes fitted on 2012-22 are larger). Live signals (mesicne champion) unchanged.
 - `zavrit_pred_cb_vzdy`: rejected (closing losing trades too costs). `riziko_proti_akciim_5d`: rejected
   (fewer trades; mesicne no valid sizes). `eurgbp_navrat_stupen`: rejected.
+
+## R-020 - literature anomalies re-tested; learning rounds 8-9 (2026-10-02 afternoon)
+
+User: keep testing, search the internet and GitHub for what others found. Sources (web search):
+Mueller, Tahbaz-Salehi, Vedolin (2017, J. Finance) FOMC-day dollar weakness; Krohn, Mueller, Whelan
+(2024, J. Finance) dollar demand at the fixes; Breedon, Ranaldo (2013) home-hours depreciation; Lustig,
+Roussanov, Verdelhan (2014) dollar carry; Menkhoff et al. momentum / value; bank notes (BofA, UBS, BNY)
+on month-end rebalancing; awesome-systematic-trading (GitHub): median replication Sharpe 0.37.
+`scripts/anomalie_lab.py` -> docs/ANOMALIE.md (12 pairs 2012-2026, costs): FOMC day short USD +0.073 %
+of the price per event, positive in all three periods but t 1.3; intraday fix / home-hours patterns real
+before costs in 2012-22 (Tokyo post-fix t 3.9) but gone in 2023-26 and below the spread; month-end
+rebalancing, dollar carry, momentum, value, their combination ~0.
+Gate, both profiles (new: `fomc_addon` add-on list, `vix_size`, `exit_before_cb="fed_long_usd"`,
+`max_share` cap): FOMC add-on, VIX-managed size, exit long-USD before FOMC, exit-in-profit for strong
+tiers only, exit-in-profit with margin <= 15 % / 12 % - all rejected. Closest: monthly profile, exit in
+profit before a decision + margin <= 15 %: 2019-22 +65.5 % at dd 17 % (champion +72.8 % at 27 %),
+2023-26 +29.6 % at dd 22 % (+20.9 % at 19 %) - better return per drawdown in both tests but lower
+return in 2019-22, so rejected by the gate; not adopted without the user's decision.

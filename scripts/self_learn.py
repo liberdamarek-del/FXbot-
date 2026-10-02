@@ -120,6 +120,9 @@ def trade_lists(cfg: dict) -> list[list[dict]]:
         out.append(trades)
     if cfg.get("recent"):
         out = recent_filter(out, *cfg["recent"])
+    for addon in cfg.get("addons", []):                 # extra trade generators (their own margin share)
+        if addon == "fomc":
+            out.append([dict(t) for t in D.fomc_addon(symbols)])
     return out
 
 
@@ -155,6 +158,8 @@ def fit_shares(lists, cfg, years) -> tuple:
         if sh[0] == 0 or not all(a >= b for a, b in zip(sh, sh[1:])):
             continue
         if sum(1 for x in sh if x >= 0.12) > 2:      # keep the grid small: few big tiers
+            continue
+        if sh[0] > cfg.get("max_share", 1.0):         # optional risk cap on the margin per trade
             continue
         r = PS.run_portfolio(lists, list(sh), years, cfg.get("max_ccy"))
         if r["wins_month"] < PROFILE["min_wpm"] or r["months_2wins"] < PROFILE["min_m2"]:
@@ -214,7 +219,7 @@ def _with(cfg, **changes):
     new = copy.deepcopy(cfg)
     for k, v in changes.items():
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
-                 "be_atr", "stall_days", "exit_before_cb"):
+                 "be_atr", "stall_days", "exit_before_cb", "vix_size"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -336,6 +341,22 @@ EXPERIMENTS = [
      lambda c: _with(c, exit_before_cb="zisk")),
     ("zavrit_pred_cb_vzdy", "kazdy obchod zavrit pri zavreni dne pred rozhodnutim centralni banky jedne z men",
      lambda c: _with(c, exit_before_cb="vzdy")),
+    # round 8 (2026-10-02 afternoon, literature, docs/ANOMALIE.md): FOMC-day dollar weakness (Mueller,
+    # Tahbaz-Salehi, Vedolin 2017, J. Finance), volatility-managed sizing (Moreira, Muir 2017, J. Finance)
+    ("fomc_doplnek", "doplnek: v den rozhodnuti Fedu proti dolaru (7 paru s USD), od zavreni den predem do zavreni",
+     lambda c: {**copy.deepcopy(c), "addons": c.get("addons", []) + ["fomc"]}),
+    ("velikost_podle_vix", "velikost pozice 17 / VIX (vic pri klidu, mene pri strachu, 0.5-1.5x)",
+     lambda c: _with(c, vix_size=True)),
+    ("zavrit_long_usd_pred_fomc", "obchod sazejici na dolar zavrit pri zavreni dne pred rozhodnutim Fedu",
+     lambda c: _with(c, exit_before_cb="fed_long_usd")),
+    ("zavrit_pred_cb_zisk_silne", "jen silne stupne: obchod v zisku zavrit den pred rozhodnutim centralni banky",
+     lambda c: _tiers(c, lambda t: [{**x, "exit_before_cb": "zisk"} for x in t[:2]] + t[2:])),
+    # the exit raises the return in both profiles, but the fitted margins grow to 20 % and the 2023-26
+    # drawdown breaks the limit: the same exit with the margin per trade capped at today's level
+    ("zavrit_pred_cb_zisk_marze15", "obchod v zisku zavrit den pred rozhodnutim centralni banky; marze nejvys 15 % na obchod",
+     lambda c: {**_with(c, exit_before_cb="zisk"), "max_share": 0.15}),
+    ("zavrit_pred_cb_zisk_marze12", "obchod v zisku zavrit den pred rozhodnutim centralni banky; marze nejvys 12 % na obchod",
+     lambda c: {**_with(c, exit_before_cb="zisk"), "max_share": 0.12}),
 ]
 
 

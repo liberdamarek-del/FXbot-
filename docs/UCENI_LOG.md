@@ -878,3 +878,75 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+67.0%** rocne, propad 28%, 3.1 ziskovych/mesic (marze 20% / 20% / 10% / 5%), po 2 letech +79% / +58%; 2023-26: **+21.8%** rocne, propad 26%, 2.1 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +19% / +30%
 * sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
 
+### 2026-10-02 - [champion_12_mesicne] fomc_doplnek: zamitnuto
+
+* doplnek: v den rozhodnuti Fedu proti dolaru (7 paru s USD), od zavreni den predem do zavreni
+* kandidat: 2019-22: **+54.4%** rocne, propad 20%, 3.3 ziskovych/mesic (marze 15% / 15% / 6% / 4% / 0%), po 2 letech +69% / +43%; 2023-26: **+16.9%** rocne, propad 17%, 2.2 ziskovych/mesic (marze 10% / 10% / 6% / 4% / 0%), po 2 letech +9% / +33%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] velikost_podle_vix: zamitnuto
+
+* velikost pozice 17 / VIX (vic pri klidu, mene pri strachu, 0.5-1.5x)
+* kandidat: 2019-22: **+51.3%** rocne, propad 20%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 1%), po 2 letech +67% / +39%; 2023-26: **+18.9%** rocne, propad 23%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 3%), po 2 letech +10% / +38%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zavrit_long_usd_pred_fomc: zamitnuto
+
+* obchod sazejici na dolar zavrit pri zavreni dne pred rozhodnutim Fedu
+* kandidat: 2019-22: **+63.7%** rocne, propad 27%, 3.2 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +75% / +56%; 2023-26: **+14.5%** rocne, propad 19%, 2.1 ziskovych/mesic (marze 12% / 12% / 6% / 4%), po 2 letech +10% / +24%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zavrit_pred_cb_zisk_silne: zamitnuto
+
+* jen silne stupne: obchod v zisku zavrit den pred rozhodnutim centralni banky
+* kandidat: 2019-22: **+87.6%** rocne, propad 19%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +83%; 2023-26: **+40.8%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +26% / +76%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12] fomc_doplnek: zamitnuto
+
+* doplnek: v den rozhodnuti Fedu proti dolaru (7 paru s USD), od zavreni den predem do zavreni
+* kandidat: 2019-22: **+66.6%** rocne, propad 23%, 3.3 ziskovych/mesic (marze 15% / 15% / 10% / 4% / 0%), po 2 letech +97% / +43%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4% / 0%), po 2 letech +16% / +48%
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
+
+### 2026-10-02 - [champion_12] velikost_podle_vix: zamitnuto
+
+* velikost pozice 17 / VIX (vic pri klidu, mene pri strachu, 0.5-1.5x)
+* kandidat: 2019-22: **+50.7%** rocne, propad 11%, 3.3 ziskovych/mesic (marze 15% / 15% / 6% / 3%), po 2 letech +71% / +34%; 2023-26: **+18.3%** rocne, propad 33%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 3%), po 2 letech +10% / +35%
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
+
+### 2026-10-02 - [champion_12] zavrit_long_usd_pred_fomc: zamitnuto
+
+* obchod sazejici na dolar zavrit pri zavreni dne pred rozhodnutim Fedu
+* kandidat: 2019-22: **+62.5%** rocne, propad 26%, 3.2 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +89% / +41%; 2023-26: **+19.3%** rocne, propad 25%, 2.1 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +11% / +37%
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
+
+### 2026-10-02 - [champion_12] zavrit_pred_cb_zisk_silne: zamitnuto
+
+* jen silne stupne: obchod v zisku zavrit den pred rozhodnutim centralni banky
+* kandidat: 2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
+
+### 2026-10-02 - [champion_12_mesicne] zavrit_pred_cb_zisk_marze15: zamitnuto
+
+* obchod v zisku zavrit den pred rozhodnutim centralni banky; marze nejvys 15 % na obchod
+* kandidat: 2019-22: **+65.5%** rocne, propad 17%, 3.4 ziskovych/mesic (marze 15% / 15% / 6% / 5%), po 2 letech +75% / +60%; 2023-26: **+29.6%** rocne, propad 22%, 2.3 ziskovych/mesic (marze 15% / 15% / 6% / 5%), po 2 letech +18% / +55%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zavrit_pred_cb_zisk_marze12: zamitnuto
+
+* obchod v zisku zavrit den pred rozhodnutim centralni banky; marze nejvys 12 % na obchod
+* kandidat: 2019-22: **+52.3%** rocne, propad 15%, 3.4 ziskovych/mesic (marze 12% / 12% / 5% / 5%), po 2 letech +60% / +47%; 2023-26: **+24.4%** rocne, propad 18%, 2.3 ziskovych/mesic (marze 12% / 12% / 5% / 5%), po 2 letech +16% / +44%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12] zavrit_pred_cb_zisk_marze15: zamitnuto
+
+* obchod v zisku zavrit den pred rozhodnutim centralni banky; marze nejvys 15 % na obchod
+* kandidat: 2019-22: **+66.6%** rocne, propad 23%, 3.3 ziskovych/mesic (marze 15% / 15% / 10% / 4%), po 2 letech +97% / +43%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
+
+### 2026-10-02 - [champion_12] zavrit_pred_cb_zisk_marze12: zamitnuto
+
+* obchod v zisku zavrit den pred rozhodnutim centralni banky; marze nejvys 12 % na obchod
+* kandidat: 2019-22: **+56.3%** rocne, propad 20%, 3.3 ziskovych/mesic (marze 12% / 12% / 10% / 4%), po 2 letech +82% / +36%; 2023-26: **+15.5%** rocne, propad 41%, 2.2 ziskovych/mesic (marze 12% / 12% / 10% / 4%), po 2 letech +2% / +42%
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%
+
