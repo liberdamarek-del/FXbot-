@@ -69,6 +69,8 @@ class Rule:
                                       # before an FOMC decision (Mueller, Tahbaz-Salehi, Vedolin 2017: USD falls on FOMC days)
     vix_size: bool = False            # size factor 17 / VIX of the decision day, 0.5-1.5 (Moreira, Muir 2017)
     tp_parts: tuple = ()              # split the position into equal parts with these targets (ATR), e.g. (0.75, 1.0, 1.5)
+    exit_before_us: bool = False      # USD pairs: close in profit at the NY close before a US NFP / CPI release
+    exit_friday_profit: bool = False  # close in profit at a Friday NY close (weekend gap risk), not on the entry day
     knife_days: int = 0               # > 0: do not buy a close that is the lowest of this many days (sell: highest)
 
 
@@ -200,6 +202,9 @@ def news(symbol: str, s: dict, I: dict, what: str) -> np.ndarray:
             if j >= k:
                 out[i] = ser[keys[j]] / ser[keys[j - k]] - 1
         I[what] = out
+    elif what == "next_us":
+        dates = set(_event_dates(["US_NFP", "US_CPI"])) if "USD" in (inst.base, inst.quote) else set()
+        I[what] = np.array([i + 1 < len(days) and days[i + 1] in dates for i in range(len(days))])
     elif what in ("next_decision", "next_fed"):
         dates = set(_event_dates(["FED"] if what == "next_fed" else banks))
         I[what] = np.array([i + 1 < len(days) and days[i + 1] in dates for i in range(len(days))])
@@ -281,6 +286,9 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         is_close[s["last"]] = True                              # New York close bars: daily marks
         if rule.exit_before_cb:
             cb_next = news(symbol, s, I, "next_fed" if rule.exit_before_cb == "fed_long_usd" else "next_decision")
+        if rule.exit_before_us:
+            us_next = news(symbol, s, I, "next_us")
+        if rule.exit_before_cb or rule.exit_before_us or rule.exit_friday_profit:
             day_of = np.searchsorted(s["last"], np.arange(len(ts)))
         names = rule.signal.split("|")
         signal = {sd: np.logical_or.reduce([np.nan_to_num(defs[nm][0 if sd > 0 else 1](I)).astype(bool)
@@ -396,6 +404,11 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                                 (rule.exit_before_cb == "vzdy" or (rule.exit_before_cb == "zisk" and now_close > 0)
                                  or (rule.exit_before_cb == "fed_long_usd" and usd_long)):
                             reason = close_open(now_close, j, "CB")
+                            break
+                        if now_close > 0 and j > first and (
+                                (rule.exit_before_us and us_next[day_of[j]])
+                                or (rule.exit_friday_profit and s["days"][day_of[j]].weekday() == 4)):
+                            reason = close_open(now_close, j, "EVENT")
                             break
                     if rule.be_atr and best >= rule.be_atr * atr:
                         stop = 0.0                               # from the next hour: out at the entry price

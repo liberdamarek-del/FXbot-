@@ -232,7 +232,8 @@ def _with(cfg, **changes):
     new = copy.deepcopy(cfg)
     for k, v in changes.items():
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
-                 "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days"):
+                 "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
+                 "exit_before_us", "exit_friday_profit"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -387,6 +388,11 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: [{**t[0], "weekly": False}] + t[1:])),
     ("silne_stupne_denne", "oba silne stupne se vyhodnocuji kazdy den",
      lambda c: _tiers(c, lambda t: [{**x, "weekly": False} for x in t[:2]] + t[2:])),
+    # round 11: take profit before other risk events (the exit before decisions worked)
+    ("zavrit_pred_us_data_zisk", "pary s USD: obchod v zisku zavrit den pred zpravou NFP nebo CPI",
+     lambda c: _with(c, exit_before_us=True)),
+    ("zavrit_v_zisku_patek", "obchod v zisku zavrit v patek pri zavreni (riziko vikendove mezery)",
+     lambda c: _with(c, exit_friday_profit=True)),
 ]
 
 

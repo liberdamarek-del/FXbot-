@@ -420,3 +420,10 @@ Live: signals_live adds to every plan the rule and the decisions of the pair's c
 (`plan.pred_rozhodnutim`); the forward test closes in profit at the NY close before a decision; the hourly update
 warns about journal trades in profit before tomorrow's decision; dashboard shows both; pair_stats and
 docs/SAMPION_12.md regenerated (strongest tier 97 % wins, +18.5 % of the margin at TP1).
+
+## R-022 - round 11 (2026-10-02 evening): other profit-taking exits rejected
+
+New simulator options `exit_before_us` (USD pairs: in profit at the NY close before NFP / CPI) and
+`exit_friday_profit` (in profit at a Friday close). Both rejected in both profiles on top of the new
+champions (monthly: 2019-22 +88.3 % / +79.2 % vs +87.2 %, 2023-26 +37.1 % / +36.6 % vs +39.5 %; return
+per drawdown not better). The exit before central bank decisions stays the only accepted exit rule.

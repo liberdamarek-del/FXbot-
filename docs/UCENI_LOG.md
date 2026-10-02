@@ -1054,3 +1054,27 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+32.1%** rocne, propad 23%, 4.6 ziskovych/mesic (marze 8% / 3% / 3% / 3%), po 2 letech +25% / +41%, vynos/propad 1.37; 2023-26: **+13.6%** rocne, propad 15%, 3.7 ziskovych/mesic (marze 6% / 4% / 4% / 4%), po 2 letech +11% / +20%, vynos/propad 0.88
 * sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
 
+### 2026-10-02 - [champion_12_mesicne] zavrit_pred_us_data_zisk: zamitnuto
+
+* pary s USD: obchod v zisku zavrit den pred zpravou NFP nebo CPI
+* kandidat: 2019-22: **+88.3%** rocne, propad 21%, 3.4 ziskovych/mesic (marze 20% / 20% / 8% / 5%), po 2 letech +98% / +83%, vynos/propad 4.27; 2023-26: **+37.1%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +23% / +69%, vynos/propad 1.34
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-02 - [champion_12_mesicne] zavrit_v_zisku_patek: zamitnuto
+
+* obchod v zisku zavrit v patek pri zavreni (riziko vikendove mezery)
+* kandidat: 2019-22: **+79.2%** rocne, propad 20%, 3.3 ziskovych/mesic (marze 20% / 20% / 5% / 5%), po 2 letech +87% / +75%, vynos/propad 4.04; 2023-26: **+36.6%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +23% / +68%, vynos/propad 1.32
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-02 - [champion_12] zavrit_pred_us_data_zisk: zamitnuto
+
+* pary s USD: obchod v zisku zavrit den pred zpravou NFP nebo CPI
+* kandidat: 2019-22: **+78.2%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +106% / +57%, vynos/propad 3.00; 2023-26: **+24.3%** rocne, propad 27%, 2.3 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +44%, vynos/propad 0.90
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
+### 2026-10-02 - [champion_12] zavrit_v_zisku_patek: zamitnuto
+
+* obchod v zisku zavrit v patek pri zavreni (riziko vikendove mezery)
+* kandidat: 2019-22: **+74.7%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +108% / +49%, vynos/propad 2.87; 2023-26: **+23.7%** rocne, propad 29%, 2.3 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +15% / +43%, vynos/propad 0.83
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+

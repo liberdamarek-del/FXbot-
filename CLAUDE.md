@@ -57,6 +57,7 @@ re-downloaded by the scripts.
   question for the user: monthly profile with exit in profit before decisions + margin cap 15 %.
 - (done 2026-10-02 evening, R-021) gate v3; exit in profit before a central bank decision now in BOTH
   profiles (live). Rejected: 3 targets, knife filter, daily strong tiers, half size / cap 15 % before decisions.
+- (done, R-022) exits in profit before US NFP/CPI or on Fridays - rejected.
 - Next: macro trends (CPI y/y, unemployment; OECD SDMX in data/research/fundamenty/macro.json - JPY CPI ends
   2021, AUD monthly only from 2025, EUR/CHF/NZD unemployment missing: find sources first, e.g. Eurostat, e-Stat);
   meeting dates of SNB, RBA, BoC, RBNZ (sources reachable except RBNZ); BoE dates 8/2015-12/2016 missing;
