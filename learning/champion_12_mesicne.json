@@ -119,7 +119,10 @@
   "zpravy_cb_7_polovina_slabe",
   "zpravy_po_rozhodnuti_vetsi",
   "slabe_stupne_s_carry",
-  "zpravy_pred_polovina_po_vetsi"
+  "zpravy_pred_polovina_po_vetsi",
+  "adaptivni_par_3m",
+  "adaptivni_par_6m",
+  "adaptivni_par_12m"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v2"
 }

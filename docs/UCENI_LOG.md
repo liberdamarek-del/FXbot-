@@ -794,3 +794,39 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+74.3%** rocne, propad 39%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +108% / +48%; 2023-26: **+21.4%** rocne, propad 10%, 2.2 ziskovych/mesic (marze 12% / 12% / 2% / 2%), po 2 letech +16% / +33%
 * sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
 
+### 2026-10-02 - [champion_12_mesicne] adaptivni_par_3m: zamitnuto
+
+* par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 3 mesice
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] adaptivni_par_6m: zamitnuto
+
+* par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 6 mesicu
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] adaptivni_par_12m: zamitnuto
+
+* par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 12 mesicu
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12] adaptivni_par_3m: zamitnuto
+
+* par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 3 mesice
+* kandidat: 2019-22: **+62.2%** rocne, propad 25%, 3.2 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +92% / +39%; 2023-26: **+15.6%** rocne, propad 26%, 2.0 ziskovych/mesic (marze 15% / 15% / 4% / 4%), po 2 letech +5% / +36%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] adaptivni_par_6m: zamitnuto
+
+* par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 6 mesicu
+* kandidat: 2019-22: **+72.8%** rocne, propad 29%, 3.0 ziskovych/mesic (marze 20% / 20% / 8% / 5%), po 2 letech +120% / +38%; 2023-26: **+12.2%** rocne, propad 25%, 1.8 ziskovych/mesic (marze 15% / 15% / 4% / 4%), po 2 letech +2% / +32%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] adaptivni_par_12m: zamitnuto
+
+* par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 12 mesicu
+* kandidat: 2019-22: **+20.4%** rocne, propad 22%, 0.6 ziskovych/mesic (marze 20% / 0% / 0% / 0%), po 2 letech +27% / +35%; 2023-26: **+4.7%** rocne, propad 26%, 1.5 ziskovych/mesic (marze 15% / 15% / 4% / 4%), po 2 letech -2% / +17%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+

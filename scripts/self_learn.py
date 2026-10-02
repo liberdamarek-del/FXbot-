@@ -29,6 +29,7 @@ the final judge. Nothing here trades or touches the production database.
 """
 
 import copy
+from collections import defaultdict
 import itertools
 import json
 import sys
@@ -116,6 +117,31 @@ def trade_lists(cfg: dict) -> list[list[dict]]:
             for t in trades:
                 t["size_mult"] = float(np.clip(REF_SL_MARGIN / t["sl_pct"], 0.5, 2.0))
         out.append(trades)
+    if cfg.get("recent"):
+        out = recent_filter(out, *cfg["recent"])
+    return out
+
+
+def recent_filter(lists: list[list[dict]], months: float, floor: float) -> list[list[dict]]:
+    """Short-window adaptation (user's idea 2026-10-02): skip a trade when the rule's trades on the same
+    pair that CLOSED in the last `months` before this entry earned on average < floor % of the margin
+    (at least 2 of them; only results known at the entry are used)."""
+    closed = defaultdict(list)
+    for tl in lists:
+        for t in tl:
+            closed[t["pair"]].append((t["t_out"], t["margin_pct"]))
+    for v in closed.values():
+        v.sort()
+    span = months * 30.4 * 86400
+    out = []
+    for tl in lists:
+        keep = []
+        for t in tl:
+            prev = [m for when, m in closed[t["pair"]] if t["t_in"] - span <= when <= t["t_in"]]
+            if len(prev) >= 2 and np.mean(prev) < floor:
+                continue
+            keep.append(t)
+        out.append(keep)
     return out
 
 
@@ -291,6 +317,14 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: t[:2] + [{**x, "fund": "rates_up+carry"} for x in t[2:]])),
     ("zpravy_pred_polovina_po_vetsi", "pred rozhodnutim centralni banky polovicni pozice, po rozhodnuti 1.5x vetsi",
      lambda c: _tiers(c, lambda t: [{**x, "cb_size": 0.5, "cb_week_size": 1.5} for x in t])),
+    # round 6 (2026-10-02, user's idea): indicators valid only for a short time -> trade a pair only while
+    # the rule worked on it recently (closed trades of the last 3 / 6 / 12 months, average >= 0)
+    ("adaptivni_par_3m", "par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 3 mesice",
+     lambda c: _with(c, recent=[3, 0.0])),
+    ("adaptivni_par_6m", "par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 6 mesicu",
+     lambda c: _with(c, recent=[6, 0.0])),
+    ("adaptivni_par_12m", "par se obchoduje, jen kdyz pravidlu na nem vychazelo poslednich 12 mesicu",
+     lambda c: _with(c, recent=[12, 0.0])),
 ]
 
 

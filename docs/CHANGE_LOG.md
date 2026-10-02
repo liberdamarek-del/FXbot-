@@ -355,3 +355,22 @@ User's requests: updates every 30 min and learning several times a day, all fund
 - `zpravy_pred_polovina_po_vetsi` (half size before a decision, 1.5x after): monthly 2019-22 +60.4 % at dd 17 %,
   2023-26 +27.4 %; max 2019-22 +74.3 % but dd 39 % - rejected.
 New Rule field `cb_week_size` (profit_deep). Champions unchanged.
+
+## R-018 - research: why the pairs move daily, short-window indicators per pair (2026-10-02)
+
+User's request: why the markets move ~1 % a day (tens of % of the margin), which news, gold / oil /
+institutions / politicians, per-pair and whole-sample tests, validity over 14 days / month / half year.
+- `scripts/vyzkum_data.py` (Yahoo daily 2012-: gold, silver, WTI, Brent, copper, gas, S&P 500, Euro Stoxx,
+  Nikkei, VIX, US 10y/5y/3m, dollar index; ALFRED release dates NFP, CPI, GDP, retail sales, PCE, PPI),
+  `scripts/pohyby_lab.py` -> docs/PROC_SE_TRHY_HYBOU.md, `scripts/kratke_okno_lab.py` -> docs/KRATKE_OKNO.md,
+  summary docs/VYZKUM_POHYBY_2026-10-02.md.
+- Daily range 0.82 % (24 % of the margin), close-to-close 0.40 %; busiest hours 08-11 New York.
+  Top-5 % days: central bank decision 2.0-2.9x, NFP 1.7x, CPI 1.6x, retail 1.5x more often than ordinary
+  days, but 70 % of them without a scheduled event from the list. Same-day other markets explain 26 % of
+  daily moves (AUD/JPY 43 %); next-day correlations ~0 (S&P -> USD pairs +-0.10 driven by 2020, negative
+  after costs in 2012-18 and 2023-26).
+- 3,024 pair x signal x holding combos: rank persistence (IC) ~0 for 14 days / month; best walk-forward
+  choice (3 months -> 14 days) Sharpe +0.47 but +1.2 % of the price a year and negative 2013-18;
+  34 combos stable in all periods ~ chance (mean reversion on EUR/GBP, EUR/USD, fading news moves).
+- Gate (round 6): trade a pair only while the rule worked on it in the last 3 / 6 / 12 months - all rejected
+  (2023-26 +15.6 / +12.2 / +4.7 % vs +19.8 %). New `recent` option in self_learn. Nothing enters the model.
