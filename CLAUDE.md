@@ -42,6 +42,8 @@ re-downloaded by the scripts.
 - (done 2026-10-02, R-016) News: skip 5/7/10 days before a Fed/ECB/BoJ/BoE decision, weak tiers only, US NFP/CPI
   week, news shock > 0.75 ATR - all rejected (fewer trades -> lower annual return); half size before a decision:
   see docs/UCENI_LOG.md. docs/ZPRAVY.md: trades <= 7 days before a decision earn less in every period.
+- (done 2026-10-02 morning, R-017) larger size after a decision week, weak tiers with carry, half before +
+  1.5x after a decision - all rejected (do not repeat size tweaks around decisions).
 - Next: macro trends (CPI y/y, unemployment; OECD SDMX in data/research/fundamenty/macro.json - JPY CPI ends
   2021, AUD monthly only from 2025, EUR/CHF/NZD unemployment missing: find sources first, e.g. Eurostat, e-Stat);
   meeting dates of SNB, RBA, BoC, RBNZ (sources reachable except RBNZ); BoE dates 8/2015-12/2016 missing;

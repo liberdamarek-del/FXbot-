@@ -283,6 +283,14 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: [{**x, "cb_size": 0.5} for x in t])),
     ("zpravy_cb_7_polovina_slabe", "jen slabsi stupne: 7 dni pred rozhodnutim centralni banky polovicni pozice",
      lambda c: _tiers(c, lambda t: t[:2] + [{**x, "cb_size": 0.5} for x in t[2:]])),
+    # round 5 (2026-10-02 morning): after a decision the uncertainty is gone (docs/ZPRAVY.md: trades entered in a
+    # week with a decision earned at least as much in every period); carry pays the swap over 20 days
+    ("zpravy_po_rozhodnuti_vetsi", "kdyz centralni banka jedne z men rozhodla v tydnu vstupu, pozice 1.5x vetsi",
+     lambda c: _tiers(c, lambda t: [{**x, "cb_week_size": 1.5} for x in t])),
+    ("slabe_stupne_s_carry", "slabsi stupne jen s kladnym urokovym rozdilem ve smeru obchodu (swap pro nas)",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "fund": "rates_up+carry"} for x in t[2:]])),
+    ("zpravy_pred_polovina_po_vetsi", "pred rozhodnutim centralni banky polovicni pozice, po rozhodnuti 1.5x vetsi",
+     lambda c: _tiers(c, lambda t: [{**x, "cb_size": 0.5, "cb_week_size": 1.5} for x in t])),
 ]
 
 

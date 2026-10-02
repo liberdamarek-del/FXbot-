@@ -116,7 +116,10 @@
   "zpravy_us_data",
   "zpravy_skok_075",
   "zpravy_cb_7_polovina",
-  "zpravy_cb_7_polovina_slabe"
+  "zpravy_cb_7_polovina_slabe",
+  "zpravy_po_rozhodnuti_vetsi",
+  "slabe_stupne_s_carry",
+  "zpravy_pred_polovina_po_vetsi"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v2"
 }

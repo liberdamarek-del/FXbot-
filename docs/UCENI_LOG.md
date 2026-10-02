@@ -758,3 +758,39 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+72.5%** rocne, propad 28%, 3.3 ziskovych/mesic (marze 20% / 20% / 10% / 4%), po 2 letech +110% / +44%; 2023-26: **+20.1%** rocne, propad 25%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +11% / +39%
 * sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
 
+### 2026-10-02 - [champion_12_mesicne] zpravy_po_rozhodnuti_vetsi: zamitnuto
+
+* kdyz centralni banka jedne z men rozhodla v tydnu vstupu, pozice 1.5x vetsi
+* kandidat: 2019-22: **+64.5%** rocne, propad 20%, 3.3 ziskovych/mesic (marze 15% / 15% / 6% / 5%), po 2 letech +78% / +54%; 2023-26: **+26.2%** rocne, propad 18%, 2.2 ziskovych/mesic (marze 12% / 12% / 5% / 5%), po 2 letech +19% / +43%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] slabe_stupne_s_carry: zamitnuto
+
+* slabsi stupne jen s kladnym urokovym rozdilem ve smeru obchodu (swap pro nas)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_pred_polovina_po_vetsi: zamitnuto
+
+* pred rozhodnutim centralni banky polovicni pozice, po rozhodnuti 1.5x vetsi
+* kandidat: 2019-22: **+60.4%** rocne, propad 17%, 3.3 ziskovych/mesic (marze 15% / 15% / 5% / 4%), po 2 letech +66% / +57%; 2023-26: **+27.4%** rocne, propad 21%, 2.2 ziskovych/mesic (marze 15% / 15% / 5% / 4%), po 2 letech +20% / +45%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12] zpravy_po_rozhodnuti_vetsi: zamitnuto
+
+* kdyz centralni banka jedne z men rozhodla v tydnu vstupu, pozice 1.5x vetsi
+* kandidat: 2019-22: **+69.7%** rocne, propad 34%, 3.3 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +98% / +48%; 2023-26: **+19.1%** rocne, propad 18%, 2.2 ziskovych/mesic (marze 10% / 10% / 4% / 4%), po 2 letech +13% / +33%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] slabe_stupne_s_carry: zamitnuto
+
+* slabsi stupne jen s kladnym urokovym rozdilem ve smeru obchodu (swap pro nas)
+* kandidat: 2019-22: **+54.2%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 20% / 20% / 10% / 6%), po 2 letech +73% / +46%; 2023-26: **+19.8%** rocne, propad 17%, 1.4 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +15% / +32%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] zpravy_pred_polovina_po_vetsi: zamitnuto
+
+* pred rozhodnutim centralni banky polovicni pozice, po rozhodnuti 1.5x vetsi
+* kandidat: 2019-22: **+74.3%** rocne, propad 39%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +108% / +48%; 2023-26: **+21.4%** rocne, propad 10%, 2.2 ziskovych/mesic (marze 12% / 12% / 2% / 2%), po 2 letech +16% / +33%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+

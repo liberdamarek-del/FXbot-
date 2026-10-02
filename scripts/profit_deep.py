@@ -61,6 +61,7 @@ class Rule:
     max_jump_atr: float = 1e9         # skip when an hour of the last 2 days moved > x ATR (a news shock)
     min_jump_atr: float = 0.0         # only when such a shock happened
     cb_size: float = 1.0              # position size factor when a central bank of either currency decides within 7 days
+    cb_week_size: float = 1.0         # position size factor when a central bank of either currency decided this week
 
 
 _cache: dict = {}
@@ -333,8 +334,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                                "tp_pct": TP / entry * 100 * P.LEVERAGE, "sl_pct": SL / entry * 100 * P.LEVERAGE,
                                "mfe_atr": best / atr,               # best move for the trade before its exit
                                "marks": [(m, v * P.LEVERAGE) for m, v in marks if m < int(ts[exit_k]) + 3600],
-                               "size_factor": rule.cb_size if rule.cb_size != 1.0 and news(symbol, s, I, "cb_ahead:7")[i]
-                               else 1.0})
+                               "size_factor": (rule.cb_size if rule.cb_size != 1.0 and news(symbol, s, I, "cb_ahead:7")[i]
+                                               else 1.0)
+                               * (rule.cb_week_size if rule.cb_week_size != 1.0 and news(symbol, s, I, "cb_week")[i]
+                                  else 1.0)})
                 busy_until = exit_k
     return sorted(trades, key=lambda t: t["t_in"])
 

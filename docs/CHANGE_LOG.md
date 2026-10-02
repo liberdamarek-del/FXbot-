@@ -345,3 +345,13 @@ User's requests: updates every 30 min and learning several times a day, all fund
   in the journal, phone layout fix. Friday decision only from 16:00 New York (hourly runs on Friday).
 - Routines: hourly updates on weekdays (the platform's minimum interval is 1 hour - 30 min was refused),
   learning on weekdays 07:40 / 12:40 / 17:40 Prague + Saturday with data downloads, Friday signals 16:05 NY.
+
+## R-017 - learning run 2026-10-02 morning (round 5, both profiles): nothing accepted
+
+- `zpravy_po_rozhodnuti_vetsi` (1.5x size when a central bank of either currency decided in the entry week):
+  monthly 2019-22 +64.5 % (champion +72.8 %), 2023-26 +26.2 % (+20.9 %); max 2019-22 dd 34 % - rejected.
+- `slabe_stupne_s_carry` (weak tiers only with positive carry): too few trades (monthly profile no valid
+  sizes; max 2019-22 +54.2 %) - rejected.
+- `zpravy_pred_polovina_po_vetsi` (half size before a decision, 1.5x after): monthly 2019-22 +60.4 % at dd 17 %,
+  2023-26 +27.4 %; max 2019-22 +74.3 % but dd 39 % - rejected.
+New Rule field `cb_week_size` (profit_deep). Champions unchanged.
