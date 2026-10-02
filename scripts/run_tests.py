@@ -63,6 +63,7 @@ TESTS = [
     "test_e6_stats_registry.py",
     "test_e7_upgrade.py",
     "test_e8_fxcm.py",
+    "test_f1_live_model.py",
     "test_m39.py",
     "test_m310.py",
     "test_m311.py",

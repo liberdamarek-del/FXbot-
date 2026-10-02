@@ -6,8 +6,11 @@ choice did not see.
     python scripts/self_learn.py --profile mesicne    # ... with >= 2 winning trades every month
     python scripts/self_learn.py --status             # champion and the learning log
 
-State: data/research/profit2/champion.json (the current best configuration)
-and docs/UCENI_LOG.md (every experiment, accepted or rejected, with numbers).
+State: learning/champion_12.json and learning/champion_12_mesicne.json (the
+current best configuration per profile, tracked in git) and docs/UCENI_LOG.md
+(every experiment, accepted or rejected, with numbers). The champion is
+re-evaluated when the price data reach a new day (the weekly download), so a
+candidate is always compared with the champion on the same data.
 
 A configuration = trading rule (profit_deep.Rule fields) + tiers (overrides,
 strongest first) + universe + sizing + portfolio limits. Its tier margins are
@@ -46,7 +49,6 @@ import profit_deep as D  # noqa: E402
 import profit_lab2 as P  # noqa: E402
 from src.instruments import DEFAULT_ACTIVE  # noqa: E402
 
-CHAMPION = P.OUT / "champion.json"
 # learning profiles: "max" = the largest annual return; "mesicne" = the same, but only configurations that
 # close >= 2 winning trades a month on average and >= 2 in at least 70 % of the months (the user's condition)
 # since 2026-10-01 (user's decision) only the 12 pairs the bot follows live; the 41-pair states stay as
@@ -63,7 +65,7 @@ DD_SLACK = 0.03
 SHARE_STEPS = (0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.12, 0.15, 0.20)
 REF_SL_MARGIN = 84.0                 # median stop of the champion in % of the margin (vol sizing anchor)
 
-START = {                            # CH-009 rule set as pre-registered (docs/CHANGE_LOG.md), on all 41 pairs
+START = {                            # CH-009 rule set as pre-registered (docs/CHANGE_LOG.md), on the 12 pairs
     "name": "CH-009 (12 paru)",
     "universe": "12",
     "base": {"signal": "D RSI2<5", "weekly": True, "tp": 0.75, "sl": 3.0, "hold_days": 20},
@@ -275,6 +277,11 @@ def _fmt(ev: dict) -> str:
     return "; ".join(parts)
 
 
+def data_mark(cfg: dict) -> str:
+    """Last trading day of the price data the evaluation runs on."""
+    return str(max(P.series(s)["days"][-1] for s in symbols_of(cfg)))
+
+
 def log(lines: list[str]) -> None:
     if not LOG.exists():
         LOG.write_text("# Denik uceni modelu\n\n_Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich "
@@ -296,10 +303,13 @@ def main(argv: list[str]) -> int:
         print(LOG.read_text() if LOG.exists() else "(zatim zadny pokus)")
         return 0
     started = time.monotonic()
-    if state["eval"] is None:
+    mark = data_mark(state["config"])
+    if state["eval"] is None or state.get("data_do") != mark:
         state["eval"] = {str(k): v for k, v in evaluate(state["config"]).items()}
-        log([f"## {date.today()} - profil {name}: vychozi sampion {state['config']['name']}", "",
+        state["data_do"] = mark
+        log([f"## {date.today()} - profil {name}: sampion {state['config']['name']} na datech do {mark}", "",
              _fmt({int(k): v for k, v in state["eval"].items()}), ""])
+        CHAMPION.write_text(json.dumps(state, indent=1, ensure_ascii=False, default=list))
     for exp, text, make in EXPERIMENTS:
         if exp in state["tried"]:
             continue

@@ -20,11 +20,11 @@ model's own live record.
 """
 
 import json
-import math
 import sys
 import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import numpy as np
 
@@ -40,6 +40,7 @@ from src.path_archive import trading_date  # noqa: E402
 from src.sources.http import fetch  # noqa: E402
 
 UTC = timezone.utc
+NEW_YORK = ZoneInfo("America/New_York")
 LEARNING = PROJECT_ROOT / "learning"
 CHAMPION = LEARNING / "champion_12_mesicne.json"
 FORWARD = LEARNING / "forward_trades.json"
@@ -140,6 +141,30 @@ def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, ki
                    "proc_marze": round(base["sl"] * atr / entry * 100 * P.LEVERAGE, 1)}}
 
 
+def decision_ready(day: date, last_bar_open: int) -> bool:
+    """True when `day` is a Friday and the hourly bars reach its close
+    (the last bar opens at 15:00 New York or later, the close is 17:00): only
+    then is the weekly decision made. Earlier on Friday the daily bar is
+    unfinished and an RSI signal would come from a partial day."""
+    if day.weekday() != 4:
+        return False
+    close = datetime(day.year, day.month, day.day, 17, tzinfo=NEW_YORK).timestamp()
+    return close - (last_bar_open + 3600) <= 3600
+
+
+def stale_rates(rates: dict, day: date) -> dict:
+    """Currencies whose OECD 3-month rate is >= 2 months older than the model
+    expects (the month 2 months back): their 3-month change is only carried
+    forward (counts as about 0). {currency: last month 'YYYY-MM'}."""
+    out = {}
+    for ccy, series in rates.items():
+        if series:
+            y, m = max(series)
+            if (day.year - y) * 12 + day.month - m - 2 >= 2:
+                out[ccy] = f"{y}-{m:02d}"
+    return out
+
+
 def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) -> dict:
     inst = get_instrument(pair)
     hb = yahoo_hourly(YAHOO[pair])
@@ -158,6 +183,10 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
            "atr": round(float(atr[-1]), inst.decimals), "atr_proc": round(float(atr[-1] / c[-1] * 100), 3),
            "rozdil_sazeb": round(carry, 2), "zmena_sazeb_3m": round(mom, 2), "desetinna_mista": inst.decimals,
            "signal": None}
+    stale = {c: m for c, m in stale_rates(rates, day).items() if c in (inst.base, inst.quote)}
+    if stale:
+        out["varovani"] = ("zastarala sazba " + ", ".join(f"{c} (posledni udaj {m})" for c, m in stale.items())
+                           + " - zmena sazeb tu muze byt nepresna, ber s rezervou")
     # which direction and tier the fundamentals allow
     allowed = []
     for side in (1, -1):
@@ -192,7 +221,8 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
                                f"{level:.{inst.decimals}f})")
         hit_rsi2 = rsi2[-1] < 5 if side > 0 else rsi2[-1] > 95
         hit_rsi3 = ("RSI3" in sig) and (rsi3[-1] < 15 if side > 0 else rsi3[-1] > 85)
-        is_friday = day.weekday() == 4
+        is_friday = decision_ready(day, int(D["last_ts"][-1]))
+        out["rozhodovaci_den"] = is_friday
         out["v_pasmu"] = bool(hit_rsi2 or hit_rsi3)
         out["cil_ok"] = bool(base["tp"] * atr[-1] / c[-1] * 100 * P.LEVERAGE >= 10.0 - 1e-9)
         if is_friday and (hit_rsi2 or hit_rsi3):
@@ -333,14 +363,17 @@ def main() -> int:
     # fundamentals per currency
     day = max(date.fromisoformat(p["den"]) for p in pairs if "den" in p)
     fund = []
+    stale = stale_rates(rates, day)
     for ccy in ("USD", "EUR", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD"):
         now_r, old_r = P.rate_at(rates[ccy], day.year, day.month, 2), P.rate_at(rates[ccy], day.year, day.month, 5)
-        fund.append({"mena": ccy, "nazev": CCY_CZ[ccy], "sazba_3m": round(now_r, 2), "zmena_3m": round(now_r - old_r, 2)})
+        fund.append({"mena": ccy, "nazev": CCY_CZ[ccy], "sazba_3m": None if now_r is None else round(now_r, 2),
+                     "zmena_3m": None if now_r is None or old_r is None else round(now_r - old_r, 2),
+                     "zastarale": stale.get(ccy)})
     vix_rows = RF._csv("VIXCLS")
     ev = ch["eval"]
     state = {
         "aktualizovano": datetime.now(UTC).isoformat(timespec="minutes"),
-        "den_dat": day.isoformat(), "je_patek": day.weekday() == 4,
+        "den_dat": day.isoformat(), "je_patek": any(p.get("rozhodovaci_den") for p in pairs),
         "pravidlo": cfg["name"],
         "pravidlo_popis": {"tp_atr": cfg["base"]["tp"], "sl_atr": cfg["base"]["sl"], "drzeni_dni": cfg["base"]["hold_days"],
                            "stupne": [{"jmeno": TIER_NAMES[k] if k < len(TIER_NAMES) else "slaby",
@@ -353,10 +386,14 @@ def main() -> int:
                                       "ziskovych_mesicne": round(ev["1"]["test_wins_month"], 1)}},
         "pary": pairs,
         "signaly": [dict(par=p["par"], odhad_uspesnosti=p.get("odhad_uspesnosti"), uspesnost_hist=p.get("uspesnost_hist"),
-                         n_hist=p.get("n_hist"), pravdepodobnost_uspechu=p.get("pravdepodobnost_uspechu"), **p["signal"])
+                         n_hist=p.get("n_hist"), pravdepodobnost_uspechu=p.get("pravdepodobnost_uspechu"),
+                         varovani=p.get("varovani"), **p["signal"])
                     for p in pairs if p.get("signal")],
         "razeni": "signal, pak pripravene ke vstupu, pak ostatni povolene, nakonec bez smeru; uvnitr podle odhadu uspesnosti",
         "fundamenty": fund,
+        "varovani": [f"Sazba {CCY_CZ[c]} ({c}) z OECD ma posledni udaj za {m}; zmena sazeb u paru s {c} je proto "
+                     "jen odhad (pocita se jako 0). Signaly s touto menou ber s rezervou."
+                     for c, m in stale.items() if c in CCY_CZ],
         "vix": {"hodnota": vix_rows[-1][1], "den": vix_rows[-1][0].isoformat()},
         "czk": czk,
         "model": {"obchody": forward[-200:],

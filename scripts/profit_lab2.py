@@ -102,8 +102,13 @@ def rate_at(series: dict, year: int, month: int, lag: int):
 
 def series(symbol: str) -> dict:
     """Hourly mid bars + the daily bars (New York close) built from them."""
-    cache = OUT / f"series_{symbol.replace('/', '')}.pkl"
-    if cache.exists():
+    name = symbol.replace("/", "")
+    cache = OUT / f"series_{name}.pkl"
+    source = U.ROOT / f"{name}.npz"
+    if not source.exists():
+        source = U.HISTDATA / f"{name}.npz"
+    # rebuilt when the hourly data are newer (the weekly download), else the learning would not see new weeks
+    if cache.exists() and (not source.exists() or cache.stat().st_mtime >= source.stat().st_mtime):
         return pickle.loads(cache.read_bytes())
     H = U.load(symbol)
     ts = H["ts"]

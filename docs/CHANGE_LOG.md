@@ -298,3 +298,22 @@ enough trades). Average result -0.8 % of the margin per trade in each of 2012-18
 (monthly R1/S1, confirmation, SMA50 against) end at +1.4 % (t 0.4) and below in 2023-26, negative
 on the crosses. SMA50 against the trade is the least bad filter (-0.1 / -0.4 / -0.4 %). Not added to
 the model. Earlier: R-004 (216 variants) - same conclusion.
+
+## R-015 - code audit, fixes and diagnostics (2026-10-02)
+
+Full audit in docs/AUDIT_2026-10-02.md (Czech): done / in progress / dead code, findings by severity,
+the fundamentals question, improvement plan. Fixed today (no change of the trading rule or sizes):
+- C1 `signals_live.py`: a run on a Friday before the close took the unfinished daily bar as the
+  Friday decision (2026-10-02 03:55 UTC produced 2 false signals, EUR/CHF and EUR/JPY, removed
+  from the forward test, never published). New `decision_ready()`: signal only when the hourly data
+  reach Friday 15:00 New York or later.
+- H1 `profit_lab2.series`: the price cache was never rebuilt, the weekly learning would not have
+  seen new data; now rebuilt when the hourly file is newer.
+- H2 GBP OECD 3m rate stale since 2026-01 (change counted as 0, crash from 2027-03): warnings in
+  stav.json (`varovani`, per pair, per currency `zastarale`) and on the dashboard; None-safe.
+  Replacement source still to be tested through the gate.
+- M1 `self_learn.py`: the champion is re-evaluated when the data reach a new day (`data_do`),
+  so candidate and champion are compared on the same data; stale docstring / constant removed.
+- New `scripts/diagnostika.py` (read-only health check) and `test_f1_live_model.py` (decision time,
+  rates, cache, simulator, account); suite 50/50 PASS.
+Open: H3 drawdown measured only at exits (mark-to-market 24-36 % vs 20-26 %), M2-M8 (see audit).

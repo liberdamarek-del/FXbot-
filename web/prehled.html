@@ -207,7 +207,8 @@ details summary { cursor: pointer; font-weight: 600; }
 
   function renderStatus() {
     if (!state) return;
-    $("status").innerHTML = `<span>Aktualizováno <b class="num">${esc(praha(state.aktualizovano))}</b></span><span>Ceny do <span class="num">${esc(state.den_dat)}</span></span>`;
+    $("status").innerHTML = `<span>Aktualizováno <b class="num">${esc(praha(state.aktualizovano))}</b></span><span>Ceny do <span class="num">${esc(state.den_dat)}</span></span>`
+      + (state.varovani || []).map((v) => `<div class="notice" style="flex-basis: 100%">⚠ ${esc(v)}</div>`).join("");
   }
 
   function planTable(par, plan, side) {
@@ -241,6 +242,7 @@ details summary { cursor: pointer; font-weight: 600; }
       ${planTable(s.par, plan, s.smer)}
       <p class="small">Velikost: marže <b>${fmt(marze, 1)} % účtu</b>${money}. Rozděl pozici na <b>3 stejné části</b> s cíli TP1, TP2 a TP3, stop loss stejný pro všechny${plan.prumer_rozdeleni_3 !== undefined ? ` (historický průměr takového rozdělení ${sgn(plan.prumer_rozdeleni_3, 1)} % marže na obchod)` : ""}. Zavřít nejpozději za 4 týdny${s.zavrit_nejpozdeji ? ", tj. " + esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ")) : ""}.</p>
       ${s.duvod ? `<p class="small muted">${esc(s.duvod)}</p>` : ""}
+      ${s.varovani ? `<div class="notice">⚠ ${esc(s.varovani)}</div>` : ""}
       ${kind === "trh" ? `<div class="row"><button type="button" class="ghost" data-fill="${i}">Zapsat podle signálu</button></div>` : ""}
     </article>`;
   }
@@ -299,14 +301,14 @@ details summary { cursor: pointer; font-weight: 600; }
         <td>${sideChip(p.smer)}<div class="small muted">sazby ${sgn(p.zmena_sazeb_3m, 2)} p.b., rozdíl ${sgn(p.rozdil_sazeb, 2)} %</div></td>
         <td>${tierChip(p.stupen)}</td><td class="r num">${fmt(p.cena, p.desetinna_mista)}</td>
         <td class="r num"><span class="${rsiCls}">${fmt(p.rsi2, 0)}</span></td>
-        <td class="small">${esc(p.podminka || "")}${goal}</td></tr>`;
+        <td class="small">${esc(p.podminka || "")}${goal}${p.varovani ? `<div class="small"><span class="chip warn">⚠ ${esc(p.varovani)}</span></div>` : ""}</td></tr>`;
     }).join("");
   }
 
   function renderFund() {
     if (!state) return;
     $("fund").innerHTML = (state.fundamenty || []).map((f) => `<tr><td><b>${esc(f.mena)}</b> <span class="small muted">${esc(f.nazev)}</span></td>
-      <td class="r num">${fmt(f.sazba_3m, 2)} %</td><td class="r num ${f.zmena_3m > 0 ? "pos" : f.zmena_3m < 0 ? "neg" : ""}">${sgn(f.zmena_3m, 2)}</td></tr>`).join("");
+      <td class="r num">${fmt(f.sazba_3m, 2)} %${f.zastarale ? `<div class="small"><span class="chip warn">stará data (${esc(f.zastarale)})</span></div>` : ""}</td><td class="r num ${f.zmena_3m > 0 ? "pos" : f.zmena_3m < 0 ? "neg" : ""}">${sgn(f.zmena_3m, 2)}</td></tr>`).join("");
     if (state.vix) $("vix").textContent = `Index strachu VIX: ${fmt(state.vix.hodnota, 1)} (${new Date(state.vix.den).toLocaleDateString("cs-CZ")})`;
     const r = state.pravidlo_popis || {}, b = state.backtest || {};
     const tiers = (r.stupne || []).filter((t) => t.marze_proc_uctu > 0).map((t) => `<li><b>${esc(CZ[t.jmeno] || t.jmeno)}</b>: sazby ve směru obchodu ≥ ${fmt(t.prah_sazeb, 2)} p.b.${t.carry ? " a kladný úrokový rozdíl" : ""}; signál ${esc(t.signal.replace("|", " nebo "))} → marže <b>${fmt(t.marze_proc_uctu, 0)} % účtu</b></li>`).join("");

@@ -9,6 +9,8 @@ Scope (user's decision 2026-10-01): only the 12 live pairs (src/instruments.DEFA
 add markets.
 
 ## Weekly jobs
+- Start every job with `python scripts/diagnostika.py --online` (read-only); on CHYBA other than a
+  known open item (docs/AUDIT_2026-10-02.md) do not publish signals, report it.
 - Friday signals (`python scripts/signals_live.py`): Yahoo hourly + FRED rates -> `data/live/stav.json`
   and `learning/forward_trades.json` (model forward test). Then write the JSON to the dashboard
   database: Artifact URL and doc in `learning/dashboard.json` (ArtifactData: get `stav/aktualni` for
@@ -30,3 +32,9 @@ re-downloaded by the scripts.
 - (done 2026-10-01, R-014) The user's pivot method (classic pivots day/week/month, fades at P/R1/R2 and
   S1/S2, limit or confirmation, SMA50 with/against, rates filter, 1,080 variants, `scripts/pivot_lab2.py`,
   docs/PIVOTY2.md): no robust edge on the 12 pairs 2012-2026 - do not re-test the same family.
+- (priority, from the audit 2026-10-02) H3: mark-to-market drawdown in `portfolio_sim.run_portfolio`
+  (daily closes) and the gate on it, then re-fit the tier margins.
+- (priority) H2: GBP rate fallback (Bank of England / BIS policy rate) when OECD lags >= 2 months.
+- Central bank meeting / US CPI / NFP calendar (dates known in advance, history from 2012): do not
+  enter, or smaller size, when a meeting of either currency is within N days.
+
