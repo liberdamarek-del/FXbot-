@@ -62,6 +62,9 @@ SPLITS = (((2012, 2018), (2019, 2022)), ((2012, 2022), (2023, 2026)))
 DD_MAX = 0.20
 MIN_GAIN = 0.01
 DD_SLACK = 0.03
+EVAL_VERSION = 2                     # 2: drawdown with open trades at daily closes, 2-year blocks in the test
+BLOCKS = (((2019, 2020), (2021, 2022)), ((2023, 2024), (2025, 2026)))   # 2-year blocks of each test period
+MIN_BLOCKS = 3                       # the candidate must be at least as good in >= 3 of the 4 blocks
 SHARE_STEPS = (0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.12, 0.15, 0.20)
 REF_SL_MARGIN = 84.0                 # median stop of the champion in % of the margin (vol sizing anchor)
 
@@ -148,7 +151,8 @@ def evaluate(cfg: dict) -> dict:
         out[k] = {"e_G1": float(np.mean(e_g["G1"])) if e_g["G1"] else 0.0,
                   "e_G2": float(np.mean(e_g["G2"])) if e_g["G2"] else 0.0,"shares": sh, "sel_cagr": cagr, "sel_dd": r_sel["max_dd"], "test_cagr": r_test["cagr"],
                   "test_dd": r_test["max_dd"], "test_n_year": r_test["n_year"], "test_win": r_test["win"],
-                  "test_wins_month": r_test["wins_month"], "test_months_2wins": r_test["months_2wins"]}
+                  "test_wins_month": r_test["wins_month"], "test_months_2wins": r_test["months_2wins"],
+                  "blocks": [PS.run_portfolio(lists, list(sh), b, cfg.get("max_ccy"))["cagr"] for b in BLOCKS[k]]}
     return out
 
 
@@ -165,6 +169,12 @@ def better(cand: dict, champ: dict) -> bool:
             return False
         if c["test_wins_month"] < 0.9 * PROFILE["min_wpm"]:
             return False
+    # robustness (from 2026-10-02, many more experiments a week): the gain must not come from one lucky
+    # stretch - at least as good as the champion in >= MIN_BLOCKS of the 2-year blocks of the tests
+    pairs = [(c, h) for k in range(len(SPLITS)) if champ.get(k) and "blocks" in champ[k]
+             for c, h in zip(cand[k]["blocks"], champ[k]["blocks"])]
+    if pairs and sum(c >= h for c, h in pairs) < MIN_BLOCKS:
+        return False
     last = cand[len(SPLITS) - 1]
     return last["e_G1"] > 0 and last["e_G2"] > 0
 
@@ -255,6 +265,24 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: t[:2] + [{**x, "signal": "D RSI2<5|D RSI3<15|D %R14<10"} for x in t[2:]])),
     ("druhy_stupen_rsi3", "druhy stupen (sazby >= 0.25 bez carry) bere i RSI(3) < 15",
      lambda c: _tiers(c, lambda t: t[:1] + [{**t[1], "signal": "D RSI2<5|D RSI3<15"}] + t[2:])),
+    # round 4 (2026-10-02): news - scheduled central bank decisions, US data, news shocks (docs/ZPRAVY.md:
+    # trades entered <= 7 days before a decision of either currency's central bank earned less in all periods)
+    ("zpravy_cb_7_dni", "neotevirat, kdyz centralni banka jedne z men rozhoduje do 7 dni (Fed, ECB, BoJ, BoE)",
+     lambda c: _tiers(c, lambda t: [{**x, "skip_cb_ahead": 7} for x in t])),
+    ("zpravy_cb_5_dni", "neotevirat, kdyz centralni banka jedne z men rozhoduje do 5 dni",
+     lambda c: _tiers(c, lambda t: [{**x, "skip_cb_ahead": 5} for x in t])),
+    ("zpravy_cb_10_dni", "neotevirat, kdyz centralni banka jedne z men rozhoduje do 10 dni",
+     lambda c: _tiers(c, lambda t: [{**x, "skip_cb_ahead": 10} for x in t])),
+    ("zpravy_cb_7_slabe", "jen slabsi stupne: neotevirat 7 dni pred rozhodnutim centralni banky",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "skip_cb_ahead": 7} for x in t[2:]])),
+    ("zpravy_us_data", "pary s USD: neotevirat v tydnu, kdy vysly NFP nebo CPI",
+     lambda c: _tiers(c, lambda t: [{**x, "skip_us_data": True} for x in t])),
+    ("zpravy_skok_075", "neotevirat po zpravovem skoku (hodina za posledni 2 dny > 0.75 ATR)",
+     lambda c: _tiers(c, lambda t: [{**x, "max_jump_atr": 0.75} for x in t])),
+    ("zpravy_cb_7_polovina", "7 dni pred rozhodnutim centralni banky jedne z men jen polovicni pozice (obchodu stejne)",
+     lambda c: _tiers(c, lambda t: [{**x, "cb_size": 0.5} for x in t])),
+    ("zpravy_cb_7_polovina_slabe", "jen slabsi stupne: 7 dni pred rozhodnutim centralni banky polovicni pozice",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "cb_size": 0.5} for x in t[2:]])),
 ]
 
 
@@ -273,13 +301,17 @@ def _fmt(ev: dict) -> str:
             continue
         parts.append(f"{test[0]}-{test[1] % 100:02d}: **{e['test_cagr']:+.1%}** rocne, propad {e['test_dd']:.0%}, "
                      f"{e['test_wins_month']:.1f} ziskovych/mesic "
-                     f"(marze {' / '.join(f'{x:.0%}' for x in e['shares'])})")
+                     f"(marze {' / '.join(f'{x:.0%}' for x in e['shares'])})"
+                     + (f", po 2 letech {' / '.join(f'{b:+.0%}' for b in e['blocks'])}" if "blocks" in e else ""))
     return "; ".join(parts)
 
 
 def data_mark(cfg: dict) -> str:
-    """Last trading day of the price data the evaluation runs on."""
-    return str(max(P.series(s)["days"][-1] for s in symbols_of(cfg)))
+    """Last trading day of the price data, last month of every rate series and
+    the evaluation version: when one changes, the champion is evaluated again."""
+    rates = P.monthly_rates()
+    last_rates = ",".join(f"{c}{max(v)[0]}-{max(v)[1]:02d}" for c, v in sorted(rates.items()) if v)
+    return f"{max(P.series(s)['days'][-1] for s in symbols_of(cfg))} | {last_rates} | v{EVAL_VERSION}"
 
 
 def log(lines: list[str]) -> None:

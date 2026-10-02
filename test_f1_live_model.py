@@ -39,13 +39,16 @@ def utc(text: str) -> int:
 
 # ---------------------------------------------------------------- decision time
 friday = date(2026, 10, 2)
-assert not SL.decision_ready(friday, utc("2026-10-02T03:00"))      # Thursday 23:00 New York: day just started
-assert not SL.decision_ready(friday, utc("2026-10-02T18:00"))      # 14:00 New York: 3 hours before the close
-assert SL.decision_ready(friday, utc("2026-10-02T19:00"))          # last bar 15:00-16:00 New York
-assert SL.decision_ready(friday, utc("2026-10-02T20:00"))          # last bar 16:00-17:00 (the close)
-assert SL.decision_ready(friday, utc("2026-10-04T21:00"))          # weekend run: Friday is complete
-assert not SL.decision_ready(date(2026, 10, 1), utc("2026-10-01T20:00"))   # Thursday never decides
-assert SL.decision_ready(date(2026, 1, 9), utc("2026-01-09T20:00"))        # winter time: 15:00 New York
+late = utc("2026-10-02T20:10")                                       # 16:10 New York
+assert not SL.decision_ready(friday, utc("2026-10-02T03:00"), utc("2026-10-02T03:55"))  # Thursday 23:55 New York
+assert not SL.decision_ready(friday, utc("2026-10-02T18:00"), utc("2026-10-02T18:30"))  # 14:30 New York
+assert not SL.decision_ready(friday, utc("2026-10-02T19:00"), utc("2026-10-02T19:35"))  # 15:35: hourly update, too early
+assert SL.decision_ready(friday, utc("2026-10-02T19:00"), late)     # last bar 15:00-16:00, clock 16:10
+assert SL.decision_ready(friday, utc("2026-10-02T20:00"), late)     # last bar 16:00-17:00 (the close)
+assert not SL.decision_ready(friday, utc("2026-10-02T17:00"), late) # data stuck at 13:00 New York
+assert SL.decision_ready(friday, utc("2026-10-02T20:00"), utc("2026-10-04T21:00"))   # weekend run: Friday complete
+assert not SL.decision_ready(date(2026, 10, 1), utc("2026-10-01T20:00"), late)       # Thursday never decides
+assert SL.decision_ready(date(2026, 1, 9), utc("2026-01-09T20:00"), utc("2026-01-09T21:10"))  # winter time
 
 # ---------------------------------------------------------------- rates
 series = {(2026, m): 3.0 + m / 10 for m in range(1, 9)}
@@ -150,14 +153,22 @@ assert abs(r["equity"] - 1.02 * (1 - 0.1 * 0.5)) < 1e-12          # compounding:
 assert abs(r["max_dd"] - 0.05) < 1e-12
 r = PS.run_portfolio([[trade("EUR/USD", d0, 1, 10, 10.0), trade("GBP/USD", d0, 2, 12, 10.0)]], 0.6, (2024, 2024))
 assert len(r["trades"]) == 1                                         # margins above 100 % of the account: skipped
+# drawdown with the open trade valued at the daily closes: -50 % of the margin on the way, +20 % at the exit
+dip = trade("EUR/USD", d0, 1, 10, 20.0)
+dip["marks"] = [(T + 3 * 86400, -10.0), (T + 5 * 86400, -50.0), (T + 7 * 86400, 5.0)]
+r = PS.run_portfolio([[dip]], 0.1, (2024, 2024))
+assert abs(r["max_dd_realized"]) < 1e-12 and abs(r["max_dd"] - 0.05) < 1e-12, (r["max_dd_realized"], r["max_dd"])
+dip["size_factor"] = 0.5                                             # half size (e.g. before a central bank decision)
+r = PS.run_portfolio([[dip]], 0.1, (2024, 2024))
+assert abs(r["max_dd"] - 0.025) < 1e-12 and abs(r["equity"] - 1.01) < 1e-12
 
 print("=" * 60)
 print("F1 LIVE MODEL")
 print("=" * 60)
-print("FRIDAY DECISION ONLY AT THE CLOSE (NOT FROM A PARTIAL DAY): PASS")
+print("FRIDAY DECISION ONLY AT THE CLOSE (NOT FROM A PARTIAL DAY OR AN EARLY HOURLY RUN): PASS")
 print("RATES: 2-MONTH LAG, 12-MONTH FILL, STALE WARNING: PASS")
 print("PRICE CACHE REBUILT AFTER NEW DATA: PASS")
 print("SIMULATOR: TP, SL, SAME-HOUR ORDER, ONE PER PAIR, RATE FILTER: PASS")
-print("ACCOUNT: COMPOUNDING, PAIR BUSY, MARGIN CAP, DRAWDOWN: PASS")
+print("ACCOUNT: COMPOUNDING, PAIR BUSY, MARGIN CAP, DRAWDOWN WITH OPEN TRADES, SIZE FACTOR: PASS")
 print("RESULT: PASS")
 print("=" * 60)

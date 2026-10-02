@@ -654,3 +654,107 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+74.9%** rocne, propad 42%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 6%); 2023-26: **+18.7%** rocne, propad 13%, 2.3 ziskovych/mesic (marze 10% / 6% / 6% / 5%)
 * sampion:  2019-22: **+75.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 6%); 2023-26: **+26.6%** rocne, propad 22%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 6%)
 
+## 2026-10-02 - profil mesicne: sampion CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 na datech do 2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v2
+
+2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_cb_7_dni: zamitnuto
+
+* neotevirat, kdyz centralni banka jedne z men rozhoduje do 7 dni (Fed, ECB, BoJ, BoE)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_cb_5_dni: zamitnuto
+
+* neotevirat, kdyz centralni banka jedne z men rozhoduje do 5 dni
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_cb_10_dni: zamitnuto
+
+* neotevirat, kdyz centralni banka jedne z men rozhoduje do 10 dni
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_cb_7_slabe: zamitnuto
+
+* jen slabsi stupne: neotevirat 7 dni pred rozhodnutim centralni banky
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_us_data: zamitnuto
+
+* pary s USD: neotevirat v tydnu, kdy vysly NFP nebo CPI
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_skok_075: zamitnuto
+
+* neotevirat po zpravovem skoku (hodina za posledni 2 dny > 0.75 ATR)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+## 2026-10-02 - profil max: sampion CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 na datech do 2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v2
+
+2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] zpravy_cb_7_dni: zamitnuto
+
+* neotevirat, kdyz centralni banka jedne z men rozhoduje do 7 dni (Fed, ECB, BoJ, BoE)
+* kandidat: 2019-22: **+53.6%** rocne, propad 26%, 1.4 ziskovych/mesic (marze 20% / 20% / 8% / 0%), po 2 letech +92% / +37%; 2023-26: **+20.9%** rocne, propad 26%, 1.7 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +13% / +37%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] zpravy_cb_5_dni: zamitnuto
+
+* neotevirat, kdyz centralni banka jedne z men rozhoduje do 5 dni
+* kandidat: 2019-22: **+43.3%** rocne, propad 21%, 1.0 ziskovych/mesic (marze 20% / 20% / 0% / 0%), po 2 letech +56% / +86%; 2023-26: **+23.7%** rocne, propad 25%, 1.9 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +41%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] zpravy_cb_10_dni: zamitnuto
+
+* neotevirat, kdyz centralni banka jedne z men rozhoduje do 10 dni
+* kandidat: 2019-22: **+53.6%** rocne, propad 26%, 1.4 ziskovych/mesic (marze 20% / 20% / 8% / 0%), po 2 letech +92% / +37%; 2023-26: **+20.9%** rocne, propad 26%, 1.7 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +13% / +37%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] zpravy_cb_7_slabe: zamitnuto
+
+* jen slabsi stupne: neotevirat 7 dni pred rozhodnutim centralni banky
+* kandidat: 2019-22: **+56.7%** rocne, propad 28%, 1.6 ziskovych/mesic (marze 20% / 20% / 10% / 0%), po 2 letech +108% / +32%; 2023-26: **+20.3%** rocne, propad 26%, 1.9 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +13% / +36%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] zpravy_us_data: zamitnuto
+
+* pary s USD: neotevirat v tydnu, kdy vysly NFP nebo CPI
+* kandidat: 2019-22: **+39.9%** rocne, propad 26%, 2.4 ziskovych/mesic (marze 20% / 20% / 8% / 5%), po 2 letech +54% / +28%; 2023-26: **+20.5%** rocne, propad 21%, 1.5 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +37% / +2%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] zpravy_skok_075: zamitnuto
+
+* neotevirat po zpravovem skoku (hodina za posledni 2 dny > 0.75 ATR)
+* kandidat: 2019-22: **+41.7%** rocne, propad 21%, 1.2 ziskovych/mesic (marze 20% / 20% / 10% / 0%), po 2 letech +90% / +16%; 2023-26: **+17.1%** rocne, propad 37%, 1.7 ziskovych/mesic (marze 15% / 15% / 10% / 5%), po 2 letech +2% / +49%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_cb_7_polovina: zamitnuto
+
+* 7 dni pred rozhodnutim centralni banky jedne z men jen polovicni pozice (obchodu stejne)
+* kandidat: 2019-22: **+73.0%** rocne, propad 20%, 3.3 ziskovych/mesic (marze 20% / 20% / 5% / 5%), po 2 letech +82% / +68%; 2023-26: **+29.6%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 20% / 20% / 5% / 5%), po 2 letech +19% / +54%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12_mesicne] zpravy_cb_7_polovina_slabe: zamitnuto
+
+* jen slabsi stupne: 7 dni pred rozhodnutim centralni banky polovicni pozice
+* kandidat: 2019-22: **+72.6%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +90% / +59%; 2023-26: **+20.1%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 4%), po 2 letech +13% / +36%
+* sampion:  2019-22: **+72.8%** rocne, propad 27%, 3.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +92% / +58%; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 12% / 12% / 6% / 5%), po 2 letech +12% / +39%
+
+### 2026-10-02 - [champion_12] zpravy_cb_7_polovina: zamitnuto
+
+* 7 dni pred rozhodnutim centralni banky jedne z men jen polovicni pozice (obchodu stejne)
+* kandidat: 2019-22: **+72.2%** rocne, propad 28%, 3.3 ziskovych/mesic (marze 20% / 20% / 10% / 4%), po 2 letech +106% / +46%; 2023-26: **+20.1%** rocne, propad 25%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +11% / +40%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+
+### 2026-10-02 - [champion_12] zpravy_cb_7_polovina_slabe: zamitnuto
+
+* jen slabsi stupne: 7 dni pred rozhodnutim centralni banky polovicni pozice
+* kandidat: 2019-22: **+72.5%** rocne, propad 28%, 3.3 ziskovych/mesic (marze 20% / 20% / 10% / 4%), po 2 letech +110% / +44%; 2023-26: **+20.1%** rocne, propad 25%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +11% / +39%
+* sampion:  2019-22: **+71.1%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +107% / +43%; 2023-26: **+19.8%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +9% / +42%
+

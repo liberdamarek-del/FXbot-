@@ -205,7 +205,9 @@ def check_online() -> None:
         report("online", ERR, f"FRED neodpovida: {type(exc).__name__}")
 
 
-def main(argv: list[str]) -> int:
+def run(online: bool = False) -> dict:
+    """All checks; returns {"den", "souhrn", "kontroly"} and writes data/live/diagnostika.json."""
+    results.clear()
     today = datetime.now(UTC).date()
     print(f"Diagnostika modelu {today}\n")
     check_prices(today)
@@ -213,14 +215,18 @@ def main(argv: list[str]) -> int:
     check_fundamentals_db(today)
     name = check_state()
     check_outputs(today, name)
-    if "--online" in argv:
+    if online:
         check_online()
     counts = {s: sum(r["stav"] == s for r in results) for s in (OK, WARN, ERR)}
     print(f"\nShrnuti: {counts[OK]} OK, {counts[WARN]} varovani, {counts[ERR]} chyb")
+    out = {"den": today.isoformat(), "souhrn": counts, "kontroly": list(results)}
     LIVE.mkdir(parents=True, exist_ok=True)
-    (LIVE / "diagnostika.json").write_text(json.dumps({"den": today.isoformat(), "souhrn": counts, "kontroly": results},
-                                                      indent=1, ensure_ascii=False))
-    return 1 if counts[ERR] else 0
+    (LIVE / "diagnostika.json").write_text(json.dumps(out, indent=1, ensure_ascii=False))
+    return out
+
+
+def main(argv: list[str]) -> int:
+    return 1 if run("--online" in argv)["souhrn"][ERR] else 0
 
 
 if __name__ == "__main__":

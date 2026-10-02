@@ -9,7 +9,7 @@ import sys
 import time
 from collections import defaultdict
 from dataclasses import dataclass, replace
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -54,6 +54,13 @@ class Rule:
     stall_days: int = 0               # > 0: close at the end of this trading day if the trade is not in profit
     confirm_src: str = ""             # second rate measure that must point the same way ("policylag")
     max_cot: float = 1e9              # skip when speculators are crowded in the trade direction (COT z-score diff)
+    # news (scripts/fundamenty.py: scheduled central bank decisions FED/ECB/BOJ/BOE, US NFP / CPI release days)
+    skip_cb_week: bool = False        # skip when either currency's central bank decided in the last 5 days
+    skip_cb_ahead: int = 0            # skip when either currency's central bank decides within this many days
+    skip_us_data: bool = False        # USD pairs: skip when NFP or CPI was released in the last 5 days
+    max_jump_atr: float = 1e9         # skip when an hour of the last 2 days moved > x ATR (a news shock)
+    min_jump_atr: float = 0.0         # only when such a shock happened
+    cb_size: float = 1.0              # position size factor when a central bank of either currency decides within 7 days
 
 
 _cache: dict = {}
@@ -135,6 +142,53 @@ def extra(symbol: str, s: dict, I: dict, what: str, rule) -> np.ndarray:
     return I[what]
 
 
+# months without a source for a central bank (scripts/fundamenty.py could not read them): no filter there
+EVENT_GAPS = {"BOE": ("2015-08-01", "2016-12-31")}
+
+
+def _event_dates(names) -> list:
+    import fundamenty as F
+    ev = _cache.setdefault("events", F.load_events())
+    return sorted({date.fromisoformat(d) for n in names for d in ev.get(n, [])})
+
+
+def news(symbol: str, s: dict, I: dict, what: str) -> np.ndarray:
+    """Lazily computed news inputs per decision day (see Rule)."""
+    import bisect
+    if what in I:
+        return I[what]
+    inst = get_instrument(symbol)
+    import fundamenty as F
+    banks = [F.CB_OF[c] for c in (inst.base, inst.quote) if c in F.CB_OF]
+    days = s["days"]
+    if what.startswith("cb_"):
+        dates = _event_dates(banks)
+        out = []                                              # EVENT_GAPS months count as no decision
+        for d in days:
+            if what == "cb_week":
+                lo, hi = d - timedelta(days=4), d
+            else:
+                lo, hi = d + timedelta(days=1), d + timedelta(days=int(what.split(":")[1]))
+            k = bisect.bisect_left(dates, lo)
+            out.append(k < len(dates) and dates[k] <= hi)
+        I[what] = np.array(out)
+    elif what == "us_data":
+        dates = _event_dates(["US_NFP", "US_CPI"]) if "USD" in (inst.base, inst.quote) else []
+        out = []
+        for d in days:
+            k = bisect.bisect_left(dates, d - timedelta(days=4))
+            out.append(k < len(dates) and dates[k] <= d)
+        I[what] = np.array(out)
+    elif what == "jump":
+        rng = s["h"] - s["l"]
+        first = s["first"]
+        out = np.full(len(days), np.nan)
+        for i in range(1, len(days)):
+            out[i] = rng[first[i - 1]:s["last"][i] + 1].max() / I["atr"][i]
+        I[what] = out
+    return I[what]
+
+
 def prepared(symbol: str, lag: int, window: int, early: int = 0, src: str = "oecd"):
     key = (symbol, lag, window, early, src)
     if key not in _cache:
@@ -173,6 +227,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         ts, hh, hl, hc = s["ts"], s["h"], s["l"], s["c"]
         L = P.HOLD_BARS[rule.hold_days]
         busy_until = -1
+        is_close = np.zeros(len(ts), bool)
+        is_close[s["last"]] = True                              # New York close bars: daily marks
         names = rule.signal.split("|")
         signal = {sd: np.logical_or.reduce([np.nan_to_num(defs[nm][0 if sd > 0 else 1](I)).astype(bool)
                                             for nm in names]) for sd in (1, -1)}
@@ -195,6 +251,16 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 if rule.confirm_src and not (side * extra(symbol, s, I, "confirm:" + rule.confirm_src, rule)[i] >= 0):
                     continue
                 if rule.max_cot < 1e9 and side * extra(symbol, s, I, "cot", rule)[i] > rule.max_cot:
+                    continue
+                if rule.skip_cb_week and news(symbol, s, I, "cb_week")[i]:
+                    continue
+                if rule.skip_cb_ahead and news(symbol, s, I, f"cb_ahead:{rule.skip_cb_ahead}")[i]:
+                    continue
+                if rule.skip_us_data and news(symbol, s, I, "us_data")[i]:
+                    continue
+                if rule.max_jump_atr < 1e9 and not news(symbol, s, I, "jump")[i] <= rule.max_jump_atr:
+                    continue
+                if rule.min_jump_atr and not news(symbol, s, I, "jump")[i] >= rule.min_jump_atr:
                     continue
                 if rule.fund == "rates_up" and not (side * I["rates_mom"][i] >= rule.rates_thr):
                     continue
@@ -233,6 +299,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     continue
                 result, reason, exit_k = None, "CAS", first + L - 1
                 stop, best = SL, 0.0
+                marks = []                                       # (NY close ts, open result in % of the price)
                 for j in range(first, first + L):
                     fav = (hh[j] - half - entry) if side > 0 else (entry - (hl[j] + half))
                     adv = (entry - (hl[j] - half)) if side > 0 else ((hh[j] + half) - entry)
@@ -245,6 +312,9 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                         result, reason, exit_k = TP, "TP", j
                         break
                     best = max(best, fav)
+                    if is_close[j]:
+                        now_close = (hc[j] - half - entry) if side > 0 else (entry - (hc[j] + half))
+                        marks.append((int(ts[j]) + 3600, now_close / entry * 100))
                     if rule.be_atr and best >= rule.be_atr * atr:
                         stop = 0.0                               # from the next hour: out at the entry price
                     if rule.stall_days and j == first + rule.stall_days * 24 - 1:
@@ -261,7 +331,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                                "t_in": int(ts[fill]), "t_out": int(ts[exit_k]) + 3600, "reason": reason,
                                "price_pct": pct, "margin_pct": pct * P.LEVERAGE, "days": held,
                                "tp_pct": TP / entry * 100 * P.LEVERAGE, "sl_pct": SL / entry * 100 * P.LEVERAGE,
-                               "mfe_atr": best / atr})               # best move for the trade before its exit
+                               "mfe_atr": best / atr,               # best move for the trade before its exit
+                               "marks": [(m, v * P.LEVERAGE) for m, v in marks if m < int(ts[exit_k]) + 3600],
+                               "size_factor": rule.cb_size if rule.cb_size != 1.0 and news(symbol, s, I, "cb_ahead:7")[i]
+                               else 1.0})
                 busy_until = exit_k
     return sorted(trades, key=lambda t: t["t_in"])
 

@@ -53,6 +53,8 @@ header.top { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baselin
 .kv dd { margin: 0; text-align: right; font-family: var(--f-num); font-variant-numeric: tabular-nums; }
 .plan { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
 .plan th, .plan td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); text-align: right; }
+.plan th { letter-spacing: 0; text-transform: none; font-size: 0.78rem; white-space: normal; }
+.chip { max-width: 100%; white-space: normal; }
 .plan th:first-child, .plan td:first-child { text-align: left; }
 .plan tr.slrow td { border-bottom: 0; }
 .prob { display: flex; align-items: baseline; gap: 8px; }
@@ -96,7 +98,7 @@ details summary { cursor: pointer; font-weight: 600; }
   </header>
 
   <section class="sheet" aria-labelledby="h-sig">
-    <header><h2 id="h-sig">Signály k obchodu</h2><span class="small muted" id="sig-note">Nové signály se počítají každý pátek ve 22:05 (náš čas).</span></header>
+    <header><h2 id="h-sig">Signály k obchodu</h2><span class="small muted" id="sig-note">Ceny se obnovují každou hodinu; signál k obchodu vzniká v pátek ve 22:05 (náš čas).</span></header>
     <div class="row small">
       <label for="ucet" class="muted">Velikost mého účtu (Kč), jen pro přepočet:</label>
       <input id="ucet" class="num" inputmode="decimal" style="max-width: 11em" placeholder="např. 100000">
@@ -115,6 +117,16 @@ details summary { cursor: pointer; font-weight: 600; }
       <thead><tr><th class="r">#</th><th>Pár</th><th>Stav</th><th class="r">Pravděpodobnost úspěchu</th><th>Směr podle sazeb</th><th>Síla</th><th class="r">Cena</th><th class="r">RSI(2)</th><th>Kdy bude signál</th></tr></thead>
       <tbody id="pairs"><tr><td colspan="9" class="muted">Data se načítají…</td></tr></tbody>
     </table></div>
+  </section>
+
+  <section class="sheet" aria-labelledby="h-news">
+    <header><h2 id="h-news">Zprávy a centrální banky</h2><span class="small muted">Kalendář na 7 dní (střední a vysoký dopad), časy jsou naše. Obnovuje se každou hodinu ve všední dny.</span></header>
+    <div class="stats" id="banks"></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Kdy</th><th>Měna</th><th>Zpráva</th><th>Dopad</th><th class="r">Odhad</th><th class="r">Minule</th></tr></thead>
+      <tbody id="news"><tr><td colspan="6" class="muted">Data se načítají…</td></tr></tbody>
+    </table></div>
+    <p class="small muted" id="news-note">Jak model se zprávami pracuje: rozhodnutí centrálních bank (Fed, ECB, BoJ, BoE) a americká data (NFP, CPI) od roku 2012 testuje na historii. Obchody otevřené do 7 dní před rozhodnutím centrální banky vydělávaly méně. Jejich vynechání ale snížilo roční výnos (méně obchodů) a poloviční pozice zatím také neprošla testem, proto to pravidlo zatím nedělá. U párů ukazujeme, kdy se zpráva blíží – ber to jako upozornění na vyšší riziko.</p>
   </section>
 
   <div class="two">
@@ -208,7 +220,9 @@ details summary { cursor: pointer; font-weight: 600; }
   function renderStatus() {
     if (!state) return;
     $("status").innerHTML = `<span>Aktualizováno <b class="num">${esc(praha(state.aktualizovano))}</b></span><span>Ceny do <span class="num">${esc(state.den_dat)}</span></span>`
-      + (state.varovani || []).map((v) => `<div class="notice" style="flex-basis: 100%">⚠ ${esc(v)}</div>`).join("");
+      + `<span>Obnova každou hodinu ve všední dny</span>`
+      + (state.varovani || []).map((v) => `<div class="notice" style="flex-basis: 100%">⚠ ${esc(v)}</div>`).join("")
+      + ((state.diagnostika && state.diagnostika.souhrn && state.diagnostika.souhrn.CHYBA) ? `<div class="notice" style="flex-basis: 100%">⚠ Kontrola dat našla chybu: ${esc((state.diagnostika.problemy || []).join("; "))}</div>` : "");
   }
 
   function planTable(par, plan, side) {
@@ -257,7 +271,7 @@ details summary { cursor: pointer; font-weight: 600; }
     if (!state) return;
     const acc = parseNum($("ucet").value);
     const list = (state.signaly || []).slice().sort((a, b) => (b.pravdepodobnost_uspechu || b.odhad_uspesnosti || 0) - (a.pravdepodobnost_uspechu || a.odhad_uspesnosti || 0));
-    $("sig-note").textContent = state.je_patek ? "Páteční vyhodnocení – zadej do 23:00 (náš čas)." : "Nové signály se počítají každý pátek ve 22:05 (náš čas).";
+    $("sig-note").textContent = state.je_patek ? "Páteční vyhodnocení – zadej do 23:00 (náš čas)." : "Ceny se obnovují každou hodinu; signál k obchodu vzniká v pátek ve 22:05 (náš čas).";
     if (!list.length) {
       $("signals").innerHTML = `<div class="empty">${state.je_patek ? "Tento pátek žádný pár nesplnil podmínky. Žádný obchod – i to je rozhodnutí." : "Teď není pátek, takže nový signál není. Podívej se do Sledovaných párů, které páry jsou blízko."}</div>`;
       return;
@@ -301,14 +315,14 @@ details summary { cursor: pointer; font-weight: 600; }
         <td>${sideChip(p.smer)}<div class="small muted">sazby ${sgn(p.zmena_sazeb_3m, 2)} p.b., rozdíl ${sgn(p.rozdil_sazeb, 2)} %</div></td>
         <td>${tierChip(p.stupen)}</td><td class="r num">${fmt(p.cena, p.desetinna_mista)}</td>
         <td class="r num"><span class="${rsiCls}">${fmt(p.rsi2, 0)}</span></td>
-        <td class="small">${esc(p.podminka || "")}${goal}${p.varovani ? `<div class="small"><span class="chip warn">⚠ ${esc(p.varovani)}</span></div>` : ""}</td></tr>`;
+        <td class="small">${esc(p.podminka || "")}${goal}${p.varovani ? `<div class="small"><span class="chip warn">⚠ ${esc(p.varovani)}</span></div>` : ""}${(p.udalosti_24h || []).length ? `<div class="small"><span class="chip warn">zprávy do 24 h: ${esc(p.udalosti_24h.join(", "))}</span></div>` : ""}${(p.banka_7_dni || []).length ? `<div class="small"><span class="chip warn">centrální banka do 7 dní: ${esc(p.banka_7_dni.join(", "))}</span></div>` : ""}</td></tr>`;
     }).join("");
   }
 
   function renderFund() {
     if (!state) return;
     $("fund").innerHTML = (state.fundamenty || []).map((f) => `<tr><td><b>${esc(f.mena)}</b> <span class="small muted">${esc(f.nazev)}</span></td>
-      <td class="r num">${fmt(f.sazba_3m, 2)} %${f.zastarale ? `<div class="small"><span class="chip warn">stará data (${esc(f.zastarale)})</span></div>` : ""}</td><td class="r num ${f.zmena_3m > 0 ? "pos" : f.zmena_3m < 0 ? "neg" : ""}">${sgn(f.zmena_3m, 2)}</td></tr>`).join("");
+      <td class="r num">${fmt(f.sazba_3m, 2)} %${f.zastarale ? `<div class="small"><span class="chip warn">stará data (${esc(f.zastarale)})</span></div>` : ""}${f.doplneno && !f.zastarale ? `<div class="small muted">od ${esc(f.doplneno)} doplněno krátkodobou sazbou${f.mena === "GBP" ? " SONIA" : ""}</div>` : ""}</td><td class="r num ${f.zmena_3m > 0 ? "pos" : f.zmena_3m < 0 ? "neg" : ""}">${sgn(f.zmena_3m, 2)}</td></tr>`).join("");
     if (state.vix) $("vix").textContent = `Index strachu VIX: ${fmt(state.vix.hodnota, 1)} (${new Date(state.vix.den).toLocaleDateString("cs-CZ")})`;
     const r = state.pravidlo_popis || {}, b = state.backtest || {};
     const tiers = (r.stupne || []).filter((t) => t.marze_proc_uctu > 0).map((t) => `<li><b>${esc(CZ[t.jmeno] || t.jmeno)}</b>: sazby ve směru obchodu ≥ ${fmt(t.prah_sazeb, 2)} p.b.${t.carry ? " a kladný úrokový rozdíl" : ""}; signál ${esc(t.signal.replace("|", " nebo "))} → marže <b>${fmt(t.marze_proc_uctu, 0)} % účtu</b></li>`).join("");
@@ -316,6 +330,17 @@ details summary { cursor: pointer; font-weight: 600; }
       <ul>${tiers}</ul>
       <p>Take profit ${fmt(r.tp_atr, 2)} × ATR, stop loss ${fmt(r.sl_atr, 1)} × ATR, nejdéle ${esc(r.drzeni_dni)} obchodních dní. ATR = průměrný denní rozkmit ceny.</p>
       <p class="muted">Backtest (velikosti vybrané jen na starších datech): 2019–22 ${sgn(b.test_2019_22 && b.test_2019_22.rocne, 1)} % ročně (propad ${fmt(b.test_2019_22 && b.test_2019_22.propad, 0)} %), 2023–26 ${sgn(b.test_2023_26 && b.test_2023_26.rocne, 1)} % ročně (propad ${fmt(b.test_2023_26 && b.test_2023_26.propad, 0)} %).</p>`;
+  }
+
+  function renderNews() {
+    if (!state) return;
+    const banks = state.centralni_banky || [];
+    $("banks").innerHTML = banks.map((b) => `<div class="stat"><span class="label">${esc(b.banka)} rozhodne</span><span class="v">${esc(b.text)}</span><span class="small muted">za ${esc(b.dni)} dní</span></div>`).join("");
+    const ev = state.udalosti || [];
+    $("news").innerHTML = ev.length ? ev.map((e) => `<tr class="${e.probehlo ? "muted" : ""}"><td class="num">${esc(e.praha)}</td><td><b>${esc(e.mena)}</b></td><td>${esc(e.udalost)}</td>
+      <td>${e.dopad === "vysoký" ? '<span class="chip warn">vysoký</span>' : '<span class="chip">střední</span>'}</td><td class="r num">${esc(e.odhad || "–")}</td><td class="r num">${esc(e.minule || "–")}</td></tr>`).join("")
+      : `<tr><td colspan="6" class="muted">Kalendář teď není k dispozici.</td></tr>`;
+    if (state.zpravy_poznamka) $("news-note").textContent = state.zpravy_poznamka;
   }
 
   function result(t) {
@@ -339,7 +364,9 @@ details summary { cursor: pointer; font-weight: 600; }
       return `<div class="trade" data-id="${esc(t._id)}">
         <div class="row">${sideChip(t.smer)}<b>${esc(t.par)}</b><span class="num">vstup ${fmt(t.vstup, dec(t.par))}</span>
           ${t.sl ? `<span class="num neg">SL ${fmt(t.sl, dec(t.par))}</span>` : ""}${t.tp ? `<span class="num pos">TP ${fmt(t.tp, dec(t.par))}</span>` : ""}
-          ${live !== null ? `<span class="small muted">teď orientačně ${sgn(live, 1)} % marže</span>` : ""}</div>
+          ${live !== null ? `<span class="small muted">teď orientačně ${sgn(live, 1)} % marže</span>` : ""}
+          ${now && t.sl && side * (now - t.sl) <= 0 ? '<span class="chip warn">cena je za stop lossem – zkontroluj u brokera</span>' : ""}
+          ${now && t.tp && side * (now - t.tp) >= 0 ? '<span class="chip strong">cena dosáhla take profitu – zkontroluj u brokera</span>' : ""}</div>
         <div class="small muted">${esc(praha(t.cas_vstupu))}${t.poznamka ? " · " + esc(t.poznamka) : ""}</div>
         <div class="row"><input class="num" style="max-width:10em" inputmode="decimal" placeholder="výstupní cena" aria-label="Výstupní cena ${esc(t.par)}" data-exit>
           <button type="button" data-close ${canWrite ? "" : "disabled"}>Vystoupil jsem</button>
@@ -394,7 +421,7 @@ details summary { cursor: pointer; font-weight: 600; }
       : `<tr><td colspan="8" class="muted">Dopředný test začíná prvním pátečním signálem.</td></tr>`;
   }
 
-  function renderAll() { renderStatus(); renderSignals(); renderReady(); renderPairs(); renderFund(); renderModel(); renderJournal(); }
+  function renderAll() { renderStatus(); renderSignals(); renderReady(); renderPairs(); renderNews(); renderFund(); renderModel(); renderJournal(); }
 
   $("entry").addEventListener("submit", async (ev) => {
     ev.preventDefault();

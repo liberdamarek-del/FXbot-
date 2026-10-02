@@ -60,6 +60,32 @@ def _legs(trade: dict) -> tuple[str, str]:
     return (base, quote) if trade["side"] > 0 else (quote, base)
 
 
+def mtm_drawdown(taken: list[dict], margins: list[float]) -> float:
+    """Largest drop of the account valued at every New York close with the
+    open trades at their current price (realized results + open results);
+    trades without daily marks (synthetic tests) count at their exit only."""
+    if not taken:
+        return 0.0
+    times, deltas = [], []                                  # realized result at each exit
+    for t, m in zip(taken, margins):
+        times.append(t["t_out"])
+        deltas.append(m * t["margin_pct"] / 100)
+    mark_t, mark_v = [], []
+    for t, m in zip(taken, margins):
+        for when, v in t.get("marks", ()):
+            mark_t.append(when)
+            mark_v.append(m * v / 100)
+    grid = np.unique(np.concatenate([np.array(times, dtype=np.int64), np.array(mark_t, dtype=np.int64)]))
+    order = np.argsort(times)
+    realized = np.concatenate([[0.0], np.cumsum(np.array(deltas)[order])])
+    done = np.searchsorted(np.array(times)[order], grid, side="right")
+    equity = 1.0 + realized[done]
+    if mark_t:
+        equity = equity + np.bincount(np.searchsorted(grid, mark_t), weights=mark_v, minlength=len(grid))
+    peak = np.maximum.accumulate(np.maximum(equity, 1.0))
+    return float(np.max(1 - equity / peak))
+
+
 def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_ccy: int | None = None) -> dict:
     """Chronological account with compounding, one position per pair. `share`
     = margin share of the equity per trade, one number or one per list."""
@@ -77,6 +103,7 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
     busy = set()
     taken, monthly, wins_m = [], defaultdict(float), defaultdict(int)
     max_used, max_open = 0.0, 0
+    margins = []
     start_equity_month = {}
 
     def close_until(moment):
@@ -104,7 +131,7 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
             if sum(1 for b, _ in legs if b == bought) >= max_ccy or sum(1 for _, q in legs if q == sold) >= max_ccy:
                 continue
         used = sum(m for _, _, m, _ in open_pos)
-        margin = shares[rank] * equity * tr.get("size_mult", 1.0)
+        margin = shares[rank] * equity * tr.get("size_mult", 1.0) * tr.get("size_factor", 1.0)
         if used + margin > MARGIN_CAP * equity:
             continue
         max_used = max(max_used, (used + margin) / equity)
@@ -112,7 +139,9 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
         open_pos.append((tr["t_out"], tr["pair"], margin, tr))
         busy.add(tr["pair"])
         taken.append(tr)
+        margins.append(margin)
     close_until(10 ** 12)
+    dd_realized, max_dd = max_dd, mtm_drawdown(taken, margins)
     first = min(t["t_in"] for t in taken) if taken else 0
     last = max(t["t_out"] for t in taken) if taken else 1
     span_years = max((last - first) / 86400 / 365.25, 1e-9)
@@ -124,6 +153,7 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
             months.append(f"{y}-{m:02d}")
             y, m = (y + 1, 1) if m == 12 else (y, m + 1)
     return {"equity": equity, "cagr": equity ** (1 / span_years) - 1 if equity > 0 else -1.0, "max_dd": max_dd,
+            "max_dd_realized": dd_realized,
             "trades": taken, "n_year": len(taken) / span_years,
             "win": np.mean([t["margin_pct"] > 0 for t in taken]) if taken else 0,
             "e": np.mean([t["margin_pct"] for t in taken]) if taken else 0,

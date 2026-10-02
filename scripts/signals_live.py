@@ -94,7 +94,7 @@ def daily(hb: dict) -> dict:
 
 def refresh_rates() -> None:
     RF.FRED_DIR.mkdir(parents=True, exist_ok=True)
-    ids = [i for ids in P.RATE_IDS.values() for i in ids] + ["VIXCLS"]
+    ids = [i for ids in P.RATE_IDS.values() for i in ids] + list(P.EXTEND_IDS.values()) + ["VIXCLS"]
     for sid in sorted(set(ids)):
         try:
             _, content, _ = fetch(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}", retries=3)
@@ -141,15 +141,17 @@ def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, ki
                    "proc_marze": round(base["sl"] * atr / entry * 100 * P.LEVERAGE, 1)}}
 
 
-def decision_ready(day: date, last_bar_open: int) -> bool:
-    """True when `day` is a Friday and the hourly bars reach its close
-    (the last bar opens at 15:00 New York or later, the close is 17:00): only
-    then is the weekly decision made. Earlier on Friday the daily bar is
-    unfinished and an RSI signal would come from a partial day."""
+def decision_ready(day: date, last_bar_open: int, now: float | None = None) -> bool:
+    """True when `day` is a Friday whose close is reached: the hourly bars go
+    to 15:00 New York or later (the close is 17:00) and the clock is past
+    16:00 New York (the decision time, ~1 hour before the close, as tested).
+    Earlier on Friday the daily bar is unfinished and an RSI signal would come
+    from a partial day (the hourly updates run all Friday)."""
     if day.weekday() != 4:
         return False
     close = datetime(day.year, day.month, day.day, 17, tzinfo=NEW_YORK).timestamp()
-    return close - (last_bar_open + 3600) <= 3600
+    now = time.time() if now is None else now
+    return close - (last_bar_open + 3600) <= 3600 and now >= close - 3600
 
 
 def stale_rates(rates: dict, day: date) -> dict:
@@ -368,7 +370,8 @@ def main() -> int:
         now_r, old_r = P.rate_at(rates[ccy], day.year, day.month, 2), P.rate_at(rates[ccy], day.year, day.month, 5)
         fund.append({"mena": ccy, "nazev": CCY_CZ[ccy], "sazba_3m": None if now_r is None else round(now_r, 2),
                      "zmena_3m": None if now_r is None or old_r is None else round(now_r - old_r, 2),
-                     "zastarale": stale.get(ccy)})
+                     "zastarale": stale.get(ccy),
+                     "doplneno": "%d-%02d" % P.EXTENDED[ccy] if ccy in P.EXTENDED else None})
     vix_rows = RF._csv("VIXCLS")
     ev = ch["eval"]
     state = {

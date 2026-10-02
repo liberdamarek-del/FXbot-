@@ -317,3 +317,31 @@ the fundamentals question, improvement plan. Fixed today (no change of the tradi
 - New `scripts/diagnostika.py` (read-only health check) and `test_f1_live_model.py` (decision time,
   rates, cache, simulator, account); suite 50/50 PASS.
 Open: H3 drawdown measured only at exits (mark-to-market 24-36 % vs 20-26 %), M2-M8 (see audit).
+
+## R-016 - news, fresh rates, honest drawdown, hourly updates and learning 3x a day (2026-10-02)
+
+User's requests: updates every 30 min and learning several times a day, all fundamentals, fresh rates.
+- Rates: the OECD 3-month series that stop or lag are continued by the change of the OECD immediate rate
+  (`profit_lab2.EXTEND_IDS`; GBP = SONIA monthly average, from 2026-02; JPY from 2026-08). GBP 2012-2026:
+  3-month changes correlate 0.88 with the 3-month series, same sign in 90 % of moves >= 0.1. Backtest before
+  the extension unchanged. Dashboard notes the substitute.
+- Drawdown (audit H3): `portfolio_sim.mtm_drawdown` values open trades at every New York close (simulator
+  records daily marks); fit and gate use it. Champions re-evaluated (EVAL_VERSION 2): monthly profile
+  2019-22 +72.8 % / dd 27 %, 2023-26 +20.9 % / dd 19 %, tier margins 12/12/6/5 % (were 15/15/6/6).
+- Gate: in addition at least as good as the champion in >= 3 of the 4 two-year blocks of the tests
+  (many more experiments a week). Champion re-evaluated whenever prices, rate months or the evaluation change.
+- News data: `scripts/fundamenty.py` - scheduled decisions Fed 2012-2027, ECB 2012-2028, BoJ 2012-2027,
+  BoE 2012-2026 (8/2015-12/2016 missing), US NFP and CPI release dates (ALFRED) -> learning/udalosti_historie.json;
+  OECD CPI / unemployment (incomplete, not used yet). docs/ZPRAVY.md: champion trades entered <= 7 days
+  before a decision of either currency's central bank earned +6.5 / +2.2 / +4.1 % of the margin vs
+  +10.0 / +16.0 / +7.2 % without (2012-18 / 2019-22 / 2023-26).
+- Round 4 experiments (both profiles), all rejected: skip 5 / 7 / 10 days before a decision, weak tiers
+  only, US NFP/CPI week, news shock > 0.75 ATR (fewer trades -> lower annual return; the monthly profile
+  then misses 2 wins a month); half size before a decision (monthly profile: 2019-22 +73.0 % at dd 20 %
+  vs +72.8 % at 27 %, 2023-26 +29.6 % vs +20.9 % - failed the >= 1 pp gain in 2019-22).
+- Live: `scripts/aktualizace.py` (diagnostics, signals, ForexFactory week calendar, next central bank
+  decisions, the user's journal from the dashboard - snapshot not in git); dashboard section "Zprávy a
+  centrální banky", per-pair warnings (high-impact news in 24 h, central bank within 7 days), SL/TP alerts
+  in the journal, phone layout fix. Friday decision only from 16:00 New York (hourly runs on Friday).
+- Routines: hourly updates on weekdays (the platform's minimum interval is 1 hour - 30 min was refused),
+  learning on weekdays 07:40 / 12:40 / 17:40 Prague + Saturday with data downloads, Friday signals 16:05 NY.

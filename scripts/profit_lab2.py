@@ -76,6 +76,15 @@ RATE_IDS = {"USD": [RF.US_RATE], **{c: v[2] for c, v in RF.CURRENCIES.items() if
             "PLN": ["IR3TIB01PLM156N"], "HUF": ["IR3TIB01HUM156N"], "CZK": ["IR3TIB01CZM156N"]}
 
 
+# OECD monthly immediate (overnight) rates - for GBP the SONIA monthly average - that continue a
+# 3-month series whose source stopped or lags (the OECD GBP 3-month rate ends 2026-01): after the
+# last 3-month value the rate moves by the change of this series. GBP 2012-2026: 3-month changes
+# correlate 0.88 with the 3-month series, same sign in 90 % of the moves >= 0.1 (audit 2026-10-02).
+EXTEND_IDS = {c: f"IRSTCI01{cc}M156N" for c, cc in (("USD", "US"), ("JPY", "JP"), ("GBP", "GB"), ("AUD", "AU"),
+                                                    ("CAD", "CA"))}
+EXTENDED: dict = {}                                       # currency -> first month taken from the extension
+
+
 def monthly_rates() -> dict:
     out = {}
     for ccy, ids in RATE_IDS.items():
@@ -83,6 +92,14 @@ def monthly_rates() -> dict:
         for sid in ids:                                     # later series override older ones
             for d, v in RF._csv(sid):
                 series[(d.year, d.month)] = v
+        ext_id = EXTEND_IDS.get(ccy)
+        if ext_id and series and (RF.FRED_DIR / f"{ext_id}.csv").exists():
+            ext = {(d.year, d.month): v for d, v in RF._csv(ext_id)}
+            last = max(series)
+            if last in ext:
+                for k in sorted(k for k in ext if k > last):
+                    series[k] = series[last] + ext[k] - ext[last]
+                    EXTENDED.setdefault(ccy, k)
         out[ccy] = series
     return out
 
