@@ -144,7 +144,9 @@ def extra(symbol: str, s: dict, I: dict, what: str, rule) -> np.ndarray:
     COT crowding difference (base minus quote speculator z-score, 0 for USD)."""
     if what in I:
         return I[what]
-    if what.startswith("confirm:"):
+    if what.startswith("confirm:oecd"):                 # OECD rate difference change over another window (months)
+        I[what] = prepared(symbol, rule.rates_lag, int(what.split("oecd")[1]), rule.early_h)[1]["rates_mom"]
+    elif what.startswith("confirm:"):
         src = what.split(":", 1)[1]
         lag = rule.rates_lag if src.endswith("lag") else 0
         kind = "policy" if src.startswith("policy") else "short"

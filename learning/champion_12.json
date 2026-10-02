@@ -176,7 +176,15 @@
   "silne_cil_1_atr",
   "silny_dve_casti",
   "silny_i_pruraz",
-  "silny_i_3_dny"
+  "silny_i_3_dny",
+  "silny_trend",
+  "sazby_6m_potvrzeni",
+  "sazby_6m_potvrzeni_slabe",
+  "sazby_12m_potvrzeni_slabe",
+  "sazby_okno_6m",
+  "brzda_10_polovina",
+  "brzda_15_polovina",
+  "brzda_5_dvetretiny"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v3"
 }

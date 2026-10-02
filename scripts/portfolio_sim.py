@@ -86,9 +86,12 @@ def mtm_drawdown(taken: list[dict], margins: list[float]) -> float:
     return float(np.max(1 - equity / peak))
 
 
-def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_ccy: int | None = None) -> dict:
+def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_ccy: int | None = None,
+                  brake=None) -> dict:
     """Chronological account with compounding, one position per pair. `share`
-    = margin share of the equity per trade, one number or one per list."""
+    = margin share of the equity per trade, one number or one per list. `brake`
+    = (drawdown, factor): while the account (closed trades) is more than
+    `drawdown` below its peak, new trades get `factor` x the margin."""
     shares = list(share) if isinstance(share, (list, tuple)) else [share] * len(trade_lists)
     events = []
     for rank, trades in enumerate(trade_lists):
@@ -137,6 +140,8 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
                 continue
         used = sum(m for _, _, m, _ in open_pos)
         margin = shares[rank] * equity * tr.get("size_mult", 1.0) * tr.get("size_factor", 1.0)
+        if brake and equity < (1 - brake[0]) * peak:
+            margin *= brake[1]
         if used + margin > MARGIN_CAP * equity:
             continue
         max_used = max(max_used, (used + margin) / equity)

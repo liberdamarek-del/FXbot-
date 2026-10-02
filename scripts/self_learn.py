@@ -196,7 +196,7 @@ def fit_shares(lists, cfg, years) -> tuple:
             continue
         if sh[0] > cfg.get("max_share", 1.0):         # optional risk cap on the margin per trade
             continue
-        r = PS.run_portfolio(lists, list(sh), years, cfg.get("max_ccy"))
+        r = PS.run_portfolio(lists, list(sh), years, cfg.get("max_ccy"), cfg.get("brake"))
         if r["wins_month"] < PROFILE["min_wpm"] or r["months_2wins"] < PROFILE["min_m2"]:
             continue
         if r["max_dd"] <= DD_MAX and r["cagr"] > best[0]:
@@ -212,7 +212,7 @@ def evaluate(cfg: dict) -> dict:
         if sh is None:
             out[k] = None
             continue
-        r_test = PS.run_portfolio(lists, list(sh), test, cfg.get("max_ccy"))
+        r_test = PS.run_portfolio(lists, list(sh), test, cfg.get("max_ccy"), cfg.get("brake"))
         g1 = group_one(cfg)
         e_g = {g: [t["margin_pct"] for t in r_test["trades"] if (t["pair"] in g1) == (g == "G1")] for g in ("G1", "G2")}
         out[k] = {"e_G1": float(np.mean(e_g["G1"])) if e_g["G1"] else 0.0,
@@ -220,7 +220,7 @@ def evaluate(cfg: dict) -> dict:
                   "test_dd": r_test["max_dd"], "test_n_year": r_test["n_year"], "test_win": r_test["win"],
                   "test_wins_month": r_test["wins_month"], "test_months_2wins": r_test["months_2wins"],
                   "blocks": [[r["cagr"], r["max_dd"]] for r in
-                             (PS.run_portfolio(lists, list(sh), b, cfg.get("max_ccy")) for b in BLOCKS[k])]}
+                             (PS.run_portfolio(lists, list(sh), b, cfg.get("max_ccy"), cfg.get("brake")) for b in BLOCKS[k])]}
     return out
 
 
@@ -472,6 +472,31 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: [{**t[0], "signal": t[0].get("signal", "D RSI2<5") + "|D Donchian20 pruraz"}] + t[1:])),
     ("silny_i_3_dny", "nejsilnejsi stupen bere i 3 dny poklesu za sebou",
      lambda c: _tiers(c, lambda t: [{**t[0], "signal": t[0].get("signal", "D RSI2<5") + "|D 3 dny dolu"}] + t[1:])),
+    # round 18: one hypothesis from round 17 - with strong rate support the pair trends, so the strongest tier
+    # behaves like a trend trader (buys dips AND breakouts, lets half of the position run to 1.5 ATR). Note: the two
+    # parts were each tried alone in round 17 (each better in one test period), so this pair is chosen after seeing
+    # them - the 2-year blocks and the forward test must confirm it
+    ("silny_trend", "nejsilnejsi stupen jako trendovy obchodnik: propad i pruraz, pulka cil 0.75 ATR, pulka 1.5 ATR",
+     lambda c: _tiers(c, lambda t: [{**t[0], "signal": t[0].get("signal", "D RSI2<5") + "|D Donchian20 pruraz",
+                                     "tp_parts": (0.75, 1.5)}] + t[1:])),
+    # round 19: quality of the rate signal (the only consistent driver, docs/OBCHODNIK.md). A divergence of monetary
+    # policies lasts quarters; a 3-month change against a longer one can be a blip that reverses
+    ("sazby_6m_potvrzeni", "vsechny stupne: i zmena rozdilu sazeb za 6 mesicu ukazuje stejnym smerem",
+     lambda c: _tiers(c, lambda t: [{**x, "confirm_src": "oecd6"} for x in t])),
+    ("sazby_6m_potvrzeni_slabe", "slabsi stupne: i zmena rozdilu sazeb za 6 mesicu ukazuje stejnym smerem",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "oecd6"} for x in t[2:]])),
+    ("sazby_12m_potvrzeni_slabe", "slabsi stupne: i zmena rozdilu sazeb za 12 mesicu ukazuje stejnym smerem",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "oecd12"} for x in t[2:]])),
+    ("sazby_okno_6m", "zmena rozdilu sazeb se meri za 6 mesicu misto 3 (prahy stejne)",
+     lambda c: _tiers(c, lambda t: [{**x, "rates_window": 6} for x in t])),
+    # round 20: a trader trades smaller after a bad run (the losers come in clusters, docs/CHANGE_LOG.md R-024);
+    # live: the model's own account from the forward test decides
+    ("brzda_10_polovina", "kdyz je ucet modelu vic nez 10 % pod maximem, nove obchody polovicni",
+     lambda c: _with(c, brake=[0.10, 0.5])),
+    ("brzda_15_polovina", "kdyz je ucet modelu vic nez 15 % pod maximem, nove obchody polovicni",
+     lambda c: _with(c, brake=[0.15, 0.5])),
+    ("brzda_5_dvetretiny", "kdyz je ucet modelu vic nez 5 % pod maximem, nove obchody na 2/3",
+     lambda c: _with(c, brake=[0.05, 0.67])),
 ]
 
 
