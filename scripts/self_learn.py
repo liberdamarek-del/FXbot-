@@ -264,7 +264,7 @@ def _with(cfg, **changes):
     for k, v in changes.items():
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
-                 "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop"):
+                 "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop", "cb_tight"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -504,6 +504,11 @@ EXPERIMENTS = [
      lambda c: _with(c, close_stop=1.25)),
     ("stop_3_na_zavreni_2", "stop 3 ATR pri zavreni dne, behem dne nouzovy stop 6 ATR",
      lambda c: _with(c, sl=3.0, close_stop=2.0)),
+    # round 22 (ideas queue): instead of closing a losing trade before a decision (rejected), reduce its risk
+    ("pred_cb_ztrata_stop_1_atr", "obchod ve ztrate den pred rozhodnutim centralni banky: stop na 1 ATR od zavreni",
+     lambda c: _with(c, cb_tight=1.0)),
+    ("pred_cb_ztrata_stop_05_atr", "obchod ve ztrate den pred rozhodnutim centralni banky: stop na 0.5 ATR od zavreni",
+     lambda c: _with(c, cb_tight=0.5)),
 ]
 
 

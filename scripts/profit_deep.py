@@ -78,6 +78,8 @@ class Rule:
                                       # days after the signal and enter there (a trader's "wait until it turns")
     close_stop: float = 0.0           # > 0: the stop counts only at New York closes (a wick does not stop the trade);
                                       # intraday only a disaster stop at close_stop x the stop distance
+    cb_tight: float = 0.0             # > 0: a trade in loss at the NY close before a decision of either currency's
+                                      # central bank gets its stop tightened to this many ATR beyond that close
     decay_days: int = 0               # > 0: after this many trading days the target drops to decay_tp x ATR
     decay_tp: float = 0.0             # (a trader takes a smaller profit when the bounce is late)
     tp_retrace: float = 0.0           # > 0: target = this share of the last 5 days' move against the trade
@@ -499,6 +501,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                                  or (rule.exit_before_cb == "fed_long_usd" and usd_long)):
                             reason = close_open(now_close, j, "CB")
                             break
+                        if rule.cb_tight and j > first and cb_next[day_of[j]] and now_close <= 0:
+                            stop = min(stop, -now_close + rule.cb_tight * atr)
                         if now_close > 0 and j > first and (
                                 (rule.exit_before_us and us_next[day_of[j]])
                                 or (rule.exit_friday_profit and s["days"][day_of[j]].weekday() == 4)):

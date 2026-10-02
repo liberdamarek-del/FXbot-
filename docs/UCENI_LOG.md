@@ -1462,3 +1462,27 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+95.8%** rocne, propad 21%, 3.4 ziskovych/mesic (marze 20% / 20% / 10% / 3%), po 2 letech +115% / +82%, vynos/propad 4.50; 2023-26: **+21.4%** rocne, propad 46%, 2.2 ziskovych/mesic (marze 15% / 15% / 10% / 3%), po 2 letech +3% / +61%, vynos/propad 0.47
 * sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
 
+### 2026-10-02 - [champion_12_mesicne] pred_cb_ztrata_stop_1_atr: zamitnuto
+
+* obchod ve ztrate den pred rozhodnutim centralni banky: stop na 1 ATR od zavreni
+* kandidat: 2019-22: **+90.6%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 8% / 5%), po 2 letech +103% / +83%, vynos/propad 4.75; 2023-26: **+28.4%** rocne, propad 30%, 2.2 ziskovych/mesic (marze 20% / 20% / 8% / 5%), po 2 letech +24% / +40%, vynos/propad 0.96
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-02 - [champion_12_mesicne] pred_cb_ztrata_stop_05_atr: zamitnuto
+
+* obchod ve ztrate den pred rozhodnutim centralni banky: stop na 0.5 ATR od zavreni
+* kandidat: 2019-22: **+68.5%** rocne, propad 19%, 3.2 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +63% / +78%, vynos/propad 3.53; 2023-26: **+26.8%** rocne, propad 30%, 2.2 ziskovych/mesic (marze 20% / 20% / 8% / 5%), po 2 letech +26% / +33%, vynos/propad 0.90
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-02 - [champion_12] pred_cb_ztrata_stop_1_atr: zamitnuto
+
+* obchod ve ztrate den pred rozhodnutim centralni banky: stop na 1 ATR od zavreni
+* kandidat: 2019-22: **+90.4%** rocne, propad 28%, 3.3 ziskovych/mesic (marze 20% / 20% / 10% / 5%), po 2 letech +127% / +63%, vynos/propad 3.26; 2023-26: **+26.0%** rocne, propad 24%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 5%), po 2 letech +21% / +39%, vynos/propad 1.08
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
+### 2026-10-02 - [champion_12] pred_cb_ztrata_stop_05_atr: zamitnuto
+
+* obchod ve ztrate den pred rozhodnutim centralni banky: stop na 0.5 ATR od zavreni
+* kandidat: 2019-22: **+70.4%** rocne, propad 28%, 3.2 ziskovych/mesic (marze 20% / 20% / 10% / 5%), po 2 letech +86% / +59%, vynos/propad 2.54; 2023-26: **+24.5%** rocne, propad 23%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 5%), po 2 letech +23% / +31%, vynos/propad 1.05
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
