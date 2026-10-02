@@ -1,1 +1,30 @@
-[]
+[
+ {
+  "id": "2026-10-02_EURCHF",
+  "par": "EUR/CHF",
+  "smer": "KOUPIT",
+  "stupen": "silny",
+  "den": "2026-10-02",
+  "cas_vstupu": 1790971582,
+  "vstup": 0.93265,
+  "tp": 0.93654,
+  "sl": 0.91192,
+  "marze_proc_uctu": 20.0,
+  "stav": "otevreny",
+  "cb_vystup": true
+ },
+ {
+  "id": "2026-10-02_EURJPY",
+  "par": "EUR/JPY",
+  "smer": "KOUPIT",
+  "stupen": "stredni",
+  "den": "2026-10-02",
+  "cas_vstupu": 1790971582,
+  "vstup": 177.657,
+  "tp": 178.669,
+  "sl": 172.262,
+  "marze_proc_uctu": 6.0,
+  "stav": "otevreny",
+  "cb_vystup": true
+ }
+]
