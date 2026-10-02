@@ -26,8 +26,9 @@ add markets.
   `python scripts/self_learn.py --profile mesicne` and `python scripts/self_learn.py`. If a champion changed:
   `python scripts/champion_report.py --profile mesicne`, `python scripts/pair_stats.py`, then the Update steps.
   Note in docs/CHANGE_LOG.md, commit and push. Tell the user briefly what was tried and what passed.
-  The gate (since 2026-10-02): drawdown with open trades at daily closes, gain in both tests AND at least as
-  good in >= 3 of the 4 two-year blocks (many experiments a week -> guard against luck).
+  The gate v3 (user's decision 2026-10-02 evening): return per drawdown (CAGR / max dd, open trades at daily
+  closes) better by >= 10 % in both tests, >= 85 % of the champion's return, dd <= 30 %, >= 3 of 4 two-year
+  blocks at least as good; the monthly profile keeps >= 2 wins a month. The user allowed changing the rules.
 - Start every job with the diagnostics (inside aktualizace.py); on CHYBA other than a known open item
   (docs/AUDIT_2026-10-02.md) do not publish signals, report it.
 
@@ -54,6 +55,8 @@ re-downloaded by the scripts.
 - (done 2026-10-02 afternoon, R-020) literature anomalies (FOMC day, fixes, home hours, month-end
   rebalancing, dollar carry, momentum, value) and gate rounds 8-9 - all rejected; docs/ANOMALIE.md. Open
   question for the user: monthly profile with exit in profit before decisions + margin cap 15 %.
+- (done 2026-10-02 evening, R-021) gate v3; exit in profit before a central bank decision now in BOTH
+  profiles (live). Rejected: 3 targets, knife filter, daily strong tiers, half size / cap 15 % before decisions.
 - Next: macro trends (CPI y/y, unemployment; OECD SDMX in data/research/fundamenty/macro.json - JPY CPI ends
   2021, AUD monthly only from 2025, EUR/CHF/NZD unemployment missing: find sources first, e.g. Eurostat, e-Stat);
   meeting dates of SNB, RBA, BoC, RBNZ (sources reachable except RBNZ); BoE dates 8/2015-12/2016 missing;

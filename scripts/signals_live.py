@@ -130,6 +130,41 @@ def rsi_trigger(closes: np.ndarray, n: int, level: float, side: int) -> float:
 TP_LEVELS = (0.75, 1.0, 1.5)               # replaced by learning/pair_stats.json "tp_atr" when present
 
 
+CB_OF = {"USD": "FED", "EUR": "ECB", "JPY": "BOJ", "GBP": "BOE"}
+CB_LABEL = {"FED": "Fed", "ECB": "ECB", "BOJ": "BoJ", "BOE": "BoE"}
+DAYS_CZ = ("po", "út", "st", "čt", "pá", "so", "ne")
+
+
+def cb_decisions(pair: str, start: date, days: int = 28) -> list[date]:
+    """Scheduled decisions of the pair's central banks from `start` for `days` days (learning/udalosti_historie.json)."""
+    path = LEARNING / "udalosti_historie.json"
+    if not path.exists():
+        return []
+    ev = json.loads(path.read_text())
+    inst = get_instrument(pair)
+    out = []
+    for ccy in (inst.base, inst.quote):
+        bank = CB_OF.get(ccy)
+        for d in ev.get(bank, []) if bank else []:
+            dd = date.fromisoformat(d)
+            if start < dd <= start + timedelta(days=days):
+                out.append((dd, CB_LABEL[bank]))
+    return sorted(out)
+
+
+def cb_exit_note(pair: str, start: date, base: dict) -> dict | None:
+    """The champion closes a trade that is in profit at the New York close of the trading day before a
+    scheduled decision of either currency's central bank (rule exit_before_cb = "zisk", R-021)."""
+    if base.get("exit_before_cb") != "zisk":
+        return None
+    dates = cb_decisions(pair, start)
+    when = ", ".join(f"{b} {DAYS_CZ[d.weekday()]} {d.day}. {d.month}." for d, b in dates)
+    return {"pravidlo": "Když je obchod v zisku, zavři ho při zavření trhu (23:00 našeho času) den před rozhodnutím "
+                        "centrální banky jeho měn. Ve ztrátě ho nech běžet dál k cíli nebo stop lossu.",
+            "rozhodnuti": [{"den": d.isoformat(), "banka": b} for d, b in dates],
+            "text": f"Rozhodnutí v příštích 4 týdnech: {when}" if dates else "V příštích 4 týdnech žádné rozhodnutí."}
+
+
 def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, kind: str) -> dict:
     """Entry, three targets and the stop for one trade (prices and % of the margin)."""
     stats_path = LEARNING / "pair_stats.json"
@@ -215,6 +250,9 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
         level = max(trig) if side > 0 else min(trig)     # the easier of the two signals
         out["spoustec"] = round(level, inst.decimals)
         out["plan"] = make_plan(side, level, float(atr[-1]), base, inst.decimals, "podminka")
+        note = cb_exit_note(pair, day, base)
+        if note:
+            out["plan"]["pred_rozhodnutim"] = note
         word, rel = ("KOUPIT", "pod") if side > 0 else ("PRODAT", "nad")
         if day.weekday() == 4:
             out["podminka"] = f"{word}, kdyz patecni zaviraci cena bude {rel} {level:.{inst.decimals}f}"
@@ -241,7 +279,8 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
                     "marze_proc_uctu": round(shares[k] * mult * 100, 1),
                     "zisk_tp_proc_marze": round(tp_margin, 1), "ztrata_sl_proc_marze": round(sl_margin, 1),
                     "zavrit_nejpozdeji": (day + timedelta(days=28)).isoformat(),
-                    "plan": make_plan(side, entry, float(atr[-1]), base, inst.decimals, "trh"),
+                    "plan": {**make_plan(side, entry, float(atr[-1]), base, inst.decimals, "trh"),
+                             **({"pred_rozhodnutim": cb_exit_note(pair, day, base)} if cb_exit_note(pair, day, base) else {})},
                     "duvod": (f"RSI(2) {rsi2[-1]:.0f}{', RSI(3) %.0f' % rsi3[-1] if 'RSI3' in sig else ''} = prudky "
                               f"{'propad' if side > 0 else 'rust'}; rozdil sazeb {inst.base}-{inst.quote} se za 3 mesice "
                               f"zmenil o {mom:+.2f} p.b. ve prospech {'nakupu' if side > 0 else 'prodeje'}"
@@ -303,7 +342,15 @@ def resolve_forward(trades: list, hourly_cache: dict) -> None:
         side = 1 if t["smer"] == "KOUPIT" else -1
         after = hb["ts"] > t["cas_vstupu"]
         ts, hh, ll, cc = hb["ts"][after], hb["h"][after], hb["l"][after], hb["c"][after]
+        decisions = {d for d, _ in cb_decisions(t["par"], date.fromisoformat(t["den"]), 40)} if t.get("cb_vystup") else set()
         for j in range(len(ts)):
+            if decisions:                                # NY close bar (16:00-17:00 New York) before a decision day
+                bar = datetime.fromtimestamp(int(ts[j]), tz=NEW_YORK)
+                nxt = bar.date() + timedelta(days=3 if bar.weekday() == 4 else 1)
+                if bar.hour == 16 and nxt in decisions and side * (float(cc[j]) - t["vstup"]) > 0:
+                    t.update(stav="uzavreny", vystup=float(cc[j]), duvod_vystupu="pred rozhodnutim CB",
+                             cas_vystupu=int(ts[j]) + 3600)
+                    break
             if (side > 0 and ll[j] <= t["sl"]) or (side < 0 and hh[j] >= t["sl"]):
                 t.update(stav="uzavreny", vystup=t["sl"], duvod_vystupu="SL", cas_vystupu=int(ts[j]) + 3600)
                 break
@@ -358,7 +405,8 @@ def main() -> int:
             continue
         forward.append({"id": key, "par": p["par"], "smer": s["smer"], "stupen": s["stupen"], "den": p["den"],
                         "cas_vstupu": now, "vstup": s["vstup"], "tp": s["tp"], "sl": s["sl"],
-                        "marze_proc_uctu": s["marze_proc_uctu"], "stav": "otevreny"})
+                        "marze_proc_uctu": s["marze_proc_uctu"], "stav": "otevreny",
+                        "cb_vystup": cfg["base"].get("exit_before_cb") == "zisk"})
     resolve_forward(forward, cache)
     FORWARD.write_text(json.dumps(forward, indent=1, ensure_ascii=False))
     closed = [t for t in forward if t["stav"] == "uzavreny"]
@@ -379,6 +427,7 @@ def main() -> int:
         "den_dat": day.isoformat(), "je_patek": any(p.get("rozhodovaci_den") for p in pairs),
         "pravidlo": cfg["name"],
         "pravidlo_popis": {"tp_atr": cfg["base"]["tp"], "sl_atr": cfg["base"]["sl"], "drzeni_dni": cfg["base"]["hold_days"],
+                           "vystup_pred_cb": cfg["base"].get("exit_before_cb") == "zisk",
                            "stupne": [{"jmeno": TIER_NAMES[k] if k < len(TIER_NAMES) else "slaby",
                                        "marze_proc_uctu": round(s * 100, 1), "prah_sazeb": t["rates_thr"],
                                        "carry": t["fund"] == "rates_up+carry",

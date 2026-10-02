@@ -51,8 +51,14 @@
    "test_wins_month": 3.3469387755102042,
    "test_months_2wins": 0.7755102040816326,
    "blocks": [
-    1.137803066677984,
-    0.5585736237543895
+    [
+     1.137803066677984,
+     0.1297759919880742
+    ],
+    [
+     0.5585736237543895,
+     0.26064797712317156
+    ]
    ]
   },
   "1": {
@@ -73,8 +79,14 @@
    "test_wins_month": 2.25,
    "test_months_2wins": 0.65,
    "blocks": [
-    0.16280709948145433,
-    0.47601289308746786
+    [
+     0.16280709948145433,
+     0.2760323434698315
+    ],
+    [
+     0.47601289308746786,
+     0.1309165346996377
+    ]
    ]
   }
  },
@@ -133,7 +145,15 @@
   "zavrit_long_usd_pred_fomc",
   "zavrit_pred_cb_zisk_silne",
   "zavrit_pred_cb_zisk_marze15",
-  "zavrit_pred_cb_zisk_marze12"
+  "zavrit_pred_cb_zisk_marze12",
+  "v3_zavrit_pred_cb_zisk",
+  "v3_zavrit_pred_cb_zisk_marze15",
+  "v3_polovina_pred_cb",
+  "tri_cile",
+  "tri_cile_nechat_bezet",
+  "padajici_nuz_20",
+  "silny_stupen_denne",
+  "silne_stupne_denne"
  ],
- "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v2"
+ "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v3"
 }

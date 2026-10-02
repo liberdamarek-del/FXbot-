@@ -412,5 +412,11 @@ mark-to-market) instead of raw return at a refitted size: in BOTH tests >= +10 %
 champion's return, drawdown <= 30 %, the profile's wins a month, >= 3 of 4 two-year blocks at least as good
 (per drawdown), positive average trade in both market groups 2023-26 (EVAL_VERSION 3; champions re-evaluated).
 Simulator: `tp_parts` (position split into parts with own targets), `knife_days` (no buy at an N-day low).
-Round 10 (in progress): `v3_zavrit_pred_cb_zisk` ACCEPTED in the monthly profile (live signals): 2019-22
-+87.2 % / dd 19 % (champion +72.8 % / 27 %), 2023-26 +39.5 % / dd 28 % (+20.9 % / 19 %).
+Round 10: `v3_zavrit_pred_cb_zisk` ACCEPTED in the monthly profile (live signals): 2019-22 +87.2 % / dd 19 %
+(champion +72.8 % / 27 %), 2023-26 +39.5 % / dd 28 % (+20.9 % / 19 %); tier margins 20/20/6/5 %. Rejected:
+margin cap 15 %, half size before a decision, 3 targets (0.75/1.0/1.5 and 0.75/1.5/3.0 ATR), no buying at a
+20-day low, strong tier(s) evaluated every day (4+ wins a month but lower return per drawdown).
+Live: signals_live adds to every plan the rule and the decisions of the pair's central banks in the next 4 weeks
+(`plan.pred_rozhodnutim`); the forward test closes in profit at the NY close before a decision; the hourly update
+warns about journal trades in profit before tomorrow's decision; dashboard shows both; pair_stats and
+docs/SAMPION_12.md regenerated (strongest tier 97 % wins, +18.5 % of the margin at TP1).

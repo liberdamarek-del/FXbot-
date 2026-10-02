@@ -257,6 +257,7 @@ details summary { cursor: pointer; font-weight: 600; }
       <p class="small">Velikost: marže <b>${fmt(marze, 1)} % účtu</b>${money}. Rozděl pozici na <b>3 stejné části</b> s cíli TP1, TP2 a TP3, stop loss stejný pro všechny${plan.prumer_rozdeleni_3 !== undefined ? ` (historický průměr takového rozdělení ${sgn(plan.prumer_rozdeleni_3, 1)} % marže na obchod)` : ""}. Zavřít nejpozději za 4 týdny${s.zavrit_nejpozdeji ? ", tj. " + esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ")) : ""}.</p>
       ${s.duvod ? `<p class="small muted">${esc(s.duvod)}</p>` : ""}
       ${s.varovani ? `<div class="notice">⚠ ${esc(s.varovani)}</div>` : ""}
+      ${plan.pred_rozhodnutim ? `<p class="small"><b>Před rozhodnutím centrální banky:</b> ${esc(plan.pred_rozhodnutim.pravidlo)} <span class="muted">${esc(plan.pred_rozhodnutim.text)}</span></p>` : ""}
       ${kind === "trh" ? `<div class="row"><button type="button" class="ghost" data-fill="${i}">Zapsat podle signálu</button></div>` : ""}
     </article>`;
   }
@@ -328,7 +329,7 @@ details summary { cursor: pointer; font-weight: 600; }
     const tiers = (r.stupne || []).filter((t) => t.marze_proc_uctu > 0).map((t) => `<li><b>${esc(CZ[t.jmeno] || t.jmeno)}</b>: sazby ve směru obchodu ≥ ${fmt(t.prah_sazeb, 2)} p.b.${t.carry ? " a kladný úrokový rozdíl" : ""}; signál ${esc(t.signal.replace("|", " nebo "))} → marže <b>${fmt(t.marze_proc_uctu, 0)} % účtu</b></li>`).join("");
     $("rule").innerHTML = `<p>Rozhoduje se jen v pátek při zavření trhu. Model kupuje prudký krátký propad měny, které rostou úrokové sazby rychleji než té druhé (a prodává opačně).</p>
       <ul>${tiers}</ul>
-      <p>Take profit ${fmt(r.tp_atr, 2)} × ATR, stop loss ${fmt(r.sl_atr, 1)} × ATR, nejdéle ${esc(r.drzeni_dni)} obchodních dní. ATR = průměrný denní rozkmit ceny.</p>
+      <p>Take profit ${fmt(r.tp_atr, 2)} × ATR, stop loss ${fmt(r.sl_atr, 1)} × ATR, nejdéle ${esc(r.drzeni_dni)} obchodních dní. ATR = průměrný denní rozkmit ceny.${r.vystup_pred_cb ? " Obchod, který je v zisku, se zavírá při zavření trhu den před rozhodnutím centrální banky jeho měn (Fed, ECB, BoJ, BoE)." : ""}</p>
       <p class="muted">Backtest (velikosti vybrané jen na starších datech): 2019–22 ${sgn(b.test_2019_22 && b.test_2019_22.rocne, 1)} % ročně (propad ${fmt(b.test_2019_22 && b.test_2019_22.propad, 0)} %), 2023–26 ${sgn(b.test_2023_26 && b.test_2023_26.rocne, 1)} % ročně (propad ${fmt(b.test_2023_26 && b.test_2023_26.propad, 0)} %).</p>`;
   }
 
@@ -352,6 +353,12 @@ details summary { cursor: pointer; font-weight: 600; }
     return {pips, margin, kc};
   }
 
+  function alertFor(id) {
+    const d = state && state.denik_uzivatele;
+    const o = d && (d.otevrene || []).find((x) => x.id === id);
+    return o ? o.upozorneni : null;
+  }
+
   function renderJournal() {
     const open = journal.filter((t) => t.stav !== "uzavreny");
     const closed = journal.filter((t) => t.stav === "uzavreny");
@@ -367,6 +374,7 @@ details summary { cursor: pointer; font-weight: 600; }
           ${live !== null ? `<span class="small muted">teď orientačně ${sgn(live, 1)} % marže</span>` : ""}
           ${now && t.sl && side * (now - t.sl) <= 0 ? '<span class="chip warn">cena je za stop lossem – zkontroluj u brokera</span>' : ""}
           ${now && t.tp && side * (now - t.tp) >= 0 ? '<span class="chip strong">cena dosáhla take profitu – zkontroluj u brokera</span>' : ""}</div>
+        ${alertFor(t._id) ? `<div class="notice">⚠ ${esc(alertFor(t._id))}</div>` : ""}
         <div class="small muted">${esc(praha(t.cas_vstupu))}${t.poznamka ? " · " + esc(t.poznamka) : ""}</div>
         <div class="row"><input class="num" style="max-width:10em" inputmode="decimal" placeholder="výstupní cena" aria-label="Výstupní cena ${esc(t.par)}" data-exit>
           <button type="button" data-close ${canWrite ? "" : "disabled"}>Vystoupil jsem</button>

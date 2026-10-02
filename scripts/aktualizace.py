@@ -15,7 +15,7 @@ so the event history grows from 2026-09-30 on. Read-only towards brokers.
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -124,8 +124,15 @@ def journal_summary(rows: list[dict], prices: dict) -> dict:
             hit = "SL"
         elif r.get("tp") and side * (price - r["tp"]) >= 0:
             hit = "TP"
+        upozorneni = None                                 # model rule R-021: exit in profit before a decision
+        today = datetime.now(PRAGUE).date()
+        nxt = today + timedelta(days=3 if today.weekday() == 4 else 1)
+        banks = [b for d, b in SL.cb_decisions(r["par"], today, 3) if d == nxt]
+        if banks and pct(r, price) > 0:
+            upozorneni = (f"Zítra rozhoduje {', '.join(banks)}. Obchod je v zisku – model by ho dnes při zavření trhu "
+                          "(23:00 našeho času) uzavřel.")
         open_.append({"id": r["id"], "par": r["par"], "smer": r["smer"], "vstup": r["vstup"], "cena": price,
-                      "proc_marze": round(pct(r, price), 1), "zasah": hit})
+                      "proc_marze": round(pct(r, price), 1), "zasah": hit, "upozorneni": upozorneni})
     return {"uzavrenych": len(closed), "ziskovych": sum(x > 0 for x in results),
             "prumer_proc_marze": round(sum(results) / len(results), 1) if results else None,
             "otevrene": open_}
@@ -141,7 +148,8 @@ def main(argv: list[str]) -> int:
         STAV.write_text(json.dumps(state, indent=1, ensure_ascii=False, default=str))
         s = state["denik_uzivatele"]
         print(f"denik: {len(rows)} zapisu, uzavreno {s['uzavrenych']}, otevreno {len(s['otevrene'])}"
-              + "".join(f"; {o['par']} {o['smer']} zasah {o['zasah']}" for o in s["otevrene"] if o["zasah"]))
+              + "".join(f"; {o['par']} {o['smer']} zasah {o['zasah']}" for o in s["otevrene"] if o["zasah"])
+              + "".join(f"; {o['par']}: {o['upozorneni']}" for o in s["otevrene"] if o.get("upozorneni")))
         return 0
     diag = DG.run(online=False)
     SL.main()
