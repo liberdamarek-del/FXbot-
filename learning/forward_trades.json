@@ -11,7 +11,8 @@
   "sl": 0.91192,
   "marze_proc_uctu": 20.0,
   "stav": "otevreny",
-  "cb_vystup": true
+  "cb_vystup": true,
+  "prubezne_proc_marze": -1.8
  },
  {
   "id": "2026-10-02_EURJPY",
@@ -25,6 +26,7 @@
   "sl": 172.262,
   "marze_proc_uctu": 6.0,
   "stav": "otevreny",
-  "cb_vystup": true
+  "cb_vystup": true,
+  "prubezne_proc_marze": 0.0
  }
 ]
