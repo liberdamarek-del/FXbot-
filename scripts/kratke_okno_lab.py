@@ -26,7 +26,6 @@ pairs (the best signals of the whole sample). Descriptive research: nothing ente
 import sys
 import time
 from collections import defaultdict
-from datetime import date
 from pathlib import Path
 
 import numpy as np
