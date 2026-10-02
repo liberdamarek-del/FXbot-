@@ -19,7 +19,7 @@ Research only - nothing enters the model without the walk-forward gate.
 
 import sys
 from collections import defaultdict
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
