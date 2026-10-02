@@ -215,7 +215,9 @@ Brána: výnos na propad (roční výnos / největší propad) lepší aspoň o 
 | inflace (BIS, 8 měn): rozdíl a jeho změna | k sazbám nic nepřidá |
 | zavření víkendové mezery (nedělní otevření) | funguje jen na úplně první cenu po otevření; po hodině už ztrátové - v praxi nezobchodovatelné |
 | pohyb po rozhodnutí centrální banky | 2012-18 pokračoval, 2019-26 se vracel - nestálé |
+| ztrátový obchod před rozhodnutím centrální banky: utáhnout stop na 0,5 / 1 ATR | zamítnuto |
+| reálný úrokový rozdíl (sazba minus inflace) místo nominálního | nic lepšího než nominální carry |
 
-Závěr: 41 nových variant, žádná neprošla. Současné pravidlo (páteční prudký propad + směr změny úrokových
+Závěr: 43 nových variant a 5 studií, žádná neprošla. Současné pravidlo (páteční prudký propad + směr změny úrokových
 sazeb + výstup v zisku před rozhodnutím Fed / ECB / BoJ / BoE) je v tomto směru robustní optimum. Pozor: čím víc
 variant zkouším na stejných letech, tím větší šance, že nějaká projde jen náhodou - proto se brána nepovoluje.
