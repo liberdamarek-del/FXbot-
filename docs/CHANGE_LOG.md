@@ -454,3 +454,13 @@ stop 5 ATR (max profile 2023-26 2.09 vs 0.94 but 2019-22 2.72 vs 3.11), 30 days,
 Thursday + Friday, late smaller target (5/7/10 days), strongest tier: target 1.0 ATR, half at 1.5 ATR (monthly
 2019-22 6.26 vs 4.49 but 2023-26 1.09 vs 1.43), + Donchian breakout (monthly 2023-26 1.71 vs 1.43 but 2019-22
 4.28 vs 4.49), + 3 down days. No change to the live model.
+
+## R-025 - 2026-10-02 late evening: rounds 18-21 and two studies (all rejected)
+
+Options: confirm_src "oecd<N>" (rate change over another window), run_portfolio `brake` (smaller trades in an
+account drawdown), Rule `close_stop` (stop only at NY closes + disaster stop). Rejected: strongest tier as a
+trend trader (dips + breakouts, half to 1.5 ATR), 6 / 12-month rate confirmation, 6-month window, drawdown brake
+5 / 10 / 15 %, stop on the daily close (1.25 / 1.5 / 2.0 x). Studies (docs/OBCHODNIK.md): BIS CPI inflation of the
+8 currencies (`fundamenty.bis_cpi`, macro.json "cpi_bis") adds nothing to the rate filter; the weekend-gap fade
+works only at the first Sunday quote (after 1 hour it loses) - not tradable; the move after central bank decisions
+continued in 2012-18 and reversed in 2019-26 - unstable. No change to the live model.

@@ -76,6 +76,8 @@ class Rule:
     knife_days: int = 0               # > 0: do not buy a close that is the lowest of this many days (sell: highest)
     confirm_up: int = 0               # > 0: wait for the first NY close in the trade direction within this many trading
                                       # days after the signal and enter there (a trader's "wait until it turns")
+    close_stop: float = 0.0           # > 0: the stop counts only at New York closes (a wick does not stop the trade);
+                                      # intraday only a disaster stop at close_stop x the stop distance
     decay_days: int = 0               # > 0: after this many trading days the target drops to decay_tp x ATR
     decay_tp: float = 0.0             # (a trader takes a smaller profit when the bounce is late)
     tp_retrace: float = 0.0           # > 0: target = this share of the last 5 days' move against the trade
@@ -466,7 +468,16 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     adv = (entry - (hl[j] - half)) if side > 0 else ((hh[j] + half) - entry)
                     if j == first:
                         adv = max(adv, adv0)
-                    if adv >= stop:
+                    if rule.close_stop and stop == SL:
+                        if adv >= SL * rule.close_stop:
+                            reason = close_open(-SL * rule.close_stop, j, "SL")
+                            break
+                        if is_close[j]:
+                            on_close = (entry - (hc[j] - half)) if side > 0 else ((hc[j] + half) - entry)
+                            if on_close >= SL:
+                                reason = close_open(-on_close, j, "SL")
+                                break
+                    elif adv >= stop:
                         reason = close_open(-stop, j, "SL" if stop == SL else "BE")
                         break
                     late = rule.decay_days and j >= first + rule.decay_days * 24

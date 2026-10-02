@@ -59,6 +59,10 @@ re-downloaded by the scripts.
   profiles (live). Rejected: 3 targets, knife filter, daily strong tiers, half size / cap 15 % before decisions.
 - (done, R-022) exits in profit before US NFP/CPI or on Fridays - rejected.
 - (done, R-023) exit before SNB / RBA decisions too - rejected (only the big four banks matter).
+- (done 2026-10-02 night, R-024/R-025, docs/OBCHODNIK.md) trader's logic: scale-in, confirmation entry, one bet per
+  currency, targets 0.5/0.6/1.0 ATR, stop 5 ATR / on the close, 30 days, decaying target, Thursday entries,
+  strongest tier as trend trader, 6/12-month rate confirmation, drawdown brake, BIS inflation, weekend gaps,
+  post-decision drift - all rejected; do not repeat these families.
 - Next: macro trends (CPI y/y, unemployment; OECD SDMX in data/research/fundamenty/macro.json - JPY CPI ends
   2021, AUD monthly only from 2025, EUR/CHF/NZD unemployment missing: find sources first, e.g. Eurostat, e-Stat);
   meeting dates of SNB, RBA, BoC, RBNZ (sources reachable except RBNZ); BoE dates 8/2015-12/2016 missing;

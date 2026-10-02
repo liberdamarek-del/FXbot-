@@ -1426,3 +1426,39 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+71.5%** rocne, propad 24%, 3.3 ziskovych/mesic (marze 20% / 20% / 5% / 5%), po 2 letech +107% / +44%, vynos/propad 3.03; 2023-26: **+20.9%** rocne, propad 19%, 2.2 ziskovych/mesic (marze 15% / 15% / 5% / 5%), po 2 letech +21% / +35%, vynos/propad 1.08
 * sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
 
+### 2026-10-02 - [champion_12_mesicne] stop_na_zavreni_15: zamitnuto
+
+* stop 4 ATR plati jen pri zavreni dne (NY 17:00), behem dne jen nouzovy stop 6 ATR
+* kandidat: 2019-22: **+88.1%** rocne, propad 24%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +94% / +86%, vynos/propad 3.72; 2023-26: **+31.3%** rocne, propad 22%, 2.3 ziskovych/mesic (marze 15% / 15% / 6% / 5%), po 2 letech +18% / +60%, vynos/propad 1.42
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-02 - [champion_12_mesicne] stop_na_zavreni_125: zamitnuto
+
+* stop 4 ATR plati jen pri zavreni dne, behem dne nouzovy stop 5 ATR
+* kandidat: 2019-22: **+86.6%** rocne, propad 24%, 3.4 ziskovych/mesic (marze 20% / 20% / 5% / 5%), po 2 letech +91% / +86%, vynos/propad 3.65; 2023-26: **+31.5%** rocne, propad 21%, 2.3 ziskovych/mesic (marze 15% / 15% / 5% / 5%), po 2 letech +19% / +59%, vynos/propad 1.49
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-02 - [champion_12_mesicne] stop_3_na_zavreni_2: zamitnuto
+
+* stop 3 ATR pri zavreni dne, behem dne nouzovy stop 6 ATR
+* kandidat: 2019-22: **+98.4%** rocne, propad 21%, 3.4 ziskovych/mesic (marze 20% / 20% / 8% / 5%), po 2 letech +104% / +98%, vynos/propad 4.76; 2023-26: **+34.7%** rocne, propad 30%, 2.2 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +17% / +75%, vynos/propad 1.14
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-02 - [champion_12] stop_na_zavreni_15: zamitnuto
+
+* stop 4 ATR plati jen pri zavreni dne (NY 17:00), behem dne jen nouzovy stop 6 ATR
+* kandidat: 2019-22: **+89.2%** rocne, propad 21%, 3.4 ziskovych/mesic (marze 20% / 20% / 10% / 3%), po 2 letech +115% / +69%, vynos/propad 4.19; 2023-26: **+20.3%** rocne, propad 46%, 2.2 ziskovych/mesic (marze 15% / 15% / 10% / 3%), po 2 letech +3% / +57%, vynos/propad 0.44
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
+### 2026-10-02 - [champion_12] stop_na_zavreni_125: zamitnuto
+
+* stop 4 ATR plati jen pri zavreni dne, behem dne nouzovy stop 5 ATR
+* kandidat: 2019-22: **+89.9%** rocne, propad 21%, 3.4 ziskovych/mesic (marze 20% / 20% / 10% / 3%), po 2 letech +115% / +71%, vynos/propad 4.22; 2023-26: **+20.9%** rocne, propad 46%, 2.2 ziskovych/mesic (marze 15% / 15% / 10% / 3%), po 2 letech +2% / +61%, vynos/propad 0.45
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
+### 2026-10-02 - [champion_12] stop_3_na_zavreni_2: zamitnuto
+
+* stop 3 ATR pri zavreni dne, behem dne nouzovy stop 6 ATR
+* kandidat: 2019-22: **+95.8%** rocne, propad 21%, 3.4 ziskovych/mesic (marze 20% / 20% / 10% / 3%), po 2 letech +115% / +82%, vynos/propad 4.50; 2023-26: **+21.4%** rocne, propad 46%, 2.2 ziskovych/mesic (marze 15% / 15% / 10% / 3%), po 2 letech +3% / +61%, vynos/propad 0.47
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+

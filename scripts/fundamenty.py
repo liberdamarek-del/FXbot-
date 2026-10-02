@@ -264,6 +264,23 @@ def macro() -> dict:
     return out
 
 
+BIS_AREAS = {"USD": "US", "EUR": "XM", "JPY": "JP", "GBP": "GB", "CHF": "CH", "AUD": "AU", "CAD": "CA", "NZD": "NZ"}
+BIS_QUARTERLY = {"AUD", "NZD"}             # monthly rows repeat the quarterly figure (known ~4 weeks after the quarter)
+
+
+def bis_cpi() -> dict:
+    """Consumer price inflation y/y in % (BIS long CPI series, monthly; AUD and NZD quarterly figures
+    repeated per month) for the 8 currencies, {currency: {"YYYY-MM": value}}."""
+    out = {}
+    for ccy, area in BIS_AREAS.items():
+        page = _get(f"https://stats.bis.org/api/v1/data/WS_LONG_CPI/M.{area}.771?format=csv&startPeriod={FIRST - 2}-01")
+        lines = page.strip().splitlines()
+        head = lines[0].split(",")
+        k_t, k_v = head.index("TIME_PERIOD"), head.index("OBS_VALUE")
+        out[ccy] = {c[k_t]: float(c[k_v]) for c in (line.split(",") for line in lines[1:]) if c[k_v]}
+    return out
+
+
 def download() -> int:
     events, errors = {}, []
     for name, job in (("FED", fed), ("ECB", lambda: sorted(set(ecb()) | set(ecb_future()))),
@@ -281,9 +298,13 @@ def download() -> int:
     EVENTS.write_text(json.dumps({"stazeno": date.today().isoformat(), "chyby": errors, **events}, indent=1))
     MACRO.mkdir(parents=True, exist_ok=True)
     m = macro()
+    try:
+        m["cpi_bis"] = bis_cpi()
+    except Exception as exc:
+        m["errors"].append(f"cpi_bis: {type(exc).__name__}: {str(exc)[:80]}")
     (MACRO / "macro.json").write_text(json.dumps(m, indent=1))
-    for name in ("cpi", "unemployment"):
-        print(name, {c: (min(v), max(v), len(v)) for c, v in m[name].items()})
+    for name in ("cpi", "unemployment", "cpi_bis"):
+        print(name, {c: (min(v), max(v), len(v)) for c, v in m.get(name, {}).items()})
     print("errors:", errors + m["errors"])
     return 0
 

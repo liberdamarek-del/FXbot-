@@ -264,7 +264,7 @@ def _with(cfg, **changes):
     for k, v in changes.items():
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
-                 "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp"):
+                 "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -497,6 +497,13 @@ EXPERIMENTS = [
      lambda c: _with(c, brake=[0.15, 0.5])),
     ("brzda_5_dvetretiny", "kdyz je ucet modelu vic nez 5 % pod maximem, nove obchody na 2/3",
      lambda c: _with(c, brake=[0.05, 0.67])),
+    # round 21: a trader's stop on the daily close (a wick does not stop the trade), disaster stop beyond
+    ("stop_na_zavreni_15", "stop 4 ATR plati jen pri zavreni dne (NY 17:00), behem dne jen nouzovy stop 6 ATR",
+     lambda c: _with(c, close_stop=1.5)),
+    ("stop_na_zavreni_125", "stop 4 ATR plati jen pri zavreni dne, behem dne nouzovy stop 5 ATR",
+     lambda c: _with(c, close_stop=1.25)),
+    ("stop_3_na_zavreni_2", "stop 3 ATR pri zavreni dne, behem dne nouzovy stop 6 ATR",
+     lambda c: _with(c, sl=3.0, close_stop=2.0)),
 ]
 
 

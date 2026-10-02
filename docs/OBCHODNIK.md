@@ -191,3 +191,31 @@ Obchodů (všechny stupně, bez překrývání v rámci stupně): 922. R = výsl
 | 2024 | AUD/USD | 3 | 3.8 | -1.7 | +0.7 | -5 | 19 | 34 |
 | 2025 | EUR/GBP | 2 | 4.5 | -2.8 | -4.2 | -17 | 45 | 13 |
 | 2025 | EUR/GBP | 3 | 4.5 | -2.8 | -4.2 | -17 | 45 | 13 |
+
+## Co jsem zkusil potom (2. 10. 2026 večer) - vše přes testovací bránu v3
+
+Brána: výnos na propad (roční výnos / největší propad) lepší aspoň o 10 % v OBOU testovacích obdobích
+(2019-22 i 2023-26), aspoň 85 % výnosu šampiona, propad do 30 %, 3 ze 4 dvouletých bloků aspoň stejně dobré.
+Šampion (měsíční profil): 2019-22 +87,2 % ročně / propad 19 % (4,49), 2023-26 +39,5 % / 28 % (1,43).
+
+| nápad (lidská logika) | výsledek |
+|---|---|
+| dokoupit při dalším propadu o 1,5 / 2 ATR | propad vyšší (28-30 %), zamítnuto |
+| vstoupit až po prvním dni obratu | výnos spadl na +6 % ročně |
+| více signálů na stejnou měnu = jedna sázka (menší pozice) | 2023-26 lepší (1,55), 2019-22 horší (3,94) |
+| nejsilnější stupeň jen pro změnu sazeb ≥ 0,40 p.b. | málo obchodů, zamítnuto |
+| menší cíl 0,6 / 0,5 ATR, stop 5 ATR, držení 30 dní | v jednom období lepší, v druhém horší |
+| cíl podle hloubky propadu (40 % poklesu) | zamítnuto |
+| vstupy i ve čtvrtek (čtvrtek je druhý nejlepší den) | čtvrteční obchody blokují lepší páteční, zamítnuto |
+| po 5 / 7 / 10 dnech bez cíle vzít menší zisk | zamítnuto |
+| nejsilnější stupeň: cíl 1 ATR, půlka pozice až 1,5 ATR, i průraz maxima, i 3 dny poklesu | vždy jedno období lepší, druhé horší |
+| sazby: potvrzení změnou za 6 / 12 měsíců, okno 6 měsíců | zamítnuto |
+| po sérii ztrát obchodovat menší pozicí (brzda 5 / 10 / 15 %) | zamítnuto (zpomalí návrat) |
+| stop jen při denním zavření (nouzový 5-6 ATR) | 2023-26 horší |
+| inflace (BIS, 8 měn): rozdíl a jeho změna | k sazbám nic nepřidá |
+| zavření víkendové mezery (nedělní otevření) | funguje jen na úplně první cenu po otevření; po hodině už ztrátové - v praxi nezobchodovatelné |
+| pohyb po rozhodnutí centrální banky | 2012-18 pokračoval, 2019-26 se vracel - nestálé |
+
+Závěr: 41 nových variant, žádná neprošla. Současné pravidlo (páteční prudký propad + směr změny úrokových
+sazeb + výstup v zisku před rozhodnutím Fed / ECB / BoJ / BoE) je v tomto směru robustní optimum. Pozor: čím víc
+variant zkouším na stejných letech, tím větší šance, že nějaká projde jen náhodou - proto se brána nepovoluje.
