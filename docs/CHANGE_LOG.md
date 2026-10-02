@@ -435,3 +435,22 @@ per drawdown not better). The exit before central bank decisions stays the only 
 last ~4 years), RBNZ refuses (403). New option `cb_all` (exit before decisions of the 6 banks). Monthly
 profile: 2019-22 +84.5 % (champion +87.2 %), 2023-26 +38.5 % (+39.5 %), same drawdowns - no gain; max
 profile also lower. The exit before decisions stays limited to Fed, ECB, BoJ and BoE.
+
+## R-024 - 2026-10-02 night: trader's review of the losers, rounds 13-17 (all rejected)
+
+`scripts/obchodnik_lab.py` -> docs/OBCHODNIK.md: 17 features of the monthly champion's trades at the entry
+(dip depth, trend, volatility, 2y yield moves, distance to decisions, VIX, close in the day's range, month...),
+terciles per period. Only the rate change is consistently decisive (> 0.35 p.b.: 97-99 % wins, +0.14..+0.17 R in
+all three periods) - already the model's tier filter. Scratch analyses: RSI(2) 5-10 already loses the edge even
+with strong rates; Friday entries are the best weekday (Thursday second, Monday-Wednesday weak); the losers are
+mostly same-currency clusters of one Friday (e.g. 2024-10-04 short USD after the NFP surprise).
+New simulator options: `scale_addon` / cfg `scale_in` (scale-in order k ATR beyond the entry, stacked on the
+base trade in portfolio_sim), `confirm_up` (enter at the first close in the trade direction), cfg `cluster`
+(size / sqrt(same-currency signals of the day)), `tp_retrace` (target = share of the 5-day fall), `weekdays`,
+`decay_days` / `decay_tp` (smaller target after N days); holding beyond 20 days.
+Rejected in both profiles (gate v3): scale-in 1.5 / 2 ATR, confirmation entry, one bet per currency (monthly
+2023-26 return/dd 1.55 vs 1.43 but 2019-22 3.94 vs 4.49), strongest tier rates >= 0.40, target 0.6 / 0.5 ATR,
+stop 5 ATR (max profile 2023-26 2.09 vs 0.94 but 2019-22 2.72 vs 3.11), 30 days, retracement target,
+Thursday + Friday, late smaller target (5/7/10 days), strongest tier: target 1.0 ATR, half at 1.5 ATR (monthly
+2019-22 6.26 vs 4.49 but 2023-26 1.09 vs 1.43), + Donchian breakout (monthly 2023-26 1.71 vs 1.43 but 2019-22
+4.28 vs 4.49), + 3 down days. No change to the live model.

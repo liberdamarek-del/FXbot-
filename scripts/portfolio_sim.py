@@ -117,15 +117,20 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
             equity += pnl
             monthly[month] += pnl
             wins_m[month] += tr["margin_pct"] > 0
-            busy.discard(pair)
+            if not tr.get("stack"):
+                busy.discard(pair)
             peak = max(peak, equity)
             max_dd = max(max_dd, 1 - equity / peak)
 
+    taken_keys = set()
     for t_in, rank, tr in events:
         close_until(t_in)
-        if tr["pair"] in busy:
+        if tr.get("stack"):                           # a scale-in order: only together with its base trade
+            if tr["base"] not in taken_keys:
+                continue
+        elif tr["pair"] in busy:
             continue
-        if max_ccy:                                   # at most max_ccy open trades long (short) one currency
+        if max_ccy and not tr.get("stack"):                                   # at most max_ccy open trades long (short) one currency
             bought, sold = _legs(tr)
             legs = [_legs(x[3]) for x in open_pos]
             if sum(1 for b, _ in legs if b == bought) >= max_ccy or sum(1 for _, q in legs if q == sold) >= max_ccy:
@@ -137,7 +142,9 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
         max_used = max(max_used, (used + margin) / equity)
         max_open = max(max_open, len(open_pos) + 1)
         open_pos.append((tr["t_out"], tr["pair"], margin, tr))
-        busy.add(tr["pair"])
+        if not tr.get("stack"):
+            busy.add(tr["pair"])
+        taken_keys.add((tr["pair"], tr["t_in"]))
         taken.append(tr)
         margins.append(margin)
     close_until(10 ** 12)

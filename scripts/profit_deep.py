@@ -31,6 +31,7 @@ class Rule:
     signal: str = "D RSI2<5"          # key of profit_lab2.signal_defs()
     weekly: bool = True               # decide only at the week close
     weekday: int = -1                 # 0-4 = decide only on this weekday's close (overrides weekly)
+    weekdays: tuple = ()              # decide only on these weekdays' closes (overrides weekday and weekly)
     trend: str | None = None
     fund: str | None = "rates_up"
     rates_lag: int = 2                # months: rate known at the decision
@@ -73,6 +74,12 @@ class Rule:
     cb_all: bool = False              # exit_before_cb also before SNB (CHF) and RBA (AUD) decisions
     exit_friday_profit: bool = False  # close in profit at a Friday NY close (weekend gap risk), not on the entry day
     knife_days: int = 0               # > 0: do not buy a close that is the lowest of this many days (sell: highest)
+    confirm_up: int = 0               # > 0: wait for the first NY close in the trade direction within this many trading
+                                      # days after the signal and enter there (a trader's "wait until it turns")
+    decay_days: int = 0               # > 0: after this many trading days the target drops to decay_tp x ATR
+    decay_tp: float = 0.0             # (a trader takes a smaller profit when the bounce is late)
+    tp_retrace: float = 0.0           # > 0: target = this share of the last 5 days' move against the trade
+                                      # (0.5-1.5 ATR) instead of the fixed tp (a deeper fall, a bigger bounce)
 
 
 _cache: dict = {}
@@ -275,6 +282,63 @@ def fomc_addon(symbols) -> list[dict]:
     return sorted(trades, key=lambda t: t["t_in"])
 
 
+def scale_addon(base: list[dict], k_atr: float, tp_atr: float = 0.75, sl_atr: float = 4.0, hold_days: int = 20,
+                exit_before_cb: str = "zisk") -> list[dict]:
+    """Scale-in (a trader averages a good dip down): for every base trade a limit order k_atr x ATR beyond its
+    entry, valid while the base trade is open; filled -> a second position with its own target tp_atr x ATR,
+    the same stop price and time limit as the base trade and the same exit in profit before a central bank
+    decision. Flagged "stack": the account takes it only together with its base trade."""
+    out = []
+    for t in base:
+        pair, side = t["pair"], t["side"]
+        s, I = prepared(pair, 2, 3)
+        inst = get_instrument(pair)
+        half = (P.SPREAD_PIPS[pair] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip
+        ts, hh, hl, hc = s["ts"], s["h"], s["l"], s["c"]
+        i = s["days"].index(t["day"])
+        atr = I["atr"][i]
+        k_in = int(np.searchsorted(ts, t["t_in"]))
+        end = min(k_in + P.HOLD_BARS.get(hold_days, 24 * hold_days), int(np.searchsorted(ts, t["t_out"] - 3600)))
+        level = t["entry"] - side * k_atr * atr
+        fill = next((j for j in range(k_in + 1, end + 1)
+                     if (hl[j] + half <= level if side > 0 else hh[j] - half >= level)), None)
+        if fill is None:
+            continue
+        TP, SL = tp_atr * atr, (sl_atr - k_atr) * atr
+        is_close = np.zeros(len(ts), bool)
+        is_close[s["last"]] = True
+        cb_next = news(pair, s, I, "next_decision") if exit_before_cb else None
+        day_of = np.searchsorted(s["last"], np.arange(len(ts)))
+        entry, reason, exit_k, result, best, marks = level, "CAS", end, None, 0.0, []
+        for j in range(fill, end + 1):
+            adv = (entry - (hl[j] - half)) if side > 0 else ((hh[j] + half) - entry)
+            fav = (hh[j] - half - entry) if side > 0 else (entry - (hl[j] + half))
+            if adv >= SL:
+                reason, exit_k, result = "SL", j, -SL
+                break
+            if j > fill and fav >= TP:
+                reason, exit_k, result = "TP", j, TP
+                break
+            best = max(best, fav)
+            if is_close[j]:
+                now_close = (hc[j] - half - entry) if side > 0 else (entry - (hc[j] + half))
+                marks.append((int(ts[j]) + 3600, now_close / entry * 100))
+                if exit_before_cb == "zisk" and j > fill and cb_next[day_of[j]] and now_close > 0:
+                    reason, exit_k, result = "CB", j, now_close
+                    break
+        if result is None:
+            result = (hc[end] - half - entry) if side > 0 else (entry - (hc[end] + half))
+        held = (ts[exit_k] + 3600 - ts[fill]) / 86400
+        fin = (side * I["carry_fin"][i] - P.FIN_MARKUP) / 100 / 365 * held * entry
+        pct = (result + fin) / entry * 100
+        out.append({"pair": pair, "side": side, "day": t["day"], "entry": entry, "t_in": int(ts[fill]),
+                    "t_out": int(ts[exit_k]) + 3600, "reason": reason, "price_pct": pct, "margin_pct": pct * P.LEVERAGE,
+                    "days": held, "tp_pct": TP / entry * 100 * P.LEVERAGE, "sl_pct": SL / entry * 100 * P.LEVERAGE,
+                    "mfe_atr": best / atr, "marks": [(m, v * P.LEVERAGE) for m, v in marks if m < int(ts[exit_k]) + 3600],
+                    "size_factor": t.get("size_factor", 1.0), "stack": True, "base": (pair, t["t_in"])})
+    return out
+
+
 def simulate(rule: Rule, symbols=None) -> list[dict]:
     defs = P.signal_defs()
     trades = []
@@ -283,7 +347,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         inst = get_instrument(symbol)
         half = (P.SPREAD_PIPS[symbol] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip * rule.cost_x
         ts, hh, hl, hc = s["ts"], s["h"], s["l"], s["c"]
-        L = P.HOLD_BARS[rule.hold_days]
+        L = P.HOLD_BARS.get(rule.hold_days, 24 * rule.hold_days)
         busy_until = -1
         is_close = np.zeros(len(ts), bool)
         is_close[s["last"]] = True                              # New York close bars: daily marks
@@ -298,7 +362,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         signal = {sd: np.logical_or.reduce([np.nan_to_num(defs[nm][0 if sd > 0 else 1](I)).astype(bool)
                                             for nm in names]) for sd in (1, -1)}
         for i in range(260, len(s["days"]) - 1):
-            if rule.weekday >= 0:
+            if rule.weekdays:
+                if s["days"][i].weekday() not in rule.weekdays:
+                    continue
+            elif rule.weekday >= 0:
                 if s["days"][i].weekday() != rule.weekday:
                     continue
             elif rule.weekly and not I["week_end"][i]:
@@ -349,6 +416,12 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                                                           and np.sign(I["carry"][i]) == side):
                     continue
                 k0 = s["last"][i] + rule.delay_h
+                if rule.confirm_up:
+                    turn = next((m for m in range(1, rule.confirm_up + 1) if i + m < len(s["days"])
+                                 and side * (s["dc"][i + m] - s["dc"][i + m - 1]) > 0), None)
+                    if turn is None:
+                        continue
+                    k0 = s["last"][i + turn] + rule.delay_h
                 if rule.one_per_pair and k0 <= busy_until:
                     continue
                 if k0 + 121 + L >= len(ts) or ts[k0 + 120 + L] - ts[k0] > ((L + 120) / 120 * 7 + 4) * 86400:
@@ -369,6 +442,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     TP, SL = rule.tp / 100 * entry, rule.sl / 100 * entry
                 else:
                     TP, SL = rule.tp * atr, rule.sl * atr
+                    if rule.tp_retrace and i >= 5:
+                        TP = float(np.clip(rule.tp_retrace * side * (s["dc"][i - 5] - s["dc"][i]), 0.5 * atr, 1.5 * atr))
                 if TP / entry * 100 < rule.min_tp_pct - 1e-9 or SL / entry * 100 * P.LEVERAGE > rule.max_sl_margin:
                     continue
                 # the position may be split into parts with their own targets (rule.tp_parts, in ATR); one part = TP
@@ -392,9 +467,11 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     if adv >= stop:
                         reason = close_open(-stop, j, "SL" if stop == SL else "BE")
                         break
+                    late = rule.decay_days and j >= first + rule.decay_days * 24
                     for q in range(n_parts):
-                        if part_res[q] is None and fav >= parts[q]:
-                            part_res[q], part_exit[q] = parts[q], j
+                        target = min(parts[q], rule.decay_tp * atr) if late else parts[q]
+                        if part_res[q] is None and fav >= target:
+                            part_res[q], part_exit[q] = target, j
                     if all(x is not None for x in part_res):
                         reason = "TP"
                         break

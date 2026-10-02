@@ -156,7 +156,27 @@
   "silne_stupne_denne",
   "zavrit_pred_us_data_zisk",
   "zavrit_v_zisku_patek",
-  "zavrit_pred_cb_zisk_i_snb_rba"
+  "zavrit_pred_cb_zisk_i_snb_rba",
+  "dokup_15_atr",
+  "dokup_2_atr_silne",
+  "potvrzeni_obratu_3d",
+  "jedna_sazka_na_menu",
+  "stupen_sazby_04",
+  "cil_06_atr",
+  "cil_05_atr",
+  "stop_5_atr",
+  "drzeni_30_dni",
+  "cil_40_procent_poklesu",
+  "ctvrtek_i_patek_silny",
+  "ctvrtek_i_patek_silne",
+  "pozdni_cil_5d_035",
+  "pozdni_cil_10d_025",
+  "pozdni_cil_7d_01",
+  "silny_cil_1_atr",
+  "silne_cil_1_atr",
+  "silny_dve_casti",
+  "silny_i_pruraz",
+  "silny_i_3_dny"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v3"
 }

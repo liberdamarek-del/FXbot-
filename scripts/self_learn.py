@@ -124,10 +124,41 @@ def trade_lists(cfg: dict) -> list[list[dict]]:
         out.append(trades)
     if cfg.get("recent"):
         out = recent_filter(out, *cfg["recent"])
+    if cfg.get("cluster"):
+        cluster_sizing(out, cfg["cluster"])
     for addon in cfg.get("addons", []):                 # extra trade generators (their own margin share)
         if addon == "fomc":
             out.append([dict(t) for t in D.fomc_addon(symbols)])
+    if cfg.get("scale_in"):                             # [k_atr, number of tiers]: scale-in orders join their tier
+        k_atr, n_tiers = cfg["scale_in"]
+        base = cfg["base"]
+        for r in range(min(n_tiers, len(out))):
+            key = ("scale", k_atr, json.dumps(base, sort_keys=True), r, len(out[r]), out[r][0]["t_in"] if out[r] else 0)
+            if key not in _trades_cache:
+                _trades_cache[key] = D.scale_addon(out[r], k_atr, base.get("tp", 0.75), base.get("sl", 4.0),
+                                                   base.get("hold_days", 20), base.get("exit_before_cb", ""))
+            adds = [dict(t) for t in _trades_cache[key]]
+            if cfg["sizing"] == "vol":
+                for t in adds:
+                    t["size_mult"] = float(np.clip(REF_SL_MARGIN / t["sl_pct"], 0.5, 2.0))
+            out[r] = sorted(out[r] + adds, key=lambda t: t["t_in"])
     return out
+
+
+def cluster_sizing(lists: list[list[dict]], mode: str) -> None:
+    """Several signals of one Friday that buy (or sell) the same currency are one bet on that currency
+    (a trader sizes them as one): each trade's size is divided by the number of distinct pairs signalled
+    at the same close that share its bought or its sold currency ("n") or by its square root ("sqrt")."""
+    by_time = defaultdict(set)
+    for tl in lists:
+        for t in tl:
+            by_time[t["t_in"]].add((t["pair"], t["side"]))
+    for tl in lists:
+        for t in tl:
+            legs = [PS._legs({"pair": p, "side": sd}) for p, sd in by_time[t["t_in"]]]
+            bought, sold = PS._legs(t)
+            n = max(sum(1 for b, _ in legs if b == bought), sum(1 for _, q in legs if q == sold), 1)
+            t["size_mult"] = t.get("size_mult", 1.0) / (n if mode == "n" else np.sqrt(n))
 
 
 def recent_filter(lists: list[list[dict]], months: float, floor: float) -> list[list[dict]]:
@@ -233,7 +264,7 @@ def _with(cfg, **changes):
     for k, v in changes.items():
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
-                 "exit_before_us", "exit_friday_profit", "cb_all"):
+                 "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -397,6 +428,50 @@ EXPERIMENTS = [
     # quarterly) and Australian (RBA) central banks - CHF pairs (USD/CHF, EUR/CHF), AUD pairs (AUD/USD, AUD/JPY)
     ("zavrit_pred_cb_zisk_i_snb_rba", "obchod v zisku zavrit den pred rozhodnutim i SNB (CHF) a RBA (AUD)",
      lambda c: _with(c, exit_before_cb="zisk", cb_all=True)),
+    # round 13 (2026-10-02 night, trader's logic; docs/OBCHODNIK.md: the losers have no common pattern at the entry
+    # except weak rate support - the strongest rate change (> 0.35 p.b.) won 97-99 % in all three periods)
+    ("dokup_15_atr", "dokoupit stejnou pozici, kdyz cena jde o dalsich 1.5 ATR proti (lepsi prumerna cena), "
+     "cil dokupu 0.75 ATR, stop stejny", lambda c: _with(c, scale_in=[1.5, 4])),
+    ("dokup_2_atr_silne", "jen silne stupne: dokoupit o 2 ATR niz, cil dokupu 0.75 ATR, stop stejny",
+     lambda c: _with(c, scale_in=[2.0, 2])),
+    ("potvrzeni_obratu_3d", "vstoupit az pri prvnim zavreni ve smeru obchodu (do 3 dni po signalu), ne do padajici ceny",
+     lambda c: _with(c, confirm_up=3)),
+    ("jedna_sazka_na_menu", "vic signalu stejneho dne na stejnou menu = jedna sazka: velikost deleno odmocninou poctu",
+     lambda c: _with(c, cluster="sqrt")),
+    ("stupen_sazby_04", "novy nejsilnejsi stupen: zmena sazeb >= 0.40 p.b. (99 % vyher), nejslabsi stupen (sazby >= 0) pryc",
+     lambda c: _tiers(c, lambda t: [{**t[0], "fund": "rates_up", "rates_thr": 0.40}] + t[:-1])),
+    # round 14: target, stop and holding again on top of the exit before decisions (the optimum may have moved;
+    # the user accepts short trades with small profits)
+    ("cil_06_atr", "cil 0.6 ATR misto 0.75 (rychlejsi mensi zisky, casteji)", lambda c: _with(c, tp=0.6)),
+    ("cil_05_atr", "cil 0.5 ATR misto 0.75", lambda c: _with(c, tp=0.5)),
+    ("stop_5_atr", "stop 5 ATR misto 4", lambda c: _with(c, sl=5.0)),
+    ("drzeni_30_dni", "nejdele 30 obchodnich dni misto 20", lambda c: _with(c, hold_days=30)),
+    ("cil_40_procent_poklesu", "cil = 40 % poklesu za 5 dni (0.5-1.5 ATR): po hlubsim propadu vetsi odraz",
+     lambda c: _with(c, tp_retrace=0.4)),
+    # round 15: the end-of-week effect (scratch analysis 2026-10-02: the strongest tier entered at a Thursday close
+    # earned +0.18 / +0.08 / +0.10 R per trade in 2012-18 / 2019-22 / 2023-26, Friday +0.16 / +0.14 / +0.11,
+    # Monday-Wednesday only +0.03..+0.14 and 82-91 % wins): position squaring before the weekend starts on Thursday
+    ("ctvrtek_i_patek_silny", "nejsilnejsi stupen se vyhodnocuje ve ctvrtek i v patek (vic obchodu)",
+     lambda c: _tiers(c, lambda t: [{**t[0], "weekdays": (3, 4)}] + t[1:])),
+    ("ctvrtek_i_patek_silne", "oba silne stupne se vyhodnocuji ve ctvrtek i v patek",
+     lambda c: _tiers(c, lambda t: [{**x, "weekdays": (3, 4)} for x in t[:2]] + t[2:])),
+    # round 16 (champion's trades: the winners reach the target in 3.9 days (median), 90 % within 12.8; the
+    # stop-loss trades first rose 0.33 ATR (median, a quarter > 0.52) and fell to the stop after 14 days):
+    # a late bounce is taken smaller
+    ("pozdni_cil_5d_035", "po 5 dnech bez cile se cil snizi na 0.35 ATR", lambda c: _with(c, decay_days=5, decay_tp=0.35)),
+    ("pozdni_cil_10d_025", "po 10 dnech bez cile se cil snizi na 0.25 ATR", lambda c: _with(c, decay_days=10, decay_tp=0.25)),
+    ("pozdni_cil_7d_01", "po 7 dnech bez cile vystoupit pri prvnim malem zisku (0.1 ATR)",
+     lambda c: _with(c, decay_days=7, decay_tp=0.1)),
+    # round 17: when the rates strongly support the trade (strongest tier: 95-100 % wins, +0.15..+0.19 R per trade
+    # in every period), a trader lets it run further or also buys a breakout in the same direction
+    ("silny_cil_1_atr", "nejsilnejsi stupen: cil 1.0 ATR misto 0.75", lambda c: _tiers(c, lambda t: [{**t[0], "tp": 1.0}] + t[1:])),
+    ("silne_cil_1_atr", "oba silne stupne: cil 1.0 ATR", lambda c: _tiers(c, lambda t: [{**x, "tp": 1.0} for x in t[:2]] + t[2:])),
+    ("silny_dve_casti", "nejsilnejsi stupen: pulka pozice s cilem 0.75 ATR, pulka 1.5 ATR",
+     lambda c: _tiers(c, lambda t: [{**t[0], "tp_parts": (0.75, 1.5)}] + t[1:])),
+    ("silny_i_pruraz", "nejsilnejsi stupen bere i pruraz 20denniho maxima ve smeru sazeb (Donchian 20)",
+     lambda c: _tiers(c, lambda t: [{**t[0], "signal": t[0].get("signal", "D RSI2<5") + "|D Donchian20 pruraz"}] + t[1:])),
+    ("silny_i_3_dny", "nejsilnejsi stupen bere i 3 dny poklesu za sebou",
+     lambda c: _tiers(c, lambda t: [{**t[0], "signal": t[0].get("signal", "D RSI2<5") + "|D 3 dny dolu"}] + t[1:])),
 ]
 
 
