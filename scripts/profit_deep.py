@@ -68,6 +68,8 @@ class Rule:
                                       # central bank (always / only when in profit); "fed_long_usd": only long-USD trades
                                       # before an FOMC decision (Mueller, Tahbaz-Salehi, Vedolin 2017: USD falls on FOMC days)
     vix_size: bool = False            # size factor 17 / VIX of the decision day, 0.5-1.5 (Moreira, Muir 2017)
+    tp_parts: tuple = ()              # split the position into equal parts with these targets (ATR), e.g. (0.75, 1.0, 1.5)
+    knife_days: int = 0               # > 0: do not buy a close that is the lowest of this many days (sell: highest)
 
 
 _cache: dict = {}
@@ -313,6 +315,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     continue
                 if rule.min_jump_atr and not news(symbol, s, I, "jump")[i] >= rule.min_jump_atr:
                     continue
+                if rule.knife_days and i >= rule.knife_days:
+                    window = s["dc"][i - rule.knife_days:i]
+                    if (side > 0 and s["dc"][i] < window.min()) or (side < 0 and s["dc"][i] > window.max()):
+                        continue
                 if rule.risk_contra:
                     risk = RISK_SCORE.get(inst.base, 0) - RISK_SCORE.get(inst.quote, 0)
                     sp = news(symbol, s, I, f"sp500:{rule.risk_contra}")[i]
@@ -353,40 +359,56 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     TP, SL = rule.tp * atr, rule.sl * atr
                 if TP / entry * 100 < rule.min_tp_pct - 1e-9 or SL / entry * 100 * P.LEVERAGE > rule.max_sl_margin:
                     continue
-                result, reason, exit_k = None, "CAS", first + L - 1
+                # the position may be split into parts with their own targets (rule.tp_parts, in ATR); one part = TP
+                parts = [x * atr for x in rule.tp_parts] if rule.tp_parts else [TP]
+                n_parts = len(parts)
+                part_res, part_exit = [None] * n_parts, [None] * n_parts
+                reason, exit_k = "CAS", first + L - 1
                 stop, best = SL, 0.0
                 marks = []                                       # (NY close ts, open result in % of the price)
+
+                def close_open(value, k, why):
+                    for q in range(n_parts):
+                        if part_res[q] is None:
+                            part_res[q], part_exit[q] = value, k
+                    return why
                 for j in range(first, first + L):
                     fav = (hh[j] - half - entry) if side > 0 else (entry - (hl[j] + half))
                     adv = (entry - (hl[j] - half)) if side > 0 else ((hh[j] + half) - entry)
                     if j == first:
                         adv = max(adv, adv0)
                     if adv >= stop:
-                        result, reason, exit_k = -stop, "SL" if stop == SL else "BE", j
+                        reason = close_open(-stop, j, "SL" if stop == SL else "BE")
                         break
-                    if fav >= TP:
-                        result, reason, exit_k = TP, "TP", j
+                    for q in range(n_parts):
+                        if part_res[q] is None and fav >= parts[q]:
+                            part_res[q], part_exit[q] = parts[q], j
+                    if all(x is not None for x in part_res):
+                        reason = "TP"
                         break
                     best = max(best, fav)
                     if is_close[j]:
                         now_close = (hc[j] - half - entry) if side > 0 else (entry - (hc[j] + half))
-                        marks.append((int(ts[j]) + 3600, now_close / entry * 100))
+                        whole = sum(now_close if x is None else x for x in part_res) / n_parts
+                        marks.append((int(ts[j]) + 3600, whole / entry * 100))
                         usd_long = (inst.base == "USD") == (side > 0) and "USD" in (inst.base, inst.quote)
                         if rule.exit_before_cb and j > first and cb_next[day_of[j]] and \
                                 (rule.exit_before_cb == "vzdy" or (rule.exit_before_cb == "zisk" and now_close > 0)
                                  or (rule.exit_before_cb == "fed_long_usd" and usd_long)):
-                            result, reason, exit_k = now_close, "CB", j
+                            reason = close_open(now_close, j, "CB")
                             break
                     if rule.be_atr and best >= rule.be_atr * atr:
                         stop = 0.0                               # from the next hour: out at the entry price
                     if rule.stall_days and j == first + rule.stall_days * 24 - 1:
                         now = (hc[j] - half - entry) if side > 0 else (entry - (hc[j] + half))
                         if now <= 0:
-                            result, reason, exit_k = now, "STALL", j
+                            reason = close_open(now, j, "STALL")
                             break
-                if result is None:
-                    result = (hc[exit_k] - half - entry) if side > 0 else (entry - (hc[exit_k] + half))
-                held = (ts[exit_k] + 3600 - ts[fill]) / 86400
+                if any(x is None for x in part_res):             # time exit of what is still open
+                    close_open((hc[exit_k] - half - entry) if side > 0 else (entry - (hc[exit_k] + half)), exit_k, reason)
+                result = float(np.mean(part_res))
+                exit_k = max(part_exit)
+                held = float(np.mean([(ts[k] + 3600 - ts[fill]) / 86400 for k in part_exit]))
                 fin = (side * I["carry_fin"][i] - P.FIN_MARKUP) / 100 / 365 * held * entry
                 pct = (result + fin) / entry * 100
                 trades.append({"pair": symbol, "side": side, "day": s["days"][i], "entry": entry,

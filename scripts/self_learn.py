@@ -63,7 +63,11 @@ SPLITS = (((2012, 2018), (2019, 2022)), ((2012, 2022), (2023, 2026)))
 DD_MAX = 0.20
 MIN_GAIN = 0.01
 DD_SLACK = 0.03
-EVAL_VERSION = 2                     # 2: drawdown with open trades at daily closes, 2-year blocks in the test
+EVAL_VERSION = 3                     # 2: drawdown with open trades at daily closes, 2-year blocks in the test
+                                     # 3: blocks with drawdown; risk-adjusted gate (user's decision 2026-10-02)
+MIN_CALMAR_GAIN = 0.10               # gate v3: return per drawdown (CAGR / max dd) better by >= 10 % in both tests
+MIN_RETURN_KEEP = 0.85               # ... while keeping >= 85 % of the champion's annual return
+DD_CAP = 0.30                        # ... and a test drawdown of at most 30 %
 BLOCKS = (((2019, 2020), (2021, 2022)), ((2023, 2024), (2025, 2026)))   # 2-year blocks of each test period
 MIN_BLOCKS = 3                       # the candidate must be at least as good in >= 3 of the 4 blocks
 SHARE_STEPS = (0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.12, 0.15, 0.20)
@@ -184,27 +188,36 @@ def evaluate(cfg: dict) -> dict:
                   "e_G2": float(np.mean(e_g["G2"])) if e_g["G2"] else 0.0,"shares": sh, "sel_cagr": cagr, "sel_dd": r_sel["max_dd"], "test_cagr": r_test["cagr"],
                   "test_dd": r_test["max_dd"], "test_n_year": r_test["n_year"], "test_win": r_test["win"],
                   "test_wins_month": r_test["wins_month"], "test_months_2wins": r_test["months_2wins"],
-                  "blocks": [PS.run_portfolio(lists, list(sh), b, cfg.get("max_ccy"))["cagr"] for b in BLOCKS[k]]}
+                  "blocks": [[r["cagr"], r["max_dd"]] for r in
+                             (PS.run_portfolio(lists, list(sh), b, cfg.get("max_ccy")) for b in BLOCKS[k])]}
     return out
 
 
+def calmar(cagr: float, dd: float) -> float:
+    return cagr / max(dd, 0.05)
+
+
 def better(cand: dict, champ: dict) -> bool:
+    """Gate v3 (user's decision 2026-10-02: compare return per risk, not raw return). In BOTH tests:
+    CAGR / max drawdown better by >= MIN_CALMAR_GAIN, CAGR >= MIN_RETURN_KEEP x the champion's, drawdown
+    <= DD_CAP, the profile's wins a month; at least as good (CAGR / dd) in >= MIN_BLOCKS of the 4 two-year
+    blocks; positive average trade in both market groups in 2023-2026."""
     for k in range(len(SPLITS)):
         c, h = cand.get(k), champ.get(k)
         if c is None:
             return False
         if h is None:
             continue
-        # fixed risk budget: every configuration is sized to the same drawdown limit on its selection years,
-        # so in the test it may use that budget (+ DD_SLACK), not only the champion's realised drawdown
-        if c["test_cagr"] < h["test_cagr"] + MIN_GAIN or c["test_dd"] > max(DD_MAX, h["test_dd"]) + DD_SLACK:
+        if c["test_cagr"] <= 0 or c["test_dd"] > DD_CAP:
+            return False
+        if calmar(c["test_cagr"], c["test_dd"]) < (1 + MIN_CALMAR_GAIN) * calmar(h["test_cagr"], h["test_dd"]):
+            return False
+        if c["test_cagr"] < MIN_RETURN_KEEP * h["test_cagr"]:
             return False
         if c["test_wins_month"] < 0.9 * PROFILE["min_wpm"]:
             return False
-    # robustness (from 2026-10-02, many more experiments a week): the gain must not come from one lucky
-    # stretch - at least as good as the champion in >= MIN_BLOCKS of the 2-year blocks of the tests
-    pairs = [(c, h) for k in range(len(SPLITS)) if champ.get(k) and "blocks" in champ[k]
-             for c, h in zip(cand[k]["blocks"], champ[k]["blocks"])]
+    pairs = [(calmar(*cb), calmar(*hb)) for k in range(len(SPLITS)) if champ.get(k) and cand.get(k)
+             for cb, hb in zip(cand[k]["blocks"], champ[k]["blocks"])]
     if pairs and sum(c >= h for c, h in pairs) < MIN_BLOCKS:
         return False
     last = cand[len(SPLITS) - 1]
@@ -219,7 +232,7 @@ def _with(cfg, **changes):
     new = copy.deepcopy(cfg)
     for k, v in changes.items():
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
-                 "be_atr", "stall_days", "exit_before_cb", "vix_size"):
+                 "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -357,6 +370,23 @@ EXPERIMENTS = [
      lambda c: {**_with(c, exit_before_cb="zisk"), "max_share": 0.15}),
     ("zavrit_pred_cb_zisk_marze12", "obchod v zisku zavrit den pred rozhodnutim centralni banky; marze nejvys 12 % na obchod",
      lambda c: {**_with(c, exit_before_cb="zisk"), "max_share": 0.12}),
+    # round 10 (2026-10-02 evening): gate v3 (return per drawdown, user's decision) and a trader's logic
+    ("v3_zavrit_pred_cb_zisk", "obchod v zisku zavrit den pred rozhodnutim centralni banky (znovu, brana v3)",
+     lambda c: _with(c, exit_before_cb="zisk")),
+    ("v3_zavrit_pred_cb_zisk_marze15", "totez s marzi nejvys 15 % na obchod (brana v3)",
+     lambda c: {**_with(c, exit_before_cb="zisk"), "max_share": 0.15}),
+    ("v3_polovina_pred_cb", "7 dni pred rozhodnutim centralni banky polovicni pozice (znovu, brana v3)",
+     lambda c: _tiers(c, lambda t: [{**x, "cb_size": 0.5} for x in t])),
+    ("tri_cile", "pozice na 3 casti s cili 0.75 / 1.0 / 1.5 ATR (vybrat zisk postupne)",
+     lambda c: _with(c, tp_parts=(0.75, 1.0, 1.5))),
+    ("tri_cile_nechat_bezet", "pozice na 3 casti s cili 0.75 / 1.5 / 3.0 ATR (cast nechat bezet)",
+     lambda c: _with(c, tp_parts=(0.75, 1.5, 3.0))),
+    ("padajici_nuz_20", "nekupovat zaviraci cenu, ktera je nejnizsi za 20 dni (neprodavat nejvyssi)",
+     lambda c: _with(c, knife_days=20)),
+    ("silny_stupen_denne", "nejsilnejsi stupen se vyhodnocuje kazdy den, ne jen v patek (vic obchodu)",
+     lambda c: _tiers(c, lambda t: [{**t[0], "weekly": False}] + t[1:])),
+    ("silne_stupne_denne", "oba silne stupne se vyhodnocuji kazdy den",
+     lambda c: _tiers(c, lambda t: [{**x, "weekly": False} for x in t[:2]] + t[2:])),
 ]
 
 
@@ -376,7 +406,9 @@ def _fmt(ev: dict) -> str:
         parts.append(f"{test[0]}-{test[1] % 100:02d}: **{e['test_cagr']:+.1%}** rocne, propad {e['test_dd']:.0%}, "
                      f"{e['test_wins_month']:.1f} ziskovych/mesic "
                      f"(marze {' / '.join(f'{x:.0%}' for x in e['shares'])})"
-                     + (f", po 2 letech {' / '.join(f'{b:+.0%}' for b in e['blocks'])}" if "blocks" in e else ""))
+                     + (f", po 2 letech {' / '.join(f'{b[0]:+.0%}' if isinstance(b, list) else f'{b:+.0%}' for b in e['blocks'])}"
+                        if "blocks" in e else "")
+                     + f", vynos/propad {calmar(e['test_cagr'], e['test_dd']):.2f}")
     return "; ".join(parts)
 
 

@@ -404,3 +404,13 @@ tiers only, exit-in-profit with margin <= 15 % / 12 % - all rejected. Closest: m
 profit before a decision + margin <= 15 %: 2019-22 +65.5 % at dd 17 % (champion +72.8 % at 27 %),
 2023-26 +29.6 % at dd 22 % (+20.9 % at 19 %) - better return per drawdown in both tests but lower
 return in 2019-22, so rejected by the gate; not adopted without the user's decision.
+
+## R-021 - gate v3: return per risk (user's decision 2026-10-02 evening), trader-logic options
+
+The user gave a free hand to change the rules. The gate now compares return per drawdown (CAGR / max dd,
+mark-to-market) instead of raw return at a refitted size: in BOTH tests >= +10 % better, >= 85 % of the
+champion's return, drawdown <= 30 %, the profile's wins a month, >= 3 of 4 two-year blocks at least as good
+(per drawdown), positive average trade in both market groups 2023-26 (EVAL_VERSION 3; champions re-evaluated).
+Simulator: `tp_parts` (position split into parts with own targets), `knife_days` (no buy at an N-day low).
+Round 10 (in progress): `v3_zavrit_pred_cb_zisk` ACCEPTED in the monthly profile (live signals): 2019-22
++87.2 % / dd 19 % (champion +72.8 % / 27 %), 2023-26 +39.5 % / dd 28 % (+20.9 % / 19 %).
