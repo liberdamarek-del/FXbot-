@@ -4,7 +4,8 @@ No look-ahead: every condition of the grid at bar t is the same whether or not l
 timeframe enters only after its bar closed; the week's locked conditions do not change when the prices of
 the week (and later) change. Also: forward returns / non-overlapping samples, the currency factor model,
 parsing of calendar values and surprise signs, data quality counts, the FX week in both DST regimes, the
-neighbour settings of the robustness check and one-indicator-family combinations.
+neighbour settings of the robustness check, one-indicator-family combinations, and the bridge to the model
+(the research selection for a test period ignores later prices; veto / half / boost of the model's trades).
 """
 
 import os
@@ -125,6 +126,23 @@ i_rsi = [i for i, c in enumerate(ds.conds) if c.key == "RSI14>50"][0]
 assert not T.distinct(ds, tuple(i_macd))                          # two MACD settings = one family
 assert T.family(ds.conds[i_macd[0]]) != T.family(ds.conds[i_rsi])
 
+# ---------------------------------------------------------------- bridge to the model (scripts/vyzkum_most.py)
+import vyzkum_most as VM  # noqa: E402
+
+until = int(full["close_ts"][1100])
+la = VM.lock_on(ds, until, robust_only=False)
+lb = VM.lock_on(ds_b, until, robust_only=False)
+assert [(c.key, d) for c, d, _ in la] == [(c.key, d) for c, d, _ in lb]   # a different future, the same selection
+assert len({T.family(c) for c, _, _ in la}) == len(la)                     # one condition per indicator family
+trades = [[{"pair": "EUR/USD", "side": 1, "vz0": (2, 0)}, {"pair": "EUR/USD", "side": 1, "vz0": (0, 2)},
+           {"pair": "EUR/USD", "side": -1, "vz0": (1, 1)}]]
+assert [t["vz0"] for t in VM.filtered(trades, 0, "veto")[0]] == [(2, 0), (1, 1)]
+half = VM.filtered(trades, 0, "polovina")[0]
+assert [t.get("size_mult", 1.0) for t in half] == [1.0, 0.5, 1.0]
+boost = VM.filtered(trades, 0, "posila")[0]
+assert [t.get("size_mult", 1.0) for t in boost] == [1.5, 0.5, 1.0]
+assert "size_mult" not in trades[0][0]                                     # the base lists stay untouched
+
 print("=" * 60)
 print("F2 WEEKLY RESEARCH")
 print("=" * 60)
@@ -132,5 +150,6 @@ print("NO LOOK-AHEAD: 800+ CONDITIONS, INDICATORS, HIGHER TIMEFRAME, LOCKED SET:
 print("FORWARD RETURNS, NON-OVERLAPPING SAMPLES: PASS")
 print("CURRENCY FACTORS, CALENDAR VALUES, SURPRISE SIGN, SIDEWAYS THRESHOLDS: PASS")
 print("DATA QUALITY COUNTS, FX WEEK (DST), NEIGHBOURS, INDICATOR FAMILIES: PASS")
+print("BRIDGE TO THE MODEL: SELECTION WITHOUT LOOK-AHEAD, VETO / HALF / BOOST: PASS")
 print("RESULT: PASS")
 print("=" * 60)

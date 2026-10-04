@@ -83,6 +83,16 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .stats { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 .stat { display: grid; gap: 2px; }
 .stat .v { font-family: var(--f-num); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+.bars { display: grid; gap: 4px; max-width: 520px; }
+.bar { display: grid; grid-template-columns: 3.2em 1fr 4.6em; gap: 8px; align-items: center; font-size: 0.9rem; }
+.bar .track { position: relative; height: 12px; background: var(--chip); border-radius: 3px; }
+.bar .track::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--muted); }
+.bar .fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.bar .fill.pos { background: var(--buy); } .bar .fill.neg { background: var(--sell); }
+.bar .num { text-align: right; }
+.cols { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.cols > div { display: grid; gap: 8px; align-content: start; min-width: 0; }
+ul.plain { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
 ol.steps { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 70ch; }
 details summary { cursor: pointer; font-weight: 600; }
 @media (prefers-reduced-motion: no-preference) { button { transition: filter .15s } button:hover { filter: brightness(1.08) } }
@@ -127,6 +137,11 @@ details summary { cursor: pointer; font-weight: 600; }
       <tbody id="news"><tr><td colspan="6" class="muted">Data se načítají…</td></tr></tbody>
     </table></div>
     <p class="small muted" id="news-note">Jak model se zprávami pracuje: rozhodnutí centrálních bank (Fed, ECB, BoJ, BoE) a americká data (NFP, CPI) od roku 2012 testuje na historii. Obchody otevřené do 7 dní před rozhodnutím centrální banky vydělávaly méně. Jejich vynechání ale snížilo roční výnos (méně obchodů) a poloviční pozice zatím také neprošla testem, proto to pravidlo zatím nedělá. U párů ukazujeme, kdy se zpráva blíží – ber to jako upozornění na vyšší riziko.</p>
+  </section>
+
+  <section class="sheet" aria-labelledby="h-research">
+    <header><h2 id="h-research">Týdenní výzkum trhu</h2><span class="small muted" id="research-week">Každou sobotu rozbor právě skončeného týdne.</span></header>
+    <div id="research"><div class="empty">Výzkum se načítá s daty modelu.</div></div>
   </section>
 
   <div class="two">
@@ -258,6 +273,7 @@ details summary { cursor: pointer; font-weight: 600; }
       ${s.duvod ? `<p class="small muted">${esc(s.duvod)}</p>` : ""}
       ${s.varovani ? `<div class="notice">⚠ ${esc(s.varovani)}</div>` : ""}
       ${plan.pred_rozhodnutim ? `<p class="small"><b>Před rozhodnutím centrální banky:</b> ${esc(plan.pred_rozhodnutim.pravidlo)} <span class="muted">${esc(plan.pred_rozhodnutim.text)}</span></p>` : ""}
+      ${s.vyzkum && s.vyzkum.podminky_pro ? `<p class="small muted">${esc(s.vyzkum.text)}${s.vyzkum.podminky_pro.length ? " Pro: " + esc(s.vyzkum.podminky_pro.join(", ")) + "." : ""}${s.vyzkum.podminky_proti.length ? " Proti: " + esc(s.vyzkum.podminky_proti.join(", ")) + "." : ""}</p>` : ""}
       ${kind === "trh" ? `<div class="row"><button type="button" class="ghost" data-fill="${i}">Zapsat podle signálu</button></div>` : ""}
     </article>`;
   }
@@ -316,8 +332,42 @@ details summary { cursor: pointer; font-weight: 600; }
         <td>${sideChip(p.smer)}<div class="small muted">sazby ${sgn(p.zmena_sazeb_3m, 2)} p.b., rozdíl ${sgn(p.rozdil_sazeb, 2)} %</div></td>
         <td>${tierChip(p.stupen)}</td><td class="r num">${fmt(p.cena, p.desetinna_mista)}</td>
         <td class="r num"><span class="${rsiCls}">${fmt(p.rsi2, 0)}</span></td>
-        <td class="small">${esc(p.podminka || "")}${goal}${p.varovani ? `<div class="small"><span class="chip warn">⚠ ${esc(p.varovani)}</span></div>` : ""}${(p.udalosti_24h || []).length ? `<div class="small"><span class="chip warn">zprávy do 24 h: ${esc(p.udalosti_24h.join(", "))}</span></div>` : ""}${(p.banka_7_dni || []).length ? `<div class="small"><span class="chip warn">centrální banka do 7 dní: ${esc(p.banka_7_dni.join(", "))}</span></div>` : ""}</td></tr>`;
+        <td class="small">${esc(p.podminka || "")}${goal}${p.varovani ? `<div class="small"><span class="chip warn">⚠ ${esc(p.varovani)}</span></div>` : ""}${(p.udalosti_24h || []).length ? `<div class="small"><span class="chip warn">zprávy do 24 h: ${esc(p.udalosti_24h.join(", "))}</span></div>` : ""}${(p.banka_7_dni || []).length ? `<div class="small"><span class="chip warn">centrální banka do 7 dní: ${esc(p.banka_7_dni.join(", "))}</span></div>` : ""}${researchChip(p)}${(p.vyzkum_udalosti || []).map((t) => `<div class="small muted">Výzkum: ${esc(t)}</div>`).join("")}</td></tr>`;
     }).join("");
+  }
+
+  function researchChip(p) {
+    const v = p.vyzkum;
+    if (!v || (!v.pro_rust.length && !v.pro_pokles.length)) return "";
+    const title = [v.pro_rust.length ? "pro růst: " + v.pro_rust.join(", ") : "", v.pro_pokles.length ? "pro pokles: " + v.pro_pokles.join(", ") : ""].filter(Boolean).join("; ");
+    return `<div class="small"><span class="chip" title="${esc(title)}">výzkum: ${v.pro_rust.length} pro růst, ${v.pro_pokles.length} pro pokles</span> <span class="muted">${esc(title)}</span></div>`;
+  }
+
+  function renderResearch() {
+    if (!state) return;
+    const r = state.vyzkum_tyden;
+    if (!r) { $("research").innerHTML = `<div class="empty">První týdenní výzkum se objeví po sobotním přepočtu.</div>`; return; }
+    $("research-week").textContent = `Týden ${r.tyden} (${r.od} – ${r.do}). Jen informace: model z výzkumu zatím nic neobchoduje, žádná varianta zatím neprošla testovací branou.`;
+    const max = Math.max(0.01, ...r.meny.map((m) => Math.abs(m[1])));
+    const bars = r.meny.map(([c, v]) => {
+      const w = Math.abs(v) / max * 50;
+      const left = v >= 0 ? 50 : 50 - w;
+      return `<div class="bar"><b>${esc(c)}</b><span class="track" aria-hidden="true"><span class="fill ${v >= 0 ? "pos" : "neg"}" style="left:${left}%;width:${w}%"></span></span><span class="num r ${v >= 0 ? "pos" : "neg"}">${sgn(v, 2)} %</span></div>`;
+    }).join("");
+    const regime = (r.rezim || []).map((x) => `<span class="chip strong">${esc(x)}</span>`).join(" ");
+    const facts = Object.entries(r.podklady || {}).map(([k, v]) => `${esc(k)}: <span class="num">${esc(v)}</span>`).join("; ");
+    const moves = (r.nejvetsi_pohyby || []).map((m) => `<li><b>${esc(m.par)}</b> <span class="num ${m.zmena_pct >= 0 ? "pos" : "neg"}">${sgn(m.zmena_pct, 2)} %</span></li>`).join("");
+    const surprises = (r.prekvapeni || []).map((t) => `<li>${esc(t)}</li>`).join("") || `<li class="muted">Žádná ověřená skutečná hodnota (ověřujeme jen americká data přes FRED).</li>`;
+    const wf = (r.walk_forward_1h || []).map((w) => `<li><b>${esc(w.par)}</b>: ${w.kladnych} z ${w.obdobi} let kladných, ${w.podil_podminek} % vybraných podmínek fungovalo (průměr ${sgn(w.prumer_pct, 3)} % za 4 h)</li>`).join("");
+    const url = `https://github.com/liberdamarek-del/FXbot-/blob/main/${r.report}`;
+    $("research").innerHTML = `<div class="cols">
+      <div><span class="label">Režim trhu</span><div class="row">${regime || '<span class="chip">bez výrazného režimu</span>'}</div><p class="small muted">${facts}</p></div>
+      <div><span class="label">Síla měn v týdnu (proti koši ostatních)</span><div class="bars">${bars}</div></div>
+      <div><span class="label">Největší pohyby párů</span><ul class="plain">${moves}</ul></div>
+      <div><span class="label">Zprávy: skutečnost vs. odhad</span><ul class="plain small">${surprises}</ul></div>
+      <div><span class="label">Co mělo předpovědní hodnotu (hodinová data)</span><ul class="plain small">${wf}</ul><p class="small muted">Postup: najdi na minulosti, zamkni, otestuj další rok. Kolem 50 % znamená náhodu. I nejlepší páry mají účinek menší než náklady obchodu.</p></div>
+    </div>
+    <p class="small">Celý report se všemi páry, dny, úseky dne, zprávami a testy: <a href="${esc(url)}" target="_blank" rel="noopener">${esc(r.report)}</a> (v repozitáři projektu).</p>`;
   }
 
   function renderFund() {
@@ -424,12 +474,12 @@ details summary { cursor: pointer; font-weight: 600; }
       <div class="stat"><span class="label">Průměr na obchod</span><span class="v">${m.prumer_proc_marze !== null && m.prumer_proc_marze !== undefined ? sgn(m.prumer_proc_marze, 1) + " %" : "–"}</span></div>`;
     $("model").innerHTML = list.length ? list.map((t) => `<tr><td class="num">${esc(t.den)}</td><td>${esc(t.par)}</td><td>${sideChip(t.smer)}</td>
       <td class="r num">${fmt(t.vstup, dec(t.par))}</td><td class="r num">${fmt(t.tp, dec(t.par))}</td><td class="r num">${fmt(t.sl, dec(t.par))}</td>
-      <td>${t.stav === "uzavreny" ? esc(t.duvod_vystupu === "TP" ? "zisk (TP)" : t.duvod_vystupu === "SL" ? "ztráta (SL)" : "zavřeno časem") : "otevřený"}</td>
+      <td>${t.stav === "uzavreny" ? esc(t.duvod_vystupu === "TP" ? "zisk (TP)" : t.duvod_vystupu === "SL" ? "ztráta (SL)" : "zavřeno časem") : "otevřený"}${t.vyzkum_pro !== undefined ? `<div class="small muted">výzkum ${t.vyzkum_pro} pro / ${t.vyzkum_proti} proti</div>` : ""}</td>
       <td class="r num ${(t.vysledek_proc_marze ?? t.prubezne_proc_marze ?? 0) >= 0 ? "pos" : "neg"}">${t.vysledek_proc_marze !== undefined ? sgn(t.vysledek_proc_marze, 1) : t.prubezne_proc_marze !== undefined ? "(" + sgn(t.prubezne_proc_marze, 1) + ")" : "–"}</td></tr>`).join("")
       : `<tr><td colspan="8" class="muted">Dopředný test začíná prvním pátečním signálem.</td></tr>`;
   }
 
-  function renderAll() { renderStatus(); renderSignals(); renderReady(); renderPairs(); renderNews(); renderFund(); renderModel(); renderJournal(); }
+  function renderAll() { renderStatus(); renderSignals(); renderReady(); renderPairs(); renderNews(); renderResearch(); renderFund(); renderModel(); renderJournal(); }
 
   $("entry").addEventListener("submit", async (ev) => {
     ev.preventDefault();

@@ -498,3 +498,23 @@ combinations, event days (Fed/ECB/BoJ/BoE, NFP, CPI 2012 ->) x technical state, 
 growing archive; Czech report docs/tydenni/<week>.md, archive learning/tydenni/ and a query CLI (`--dotaz`).
 Test F2 (no look-ahead in all 804 conditions, higher timeframe, locked set; samples; factors; quality; DST week;
 neighbours; families). Saturday routine extended; docs/TYDENNI_VYZKUM.md describes the method. Research only.
+
+## R-028 - 2026-10-04: the weekly research connected to the model (user's request)
+
+`scripts/vyzkum_most.py`: per pair the research selects daily technical conditions with a 5-day effect (one per
+indicator family, ROBUST only) and event-day rules (Fed / ECB / BoJ / BoE decisions, US NFP / CPI x technical state at
+the previous close), each time only on data known before the period it is used in (gate split 0: to 2018, split 1:
+to 2022; live: everything up to the model's last price day). Fix in the research statistics (also in the weekly report):
+a condition is scored by its forward return ABOVE the pair's average of the same window, not by the raw return - the
+raw return made conditions that merely followed a pair's long drift (e.g. EUR/USD 2014-15) look predictive.
+self_learn: per-split trade lists (`split_lists`), add-on lists get their own margin grid (ADDON_STEPS) instead of
+shrinking the tier grid. Round 24 through gate v3, all REJECTED: research veto (monthly profile: no feasible margins),
+research half size (2019-22 return/dd 4.30 vs 4.49, 2023-26 1.10 vs 1.43), research boost/half (2023-26 1.73 vs 1.43
+but 2019-22 3.89 vs 4.49), event-day add-on (4.3 instead of 3.4 winning trades a month, 2019-22 3.99 vs 4.49,
+2023-26 1.50 vs 1.43); the max profile was worse in all four.
+Live (information only, the rule is unchanged): signals_live adds per pair the research conditions active at the
+current daily bar (`vyzkum`), every signal gets the research votes for / against, and the forward test stores them
+(`vyzkum_pro`, `vyzkum_proti`) so live trades will show whether the research is right; the hourly update adds notes
+for events in the next 3 days that match a confirmed event-day rule and a weekly research summary (`vyzkum_tyden`);
+the dashboard has a new section "Týdenní výzkum trhu" and research notes at pairs, signals and model trades.
+Hourly data for the live signals: 2 years (the daily research conditions need 250+ bars). Test F2 extended.

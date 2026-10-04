@@ -202,9 +202,21 @@ def stale_rates(rates: dict, day: date) -> dict:
     return out
 
 
-def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) -> dict:
+def research_view(pair: str, D: dict, lock: dict | None) -> dict | None:
+    """Weekly research (scripts/vyzkum_most.py) at the current daily bar: information only - the model does not
+    trade it (the research variants did not pass the walk-forward gate, docs/CHANGE_LOG.md R-028)."""
+    if not lock or pair not in lock:
+        return None
+    import vyzkum_most as VM
+    try:
+        return VM.live_view(lock[pair], {"o": D["o"], "h": D["h"], "l": D["l"], "c": D["c"]})
+    except Exception:
+        return None
+
+
+def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, lock: dict | None = None) -> dict:
     inst = get_instrument(pair)
-    hb = yahoo_hourly(YAHOO[pair])
+    hb = yahoo_hourly(YAHOO[pair], "2y")                 # 2 years: the research conditions need 250+ daily bars
     D = daily(hb)
     c, h, l_ = D["c"], D["h"], D["l"]
     atr = SM.wilder(SM.true_range(h, l_, c), 14)
@@ -219,7 +231,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
            "rsi2": round(float(rsi2[-1]), 1), "rsi3": round(float(rsi3[-1]), 1),
            "atr": round(float(atr[-1]), inst.decimals), "atr_proc": round(float(atr[-1] / c[-1] * 100), 3),
            "rozdil_sazeb": round(carry, 2), "zmena_sazeb_3m": round(mom, 2), "desetinna_mista": inst.decimals,
-           "signal": None}
+           "signal": None, "vyzkum": research_view(pair, D, lock)}
     stale = {c: m for c, m in stale_rates(rates, day).items() if c in (inst.base, inst.quote)}
     if stale:
         out["varovani"] = ("zastarala sazba " + ", ".join(f"{c} (posledni udaj {m})" for c, m in stale.items())
@@ -279,6 +291,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
                     "marze_proc_uctu": round(shares[k] * mult * 100, 1),
                     "zisk_tp_proc_marze": round(tp_margin, 1), "ztrata_sl_proc_marze": round(sl_margin, 1),
                     "zavrit_nejpozdeji": (day + timedelta(days=28)).isoformat(),
+                    "vyzkum": research_votes(out["vyzkum"], side),
                     "plan": {**make_plan(side, entry, float(atr[-1]), base, inst.decimals, "trh"),
                              **({"pred_rozhodnutim": cb_exit_note(pair, day, base)} if cb_exit_note(pair, day, base) else {})},
                     "duvod": (f"RSI(2) {rsi2[-1]:.0f}{', RSI(3) %.0f' % rsi3[-1] if 'RSI3' in sig else ''} = prudky "
@@ -290,6 +303,15 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date) 
         out["stupen"] = "-"
         out["podminka"] = "fundamenty (sazby) ted nepodporuji zadny smer"
     return out
+
+
+def research_votes(view: dict | None, side: int) -> dict | None:
+    if not view:
+        return None
+    pro, proti = (view["pro_rust"], view["pro_pokles"]) if side > 0 else (view["pro_pokles"], view["pro_rust"])
+    return {"pro": len(pro), "proti": len(proti), "podminky_pro": pro, "podminky_proti": proti,
+            "text": (f"Týdenní výzkum (jen informace, model to nepoužívá): {len(pro)} podmínek pro obchod, "
+                     f"{len(proti)} proti (z {view['zamceno']} robustních podmínek páru).")}
 
 
 def rank_pairs(pairs: list) -> None:
@@ -375,9 +397,15 @@ def main() -> int:
     cfg, shares = ch["config"], ch["shares"]
     today = datetime.now(UTC).date()
     pairs, cache = [], {}
+    try:
+        import vyzkum_most as VM
+        lock = VM.live_lock(list(DEFAULT_ACTIVE))
+    except Exception as exc:                              # research is information only: never blocks the signals
+        print(f"vyzkum nedostupny: {type(exc).__name__}: {exc}", file=sys.stderr)
+        lock = None
     for pair in DEFAULT_ACTIVE:
         try:
-            pairs.append(evaluate_pair(pair, cfg, shares, rates, today))
+            pairs.append(evaluate_pair(pair, cfg, shares, rates, today, lock))
         except Exception as exc:
             pairs.append({"par": pair, "chyba": f"data nedostupna: {type(exc).__name__}"})
     for pair in DEFAULT_ACTIVE:
@@ -406,7 +434,9 @@ def main() -> int:
         forward.append({"id": key, "par": p["par"], "smer": s["smer"], "stupen": s["stupen"], "den": p["den"],
                         "cas_vstupu": now, "vstup": s["vstup"], "tp": s["tp"], "sl": s["sl"],
                         "marze_proc_uctu": s["marze_proc_uctu"], "stav": "otevreny",
-                        "cb_vystup": cfg["base"].get("exit_before_cb") == "zisk"})
+                        "cb_vystup": cfg["base"].get("exit_before_cb") == "zisk",
+                        **({"vyzkum_pro": s["vyzkum"]["pro"], "vyzkum_proti": s["vyzkum"]["proti"]}
+                           if s.get("vyzkum") else {})})
     resolve_forward(forward, cache)
     FORWARD.write_text(json.dumps(forward, indent=1, ensure_ascii=False))
     closed = [t for t in forward if t["stav"] == "uzavreny"]
@@ -437,6 +467,7 @@ def main() -> int:
                      "test_2023_26": {"rocne": round(ev["1"]["test_cagr"] * 100, 1), "propad": round(ev["1"]["test_dd"] * 100, 1),
                                       "ziskovych_mesicne": round(ev["1"]["test_wins_month"], 1)}},
         "pary": pairs,
+        "vyzkum_pravidla": (lock or {}).get("_pravidla", []),
         "signaly": [dict(par=p["par"], odhad_uspesnosti=p.get("odhad_uspesnosti"), uspesnost_hist=p.get("uspesnost_hist"),
                          n_hist=p.get("n_hist"), pravdepodobnost_uspechu=p.get("pravdepodobnost_uspechu"),
                          varovani=p.get("varovani"), **p["signal"])

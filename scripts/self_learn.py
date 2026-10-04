@@ -71,6 +71,7 @@ DD_CAP = 0.30                        # ... and a test drawdown of at most 30 %
 BLOCKS = (((2019, 2020), (2021, 2022)), ((2023, 2024), (2025, 2026)))   # 2-year blocks of each test period
 MIN_BLOCKS = 3                       # the candidate must be at least as good in >= 3 of the 4 blocks
 SHARE_STEPS = (0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.12, 0.15, 0.20)
+ADDON_STEPS = (0, 0.02, 0.05, 0.10)  # margin share of an add-on trade generator (its own small grid)
 REF_SL_MARGIN = 84.0                 # median stop of the champion in % of the margin (vol sizing anchor)
 
 START = {                            # CH-009 rule set as pre-registered (docs/CHANGE_LOG.md), on the 12 pairs
@@ -192,15 +193,13 @@ def recent_filter(lists: list[list[dict]], months: float, floor: float) -> list[
 def fit_shares(lists, cfg, years) -> tuple:
     """Tier margins (non-increasing) with the largest annual return at max drawdown <= DD_MAX."""
     best = (-np.inf, None, None)
-    n = len(lists)
-    steps = SHARE_STEPS if n <= 4 else (0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.15)
-    for sh in itertools.product(steps, repeat=n):
-        if sh[0] == 0 or not all(a >= b for a, b in zip(sh, sh[1:])):
-            continue
-        if sum(1 for x in sh if x >= 0.12) > 2:      # keep the grid small: few big tiers
-            continue
-        if sh[0] > cfg.get("max_share", 1.0):         # optional risk cap on the margin per trade
-            continue
+    n_main = min(len(cfg["tiers"]), len(lists))      # tiers; extra lists = add-on trade generators
+    steps = SHARE_STEPS if n_main <= 4 else (0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.15)
+    mains = [sh for sh in itertools.product(steps, repeat=n_main)
+             if sh[0] > 0 and all(a >= b for a, b in zip(sh, sh[1:]))
+             and sum(1 for x in sh if x >= 0.12) <= 2           # keep the grid small: few big tiers
+             and sh[0] <= cfg.get("max_share", 1.0)]            # optional risk cap on the margin per trade
+    for sh in (m + e for m in mains for e in itertools.product(ADDON_STEPS, repeat=len(lists) - n_main)):
         r = PS.run_portfolio(lists, list(sh), years, cfg.get("max_ccy"), cfg.get("brake"))
         if r["wins_month"] < PROFILE["min_wpm"] or r["months_2wins"] < PROFILE["min_m2"]:
             continue
@@ -209,10 +208,26 @@ def fit_shares(lists, cfg, years) -> tuple:
     return best
 
 
+def split_lists(base: list[list[dict]], cfg: dict, k: int) -> list[list[dict]]:
+    """Trade lists for gate split k: research filters and research add-ons are selected only on data known
+    before the split's test period (scripts/vyzkum_most.py)."""
+    if not (cfg.get("vyzkum_filtr") or cfg.get("vyzkum_udalosti")):
+        return base
+    import vyzkum_most as VM
+    n = len(cfg["tiers"])
+    lists = base
+    if cfg.get("vyzkum_filtr"):
+        lists = VM.filtered(base[:n], k, cfg["vyzkum_filtr"]) + base[n:]
+    if cfg.get("vyzkum_udalosti"):
+        lists = lists + [VM.event_addon(symbols_of(cfg), k)]
+    return lists
+
+
 def evaluate(cfg: dict) -> dict:
-    lists = trade_lists(cfg)
+    base = trade_lists(cfg)
     out = {}
     for k, (sel, test) in enumerate(SPLITS):
+        lists = split_lists(base, cfg, k)
         cagr, sh, r_sel = fit_shares(lists, cfg, sel)
         if sh is None:
             out[k] = None
@@ -523,6 +538,17 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "acc"} for x in t[2:]])),
     ("trh_prace_slabe", "slabsi stupne: i nezamestnanost za 6 mesicu se vyviji ve prospech kupovane meny",
      lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "une"} for x in t[2:]])),
+    # round 24 (user's request 2026-10-04: connect the weekly research to the model; scripts/vyzkum_most.py):
+    # research conditions per pair (daily, 5-day effect, ROBUST) selected only before each test period
+    ("vyzkum_filtr_veto", "obchod vynechat, kdyz vyzkumne podminky paru (denni, robustni) v den rozhodnuti "
+     "prevazne ukazuji proti nemu", lambda c: _with(c, vyzkum_filtr="veto")),
+    ("vyzkum_filtr_polovina", "obchod, proti kteremu vyzkum prevazne ukazuje, jen polovicni",
+     lambda c: _with(c, vyzkum_filtr="polovina")),
+    ("vyzkum_posila", "vyzkum proti obchodu = polovina, vyzkum pro obchod = 1.5x vetsi",
+     lambda c: _with(c, vyzkum_filtr="posila")),
+    ("vyzkum_udalosti", "doplnek: obchody na den rozhodnuti Fed/ECB/BoJ/BoE nebo US NFP/CPI, kdyz technicky stav "
+     "paru odpovida potvrzenemu vzorci (vstup pri zavreni den predem, vystup pri zavreni dne udalosti)",
+     lambda c: _with(c, vyzkum_udalosti=True)),
 ]
 
 

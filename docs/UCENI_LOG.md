@@ -1534,3 +1534,51 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+54.2%** rocne, propad 21%, 1.1 ziskovych/mesic (marze 20% / 20% / 0% / 0%), po 2 letech +81% / +90%, vynos/propad 2.55; 2023-26: **+28.7%** rocne, propad 21%, 1.6 ziskovych/mesic (marze 15% / 15% / 10% / 8%), po 2 letech +19% / +51%, vynos/propad 1.36
 * sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
 
+### 2026-10-04 - [champion_12_mesicne] vyzkum_filtr_veto: zamitnuto
+
+* obchod vynechat, kdyz vyzkumne podminky paru (denni, robustni) v den rozhodnuti prevazne ukazuji proti nemu
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-04 - [champion_12_mesicne] vyzkum_filtr_polovina: zamitnuto
+
+* obchod, proti kteremu vyzkum prevazne ukazuje, jen polovicni
+* kandidat: 2019-22: **+78.3%** rocne, propad 18%, 3.4 ziskovych/mesic (marze 20% / 20% / 10% / 6%), po 2 letech +80% / +80%, vynos/propad 4.30; 2023-26: **+28.1%** rocne, propad 26%, 2.3 ziskovych/mesic (marze 20% / 20% / 8% / 3%), po 2 letech +15% / +56%, vynos/propad 1.10
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-04 - [champion_12_mesicne] vyzkum_posila: zamitnuto
+
+* vyzkum proti obchodu = polovina, vyzkum pro obchod = 1.5x vetsi
+* kandidat: 2019-22: **+69.8%** rocne, propad 18%, 3.4 ziskovych/mesic (marze 15% / 15% / 10% / 4%), po 2 letech +65% / +78%, vynos/propad 3.89; 2023-26: **+32.6%** rocne, propad 19%, 2.3 ziskovych/mesic (marze 15% / 15% / 5% / 4%), po 2 letech +24% / +53%, vynos/propad 1.73
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-04 - [champion_12_mesicne] vyzkum_udalosti: zamitnuto
+
+* doplnek: obchody na den rozhodnuti Fed/ECB/BoJ/BoE nebo US NFP/CPI, kdyz technicky stav paru odpovida potvrzenemu vzorci (vstup pri zavreni den predem, vystup pri zavreni dne udalosti)
+* kandidat: 2019-22: **+87.5%** rocne, propad 22%, 4.3 ziskovych/mesic (marze 20% / 20% / 8% / 6% / 10%), po 2 letech +102% / +76%, vynos/propad 3.99; 2023-26: **+40.7%** rocne, propad 27%, 2.7 ziskovych/mesic (marze 20% / 20% / 6% / 5% / 10%), po 2 letech +33% / +54%, vynos/propad 1.50
+* sampion:  2019-22: **+87.2%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +96% / +82%, vynos/propad 4.49; 2023-26: **+39.5%** rocne, propad 28%, 2.3 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +24% / +75%, vynos/propad 1.43
+
+### 2026-10-04 - [champion_12] vyzkum_filtr_veto: zamitnuto
+
+* obchod vynechat, kdyz vyzkumne podminky paru (denni, robustni) v den rozhodnuti prevazne ukazuji proti nemu
+* kandidat: 2019-22: **+54.6%** rocne, propad 30%, 1.9 ziskovych/mesic (marze 20% / 20% / 10% / 5%), po 2 letech +68% / +50%, vynos/propad 1.81; 2023-26: **+8.4%** rocne, propad 39%, 1.6 ziskovych/mesic (marze 15% / 15% / 10% / 5%), po 2 letech -0% / +25%, vynos/propad 0.22
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
+### 2026-10-04 - [champion_12] vyzkum_filtr_polovina: zamitnuto
+
+* obchod, proti kteremu vyzkum prevazne ukazuje, jen polovicni
+* kandidat: 2019-22: **+68.8%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 5%), po 2 letech +87% / +55%, vynos/propad 2.60; 2023-26: **+14.4%** rocne, propad 40%, 2.2 ziskovych/mesic (marze 15% / 15% / 10% / 4%), po 2 letech +3% / +36%, vynos/propad 0.36
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
+### 2026-10-04 - [champion_12] vyzkum_posila: zamitnuto
+
+* vyzkum proti obchodu = polovina, vyzkum pro obchod = 1.5x vetsi
+* kandidat: 2019-22: **+88.8%** rocne, propad 35%, 3.3 ziskovych/mesic (marze 20% / 20% / 10% / 4%), po 2 letech +101% / +81%, vynos/propad 2.55; 2023-26: **+20.3%** rocne, propad 41%, 2.2 ziskovych/mesic (marze 15% / 15% / 8% / 3%), po 2 letech +10% / +41%, vynos/propad 0.49
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
+### 2026-10-04 - [champion_12] vyzkum_udalosti: zamitnuto
+
+* doplnek: obchody na den rozhodnuti Fed/ECB/BoJ/BoE nebo US NFP/CPI, kdyz technicky stav paru odpovida potvrzenemu vzorci (vstup pri zavreni den predem, vystup pri zavreni dne udalosti)
+* kandidat: 2019-22: **+85.4%** rocne, propad 28%, 4.2 ziskovych/mesic (marze 20% / 20% / 10% / 6% / 10%), po 2 letech +125% / +54%, vynos/propad 3.08; 2023-26: **+30.4%** rocne, propad 27%, 2.7 ziskovych/mesic (marze 15% / 15% / 6% / 6% / 10%), po 2 letech +26% / +38%, vynos/propad 1.12
+* sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+

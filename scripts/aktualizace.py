@@ -91,6 +91,75 @@ def central_banks(today) -> tuple[list[dict], dict]:
     return sorted(nxt, key=lambda x: x["den"]), per_pair
 
 
+EVENT_TITLES = {"US_NFP": "Non-Farm Employment Change", "US_CPI": "CPI m/m"}
+EVENT_CZ = {"FED": "rozhodnutí Fedu", "ECB": "rozhodnutí ECB", "BOJ": "rozhodnutí BoJ", "BOE": "rozhodnutí BoE",
+            "US_NFP": "americká zaměstnanost (NFP)", "US_CPI": "americká inflace (CPI)"}
+
+
+def research_event_notes(state: dict, events: list[dict], today) -> dict:
+    """Per pair: an event in the next 3 days for which the weekly research found that the pair's current
+    technical state predicted the event day's direction (scripts/vyzkum_most.py) - information only."""
+    import fundamenty as F
+    from datetime import date
+    ev = F.load_events()
+    upcoming = []                                         # (name, day)
+    for name in ("FED", "ECB", "BOJ", "BOE"):
+        upcoming += [(name, date.fromisoformat(d)) for d in ev.get(name, [])
+                     if today <= date.fromisoformat(d) <= today + timedelta(days=3)]
+    for e in events:
+        for name, title in EVENT_TITLES.items():
+            if e["mena"] == "USD" and e["udalost"] == title:
+                d = datetime.fromtimestamp(e["cas"], tz=ZoneInfo("America/New_York")).date()
+                if today <= d <= today + timedelta(days=3):
+                    upcoming.append((name, d))
+    out = {}
+    for p in state["pary"]:
+        stavy = (p.get("vyzkum") or {}).get("stavy", [])
+        for r in state.get("vyzkum_pravidla", []):
+            for name, d in upcoming:
+                if r["par"] == p["par"] and r["udalost"] == name and r["stav"] in stavy:
+                    out.setdefault(p["par"], []).append(
+                        f"{DAYS_CZ[d.weekday()]} {d.day}. {d.month}. {EVENT_CZ[name]}: {p['par']} je teď ve stavu "
+                        f"„{r['stav']}“ – v takových dnech historicky {'rostl' if r['smer'] > 0 else 'klesal'} víc než "
+                        f"v ostatních dnech této události (n {r['n']}, t {r['t']:.1f}). Jen informace – model to "
+                        "neobchoduje (testovací brána to zamítla).")
+    return out
+
+
+def weekly_research_summary() -> dict | None:
+    """The latest weekly research archive (learning/tydenni/) in a few lines for the dashboard."""
+    import gzip
+    files = sorted((PROJECT_ROOT / "learning" / "tydenni").glob("*-W*.json.gz"))
+    if not files:
+        return None
+    with gzip.open(files[-1], "rt", encoding="utf-8") as fh:
+        R = json.load(fh)
+    pairs = R.get("pary_vysledky", {})
+    moves = sorted(((p, v["tyden"]["zmena_pct"]) for p, v in pairs.items()), key=lambda x: -abs(x[1]))
+    wf = []
+    for p, v in pairs.items():
+        s = ((v.get("prediktivni") or {}).get("1H") or {}).get("walk_forward") or {}
+        s = s.get("singles_souhrn")
+        if s:
+            wf.append((p, s["kladnych_obdobi"], s["obdobi"], s["podil_kladnych_podminek"], s["prumer"]))
+    wf.sort(key=lambda x: -x[3])
+    surprises = []
+    for p, v in pairs.items():
+        for e in v.get("udalosti", []):
+            if e.get("actual_overeno") and e.get("surprise_trida") not in (None, "NEOVĚŘENO"):
+                txt = f"{e['mena']} {e['udalost']}: {e['actual']:g} vs odhad {e['forecast']} ({e['surprise_trida']})"
+                if txt not in surprises:
+                    surprises.append(txt)
+    return {"tyden": R["tyden"]["label"], "od": R["tyden"]["od"], "do": R["tyden"]["do"],
+            "rezim": (R.get("rezim") or {}).get("stitky", []), "podklady": (R.get("rezim") or {}).get("podklady", {}),
+            "meny": sorted(((R.get("faktory") or {}).get("meny") or {}).items(), key=lambda x: -x[1]),
+            "nejvetsi_pohyby": [{"par": p, "zmena_pct": round(x, 2)} for p, x in moves[:5]],
+            "prekvapeni": surprises[:6],
+            "walk_forward_1h": [{"par": p, "kladnych": a, "obdobi": b, "podil_podminek": round(c * 100),
+                                 "prumer_pct": round(m, 4)} for p, a, b, c, m in wf[:4]],
+            "report": f"docs/tydenni/{R['tyden']['label']}.md"}
+
+
 def read_journal(folder: Path) -> list[dict]:
     """The user's journal as exported by ArtifactData (one JSON file per entry)."""
     rows = []
@@ -167,6 +236,18 @@ def main(argv: list[str]) -> int:
             p["udalosti_24h"] = per_pair[p["par"]]
         if p["par"] in bank_pairs:
             p["banka_7_dni"] = bank_pairs[p["par"]]
+    try:
+        notes = research_event_notes(state, events, now.astimezone(ZoneInfo("America/New_York")).date())
+    except Exception as exc:                              # research is information only
+        print(f"vyzkum (udalosti) nedostupny: {type(exc).__name__}: {exc}", file=sys.stderr)
+        notes = {}
+    for p in state["pary"]:
+        if p["par"] in notes:
+            p["vyzkum_udalosti"] = notes[p["par"]]
+    try:
+        state["vyzkum_tyden"] = weekly_research_summary()
+    except Exception as exc:
+        print(f"tydenni vyzkum nedostupny: {type(exc).__name__}: {exc}", file=sys.stderr)
     state["diagnostika"] = {"souhrn": diag["souhrn"],
                             "problemy": [f"{r['oblast']}: {r['zprava']}" for r in diag["kontroly"] if r["stav"] != DG.OK]}
     if JOURNAL.exists():                                  # last known journal with today's prices

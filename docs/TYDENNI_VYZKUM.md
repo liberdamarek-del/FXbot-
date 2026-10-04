@@ -30,7 +30,8 @@ a stavy vyššího timeframe (např. 1H RSI > 50 + 4H cena nad EMA50 + ADX > 25)
 jednotlivé → dvojice → trojice → čtveřice, každá složka z jiné rodiny indikátorů, minimální počet pozorování.
 
 Výsledek je vždy forward pohyb za pevný horizont (15M: 1 h, 30M: 2 h, 1H: 4 h, 4H: 24 h, 1D: 5 dní), vzorky
-se nepřekrývají. U každé podmínky: počet pozorování, průměr, medián, směrodatná odchylka, úspěšnost, max zisk
+se nepřekrývají. Podmínka se hodnotí podle toho, o kolik byl pohyb po ní **lepší než průměrný pohyb páru** ve stejném
+období – jinak by „předpovídaly“ i podmínky, které jen kopírují dlouhý trend páru. U každé podmínky: počet pozorování, průměr, medián, směrodatná odchylka, úspěšnost, max zisk
 a ztráta, t, poměr průměr/sd, korelace, počet období, kdy fungovala / selhala, a průměr v pipech po spreadu.
 
 - **In-sample** 2012–2019 (u 15M/30M prvních 75 % z 60 dní) – tady se hledá.
@@ -63,3 +64,15 @@ v trendovém režimu“:
 
 (týdenní výsledky z historie, směr vždy jen z dat před daným týdnem). Do obchodního modelu se nic nedostane
 přímo – jen jako pokus přes testovací bránu učení.
+
+## Napojení na model (od 4. 10. 2026)
+
+- **Testovací brána:** výzkum se zkouší jako filtr obchodů modelu (vynechat / zmenšit obchod, proti kterému
+  výzkumné podmínky páru převážně ukazují, nebo zvětšit obchod, který podporují) a jako doplňkové obchody v den
+  zpráv (rozhodnutí Fed/ECB/BoJ/BoE, americké NFP a CPI), když technický stav páru odpovídá potvrzenému vzorci.
+  Pro každé testovací období se výzkum vybírá jen z dat před ním. První test (4. 10.) neprošel: výnos na riziko
+  se v jednom ze dvou období zhoršil. Opakuje se jednou za čtvrtletí s novými daty.
+- **Na webu (informace):** sekce Týdenní výzkum trhu, u párů aktivní výzkumné podmínky, u signálů kolik
+  podmínek je pro / proti, poznámka před zprávou, pro kterou výzkum našel vzorec.
+- **Živý test:** u každého obchodu modelu se ukládá, zda byl výzkum pro, nebo proti. Po několika týdnech
+  se ukáže, jestli obchody podporované výzkumem dopadají lépe.

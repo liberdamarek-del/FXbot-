@@ -39,6 +39,10 @@ add markets.
   INSUFFICIENT SAMPLE / POSSIBLE OVERFIT; never fill missing data. Query a condition's weekly record:
   `python scripts/tydenni_analyza.py --dotaz "RSI14>50 & C>EMA20" --par EUR/USD --tf 1H --tydnu 20 [--rezim trend]`.
   Findings go into the model only as experiments through the gate. Method: docs/TYDENNI_VYZKUM.md.
+  Bridge to the model (R-028, scripts/vyzkum_most.py): research filter / boost and event-day add-on as gate
+  experiments (cfg `vyzkum_filtr`, `vyzkum_udalosti`; selection per gate split, no look-ahead); live the research
+  is information only (stav pary[].vyzkum, signal vyzkum votes, forward test vyzkum_pro / vyzkum_proti, event
+  notes, dashboard section "Týdenní výzkum trhu"). Statistics are excess over the pair's average of the window.
 - Start every job with the diagnostics (inside aktualizace.py); on CHYBA other than a known open item
   (docs/AUDIT_2026-10-02.md) do not publish signals, report it.
 
@@ -76,6 +80,10 @@ re-downloaded by the scripts.
 - (done 2026-10-04, R-026) macro: BIS CPI (all 8, macro.json "cpi_bis") and unemployment (all 8 incl. Eurostat
   EU27 / FRED CHF, NZD) as confirmations, accelerating rate divergence, size by rate change, vol sizing in the
   monthly profile under v3 - all rejected.
+- (done 2026-10-04, R-028) research bridge: veto / half / boost by the research conditions, event-day add-on -
+  all rejected. Re-test them once a quarter with the new data as new names (e.g. `vyzkum_udalosti_2027Q1`), never
+  every week (repeated tests of the same idea inflate lucky passes); after 8+ closed forward trades compare the
+  trades the research supported vs opposed (forward_trades.json vyzkum_pro / vyzkum_proti).
 - Next (new families only): BoC dates (history not on the site; try archived press releases), RBNZ (403);
   BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (weekly bars, Friday
   intraday path) only with an economic reason first; forward test review after 4+ weeks of live trades.

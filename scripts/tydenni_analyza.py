@@ -712,32 +712,46 @@ class Dataset:
         return out
 
 
-def t_stats(a: dict) -> tuple[np.ndarray, np.ndarray]:
+def t_stats(a: dict, base: float = 0.0) -> tuple[np.ndarray, np.ndarray]:
+    """Mean forward return when the condition holds MINUS the average of all samples of the same window (the
+    pair's drift: a condition is predictive only when it beats it) and its t-statistic."""
     n = np.maximum(a["n"], 1)
     mean = a["s1"] / n
     var = np.maximum(a["s2"] / n - mean ** 2, 1e-12) * n / np.maximum(n - 1, 1)
-    return mean, mean / np.sqrt(var) * np.sqrt(n)
+    return mean - base, (mean - base) / np.sqrt(var) * np.sqrt(n)
 
 
-def stability(periods: dict, direction: np.ndarray, min_n: int = 5) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Share of periods (with >= min_n samples) in which the condition's mean had the given sign; counts."""
+def stability(periods: dict, direction: np.ndarray, bases: dict, min_n: int = 5) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Share of periods (with >= min_n samples) in which the condition beat that period's average in the given
+    direction; counts."""
     good = np.zeros(len(direction))
     total = np.zeros(len(direction))
-    for a in periods.values():
+    for p, a in periods.items():
         ok = a["n"] >= min_n
-        m = a["s1"] / np.maximum(a["n"], 1)
+        m = a["s1"] / np.maximum(a["n"], 1) - bases[p]
         total += ok
         good += ok & (np.sign(m) == direction)
     return np.where(total > 0, good / np.maximum(total, 1), 0), good, total - good
 
 
+def base_of(ds: "Dataset", sel: np.ndarray) -> float:
+    return float(np.mean(ds.fwd[sel])) if sel.any() else 0.0
+
+
+def excess(ds: "Dataset", s: np.ndarray, window: np.ndarray, direction: int) -> np.ndarray:
+    """Forward returns of the samples s above the average of the window they belong to, in the signal's direction."""
+    return (ds.fwd[s] - base_of(ds, window)) * direction
+
+
 def select(ds: Dataset, sel: np.ndarray, M: np.ndarray, top: int, period: str = "year") -> list[tuple[int, int, float]]:
-    """In-sample choice: n >= min, stable sign in >= stability_min of the periods, ranked by |t|.
-    Returns (row, direction, t). Nothing but in-sample samples is used."""
+    """In-sample choice: n >= min, beats the average in the same direction in >= stability_min of the periods,
+    ranked by |t| of the excess over the average. Returns (row, direction, t). Only in-sample samples are used."""
     a = ds.agg(sel, M)
-    mean, t = t_stats(a)
+    mean, t = t_stats(a, base_of(ds, sel))
     direction = np.sign(mean)
-    st, _, _ = stability(ds.per_period(sel, M, period), direction)
+    labels = ds.year if period == "year" else ds.week
+    bases = {p: base_of(ds, sel & (labels == p)) for p in np.unique(labels[sel])}
+    st, _, _ = stability(ds.per_period(sel, M, period), direction, bases)
     ok = (a["n"] >= CONFIG["min_n_select"][ds.tf]) & (st >= CONFIG["stability_min"]) & np.isfinite(t)
     rows = np.where(ok)[0]
     rows = rows[np.argsort(-np.abs(t[rows]))][:top]
@@ -802,7 +816,8 @@ def robustness(ds: Dataset, rows: tuple, direction: int, sel: np.ndarray) -> dic
     """Every component moved to its neighbouring settings one at a time: ROBUST when >= robust_share of the
     neighbours keep the sign with at least half of the in-sample effect, else POSSIBLE OVERFIT."""
     base = combo_mask(ds, rows)
-    m0 = float(np.mean(ds.fwd[sel & base])) * direction if (sel & base).any() else 0.0
+    avg = base_of(ds, sel)
+    m0 = (float(np.mean(ds.fwd[sel & base])) - avg) * direction if (sel & base).any() else 0.0
     held, total, examples = 0, 0, []
     for pos, r in enumerate(rows):
         for nb in K.neighbors(ds.conds[r]):
@@ -813,7 +828,7 @@ def robustness(ds: Dataset, rows: tuple, direction: int, sel: np.ndarray) -> dic
             s = sel & m
             if s.sum() < 10:
                 continue
-            e = float(np.mean(ds.fwd[s])) * direction
+            e = (float(np.mean(ds.fwd[s])) - avg) * direction
             total += 1
             ok = e > 0 and e >= 0.5 * m0
             held += ok
@@ -834,7 +849,7 @@ def regime_split(ds: Dataset, mask: np.ndarray, direction: int, sel: np.ndarray)
                 continue
             s = sel & mask & (lab == v)
             if s.sum() >= 20:
-                x = ds.fwd[s] * direction
+                x = excess(ds, s, sel & (lab == v), direction)
                 part[v] = {"n": int(s.sum()), "prumer": float(np.mean(x)), "hit": float(np.mean(x > 0))}
         vals = [p["prumer"] for p in part.values()]
         if len(vals) == 2 and min(p["n"] for p in part.values()) >= 50 and vals[0] * vals[1] < 0:
@@ -847,22 +862,24 @@ def regime_split(ds: Dataset, mask: np.ndarray, direction: int, sel: np.ndarray)
 def describe(ds: Dataset, rows: tuple, direction: int, sel_is: np.ndarray, sel_oos: np.ndarray | None,
              period: str = "year") -> dict:
     mask = combo_mask(ds, rows)
-    x_is = ds.fwd[sel_is & mask] * direction
+    x_is = excess(ds, sel_is & mask, sel_is, direction)
     out = {"podminka": combo_key(ds, rows), "smer": "růst" if direction > 0 else "pokles",
-           "in_sample": full_stats(x_is)}
+           "in_sample": full_stats(x_is), "prumer_paru_is": base_of(ds, sel_is)}
     if sel_oos is not None:
-        out["out_of_sample"] = full_stats(ds.fwd[sel_oos & mask] * direction)
+        out["out_of_sample"] = full_stats(excess(ds, sel_oos & mask, sel_oos, direction))
+        out["prumer_paru_oos"] = base_of(ds, sel_oos)
     labels = ds.year if period == "year" else ds.week
     worked = failed = 0
-    for p in np.unique(labels[sel_is | (sel_oos if sel_oos is not None else sel_is)]):
-        s = (labels == p) & mask & (sel_is | (sel_oos if sel_oos is not None else sel_is))
+    both = sel_is | (sel_oos if sel_oos is not None else sel_is)
+    for p in np.unique(labels[both]):
+        s = (labels == p) & mask & both
         if s.sum() >= 5:
-            if np.mean(ds.fwd[s]) * direction > 0:
+            if (np.mean(ds.fwd[s]) - base_of(ds, (labels == p) & both)) * direction > 0:
                 worked += 1
             else:
                 failed += 1
     out["obdobi_fungovala"], out["obdobi_selhala"] = worked, failed
-    c = np.corrcoef(mask[sel_is].astype(float), ds.fwd[sel_is])[0, 1] if mask[sel_is].any() else np.nan
+    c = np.corrcoef(mask[sel_is].astype(float), ds.fwd[sel_is])[0, 1] if 0 < mask[sel_is].sum() < sel_is.sum() else np.nan
     out["korelace"] = None if not np.isfinite(c) else float(c * direction)
     sp = spread_pips(ds.pair)
     if out["in_sample"]["n"]:
@@ -887,10 +904,11 @@ def walk_forward(ds: Dataset, period: str, with_combos: bool) -> dict:
         sel_oos = labels == test
         locked = select(ds, sel_is, ds.M, CONFIG["top_k"], period)
         vals = []
+        avg = base_of(ds, sel_oos)
         for r, d, _ in locked:
             s = sel_oos & ds.M[r]
             if s.sum() >= 5:
-                vals.append(float(np.mean(ds.fwd[s])) * d)
+                vals.append((float(np.mean(ds.fwd[s])) - avg) * d)
         if vals:
             res["singles"].append({"obdobi": str(test), "zamceno": len(locked), "testovano": len(vals),
                                    "prumer": float(np.mean(vals)), "podil_kladnych": float(np.mean(np.array(vals) > 0))})
@@ -901,7 +919,7 @@ def walk_forward(ds: Dataset, period: str, with_combos: bool) -> dict:
                 for rows, d, _ in found[kind]:
                     s = sel_oos & combo_mask(ds, rows)
                     if s.sum() >= 5:
-                        vals.append(float(np.mean(ds.fwd[s])) * d)
+                        vals.append((float(np.mean(ds.fwd[s])) - avg) * d)
             if vals:
                 res["combos"].append({"obdobi": str(test), "testovano": len(vals), "prumer": float(np.mean(vals)),
                                       "podil_kladnych": float(np.mean(np.array(vals) > 0))})
@@ -959,7 +977,8 @@ def analyze_dataset(ds: Dataset, week: tuple[int, int], with_wf: bool, with_wf_c
     if static:
         for kind in ("single", "pair", "triple", "quad"):
             for item in static[kind][:8 if kind == "single" else 5]:
-                rows, d = (item, int(np.sign(t_stats(ds.agg(split, combo_mask(ds, item)[None, :]))[0][0]))) \
+                rows, d = (item, int(np.sign(t_stats(ds.agg(split, combo_mask(ds, item)[None, :]),
+                                                     base_of(ds, split))[0][0]))) \
                     if kind == "single" else (item[0], item[1])
                 desc = describe(ds, rows, d, split, later, period)
                 desc["rad"] = kind
@@ -967,7 +986,7 @@ def analyze_dataset(ds: Dataset, week: tuple[int, int], with_wf: bool, with_wf_c
                 oos = desc["out_of_sample"]
                 desc["obstala_oos"] = bool(oos["n"] >= 20 and oos["prumer"] > 0 and oos["t"] >= 2)
                 desc["rezimy"] = regime_split(ds, combo_mask(ds, rows), d, split | later)
-                desc["tyden"] = full_stats(ds.fwd[in_week & combo_mask(ds, rows)] * d)
+                desc["tyden"] = full_stats(excess(ds, in_week & combo_mask(ds, rows), in_week, d))
                 rep.append(desc)
         out["testu_in_sample"] = static["tests"]
         out["ocekavane_nahodne_t3"] = round(static["tests"] * 0.0027, 1)
@@ -977,7 +996,7 @@ def analyze_dataset(ds: Dataset, week: tuple[int, int], with_wf: bool, with_wf_c
     week_rows = []
     for r, d, t in locked:
         s = in_week & ds.M[r]
-        x = ds.fwd[s] * d
+        x = excess(ds, s, in_week, d)
         week_rows.append({"podminka": ds.keys[r], "smer": d, "t_in_sample": t, "tyden": full_stats(x)})
     out["zamceno_pro_tyden"] = week_rows
     found = combos(ds, before, period) if before.sum() >= 200 else None
@@ -987,11 +1006,11 @@ def analyze_dataset(ds: Dataset, week: tuple[int, int], with_wf: bool, with_wf_c
             for rows, d, t in found[kind]:
                 s = in_week & combo_mask(ds, rows)
                 lc.append({"podminka": combo_key(ds, rows), "rad": kind, "smer": d, "t_in_sample": t,
-                           "tyden": full_stats(ds.fwd[s] * d)})
+                           "tyden": full_stats(excess(ds, s, in_week, d))})
     out["zamcene_kombinace_tyden"] = lc
     # every single condition inside the week (attribution, not prediction) - compact archive rows
     a = ds.agg(in_week)
-    mean, _ = t_stats(a)
+    mean, _ = t_stats(a, base_of(ds, in_week))
     out["tyden_vsechny"] = {ds.keys[i]: [int(a["n"][i]), round(float(mean[i]), 5),
                                          round(float(a["pos"][i] / max(a["n"][i], 1)), 3)]
                             for i in range(len(ds.keys)) if a["n"][i] > 0}
@@ -1000,11 +1019,11 @@ def analyze_dataset(ds: Dataset, week: tuple[int, int], with_wf: bool, with_wf_c
         m = prereg_mask(ds, parts)
         if m is None:
             continue
-        hist = full_stats(ds.fwd[before & m])
-        pre.append({"podminka": name, "historie_pred_tydnem": hist,
-                    "historie_do_2019": full_stats(ds.fwd[before & m & (ds.year <= 2019)]) if period == "year" else None,
-                    "historie_od_2020": full_stats(ds.fwd[before & m & (ds.year >= 2020)]) if period == "year" else None,
-                    "tyden": full_stats(ds.fwd[in_week & m])})
+        early, late = before & (ds.year <= 2019), before & (ds.year >= 2020)
+        pre.append({"podminka": name, "historie_pred_tydnem": full_stats(excess(ds, before & m, before, 1)),
+                    "historie_do_2019": full_stats(excess(ds, early & m, early, 1)) if period == "year" else None,
+                    "historie_od_2020": full_stats(excess(ds, late & m, late, 1)) if period == "year" else None,
+                    "tyden": full_stats(excess(ds, in_week & m, in_week, 1))})
     out["predregistrovane"] = pre
     if with_wf:
         out["walk_forward"] = walk_forward(ds, period, with_wf_combos)
@@ -1072,8 +1091,9 @@ def event_technical(pair: str, d1: dict) -> list[dict]:
             a, bb = st & (yrs <= 2019), st & (yrs >= 2020)
             if a.sum() < 8 or bb.sum() < 5:
                 continue
-            d = np.sign(np.mean(ret[a])) or 1
-            s_is, s_oos = full_stats(ret[a] * d), full_stats(ret[bb] * d)
+            base_is, base_oos = float(np.mean(ret[yrs <= 2019])), float(np.mean(ret[yrs >= 2020]))
+            d = np.sign(np.mean(ret[a]) - base_is) or 1
+            s_is, s_oos = full_stats((ret[a] - base_is) * d), full_stats((ret[bb] - base_oos) * d)
             out.append({"udalost": name, "mena": ccy, "stav": lab, "smer": "růst páru" if d > 0 else "pokles páru",
                         "in_sample": s_is, "out_of_sample": s_oos,
                         "obstalo": bool(s_is["t"] >= 2 and s_oos["t"] >= 2 and s_oos["n"] >= 10),
@@ -1187,7 +1207,7 @@ def f2(x, nd=2, suffix=""):
 def st_line(s: dict) -> str:
     if not s or not s.get("n"):
         return "n = 0 (INSUFFICIENT SAMPLE)"
-    return (f"n {s['n']} ({s['vzorek']}), průměr ve směru signálu {s['prumer']:+.3f} %, medián {s['median']:+.3f} %, sd {s['sd']:.3f}, "
+    return (f"n {s['n']} ({s['vzorek']}), nad průměrem páru ve směru signálu {s['prumer']:+.3f} %, medián {s['median']:+.3f} %, sd {s['sd']:.3f}, "
             f"úspěšnost {s['hit'] * 100:.0f} %, max zisk {s['max_zisk']:+.2f} %, max ztráta {s['max_ztrata']:+.2f} %, "
             f"t {s['t']:+.1f}")
 
@@ -1430,7 +1450,8 @@ def write_report(R: dict) -> str:
         L.append("INSUFFICIENT SAMPLE")
     L.append("")
     # 7 failed
-    L += ["## 7. FAILED SIGNALS", "", "Předregistrované kombinace (vaše příklady, testované vždy stejně) – historie před týdnem vs týden (1H, 4 h):", "",
+    L += ["## 7. FAILED SIGNALS", "", "Předregistrované kombinace (vaše příklady, testované vždy stejně) – pohyb za 4 h nad průměrem "
+          "páru ve stejném období (kladné = pár po signálu rostl víc než obvykle), historie před týdnem vs týden (1H):", "",
           "| pár | kombinace | do 2019: n / průměr % | od 2020: n / průměr % | týden: n / průměr % |", "|---|---|---|---|---|"]
     for pair, P_ in R["pary_vysledky"].items():
         for x in P_.get("prediktivni", {}).get("1H", {}).get("predregistrovane", []):
@@ -1575,17 +1596,19 @@ def query(cond_text: str, pair: str, tf: str, weeks: int, regime: str | None) ->
         rows.append(ds.keys.index(k))
     mask = combo_mask(ds, tuple(rows))
     labels = sorted(set(ds.week))[-weeks:]
-    print(f"{cond_text} | {pair} {tf} | horizont {HORIZON_CZ[tf]}" + (f" | režim {regime}" if regime else ""))
+    print(f"{cond_text} | {pair} {tf} | horizont {HORIZON_CZ[tf]} | výsledek = pohyb nad průměrem páru v daném týdnu ve směru "
+          f"signálu" + (f" | režim {regime}" if regime else ""))
     ok = bad = 0
     for wl in labels:
         sel = (ds.week == wl) & mask
         if regime:
             sel &= np.any([lab == regime for lab in ds.regime.values()], axis=0)
-        past = (ds.t_end <= ds.t[ds.week == wl].min()) & mask
+        known = ds.t_end <= ds.t[ds.week == wl].min()
+        past = known & mask
         if sel.sum() == 0 or past.sum() < 20:
             continue
-        d = np.sign(np.mean(ds.fwd[past])) or 1
-        m = float(np.mean(ds.fwd[sel])) * d
+        d = np.sign(np.mean(ds.fwd[past]) - base_of(ds, known)) or 1
+        m = (float(np.mean(ds.fwd[sel])) - base_of(ds, ds.week == wl)) * d
         ok += m > 0
         bad += m <= 0
         print(f"  {wl}: n {int(sel.sum()):3d}, směr {'↑' if d > 0 else '↓'} (z historie před týdnem), výsledek {m:+.4f} %")
