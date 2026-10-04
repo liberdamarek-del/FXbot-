@@ -518,3 +518,38 @@ current daily bar (`vyzkum`), every signal gets the research votes for / against
 for events in the next 3 days that match a confirmed event-day rule and a weekly research summary (`vyzkum_tyden`);
 the dashboard has a new section "Týdenní výzkum trhu" and research notes at pairs, signals and model trades.
 Hourly data for the live signals: 2 years (the daily research conditions need 250+ bars). Test F2 extended.
+
+## R-029 - 2026-10-04: complete code audit (user's request; docs/AUDIT_2026-10-04.md)
+
+Critical: the backtest and the learning decided and entered at the Friday 17:00 New York close, the live run decides
+at 16:05 New York - 159 of 1,415 Friday RSI(2) extremes differ between 16:00 and the close. New simulator mode
+`Rule.decide_h` (`profit_deep.prepared_live`: the decision day up to 16:00 New York, the earlier days with their full
+closes; equal to the full series at decide_h=0 for all 42 indicators x 12 pairs, disk cache keyed by the data and the
+indicator code); the champions have `decide_h: 1`, EVAL_VERSION 4; the live run decides from the Friday up to 16:00
+New York whenever it runs after it (`decision_cut`), the forward test enters at that moment and price. Critical
+(look-ahead, research only): `profit_lab.weekly_aligned` gave every day the whole week's close / high / low and
+`week_end` read the next day's date - now causal (completed weeks + the week so far), week end = Friday.
+High: leverage 1:30 for every pair - ESMA retail 1:20 for AUD/USD, NZD/USD, AUD/JPY (`profit_lab2.leverage`, used in
+the simulator, the research bridge, live plans, the journal, the forward test and the dashboard); the forward test
+had no costs / swap, checked the central bank exit before the stop and exited one hour late (now as `simulate`);
+a stale rate counted as a zero change and let the weakest tier (threshold 0.0) signal both ways (now: no decision on
+that pair); pair_stats measured TP2 / TP3 on other entries than the rule (now the same entries; labelled as an
+in-sample frequency). Medium / low: RSI of a flat market 0 / 100 -> 50; Bollinger variance from running sums ->
+per window; `champion_report` used its own copy of the trade lists -> `self_learn.trade_lists(cfg, change)`; one
+spread table, one central bank map, one set of day names; research failure visible (`vyzkum_chyba`); stale-rate
+warning text; dead gate-v1 constants and the outdated log header; unused imports; Yahoo data downloaded once per run.
+Diagnostics: CHYBA when the champion's decision time differs from the live one or the champion uses an option the
+live run does not implement (`live_unsupported`). Test F3 (52 tests pass).
+Re-evaluated champions (leverage per pair + live decision time), the honest numbers: monthly 2019-22 +53.0 % a year
+(dd 28.6 %), 2023-26 +28.2 % (dd 24.1 %) - before the audit +87.2 % / +39.5 %; the leverage alone accounts for
++86.8 % -> +68.1 % (2019-22), the decision time for +68.1 % -> +53.0 %. Profile max: +62.8 % / +19.7 %.
+Round 25 (from the leverage fix) through gate v3, all REJECTED in both profiles: the same position volume for 1:20
+pairs (1.5x margin), the minimum target in price instead of % of the margin, both.
+Gate check with placebo candidates (no information): 10 % of the trades dropped at random 0 of 20 pass; random
+position sizes (log-normal, sd 0.25) 1 of 20 pass in each profile - about 5 % of pure-noise sizing changes pass gate
+v3 (the margin re-fit sometimes hits better test years). Ablation under the honest evaluation: only the exit in profit
+before a central bank decision still passes the gate against the champion without it (both profiles); stop 4 ATR,
+RSI(3) < 15 and vol sizing are better in one or both tests but below +10 % or mixed - the versions without them do
+not pass either, so the champions stay. Live: the Friday decision from the day up to 16:00 New York whatever the run
+time; the forward test records only signals published before the close; a tick after the Friday close no longer
+creates a phantom Saturday bar; on the weekend the dashboard says the Friday signals can no longer be entered.

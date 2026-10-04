@@ -1,6 +1,6 @@
 # Denik uceni modelu
 
-_Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vyber velikosti vzdy jen na starsich datech) a rozhodnuti. Prijato jen, kdyz roste rocni vynos o >= 1% v obou testech a propad se nezhorsi o vic nez 3%._
+_Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vyber velikosti vzdy jen na starsich datech) a rozhodnuti. Do 2026-10-02 (brana v1) prijato jen, kdyz rostl rocni vynos o >= 1% v obou testech a propad se nezhorsil o vic nez 3%; od vecera 2026-10-02 brana v3: v obou testech vynos na propad lepsi o >= 10 %, aspon 85 % vynosu sampiona, propad <= 30 %, aspon 3 ze 4 dvouletych bloku stejne dobre._
 
 ## 2026-10-01 - vychozi sampion CH-009 (41 paru)
 
@@ -1581,4 +1581,48 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * doplnek: obchody na den rozhodnuti Fed/ECB/BoJ/BoE nebo US NFP/CPI, kdyz technicky stav paru odpovida potvrzenemu vzorci (vstup pri zavreni den predem, vystup pri zavreni dne udalosti)
 * kandidat: 2019-22: **+85.4%** rocne, propad 28%, 4.2 ziskovych/mesic (marze 20% / 20% / 10% / 6% / 10%), po 2 letech +125% / +54%, vynos/propad 3.08; 2023-26: **+30.4%** rocne, propad 27%, 2.7 ziskovych/mesic (marze 15% / 15% / 6% / 6% / 10%), po 2 letech +26% / +38%, vynos/propad 1.12
 * sampion:  2019-22: **+81.0%** rocne, propad 26%, 3.3 ziskovych/mesic (marze 20% / 20% / 8% / 4%), po 2 letech +114% / +56%, vynos/propad 3.11; 2023-26: **+26.0%** rocne, propad 28%, 2.2 ziskovych/mesic (marze 15% / 15% / 6% / 4%), po 2 letech +16% / +48%, vynos/propad 0.94
+
+## 2026-10-04 - profil mesicne: sampion CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk na datech do 2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4
+
+2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+## 2026-10-04 - profil max: sampion CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk na datech do 2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4
+
+2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-04 - [champion_12] r25_paka_stejny_objem: zamitnuto
+
+* pary s pakou 1:20 (AUD/USD, NZD/USD, AUD/JPY) s 1.5x vyssi marzi = stejny objem pozice jako pri 1:30 (obchodnik ridi riziko objemem pozice, ne marzi)
+* kandidat: 2019-22: **+69.3%** rocne, propad 25%, 3.0 ziskovych/mesic (marze 20% / 15% / 6% / 5%), po 2 letech +75% / +75%, vynos/propad 2.77; 2023-26: **+21.6%** rocne, propad 29%, 2.0 ziskovych/mesic (marze 15% / 15% / 5% / 5%), po 2 letech +15% / +32%, vynos/propad 0.75
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-04 - [champion_12_mesicne] r25_paka_stejny_objem: zamitnuto
+
+* pary s pakou 1:20 (AUD/USD, NZD/USD, AUD/JPY) s 1.5x vyssi marzi = stejny objem pozice jako pri 1:30 (obchodnik ridi riziko objemem pozice, ne marzi)
+* kandidat: 2019-22: **+57.6%** rocne, propad 36%, 3.1 ziskovych/mesic (marze 20% / 15% / 8% / 6%), po 2 letech +41% / +84%, vynos/propad 1.59; 2023-26: **+29.0%** rocne, propad 19%, 2.0 ziskovych/mesic (marze 20% / 15% / 3% / 3%), po 2 letech +24% / +39%, vynos/propad 1.52
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-04 - [champion_12] r25_min_cil_v_cene: zamitnuto
+
+* minimalni cil 0.333 % ceny u vsech paru (u paru 1:20 = 6.7 % marze misto 10 %)
+* kandidat: 2019-22: **+63.2%** rocne, propad 24%, 3.2 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +74% / +63%, vynos/propad 2.65; 2023-26: **+19.2%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 5%), po 2 letech +14% / +28%, vynos/propad 0.70
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-04 - [champion_12_mesicne] r25_min_cil_v_cene: zamitnuto
+
+* minimalni cil 0.333 % ceny u vsech paru (u paru 1:20 = 6.7 % marze misto 10 %)
+* kandidat: 2019-22: **+54.9%** rocne, propad 24%, 3.2 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +44% / +74%, vynos/propad 2.24; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-04 - [champion_12] r25_objem_i_cil: zamitnuto
+
+* oboje: stejny objem pozice i stejny minimalni cil v cene jako u paru 1:30
+* kandidat: 2019-22: **+56.8%** rocne, propad 20%, 3.2 ziskovych/mesic (marze 15% / 15% / 6% / 3%), po 2 letech +71% / +52%, vynos/propad 2.84; 2023-26: **+20.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 5% / 3%), po 2 letech +15% / +30%, vynos/propad 0.74
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-04 - [champion_12_mesicne] r25_objem_i_cil: zamitnuto
+
+* oboje: stejny objem pozice i stejny minimalni cil v cene jako u paru 1:30
+* kandidat: 2019-22: **+59.9%** rocne, propad 33%, 3.2 ziskovych/mesic (marze 20% / 15% / 6% / 6%), po 2 letech +45% / +85%, vynos/propad 1.81; 2023-26: **+29.1%** rocne, propad 18%, 2.0 ziskovych/mesic (marze 20% / 15% / 2% / 2%), po 2 letech +25% / +38%, vynos/propad 1.60
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
 

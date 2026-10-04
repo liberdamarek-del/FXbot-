@@ -10,1635 +10,1635 @@
  "stupne": [
   {
    "index": 0,
-   "obchodu": 87,
+   "obchodu": 86,
    "pary": {
     "EUR/USD": {
      "n": 3,
      "ziskovych": 3,
      "uspesnost": 100.0,
      "prumer_proc_marze": 22.1,
-     "odhad_uspesnosti": 97.0,
-     "odhad_prumer": 19.0,
+     "odhad_uspesnosti": 98.0,
+     "odhad_prumer": 17.9,
      "tp": [
       {
        "atr": 0.75,
        "n": 3,
        "dosazeno": 3,
-       "pravdepodobnost": 92.1,
-       "prumer_proc_marze": 19.0
+       "pravdepodobnost": 89.9,
+       "prumer_proc_marze": 17.9
       },
       {
        "atr": 1.0,
        "n": 3,
        "dosazeno": 3,
-       "pravdepodobnost": 83.1,
-       "prumer_proc_marze": 23.5
+       "pravdepodobnost": 82.8,
+       "prumer_proc_marze": 21.8
       },
       {
        "atr": 1.5,
        "n": 3,
        "dosazeno": 2,
-       "pravdepodobnost": 59.5,
-       "prumer_proc_marze": 25.5
+       "pravdepodobnost": 60.3,
+       "prumer_proc_marze": 23.4
       }
      ],
-     "prumer_rozdeleni_3": 22.7
+     "prumer_rozdeleni_3": 21.0
     },
     "USD/JPY": {
-     "n": 9,
-     "ziskovych": 9,
+     "n": 10,
+     "ziskovych": 10,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 23.2,
-     "odhad_uspesnosti": 97.6,
-     "odhad_prumer": 20.0,
+     "prumer_proc_marze": 23.0,
+     "odhad_uspesnosti": 98.4,
+     "odhad_prumer": 19.2,
      "tp": [
       {
        "atr": 0.75,
-       "n": 8,
-       "dosazeno": 6,
-       "pravdepodobnost": 86.4,
-       "prumer_proc_marze": 20.0
+       "n": 10,
+       "dosazeno": 8,
+       "pravdepodobnost": 85.6,
+       "prumer_proc_marze": 19.2
       },
       {
        "atr": 1.0,
-       "n": 8,
-       "dosazeno": 6,
-       "pravdepodobnost": 78.9,
-       "prumer_proc_marze": 24.9
+       "n": 10,
+       "dosazeno": 7,
+       "pravdepodobnost": 76.8,
+       "prumer_proc_marze": 23.3
       },
       {
        "atr": 1.5,
-       "n": 8,
-       "dosazeno": 6,
-       "pravdepodobnost": 63.2,
-       "prumer_proc_marze": 30.2
+       "n": 10,
+       "dosazeno": 7,
+       "pravdepodobnost": 62.9,
+       "prumer_proc_marze": 28.3
       }
      ],
-     "prumer_rozdeleni_3": 25.0
+     "prumer_rozdeleni_3": 23.6
     },
     "GBP/USD": {
      "n": 13,
      "ziskovych": 12,
      "uspesnost": 92.3,
      "prumer_proc_marze": 8.5,
-     "odhad_uspesnosti": 94.9,
-     "odhad_prumer": 14.6,
+     "odhad_uspesnosti": 95.6,
+     "odhad_prumer": 13.8,
      "tp": [
       {
        "atr": 0.75,
-       "n": 9,
-       "dosazeno": 8,
-       "pravdepodobnost": 90.3,
-       "prumer_proc_marze": 14.6
+       "n": 13,
+       "dosazeno": 10,
+       "pravdepodobnost": 83.9,
+       "prumer_proc_marze": 13.8
       },
       {
        "atr": 1.0,
-       "n": 9,
-       "dosazeno": 7,
-       "pravdepodobnost": 79.7,
-       "prumer_proc_marze": 15.8
+       "n": 13,
+       "dosazeno": 9,
+       "pravdepodobnost": 75.9,
+       "prumer_proc_marze": 14.3
       },
       {
        "atr": 1.5,
-       "n": 9,
-       "dosazeno": 3,
-       "pravdepodobnost": 50.6,
-       "prumer_proc_marze": 16.0
+       "n": 13,
+       "dosazeno": 4,
+       "pravdepodobnost": 48.1,
+       "prumer_proc_marze": 11.1
       }
      ],
-     "prumer_rozdeleni_3": 15.5
+     "prumer_rozdeleni_3": 13.1
     },
     "USD/CHF": {
      "n": 13,
      "ziskovych": 13,
      "uspesnost": 100.0,
      "prumer_proc_marze": 23.0,
-     "odhad_uspesnosti": 97.9,
-     "odhad_prumer": 20.3,
+     "odhad_uspesnosti": 98.6,
+     "odhad_prumer": 19.5,
      "tp": [
       {
        "atr": 0.75,
-       "n": 12,
-       "dosazeno": 12,
-       "pravdepodobnost": 94.3,
-       "prumer_proc_marze": 20.3
+       "n": 13,
+       "dosazeno": 13,
+       "pravdepodobnost": 93.0,
+       "prumer_proc_marze": 19.5
       },
       {
        "atr": 1.0,
-       "n": 12,
-       "dosazeno": 11,
-       "pravdepodobnost": 84.7,
-       "prumer_proc_marze": 25.7
+       "n": 13,
+       "dosazeno": 12,
+       "pravdepodobnost": 85.0,
+       "prumer_proc_marze": 24.1
       },
       {
        "atr": 1.5,
-       "n": 12,
-       "dosazeno": 8,
-       "pravdepodobnost": 61.5,
-       "prumer_proc_marze": 27.7
+       "n": 13,
+       "dosazeno": 9,
+       "pravdepodobnost": 63.2,
+       "prumer_proc_marze": 26.5
       }
      ],
-     "prumer_rozdeleni_3": 24.6
+     "prumer_rozdeleni_3": 23.4
     },
     "AUD/USD": {
-     "n": 9,
-     "ziskovych": 9,
+     "n": 8,
+     "ziskovych": 8,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 19.6,
-     "odhad_uspesnosti": 97.6,
-     "odhad_prumer": 18.8,
+     "prumer_proc_marze": 13.4,
+     "odhad_uspesnosti": 98.3,
+     "odhad_prumer": 16.1,
      "tp": [
       {
        "atr": 0.75,
-       "n": 9,
-       "dosazeno": 8,
-       "pravdepodobnost": 90.3,
-       "prumer_proc_marze": 18.8
+       "n": 8,
+       "dosazeno": 7,
+       "pravdepodobnost": 88.1,
+       "prumer_proc_marze": 16.1
       },
       {
        "atr": 1.0,
-       "n": 9,
-       "dosazeno": 8,
-       "pravdepodobnost": 83.1,
-       "prumer_proc_marze": 23.7
+       "n": 8,
+       "dosazeno": 7,
+       "pravdepodobnost": 82.3,
+       "prumer_proc_marze": 19.9
       },
       {
        "atr": 1.5,
-       "n": 9,
-       "dosazeno": 6,
-       "pravdepodobnost": 61.0,
-       "prumer_proc_marze": 21.3
+       "n": 8,
+       "dosazeno": 5,
+       "pravdepodobnost": 60.2,
+       "prumer_proc_marze": 18.2
       }
      ],
-     "prumer_rozdeleni_3": 21.3
+     "prumer_rozdeleni_3": 18.1
     },
     "USD/CAD": {
      "n": 6,
      "ziskovych": 6,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 18.5,
-     "odhad_uspesnosti": 97.3,
-     "odhad_prumer": 18.5,
+     "prumer_proc_marze": 16.8,
+     "odhad_uspesnosti": 98.2,
+     "odhad_prumer": 17.1,
      "tp": [
       {
        "atr": 0.75,
        "n": 6,
-       "dosazeno": 6,
-       "pravdepodobnost": 93.0,
-       "prumer_proc_marze": 18.5
+       "dosazeno": 5,
+       "pravdepodobnost": 87.2,
+       "prumer_proc_marze": 17.1
       },
       {
        "atr": 1.0,
        "n": 6,
        "dosazeno": 4,
-       "pravdepodobnost": 77.3,
-       "prumer_proc_marze": 21.6
+       "pravdepodobnost": 77.1,
+       "prumer_proc_marze": 19.9
       },
       {
        "atr": 1.5,
        "n": 6,
-       "dosazeno": 3,
-       "pravdepodobnost": 56.5,
-       "prumer_proc_marze": 23.4
+       "dosazeno": 4,
+       "pravdepodobnost": 61.0,
+       "prumer_proc_marze": 22.6
       }
      ],
-     "prumer_rozdeleni_3": 21.2
+     "prumer_rozdeleni_3": 19.9
     },
     "NZD/USD": {
-     "n": 12,
-     "ziskovych": 10,
-     "uspesnost": 83.3,
-     "prumer_proc_marze": 13.2,
-     "odhad_uspesnosti": 91.6,
-     "odhad_prumer": 16.5,
+     "n": 10,
+     "ziskovych": 9,
+     "uspesnost": 90.0,
+     "prumer_proc_marze": 12.4,
+     "odhad_uspesnosti": 95.1,
+     "odhad_prumer": 15.6,
      "tp": [
       {
        "atr": 0.75,
-       "n": 12,
-       "dosazeno": 10,
-       "pravdepodobnost": 88.1,
-       "prumer_proc_marze": 16.5
+       "n": 10,
+       "dosazeno": 9,
+       "pravdepodobnost": 88.9,
+       "prumer_proc_marze": 15.6
       },
       {
        "atr": 1.0,
-       "n": 12,
-       "dosazeno": 9,
-       "pravdepodobnost": 78.4,
-       "prumer_proc_marze": 21.0
+       "n": 10,
+       "dosazeno": 8,
+       "pravdepodobnost": 80.2,
+       "prumer_proc_marze": 19.1
       },
       {
        "atr": 1.5,
-       "n": 12,
-       "dosazeno": 8,
-       "pravdepodobnost": 61.5,
-       "prumer_proc_marze": 25.6
+       "n": 10,
+       "dosazeno": 6,
+       "pravdepodobnost": 59.5,
+       "prumer_proc_marze": 20.8
       }
      ],
-     "prumer_rozdeleni_3": 21.0
+     "prumer_rozdeleni_3": 18.5
     },
     "EUR/JPY": {
      "n": 3,
      "ziskovych": 3,
      "uspesnost": 100.0,
      "prumer_proc_marze": 27.0,
-     "odhad_uspesnosti": 97.0,
-     "odhad_prumer": 19.6,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 2,
-       "dosazeno": 2,
-       "pravdepodobnost": 91.7,
-       "prumer_proc_marze": 19.6
-      },
-      {
-       "atr": 1.0,
-       "n": 2,
-       "dosazeno": 2,
-       "pravdepodobnost": 82.3,
-       "prumer_proc_marze": 24.3
-      },
-      {
-       "atr": 1.5,
-       "n": 2,
-       "dosazeno": 1,
-       "pravdepodobnost": 57.7,
-       "prumer_proc_marze": 24.8
-      }
-     ],
-     "prumer_rozdeleni_3": 22.9
-    },
-    "GBP/JPY": {
-     "n": 3,
-     "ziskovych": 3,
-     "uspesnost": 100.0,
-     "prumer_proc_marze": 29.5,
-     "odhad_uspesnosti": 97.0,
-     "odhad_prumer": 20.0,
+     "odhad_uspesnosti": 98.0,
+     "odhad_prumer": 18.5,
      "tp": [
       {
        "atr": 0.75,
        "n": 3,
        "dosazeno": 3,
-       "pravdepodobnost": 92.1,
-       "prumer_proc_marze": 20.0
+       "pravdepodobnost": 89.9,
+       "prumer_proc_marze": 18.5
       },
       {
        "atr": 1.0,
        "n": 3,
-       "dosazeno": 2,
-       "pravdepodobnost": 78.7,
-       "prumer_proc_marze": 23.9
+       "dosazeno": 3,
+       "pravdepodobnost": 82.8,
+       "prumer_proc_marze": 22.7
       },
       {
        "atr": 1.5,
        "n": 3,
-       "dosazeno": 1,
-       "pravdepodobnost": 55.2,
-       "prumer_proc_marze": 26.1
+       "dosazeno": 2,
+       "pravdepodobnost": 60.3,
+       "prumer_proc_marze": 24.1
       }
      ],
-     "prumer_rozdeleni_3": 23.3
+     "prumer_rozdeleni_3": 21.8
+    },
+    "GBP/JPY": {
+     "n": 4,
+     "ziskovych": 4,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 27.8,
+     "odhad_uspesnosti": 98.1,
+     "odhad_prumer": 19.0,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 4,
+       "dosazeno": 4,
+       "pravdepodobnost": 90.3,
+       "prumer_proc_marze": 19.0
+      },
+      {
+       "atr": 1.0,
+       "n": 4,
+       "dosazeno": 3,
+       "pravdepodobnost": 79.4,
+       "prumer_proc_marze": 22.6
+      },
+      {
+       "atr": 1.5,
+       "n": 4,
+       "dosazeno": 2,
+       "pravdepodobnost": 57.8,
+       "prumer_proc_marze": 25.1
+      }
+     ],
+     "prumer_rozdeleni_3": 22.2
     },
     "EUR/GBP": {
      "n": 5,
      "ziskovych": 5,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 14.0,
-     "odhad_uspesnosti": 97.2,
-     "odhad_prumer": 17.6,
+     "prumer_proc_marze": 12.3,
+     "odhad_uspesnosti": 98.1,
+     "odhad_prumer": 16.2,
      "tp": [
       {
        "atr": 0.75,
-       "n": 4,
+       "n": 5,
        "dosazeno": 4,
-       "pravdepodobnost": 92.4,
-       "prumer_proc_marze": 17.6
+       "pravdepodobnost": 86.7,
+       "prumer_proc_marze": 16.2
       },
       {
        "atr": 1.0,
-       "n": 4,
+       "n": 5,
        "dosazeno": 3,
-       "pravdepodobnost": 79.6,
-       "prumer_proc_marze": 21.1
+       "pravdepodobnost": 76.2,
+       "prumer_proc_marze": 19.0
       },
       {
        "atr": 1.5,
-       "n": 4,
-       "dosazeno": 3,
-       "pravdepodobnost": 61.2,
-       "prumer_proc_marze": 22.9
+       "n": 5,
+       "dosazeno": 2,
+       "pravdepodobnost": 55.4,
+       "prumer_proc_marze": 20.4
       }
      ],
-     "prumer_rozdeleni_3": 20.5
+     "prumer_rozdeleni_3": 18.5
     },
     "EUR/CHF": {
      "n": 5,
      "ziskovych": 5,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 16.8,
-     "odhad_uspesnosti": 97.2,
-     "odhad_prumer": 18.2,
+     "prumer_proc_marze": 17.1,
+     "odhad_uspesnosti": 98.1,
+     "odhad_prumer": 17.2,
      "tp": [
       {
        "atr": 0.75,
-       "n": 4,
-       "dosazeno": 4,
-       "pravdepodobnost": 92.4,
-       "prumer_proc_marze": 18.2
+       "n": 5,
+       "dosazeno": 5,
+       "pravdepodobnost": 90.7,
+       "prumer_proc_marze": 17.2
       },
       {
        "atr": 1.0,
-       "n": 4,
-       "dosazeno": 3,
-       "pravdepodobnost": 79.6,
-       "prumer_proc_marze": 20.9
+       "n": 5,
+       "dosazeno": 5,
+       "pravdepodobnost": 84.2,
+       "prumer_proc_marze": 21.1
       },
       {
        "atr": 1.5,
-       "n": 4,
-       "dosazeno": 1,
-       "pravdepodobnost": 52.9,
-       "prumer_proc_marze": 19.4
+       "n": 5,
+       "dosazeno": 3,
+       "pravdepodobnost": 59.4,
+       "prumer_proc_marze": 20.6
       }
      ],
-     "prumer_rozdeleni_3": 19.5
+     "prumer_rozdeleni_3": 19.6
     },
     "AUD/JPY": {
      "n": 6,
      "ziskovych": 6,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 26.2,
-     "odhad_uspesnosti": 97.3,
-     "odhad_prumer": 20.3,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 5,
-       "dosazeno": 4,
-       "pravdepodobnost": 88.7,
-       "prumer_proc_marze": 20.3
-      },
-      {
-       "atr": 1.0,
-       "n": 5,
-       "dosazeno": 4,
-       "pravdepodobnost": 80.4,
-       "prumer_proc_marze": 25.4
-      },
-      {
-       "atr": 1.5,
-       "n": 5,
-       "dosazeno": 3,
-       "pravdepodobnost": 58.8,
-       "prumer_proc_marze": 26.0
-      }
-     ],
-     "prumer_rozdeleni_3": 23.9
-    }
-   },
-   "tp": [
-    {
-     "atr": 0.75,
-     "pravdepodobnost": 90.9,
-     "prumer_proc_marze": 18.5
-    },
-    {
-     "atr": 1.0,
-     "pravdepodobnost": 80.5,
-     "prumer_proc_marze": 22.6
-    },
-    {
-     "atr": 1.5,
-     "pravdepodobnost": 58.4,
-     "prumer_proc_marze": 24.1
-    }
-   ],
-   "uspesnost": 96.6
-  },
-  {
-   "index": 1,
-   "obchodu": 115,
-   "pary": {
-    "EUR/USD": {
-     "n": 6,
-     "ziskovych": 6,
-     "uspesnost": 100.0,
-     "prumer_proc_marze": 17.6,
-     "odhad_uspesnosti": 97.3,
-     "odhad_prumer": 17.0,
+     "prumer_proc_marze": 17.5,
+     "odhad_uspesnosti": 98.2,
+     "odhad_prumer": 17.3,
      "tp": [
       {
        "atr": 0.75,
        "n": 6,
-       "dosazeno": 6,
-       "pravdepodobnost": 91.5,
-       "prumer_proc_marze": 17.0
+       "dosazeno": 5,
+       "pravdepodobnost": 87.2,
+       "prumer_proc_marze": 17.3
       },
       {
        "atr": 1.0,
        "n": 6,
        "dosazeno": 5,
-       "pravdepodobnost": 78.3,
-       "prumer_proc_marze": 14.8
+       "pravdepodobnost": 80.9,
+       "prumer_proc_marze": 21.2
       },
       {
        "atr": 1.5,
        "n": 6,
-       "dosazeno": 4,
-       "pravdepodobnost": 60.3,
-       "prumer_proc_marze": 17.2
+       "dosazeno": 5,
+       "pravdepodobnost": 64.8,
+       "prumer_proc_marze": 24.8
+      }
+     ],
+     "prumer_rozdeleni_3": 21.1
+    }
+   },
+   "tp": [
+    {
+     "atr": 0.75,
+     "pravdepodobnost": 88.4,
+     "prumer_proc_marze": 17.2
+    },
+    {
+     "atr": 1.0,
+     "pravdepodobnost": 80.2,
+     "prumer_proc_marze": 20.7
+    },
+    {
+     "atr": 1.5,
+     "pravdepodobnost": 59.3,
+     "prumer_proc_marze": 22.0
+    }
+   ],
+   "uspesnost": 97.7
+  },
+  {
+   "index": 1,
+   "obchodu": 114,
+   "pary": {
+    "EUR/USD": {
+     "n": 7,
+     "ziskovych": 7,
+     "uspesnost": 100.0,
+     "prumer_proc_marze": 19.6,
+     "odhad_uspesnosti": 96.8,
+     "odhad_prumer": 15.6,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 7,
+       "dosazeno": 7,
+       "pravdepodobnost": 89.6,
+       "prumer_proc_marze": 15.6
+      },
+      {
+       "atr": 1.0,
+       "n": 7,
+       "dosazeno": 6,
+       "pravdepodobnost": 79.4,
+       "prumer_proc_marze": 15.1
+      },
+      {
+       "atr": 1.5,
+       "n": 7,
+       "dosazeno": 5,
+       "pravdepodobnost": 60.8,
+       "prumer_proc_marze": 18.2
       }
      ],
      "prumer_rozdeleni_3": 16.3
     },
     "USD/JPY": {
      "n": 13,
-     "ziskovych": 12,
-     "uspesnost": 92.3,
-     "prumer_proc_marze": 10.4,
-     "odhad_uspesnosti": 94.9,
-     "odhad_prumer": 14.3,
+     "ziskovych": 11,
+     "uspesnost": 84.6,
+     "prumer_proc_marze": 7.5,
+     "odhad_uspesnosti": 91.3,
+     "odhad_prumer": 11.5,
      "tp": [
       {
        "atr": 0.75,
-       "n": 12,
+       "n": 13,
        "dosazeno": 9,
-       "pravdepodobnost": 83.7,
-       "prumer_proc_marze": 14.3
+       "pravdepodobnost": 79.4,
+       "prumer_proc_marze": 11.5
       },
       {
        "atr": 1.0,
-       "n": 12,
-       "dosazeno": 7,
-       "pravdepodobnost": 69.9,
-       "prumer_proc_marze": 14.8
+       "n": 13,
+       "dosazeno": 8,
+       "pravdepodobnost": 71.0,
+       "prumer_proc_marze": 14.1
       },
       {
        "atr": 1.5,
-       "n": 12,
-       "dosazeno": 7,
-       "pravdepodobnost": 58.3,
-       "prumer_proc_marze": 19.3
+       "n": 13,
+       "dosazeno": 8,
+       "pravdepodobnost": 58.8,
+       "prumer_proc_marze": 19.0
       }
      ],
-     "prumer_rozdeleni_3": 16.1
+     "prumer_rozdeleni_3": 14.9
     },
     "GBP/USD": {
-     "n": 12,
-     "ziskovych": 12,
+     "n": 13,
+     "ziskovych": 13,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 16.2,
-     "odhad_uspesnosti": 97.8,
-     "odhad_prumer": 16.6,
+     "prumer_proc_marze": 16.1,
+     "odhad_uspesnosti": 97.3,
+     "odhad_prumer": 14.9,
      "tp": [
       {
        "atr": 0.75,
-       "n": 10,
-       "dosazeno": 8,
-       "pravdepodobnost": 85.9,
-       "prumer_proc_marze": 16.6
+       "n": 13,
+       "dosazeno": 10,
+       "pravdepodobnost": 82.4,
+       "prumer_proc_marze": 14.9
       },
       {
        "atr": 1.0,
-       "n": 10,
-       "dosazeno": 7,
-       "pravdepodobnost": 74.6,
-       "prumer_proc_marze": 17.8
+       "n": 13,
+       "dosazeno": 8,
+       "pravdepodobnost": 71.0,
+       "prumer_proc_marze": 13.8
       },
       {
        "atr": 1.5,
-       "n": 10,
+       "n": 13,
        "dosazeno": 4,
-       "pravdepodobnost": 52.2,
-       "prumer_proc_marze": 17.5
+       "pravdepodobnost": 46.7,
+       "prumer_proc_marze": 13.8
       }
      ],
-     "prumer_rozdeleni_3": 17.3
+     "prumer_rozdeleni_3": 14.2
     },
     "USD/CHF": {
      "n": 15,
      "ziskovych": 15,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 18.9,
-     "odhad_uspesnosti": 98.0,
-     "odhad_prumer": 17.7,
+     "prumer_proc_marze": 18.7,
+     "odhad_uspesnosti": 97.5,
+     "odhad_prumer": 16.1,
      "tp": [
       {
        "atr": 0.75,
-       "n": 14,
-       "dosazeno": 14,
-       "pravdepodobnost": 93.5,
-       "prumer_proc_marze": 17.7
+       "n": 15,
+       "dosazeno": 15,
+       "pravdepodobnost": 92.0,
+       "prumer_proc_marze": 16.1
       },
       {
        "atr": 1.0,
-       "n": 14,
-       "dosazeno": 13,
-       "pravdepodobnost": 83.4,
-       "prumer_proc_marze": 20.1
+       "n": 15,
+       "dosazeno": 14,
+       "pravdepodobnost": 84.1,
+       "prumer_proc_marze": 19.1
       },
       {
        "atr": 1.5,
-       "n": 14,
+       "n": 15,
        "dosazeno": 9,
-       "pravdepodobnost": 60.8,
-       "prumer_proc_marze": 18.7
+       "pravdepodobnost": 58.3,
+       "prumer_proc_marze": 18.3
       }
      ],
-     "prumer_rozdeleni_3": 18.8
+     "prumer_rozdeleni_3": 17.8
     },
     "AUD/USD": {
-     "n": 14,
-     "ziskovych": 13,
-     "uspesnost": 92.9,
-     "prumer_proc_marze": 14.5,
-     "odhad_uspesnosti": 95.0,
-     "odhad_prumer": 15.9,
+     "n": 13,
+     "ziskovych": 12,
+     "uspesnost": 92.3,
+     "prumer_proc_marze": 9.6,
+     "odhad_uspesnosti": 94.3,
+     "odhad_prumer": 12.4,
      "tp": [
       {
        "atr": 0.75,
-       "n": 14,
-       "dosazeno": 12,
-       "pravdepodobnost": 87.6,
-       "prumer_proc_marze": 15.9
+       "n": 13,
+       "dosazeno": 11,
+       "pravdepodobnost": 85.4,
+       "prumer_proc_marze": 12.4
       },
       {
        "atr": 1.0,
-       "n": 14,
-       "dosazeno": 12,
-       "pravdepodobnost": 80.5,
-       "prumer_proc_marze": 18.2
+       "n": 13,
+       "dosazeno": 11,
+       "pravdepodobnost": 80.1,
+       "prumer_proc_marze": 14.8
       },
       {
        "atr": 1.5,
-       "n": 14,
-       "dosazeno": 9,
-       "pravdepodobnost": 60.8,
-       "prumer_proc_marze": 16.5
+       "n": 13,
+       "dosazeno": 8,
+       "pravdepodobnost": 58.8,
+       "prumer_proc_marze": 13.9
       }
      ],
-     "prumer_rozdeleni_3": 16.9
+     "prumer_rozdeleni_3": 13.7
     },
     "USD/CAD": {
-     "n": 5,
-     "ziskovych": 5,
+     "n": 6,
+     "ziskovych": 6,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 18.3,
-     "odhad_uspesnosti": 97.2,
-     "odhad_prumer": 17.1,
+     "prumer_proc_marze": 15.9,
+     "odhad_uspesnosti": 96.6,
+     "odhad_prumer": 14.6,
      "tp": [
       {
        "atr": 0.75,
-       "n": 5,
+       "n": 6,
        "dosazeno": 5,
-       "pravdepodobnost": 91.1,
-       "prumer_proc_marze": 17.1
+       "pravdepodobnost": 85.4,
+       "prumer_proc_marze": 14.6
       },
       {
        "atr": 1.0,
-       "n": 5,
-       "dosazeno": 3,
-       "pravdepodobnost": 73.5,
-       "prumer_proc_marze": 16.5
+       "n": 6,
+       "dosazeno": 4,
+       "pravdepodobnost": 74.8,
+       "prumer_proc_marze": 15.6
       },
       {
        "atr": 1.5,
-       "n": 5,
-       "dosazeno": 2,
-       "pravdepodobnost": 54.7,
-       "prumer_proc_marze": 17.8
+       "n": 6,
+       "dosazeno": 4,
+       "pravdepodobnost": 59.2,
+       "prumer_proc_marze": 18.5
       }
      ],
-     "prumer_rozdeleni_3": 17.1
+     "prumer_rozdeleni_3": 16.2
     },
     "NZD/USD": {
-     "n": 18,
-     "ziskovych": 17,
-     "uspesnost": 94.4,
-     "prumer_proc_marze": 22.1,
-     "odhad_uspesnosti": 95.5,
-     "odhad_prumer": 19.3,
+     "n": 13,
+     "ziskovych": 12,
+     "uspesnost": 92.3,
+     "prumer_proc_marze": 14.5,
+     "odhad_uspesnosti": 94.3,
+     "odhad_prumer": 14.3,
      "tp": [
       {
        "atr": 0.75,
-       "n": 18,
-       "dosazeno": 17,
-       "pravdepodobnost": 91.5,
-       "prumer_proc_marze": 19.3
+       "n": 13,
+       "dosazeno": 12,
+       "pravdepodobnost": 88.5,
+       "prumer_proc_marze": 14.3
       },
       {
        "atr": 1.0,
-       "n": 18,
-       "dosazeno": 14,
-       "pravdepodobnost": 77.3,
-       "prumer_proc_marze": 11.6
+       "n": 13,
+       "dosazeno": 10,
+       "pravdepodobnost": 77.1,
+       "prumer_proc_marze": 13.4
       },
       {
        "atr": 1.5,
-       "n": 18,
-       "dosazeno": 11,
-       "pravdepodobnost": 59.6,
-       "prumer_proc_marze": 15.7
+       "n": 13,
+       "dosazeno": 6,
+       "pravdepodobnost": 52.7,
+       "prumer_proc_marze": 14.7
       }
      ],
-     "prumer_rozdeleni_3": 15.5
+     "prumer_rozdeleni_3": 14.1
     },
     "EUR/JPY": {
      "n": 2,
      "ziskovych": 2,
      "uspesnost": 100.0,
      "prumer_proc_marze": 26.7,
-     "odhad_uspesnosti": 96.8,
-     "odhad_prumer": 17.7,
+     "odhad_uspesnosti": 96.0,
+     "odhad_prumer": 15.3,
      "tp": [
       {
        "atr": 0.75,
        "n": 2,
        "dosazeno": 2,
-       "pravdepodobnost": 89.9,
-       "prumer_proc_marze": 17.7
+       "pravdepodobnost": 87.2,
+       "prumer_proc_marze": 15.3
       },
       {
        "atr": 1.0,
        "n": 2,
        "dosazeno": 2,
-       "pravdepodobnost": 79.0,
-       "prumer_proc_marze": 18.1
+       "pravdepodobnost": 79.3,
+       "prumer_proc_marze": 17.2
       },
       {
        "atr": 1.5,
        "n": 2,
        "dosazeno": 1,
-       "pravdepodobnost": 57.6,
-       "prumer_proc_marze": 16.7
+       "pravdepodobnost": 56.4,
+       "prumer_proc_marze": 16.2
       }
      ],
-     "prumer_rozdeleni_3": 17.5
+     "prumer_rozdeleni_3": 16.2
     },
     "GBP/JPY": {
-     "n": 6,
-     "ziskovych": 6,
+     "n": 7,
+     "ziskovych": 7,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 16.6,
-     "odhad_uspesnosti": 97.3,
-     "odhad_prumer": 16.8,
+     "prumer_proc_marze": 17.5,
+     "odhad_uspesnosti": 96.8,
+     "odhad_prumer": 15.0,
      "tp": [
       {
        "atr": 0.75,
-       "n": 6,
-       "dosazeno": 4,
-       "pravdepodobnost": 83.8,
-       "prumer_proc_marze": 16.8
+       "n": 7,
+       "dosazeno": 5,
+       "pravdepodobnost": 82.2,
+       "prumer_proc_marze": 15.0
       },
       {
        "atr": 1.0,
-       "n": 6,
-       "dosazeno": 4,
-       "pravdepodobnost": 74.5,
-       "prumer_proc_marze": 17.7
+       "n": 7,
+       "dosazeno": 5,
+       "pravdepodobnost": 75.7,
+       "prumer_proc_marze": 17.4
       },
       {
        "atr": 1.5,
-       "n": 6,
-       "dosazeno": 3,
-       "pravdepodobnost": 56.4,
-       "prumer_proc_marze": 20.2
+       "n": 7,
+       "dosazeno": 4,
+       "pravdepodobnost": 57.1,
+       "prumer_proc_marze": 20.7
       }
      ],
-     "prumer_rozdeleni_3": 18.2
+     "prumer_rozdeleni_3": 17.7
     },
     "EUR/GBP": {
      "n": 6,
      "ziskovych": 6,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 14.0,
-     "odhad_uspesnosti": 97.3,
-     "odhad_prumer": 16.2,
+     "prumer_proc_marze": 12.5,
+     "odhad_uspesnosti": 96.6,
+     "odhad_prumer": 13.8,
      "tp": [
       {
        "atr": 0.75,
-       "n": 5,
+       "n": 6,
        "dosazeno": 5,
-       "pravdepodobnost": 91.1,
-       "prumer_proc_marze": 16.2
+       "pravdepodobnost": 85.4,
+       "prumer_proc_marze": 13.8
       },
       {
        "atr": 1.0,
-       "n": 5,
+       "n": 6,
        "dosazeno": 4,
-       "pravdepodobnost": 77.5,
-       "prumer_proc_marze": 16.2
+       "pravdepodobnost": 74.8,
+       "prumer_proc_marze": 14.9
       },
       {
        "atr": 1.5,
-       "n": 5,
-       "dosazeno": 4,
-       "pravdepodobnost": 62.7,
-       "prumer_proc_marze": 18.2
+       "n": 6,
+       "dosazeno": 3,
+       "pravdepodobnost": 55.4,
+       "prumer_proc_marze": 17.0
       }
      ],
-     "prumer_rozdeleni_3": 16.9
+     "prumer_rozdeleni_3": 15.2
     },
     "EUR/CHF": {
      "n": 4,
      "ziskovych": 4,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 13.5,
-     "odhad_uspesnosti": 97.1,
-     "odhad_prumer": 16.3,
+     "prumer_proc_marze": 13.8,
+     "odhad_uspesnosti": 96.3,
+     "odhad_prumer": 14.1,
      "tp": [
       {
        "atr": 0.75,
        "n": 4,
        "dosazeno": 4,
-       "pravdepodobnost": 90.7,
-       "prumer_proc_marze": 16.3
+       "pravdepodobnost": 88.3,
+       "prumer_proc_marze": 14.1
       },
       {
        "atr": 1.0,
+       "n": 4,
+       "dosazeno": 4,
+       "pravdepodobnost": 81.0,
+       "prumer_proc_marze": 15.9
+      },
+      {
+       "atr": 1.5,
        "n": 4,
        "dosazeno": 3,
-       "pravdepodobnost": 76.5,
-       "prumer_proc_marze": 15.0
-      },
-      {
-       "atr": 1.5,
-       "n": 4,
-       "dosazeno": 2,
-       "pravdepodobnost": 56.9,
-       "prumer_proc_marze": 17.1
-      }
-     ],
-     "prumer_rozdeleni_3": 16.1
-    },
-    "AUD/JPY": {
-     "n": 14,
-     "ziskovych": 13,
-     "uspesnost": 92.9,
-     "prumer_proc_marze": 16.8,
-     "odhad_uspesnosti": 95.0,
-     "odhad_prumer": 16.8,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 12,
-       "dosazeno": 10,
-       "pravdepodobnost": 86.8,
-       "prumer_proc_marze": 16.8
-      },
-      {
-       "atr": 1.0,
-       "n": 12,
-       "dosazeno": 9,
-       "pravdepodobnost": 76.2,
-       "prumer_proc_marze": 16.9
-      },
-      {
-       "atr": 1.5,
-       "n": 12,
-       "dosazeno": 7,
-       "pravdepodobnost": 58.3,
+       "pravdepodobnost": 60.0,
        "prumer_proc_marze": 18.8
       }
      ],
-     "prumer_rozdeleni_3": 17.5
+     "prumer_rozdeleni_3": 16.3
+    },
+    "AUD/JPY": {
+     "n": 15,
+     "ziskovych": 14,
+     "uspesnost": 93.3,
+     "prumer_proc_marze": 11.7,
+     "odhad_uspesnosti": 94.6,
+     "odhad_prumer": 13.1,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 15,
+       "dosazeno": 13,
+       "pravdepodobnost": 86.3,
+       "prumer_proc_marze": 13.1
+      },
+      {
+       "atr": 1.0,
+       "n": 15,
+       "dosazeno": 12,
+       "pravdepodobnost": 78.4,
+       "prumer_proc_marze": 14.3
+      },
+      {
+       "atr": 1.5,
+       "n": 15,
+       "dosazeno": 10,
+       "pravdepodobnost": 61.2,
+       "prumer_proc_marze": 18.2
+      }
+     ],
+     "prumer_rozdeleni_3": 15.2
     }
    },
    "tp": [
     {
      "atr": 0.75,
-     "pravdepodobnost": 88.9,
-     "prumer_proc_marze": 16.8
+     "pravdepodobnost": 86.0,
+     "prumer_proc_marze": 14.2
     },
     {
      "atr": 1.0,
-     "pravdepodobnost": 76.9,
-     "prumer_proc_marze": 16.4
+     "pravdepodobnost": 77.2,
+     "prumer_proc_marze": 15.4
     },
     {
      "atr": 1.5,
-     "pravdepodobnost": 58.3,
-     "prumer_proc_marze": 17.8
+     "pravdepodobnost": 57.0,
+     "prumer_proc_marze": 17.2
     }
    ],
-   "uspesnost": 96.5
+   "uspesnost": 95.6
   },
   {
    "index": 2,
-   "obchodu": 236,
+   "obchodu": 239,
    "pary": {
     "EUR/USD": {
-     "n": 19,
-     "ziskovych": 19,
+     "n": 20,
+     "ziskovych": 20,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 14.8,
-     "odhad_uspesnosti": 95.2,
-     "odhad_prumer": 12.1,
+     "prumer_proc_marze": 15.9,
+     "odhad_uspesnosti": 94.4,
+     "odhad_prumer": 11.2,
      "tp": [
       {
        "atr": 0.75,
-       "n": 18,
-       "dosazeno": 17,
-       "pravdepodobnost": 89.0,
-       "prumer_proc_marze": 12.1
+       "n": 20,
+       "dosazeno": 20,
+       "pravdepodobnost": 90.8,
+       "prumer_proc_marze": 11.2
       },
       {
        "atr": 1.0,
-       "n": 18,
-       "dosazeno": 16,
-       "pravdepodobnost": 78.9,
-       "prumer_proc_marze": 11.1
+       "n": 20,
+       "dosazeno": 18,
+       "pravdepodobnost": 80.8,
+       "prumer_proc_marze": 11.8
       },
       {
        "atr": 1.5,
-       "n": 18,
-       "dosazeno": 11,
-       "pravdepodobnost": 56.5,
-       "prumer_proc_marze": 5.8
+       "n": 20,
+       "dosazeno": 14,
+       "pravdepodobnost": 61.4,
+       "prumer_proc_marze": 12.5
       }
      ],
-     "prumer_rozdeleni_3": 9.7
+     "prumer_rozdeleni_3": 11.8
     },
     "USD/JPY": {
-     "n": 19,
+     "n": 20,
      "ziskovych": 17,
-     "uspesnost": 89.5,
-     "prumer_proc_marze": 5.7,
-     "odhad_uspesnosti": 90.1,
-     "odhad_prumer": 7.6,
+     "uspesnost": 85.0,
+     "prumer_proc_marze": 4.2,
+     "odhad_uspesnosti": 86.9,
+     "odhad_prumer": 5.3,
      "tp": [
       {
        "atr": 0.75,
-       "n": 18,
-       "dosazeno": 14,
-       "pravdepodobnost": 81.1,
-       "prumer_proc_marze": 7.6
+       "n": 20,
+       "dosazeno": 15,
+       "pravdepodobnost": 78.3,
+       "prumer_proc_marze": 5.3
       },
       {
        "atr": 1.0,
-       "n": 18,
-       "dosazeno": 11,
-       "pravdepodobnost": 65.8,
-       "prumer_proc_marze": 7.6
+       "n": 20,
+       "dosazeno": 14,
+       "pravdepodobnost": 70.8,
+       "prumer_proc_marze": 7.8
       },
       {
        "atr": 1.5,
-       "n": 18,
-       "dosazeno": 11,
-       "pravdepodobnost": 56.5,
-       "prumer_proc_marze": 10.7
+       "n": 20,
+       "dosazeno": 13,
+       "pravdepodobnost": 58.9,
+       "prumer_proc_marze": 12.3
       }
      ],
-     "prumer_rozdeleni_3": 8.6
+     "prumer_rozdeleni_3": 8.5
     },
     "GBP/USD": {
-     "n": 26,
+     "n": 27,
      "ziskovych": 25,
-     "uspesnost": 96.2,
-     "prumer_proc_marze": 13.1,
-     "odhad_uspesnosti": 93.8,
-     "odhad_prumer": 11.5,
+     "uspesnost": 92.6,
+     "prumer_proc_marze": 6.6,
+     "odhad_uspesnosti": 90.9,
+     "odhad_prumer": 6.5,
      "tp": [
       {
        "atr": 0.75,
-       "n": 23,
-       "dosazeno": 19,
-       "pravdepodobnost": 83.3,
-       "prumer_proc_marze": 11.5
+       "n": 27,
+       "dosazeno": 21,
+       "pravdepodobnost": 79.4,
+       "prumer_proc_marze": 6.5
       },
       {
        "atr": 1.0,
-       "n": 23,
-       "dosazeno": 16,
-       "pravdepodobnost": 69.8,
-       "prumer_proc_marze": 8.5
+       "n": 27,
+       "dosazeno": 18,
+       "pravdepodobnost": 68.7,
+       "prumer_proc_marze": 6.3
       },
       {
        "atr": 1.5,
-       "n": 23,
+       "n": 27,
        "dosazeno": 10,
-       "pravdepodobnost": 47.6,
-       "prumer_proc_marze": 7.4
+       "pravdepodobnost": 43.7,
+       "prumer_proc_marze": 6.2
       }
      ],
-     "prumer_rozdeleni_3": 9.1
+     "prumer_rozdeleni_3": 6.3
     },
     "USD/CHF": {
      "n": 25,
      "ziskovych": 22,
      "uspesnost": 88.0,
-     "prumer_proc_marze": 9.3,
-     "odhad_uspesnosti": 89.2,
-     "odhad_prumer": 9.4,
+     "prumer_proc_marze": 10.0,
+     "odhad_uspesnosti": 88.3,
+     "odhad_prumer": 8.4,
      "tp": [
       {
        "atr": 0.75,
-       "n": 24,
-       "dosazeno": 20,
-       "pravdepodobnost": 83.7,
-       "prumer_proc_marze": 9.4
+       "n": 25,
+       "dosazeno": 21,
+       "pravdepodobnost": 82.9,
+       "prumer_proc_marze": 8.4
       },
       {
        "atr": 1.0,
-       "n": 24,
-       "dosazeno": 18,
-       "pravdepodobnost": 72.7,
+       "n": 25,
+       "dosazeno": 19,
+       "pravdepodobnost": 74.0,
        "prumer_proc_marze": 10.0
       },
       {
        "atr": 1.5,
-       "n": 24,
+       "n": 25,
        "dosazeno": 13,
-       "pravdepodobnost": 53.3,
-       "prumer_proc_marze": 7.5
+       "pravdepodobnost": 52.3,
+       "prumer_proc_marze": 9.2
       }
      ],
-     "prumer_rozdeleni_3": 9.0
+     "prumer_rozdeleni_3": 9.2
     },
     "AUD/USD": {
-     "n": 26,
-     "ziskovych": 22,
-     "uspesnost": 84.6,
-     "prumer_proc_marze": 2.9,
-     "odhad_uspesnosti": 87.3,
-     "odhad_prumer": 5.8,
+     "n": 25,
+     "ziskovych": 20,
+     "uspesnost": 80.0,
+     "prumer_proc_marze": -5.0,
+     "odhad_uspesnosti": 83.9,
+     "odhad_prumer": 0.1,
      "tp": [
       {
        "atr": 0.75,
        "n": 25,
-       "dosazeno": 20,
-       "pravdepodobnost": 81.8,
-       "prumer_proc_marze": 5.8
+       "dosazeno": 18,
+       "pravdepodobnost": 76.3,
+       "prumer_proc_marze": 0.1
       },
       {
        "atr": 1.0,
        "n": 25,
-       "dosazeno": 20,
-       "pravdepodobnost": 75.6,
-       "prumer_proc_marze": 7.9
+       "dosazeno": 18,
+       "pravdepodobnost": 71.8,
+       "prumer_proc_marze": 2.3
       },
       {
        "atr": 1.5,
        "n": 25,
-       "dosazeno": 15,
-       "pravdepodobnost": 56.6,
-       "prumer_proc_marze": 1.2
+       "dosazeno": 14,
+       "pravdepodobnost": 54.5,
+       "prumer_proc_marze": 2.3
       }
      ],
-     "prumer_rozdeleni_3": 5.0
+     "prumer_rozdeleni_3": 1.6
     },
     "USD/CAD": {
-     "n": 18,
-     "ziskovych": 18,
+     "n": 19,
+     "ziskovych": 19,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 15.0,
-     "odhad_uspesnosti": 95.1,
-     "odhad_prumer": 12.1,
+     "prumer_proc_marze": 14.2,
+     "odhad_uspesnosti": 94.2,
+     "odhad_prumer": 10.2,
      "tp": [
       {
        "atr": 0.75,
-       "n": 18,
+       "n": 19,
        "dosazeno": 17,
-       "pravdepodobnost": 89.0,
-       "prumer_proc_marze": 12.1
+       "pravdepodobnost": 85.4,
+       "prumer_proc_marze": 10.2
       },
       {
        "atr": 1.0,
-       "n": 18,
-       "dosazeno": 13,
-       "pravdepodobnost": 71.1,
-       "prumer_proc_marze": 11.6
+       "n": 19,
+       "dosazeno": 14,
+       "pravdepodobnost": 72.6,
+       "prumer_proc_marze": 11.4
       },
       {
        "atr": 1.5,
-       "n": 18,
-       "dosazeno": 10,
-       "pravdepodobnost": 53.8,
-       "prumer_proc_marze": 12.1
+       "n": 19,
+       "dosazeno": 12,
+       "pravdepodobnost": 57.8,
+       "prumer_proc_marze": 14.1
       }
      ],
      "prumer_rozdeleni_3": 11.9
     },
     "NZD/USD": {
-     "n": 33,
-     "ziskovych": 30,
-     "uspesnost": 90.9,
-     "prumer_proc_marze": 15.7,
-     "odhad_uspesnosti": 90.8,
-     "odhad_prumer": 13.4,
+     "n": 27,
+     "ziskovych": 23,
+     "uspesnost": 85.2,
+     "prumer_proc_marze": 9.1,
+     "odhad_uspesnosti": 86.7,
+     "odhad_prumer": 7.9,
      "tp": [
       {
        "atr": 0.75,
-       "n": 32,
-       "dosazeno": 29,
-       "pravdepodobnost": 88.1,
-       "prumer_proc_marze": 13.4
+       "n": 27,
+       "dosazeno": 23,
+       "pravdepodobnost": 83.7,
+       "prumer_proc_marze": 7.9
       },
       {
        "atr": 1.0,
-       "n": 32,
-       "dosazeno": 22,
-       "pravdepodobnost": 69.2,
-       "prumer_proc_marze": 3.0
+       "n": 27,
+       "dosazeno": 19,
+       "pravdepodobnost": 70.9,
+       "prumer_proc_marze": 5.8
       },
       {
        "atr": 1.5,
-       "n": 32,
-       "dosazeno": 18,
-       "pravdepodobnost": 54.7,
-       "prumer_proc_marze": 6.3
+       "n": 27,
+       "dosazeno": 15,
+       "pravdepodobnost": 54.3,
+       "prumer_proc_marze": 7.8
       }
      ],
-     "prumer_rozdeleni_3": 7.6
+     "prumer_rozdeleni_3": 7.2
     },
     "EUR/JPY": {
      "n": 6,
      "ziskovych": 3,
      "uspesnost": 50.0,
-     "prumer_proc_marze": -26.3,
-     "odhad_uspesnosti": 81.3,
-     "odhad_prumer": 1.2,
+     "prumer_proc_marze": -27.2,
+     "odhad_uspesnosti": 79.8,
+     "odhad_prumer": -1.3,
      "tp": [
       {
        "atr": 0.75,
        "n": 6,
        "dosazeno": 3,
-       "pravdepodobnost": 76.2,
-       "prumer_proc_marze": 1.2
+       "pravdepodobnost": 74.3,
+       "prumer_proc_marze": -1.3
       },
       {
        "atr": 1.0,
        "n": 6,
        "dosazeno": 3,
-       "pravdepodobnost": 65.4,
-       "prumer_proc_marze": 0.1
+       "pravdepodobnost": 66.6,
+       "prumer_proc_marze": -0.1
       },
       {
        "atr": 1.5,
        "n": 6,
        "dosazeno": 2,
-       "pravdepodobnost": 47.9,
-       "prumer_proc_marze": -3.4
+       "pravdepodobnost": 48.2,
+       "prumer_proc_marze": -1.6
       }
      ],
-     "prumer_rozdeleni_3": -0.7
+     "prumer_rozdeleni_3": -1.0
     },
     "GBP/JPY": {
-     "n": 17,
-     "ziskovych": 15,
-     "uspesnost": 88.2,
-     "prumer_proc_marze": 1.9,
-     "odhad_uspesnosti": 89.6,
-     "odhad_prumer": 6.0,
+     "n": 19,
+     "ziskovych": 17,
+     "uspesnost": 89.5,
+     "prumer_proc_marze": 4.4,
+     "odhad_uspesnosti": 89.1,
+     "odhad_prumer": 5.4,
      "tp": [
       {
        "atr": 0.75,
-       "n": 15,
-       "dosazeno": 9,
-       "pravdepodobnost": 73.8,
-       "prumer_proc_marze": 6.0
+       "n": 19,
+       "dosazeno": 13,
+       "pravdepodobnost": 75.2,
+       "prumer_proc_marze": 5.4
       },
       {
        "atr": 1.0,
-       "n": 15,
-       "dosazeno": 7,
-       "pravdepodobnost": 60.0,
-       "prumer_proc_marze": 1.9
+       "n": 19,
+       "dosazeno": 12,
+       "pravdepodobnost": 67.5,
+       "prumer_proc_marze": 5.9
       },
       {
        "atr": 1.5,
-       "n": 15,
-       "dosazeno": 5,
-       "pravdepodobnost": 44.2,
-       "prumer_proc_marze": -4.8
+       "n": 19,
+       "dosazeno": 7,
+       "pravdepodobnost": 45.0,
+       "prumer_proc_marze": 0.7
       }
      ],
-     "prumer_rozdeleni_3": 1.0
+     "prumer_rozdeleni_3": 4.0
     },
     "EUR/GBP": {
-     "n": 15,
-     "ziskovych": 13,
-     "uspesnost": 86.7,
-     "prumer_proc_marze": 2.4,
-     "odhad_uspesnosti": 89.0,
-     "odhad_prumer": 6.4,
+     "n": 16,
+     "ziskovych": 14,
+     "uspesnost": 87.5,
+     "prumer_proc_marze": 2.5,
+     "odhad_uspesnosti": 88.2,
+     "odhad_prumer": 4.7,
      "tp": [
       {
        "atr": 0.75,
-       "n": 13,
-       "dosazeno": 12,
-       "pravdepodobnost": 87.3,
-       "prumer_proc_marze": 6.4
+       "n": 16,
+       "dosazeno": 13,
+       "pravdepodobnost": 81.4,
+       "prumer_proc_marze": 4.7
       },
       {
        "atr": 1.0,
-       "n": 13,
-       "dosazeno": 9,
-       "pravdepodobnost": 69.7,
-       "prumer_proc_marze": 2.9
+       "n": 16,
+       "dosazeno": 10,
+       "pravdepodobnost": 67.5,
+       "prumer_proc_marze": 3.0
       },
       {
        "atr": 1.5,
-       "n": 13,
+       "n": 16,
        "dosazeno": 8,
-       "pravdepodobnost": 55.9,
-       "prumer_proc_marze": 2.0
+       "pravdepodobnost": 51.5,
+       "prumer_proc_marze": 3.6
       }
      ],
      "prumer_rozdeleni_3": 3.8
     },
     "EUR/CHF": {
-     "n": 7,
-     "ziskovych": 7,
+     "n": 8,
+     "ziskovych": 8,
      "uspesnost": 100.0,
-     "prumer_proc_marze": 13.7,
-     "odhad_uspesnosti": 93.1,
-     "odhad_prumer": 10.6,
+     "prumer_proc_marze": 13.5,
+     "odhad_uspesnosti": 91.9,
+     "odhad_prumer": 8.5,
      "tp": [
       {
        "atr": 0.75,
-       "n": 7,
-       "dosazeno": 7,
-       "pravdepodobnost": 88.2,
-       "prumer_proc_marze": 10.6
+       "n": 8,
+       "dosazeno": 8,
+       "pravdepodobnost": 86.8,
+       "prumer_proc_marze": 8.5
       },
       {
        "atr": 1.0,
-       "n": 7,
-       "dosazeno": 5,
-       "pravdepodobnost": 70.4,
+       "n": 8,
+       "dosazeno": 7,
+       "pravdepodobnost": 76.1,
+       "prumer_proc_marze": 9.9
+      },
+      {
+       "atr": 1.5,
+       "n": 8,
+       "dosazeno": 6,
+       "pravdepodobnost": 59.1,
+       "prumer_proc_marze": 12.3
+      }
+     ],
+     "prumer_rozdeleni_3": 10.2
+    },
+    "AUD/JPY": {
+     "n": 27,
+     "ziskovych": 24,
+     "uspesnost": 88.9,
+     "prumer_proc_marze": 9.5,
+     "odhad_uspesnosti": 88.8,
+     "odhad_prumer": 8.2,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 27,
+       "dosazeno": 23,
+       "pravdepodobnost": 83.7,
        "prumer_proc_marze": 8.2
       },
       {
+       "atr": 1.0,
+       "n": 27,
+       "dosazeno": 19,
+       "pravdepodobnost": 70.9,
+       "prumer_proc_marze": 8.1
+      },
+      {
        "atr": 1.5,
-       "n": 7,
-       "dosazeno": 4,
-       "pravdepodobnost": 53.5,
+       "n": 27,
+       "dosazeno": 12,
+       "pravdepodobnost": 48.0,
        "prumer_proc_marze": 8.1
       }
      ],
-     "prumer_rozdeleni_3": 9.0
-    },
-    "AUD/JPY": {
-     "n": 25,
-     "ziskovych": 23,
-     "uspesnost": 92.0,
-     "prumer_proc_marze": 16.3,
-     "odhad_uspesnosti": 91.4,
-     "odhad_prumer": 13.2,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 21,
-       "dosazeno": 18,
-       "pravdepodobnost": 84.9,
-       "prumer_proc_marze": 13.2
-      },
-      {
-       "atr": 1.0,
-       "n": 21,
-       "dosazeno": 14,
-       "pravdepodobnost": 68.3,
-       "prumer_proc_marze": 9.8
-      },
-      {
-       "atr": 1.5,
-       "n": 21,
-       "dosazeno": 8,
-       "pravdepodobnost": 45.0,
-       "prumer_proc_marze": 3.2
-      }
-     ],
-     "prumer_rozdeleni_3": 8.7
+     "prumer_rozdeleni_3": 8.1
     }
    },
    "tp": [
     {
      "atr": 0.75,
-     "pravdepodobnost": 84.1,
-     "prumer_proc_marze": 9.5
+     "pravdepodobnost": 81.6,
+     "prumer_proc_marze": 6.5
     },
     {
      "atr": 1.0,
-     "pravdepodobnost": 70.0,
-     "prumer_proc_marze": 7.1
+     "pravdepodobnost": 71.5,
+     "prumer_proc_marze": 7.0
     },
     {
      "atr": 1.5,
-     "pravdepodobnost": 52.3,
-     "prumer_proc_marze": 5.0
+     "pravdepodobnost": 52.7,
+     "prumer_proc_marze": 7.4
     }
    ],
-   "uspesnost": 90.7
+   "uspesnost": 88.7
   },
   {
    "index": 3,
-   "obchodu": 483,
+   "obchodu": 474,
    "pary": {
     "EUR/USD": {
-     "n": 34,
-     "ziskovych": 32,
-     "uspesnost": 94.1,
-     "prumer_proc_marze": 11.8,
-     "odhad_uspesnosti": 92.4,
-     "odhad_prumer": 10.4,
+     "n": 33,
+     "ziskovych": 31,
+     "uspesnost": 93.9,
+     "prumer_proc_marze": 9.8,
+     "odhad_uspesnosti": 91.6,
+     "odhad_prumer": 8.1,
      "tp": [
       {
        "atr": 0.75,
-       "n": 30,
-       "dosazeno": 27,
-       "pravdepodobnost": 87.2,
-       "prumer_proc_marze": 10.4
+       "n": 33,
+       "dosazeno": 29,
+       "pravdepodobnost": 85.5,
+       "prumer_proc_marze": 8.1
       },
       {
        "atr": 1.0,
-       "n": 30,
-       "dosazeno": 24,
-       "pravdepodobnost": 75.5,
-       "prumer_proc_marze": 10.4
+       "n": 33,
+       "dosazeno": 27,
+       "pravdepodobnost": 77.5,
+       "prumer_proc_marze": 9.6
       },
       {
        "atr": 1.5,
-       "n": 30,
-       "dosazeno": 18,
-       "pravdepodobnost": 56.8,
-       "prumer_proc_marze": 6.1
+       "n": 33,
+       "dosazeno": 20,
+       "pravdepodobnost": 57.6,
+       "prumer_proc_marze": 8.4
       }
      ],
-     "prumer_rozdeleni_3": 9.0
+     "prumer_rozdeleni_3": 8.7
     },
     "USD/JPY": {
-     "n": 44,
-     "ziskovych": 39,
-     "uspesnost": 88.6,
-     "prumer_proc_marze": 5.6,
-     "odhad_uspesnosti": 88.9,
-     "odhad_prumer": 6.4,
+     "n": 45,
+     "ziskovych": 38,
+     "uspesnost": 84.4,
+     "prumer_proc_marze": 3.1,
+     "odhad_uspesnosti": 85.5,
+     "odhad_prumer": 3.8,
      "tp": [
       {
        "atr": 0.75,
-       "n": 40,
-       "dosazeno": 32,
-       "pravdepodobnost": 81.0,
-       "prumer_proc_marze": 6.4
+       "n": 45,
+       "dosazeno": 35,
+       "pravdepodobnost": 79.0,
+       "prumer_proc_marze": 3.8
       },
       {
        "atr": 1.0,
-       "n": 40,
-       "dosazeno": 25,
-       "pravdepodobnost": 64.5,
-       "prumer_proc_marze": 6.6
+       "n": 45,
+       "dosazeno": 30,
+       "pravdepodobnost": 67.8,
+       "prumer_proc_marze": 5.4
       },
       {
        "atr": 1.5,
-       "n": 40,
-       "dosazeno": 20,
-       "pravdepodobnost": 50.6,
-       "prumer_proc_marze": 5.1
+       "n": 45,
+       "dosazeno": 22,
+       "pravdepodobnost": 50.0,
+       "prumer_proc_marze": 3.4
       }
      ],
-     "prumer_rozdeleni_3": 6.0
+     "prumer_rozdeleni_3": 4.2
     },
     "GBP/USD": {
      "n": 44,
      "ziskovych": 41,
      "uspesnost": 93.2,
-     "prumer_proc_marze": 10.0,
-     "odhad_uspesnosti": 92.0,
-     "odhad_prumer": 9.4,
+     "prumer_proc_marze": 6.1,
+     "odhad_uspesnosti": 91.5,
+     "odhad_prumer": 5.9,
      "tp": [
       {
        "atr": 0.75,
-       "n": 40,
-       "dosazeno": 31,
-       "pravdepodobnost": 79.4,
-       "prumer_proc_marze": 9.4
+       "n": 44,
+       "dosazeno": 34,
+       "pravdepodobnost": 78.6,
+       "prumer_proc_marze": 5.9
       },
       {
        "atr": 1.0,
-       "n": 40,
-       "dosazeno": 25,
-       "pravdepodobnost": 64.5,
-       "prumer_proc_marze": 7.7
+       "n": 44,
+       "dosazeno": 31,
+       "pravdepodobnost": 70.5,
+       "prumer_proc_marze": 6.8
       },
       {
        "atr": 1.5,
-       "n": 40,
-       "dosazeno": 16,
-       "pravdepodobnost": 44.0,
-       "prumer_proc_marze": 8.0
+       "n": 44,
+       "dosazeno": 17,
+       "pravdepodobnost": 43.0,
+       "prumer_proc_marze": 7.2
       }
      ],
-     "prumer_rozdeleni_3": 8.4
+     "prumer_rozdeleni_3": 6.6
     },
     "USD/CHF": {
      "n": 42,
      "ziskovych": 38,
      "uspesnost": 90.5,
-     "prumer_proc_marze": 9.7,
-     "odhad_uspesnosti": 90.1,
-     "odhad_prumer": 9.2,
+     "prumer_proc_marze": 10.1,
+     "odhad_uspesnosti": 89.6,
+     "odhad_prumer": 8.6,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 42,
+       "dosazeno": 37,
+       "pravdepodobnost": 86.0,
+       "prumer_proc_marze": 8.6
+      },
+      {
+       "atr": 1.0,
+       "n": 42,
+       "dosazeno": 33,
+       "pravdepodobnost": 76.0,
+       "prumer_proc_marze": 10.7
+      },
+      {
+       "atr": 1.5,
+       "n": 42,
+       "dosazeno": 26,
+       "pravdepodobnost": 58.9,
+       "prumer_proc_marze": 12.0
+      }
+     ],
+     "prumer_rozdeleni_3": 10.4
+    },
+    "AUD/USD": {
+     "n": 38,
+     "ziskovych": 33,
+     "uspesnost": 86.8,
+     "prumer_proc_marze": 1.4,
+     "odhad_uspesnosti": 87.2,
+     "odhad_prumer": 2.8,
      "tp": [
       {
        "atr": 0.75,
        "n": 38,
-       "dosazeno": 34,
-       "pravdepodobnost": 87.3,
-       "prumer_proc_marze": 9.2
+       "dosazeno": 31,
+       "pravdepodobnost": 81.6,
+       "prumer_proc_marze": 2.8
       },
       {
        "atr": 1.0,
        "n": 38,
        "dosazeno": 30,
-       "pravdepodobnost": 75.4,
-       "prumer_proc_marze": 10.8
+       "pravdepodobnost": 76.0,
+       "prumer_proc_marze": 5.4
       },
       {
        "atr": 1.5,
        "n": 38,
        "dosazeno": 25,
-       "pravdepodobnost": 61.0,
-       "prumer_proc_marze": 11.4
+       "pravdepodobnost": 61.2,
+       "prumer_proc_marze": 6.7
       }
      ],
-     "prumer_rozdeleni_3": 10.5
+     "prumer_rozdeleni_3": 5.0
     },
-    "AUD/USD": {
-     "n": 40,
-     "ziskovych": 35,
-     "uspesnost": 87.5,
-     "prumer_proc_marze": 6.5,
+    "USD/CAD": {
+     "n": 34,
+     "ziskovych": 30,
+     "uspesnost": 88.2,
+     "prumer_proc_marze": 3.2,
      "odhad_uspesnosti": 88.1,
-     "odhad_prumer": 7.0,
+     "odhad_prumer": 4.0,
      "tp": [
       {
        "atr": 0.75,
-       "n": 38,
-       "dosazeno": 32,
-       "pravdepodobnost": 83.8,
-       "prumer_proc_marze": 7.0
+       "n": 34,
+       "dosazeno": 27,
+       "pravdepodobnost": 80.2,
+       "prumer_proc_marze": 4.0
       },
       {
        "atr": 1.0,
-       "n": 38,
-       "dosazeno": 32,
-       "pravdepodobnost": 78.8,
-       "prumer_proc_marze": 10.4
+       "n": 34,
+       "dosazeno": 23,
+       "pravdepodobnost": 68.7,
+       "prumer_proc_marze": 5.6
       },
       {
        "atr": 1.5,
-       "n": 38,
-       "dosazeno": 25,
-       "pravdepodobnost": 61.0,
-       "prumer_proc_marze": 7.3
+       "n": 34,
+       "dosazeno": 21,
+       "pravdepodobnost": 58.3,
+       "prumer_proc_marze": 8.8
       }
      ],
-     "prumer_rozdeleni_3": 8.2
+     "prumer_rozdeleni_3": 6.1
     },
-    "USD/CAD": {
-     "n": 36,
-     "ziskovych": 32,
-     "uspesnost": 88.9,
-     "prumer_proc_marze": 5.9,
-     "odhad_uspesnosti": 89.1,
+    "NZD/USD": {
+     "n": 40,
+     "ziskovych": 34,
+     "uspesnost": 85.0,
+     "prumer_proc_marze": 7.1,
+     "odhad_uspesnosti": 85.9,
+     "odhad_prumer": 6.5,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 40,
+       "dosazeno": 33,
+       "pravdepodobnost": 82.2,
+       "prumer_proc_marze": 6.5
+      },
+      {
+       "atr": 1.0,
+       "n": 40,
+       "dosazeno": 27,
+       "pravdepodobnost": 68.5,
+       "prumer_proc_marze": 4.4
+      },
+      {
+       "atr": 1.5,
+       "n": 40,
+       "dosazeno": 23,
+       "pravdepodobnost": 55.8,
+       "prumer_proc_marze": 7.5
+      }
+     ],
+     "prumer_rozdeleni_3": 6.1
+    },
+    "EUR/JPY": {
+     "n": 44,
+     "ziskovych": 36,
+     "uspesnost": 81.8,
+     "prumer_proc_marze": -0.1,
+     "odhad_uspesnosti": 83.7,
+     "odhad_prumer": 1.6,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 44,
+       "dosazeno": 36,
+       "pravdepodobnost": 81.8,
+       "prumer_proc_marze": 1.6
+      },
+      {
+       "atr": 1.0,
+       "n": 44,
+       "dosazeno": 30,
+       "pravdepodobnost": 68.9,
+       "prumer_proc_marze": 2.6
+      },
+      {
+       "atr": 1.5,
+       "n": 44,
+       "dosazeno": 19,
+       "pravdepodobnost": 46.1,
+       "prumer_proc_marze": -0.3
+      }
+     ],
+     "prumer_rozdeleni_3": 1.3
+    },
+    "GBP/JPY": {
+     "n": 46,
+     "ziskovych": 41,
+     "uspesnost": 89.1,
+     "prumer_proc_marze": 7.4,
+     "odhad_uspesnosti": 88.7,
+     "odhad_prumer": 6.8,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 46,
+       "dosazeno": 35,
+       "pravdepodobnost": 77.8,
+       "prumer_proc_marze": 6.8
+      },
+      {
+       "atr": 1.0,
+       "n": 46,
+       "dosazeno": 28,
+       "pravdepodobnost": 63.8,
+       "prumer_proc_marze": 7.8
+      },
+      {
+       "atr": 1.5,
+       "n": 46,
+       "dosazeno": 19,
+       "pravdepodobnost": 44.7,
+       "prumer_proc_marze": 6.3
+      }
+     ],
+     "prumer_rozdeleni_3": 7.0
+    },
+    "EUR/GBP": {
+     "n": 34,
+     "ziskovych": 30,
+     "uspesnost": 88.2,
+     "prumer_proc_marze": 3.7,
+     "odhad_uspesnosti": 88.1,
+     "odhad_prumer": 4.4,
+     "tp": [
+      {
+       "atr": 0.75,
+       "n": 34,
+       "dosazeno": 28,
+       "pravdepodobnost": 82.1,
+       "prumer_proc_marze": 4.4
+      },
+      {
+       "atr": 1.0,
+       "n": 34,
+       "dosazeno": 23,
+       "pravdepodobnost": 68.7,
+       "prumer_proc_marze": 3.3
+      },
+      {
+       "atr": 1.5,
+       "n": 34,
+       "dosazeno": 18,
+       "pravdepodobnost": 52.8,
+       "prumer_proc_marze": 4.3
+      }
+     ],
+     "prumer_rozdeleni_3": 4.0
+    },
+    "EUR/CHF": {
+     "n": 19,
+     "ziskovych": 17,
+     "uspesnost": 89.5,
+     "prumer_proc_marze": 8.2,
+     "odhad_uspesnosti": 88.6,
      "odhad_prumer": 6.7,
      "tp": [
       {
        "atr": 0.75,
-       "n": 33,
-       "dosazeno": 27,
-       "pravdepodobnost": 82.3,
+       "n": 19,
+       "dosazeno": 17,
+       "pravdepodobnost": 85.5,
        "prumer_proc_marze": 6.7
       },
       {
        "atr": 1.0,
-       "n": 33,
-       "dosazeno": 21,
-       "pravdepodobnost": 65.5,
-       "prumer_proc_marze": 4.2
+       "n": 19,
+       "dosazeno": 14,
+       "pravdepodobnost": 72.0,
+       "prumer_proc_marze": 7.3
       },
       {
        "atr": 1.5,
-       "n": 33,
-       "dosazeno": 19,
-       "pravdepodobnost": 55.5,
-       "prumer_proc_marze": 7.2
+       "n": 19,
+       "dosazeno": 12,
+       "pravdepodobnost": 57.7,
+       "prumer_proc_marze": 9.1
       }
      ],
-     "prumer_rozdeleni_3": 6.0
+     "prumer_rozdeleni_3": 7.7
     },
-    "NZD/USD": {
-     "n": 47,
-     "ziskovych": 41,
-     "uspesnost": 87.2,
-     "prumer_proc_marze": 10.4,
-     "odhad_uspesnosti": 87.9,
-     "odhad_prumer": 9.7,
+    "AUD/JPY": {
+     "n": 55,
+     "ziskovych": 47,
+     "uspesnost": 85.5,
+     "prumer_proc_marze": 6.3,
+     "odhad_uspesnosti": 86.1,
+     "odhad_prumer": 6.1,
      "tp": [
       {
        "atr": 0.75,
-       "n": 44,
-       "dosazeno": 37,
-       "pravdepodobnost": 83.8,
-       "prumer_proc_marze": 9.7
-      },
-      {
-       "atr": 1.0,
-       "n": 44,
-       "dosazeno": 29,
-       "pravdepodobnost": 66.8,
-       "prumer_proc_marze": 1.0
-      },
-      {
-       "atr": 1.5,
-       "n": 44,
-       "dosazeno": 25,
-       "pravdepodobnost": 55.3,
+       "n": 55,
+       "dosazeno": 45,
+       "pravdepodobnost": 81.8,
        "prumer_proc_marze": 6.1
-      }
-     ],
-     "prumer_rozdeleni_3": 5.6
-    },
-    "EUR/JPY": {
-     "n": 45,
-     "ziskovych": 38,
-     "uspesnost": 84.4,
-     "prumer_proc_marze": 3.0,
-     "odhad_uspesnosti": 86.0,
-     "odhad_prumer": 4.6,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 39,
-       "dosazeno": 32,
-       "pravdepodobnost": 82.4,
-       "prumer_proc_marze": 4.6
       },
       {
        "atr": 1.0,
-       "n": 39,
+       "n": 55,
+       "dosazeno": 38,
+       "pravdepodobnost": 69.5,
+       "prumer_proc_marze": 5.6
+      },
+      {
+       "atr": 1.5,
+       "n": 55,
        "dosazeno": 27,
-       "pravdepodobnost": 69.0,
-       "prumer_proc_marze": 4.2
-      },
-      {
-       "atr": 1.5,
-       "n": 39,
-       "dosazeno": 16,
-       "pravdepodobnost": 44.7,
-       "prumer_proc_marze": -0.7
-      }
-     ],
-     "prumer_rozdeleni_3": 2.7
-    },
-    "GBP/JPY": {
-     "n": 44,
-     "ziskovych": 38,
-     "uspesnost": 86.4,
-     "prumer_proc_marze": 3.0,
-     "odhad_uspesnosti": 87.3,
-     "odhad_prumer": 4.6,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 41,
-       "dosazeno": 29,
-       "pravdepodobnost": 74.8,
-       "prumer_proc_marze": 4.6
-      },
-      {
-       "atr": 1.0,
-       "n": 41,
-       "dosazeno": 23,
-       "pravdepodobnost": 60.2,
-       "prumer_proc_marze": 3.5
-      },
-      {
-       "atr": 1.5,
-       "n": 41,
-       "dosazeno": 17,
-       "pravdepodobnost": 44.9,
-       "prumer_proc_marze": 0.5
-      }
-     ],
-     "prumer_rozdeleni_3": 2.9
-    },
-    "EUR/GBP": {
-     "n": 35,
-     "ziskovych": 33,
-     "uspesnost": 94.3,
-     "prumer_proc_marze": 10.0,
-     "odhad_uspesnosti": 92.5,
-     "odhad_prumer": 9.3,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 31,
-       "dosazeno": 29,
-       "pravdepodobnost": 89.4,
-       "prumer_proc_marze": 9.3
-      },
-      {
-       "atr": 1.0,
-       "n": 31,
-       "dosazeno": 21,
-       "pravdepodobnost": 68.1,
-       "prumer_proc_marze": 4.8
-      },
-      {
-       "atr": 1.5,
-       "n": 31,
-       "dosazeno": 15,
-       "pravdepodobnost": 49.8,
-       "prumer_proc_marze": 2.0
+       "pravdepodobnost": 50.0,
+       "prumer_proc_marze": 4.4
       }
      ],
      "prumer_rozdeleni_3": 5.4
-    },
-    "EUR/CHF": {
-     "n": 18,
-     "ziskovych": 16,
-     "uspesnost": 88.9,
-     "prumer_proc_marze": 7.5,
-     "odhad_uspesnosti": 89.2,
-     "odhad_prumer": 7.8,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 17,
-       "dosazeno": 15,
-       "pravdepodobnost": 85.4,
-       "prumer_proc_marze": 7.8
-      },
-      {
-       "atr": 1.0,
-       "n": 17,
-       "dosazeno": 10,
-       "pravdepodobnost": 64.1,
-       "prumer_proc_marze": 4.6
-      },
-      {
-       "atr": 1.5,
-       "n": 17,
-       "dosazeno": 8,
-       "pravdepodobnost": 49.7,
-       "prumer_proc_marze": 5.0
-      }
-     ],
-     "prumer_rozdeleni_3": 5.8
-    },
-    "AUD/JPY": {
-     "n": 54,
-     "ziskovych": 49,
-     "uspesnost": 90.7,
-     "prumer_proc_marze": 12.7,
-     "odhad_uspesnosti": 90.4,
-     "odhad_prumer": 11.4,
-     "tp": [
-      {
-       "atr": 0.75,
-       "n": 46,
-       "dosazeno": 38,
-       "pravdepodobnost": 82.7,
-       "prumer_proc_marze": 11.4
-      },
-      {
-       "atr": 1.0,
-       "n": 46,
-       "dosazeno": 33,
-       "pravdepodobnost": 70.8,
-       "prumer_proc_marze": 9.1
-      },
-      {
-       "atr": 1.5,
-       "n": 46,
-       "dosazeno": 23,
-       "pravdepodobnost": 50.6,
-       "prumer_proc_marze": 5.2
-      }
-     ],
-     "prumer_rozdeleni_3": 8.6
     }
    },
    "tp": [
     {
      "atr": 0.75,
-     "pravdepodobnost": 83.1,
-     "prumer_proc_marze": 8.1
+     "pravdepodobnost": 81.6,
+     "prumer_proc_marze": 5.4
     },
     {
      "atr": 1.0,
-     "pravdepodobnost": 68.6,
-     "prumer_proc_marze": 6.5
+     "pravdepodobnost": 70.5,
+     "prumer_proc_marze": 6.2
     },
     {
      "atr": 1.5,
-     "pravdepodobnost": 51.9,
-     "prumer_proc_marze": 5.3
+     "pravdepodobnost": 52.5,
+     "prumer_proc_marze": 6.3
     }
    ],
-   "uspesnost": 89.4
+   "uspesnost": 87.8
   }
  ]
 }

@@ -17,7 +17,10 @@ add markets.
   Commit + push only when learning/forward_trades.json changed. Reply to the user with one short line, in detail
   only for a new signal, a diagnostics CHYBA, or a journal trade whose price is beyond its SL / TP.
 - Friday signals (16:05 New York): same as Update (the decision is valid only from 16:00 New York,
-  `signals_live.decision_ready`), then a Czech summary of the signals for the user.
+  `signals_live.decision_ready`), then a Czech summary of the signals for the user. The decision uses the Friday
+  up to 16:00 New York (`decision_cut`), exactly as the backtest and the learning (`Rule.decide_h=1`, audit
+  2026-10-04); a run after 16:00 (also the 23:07 Prague update) decides the same. Keep `signals_live.DECIDE_H`
+  and the champions' `decide_h` equal (diagnostics: CHYBA otherwise).
 - Learning (weekdays 07:40, 12:40, 17:40 Prague; Saturday 08:57 also downloads data first:
   `python scripts/fxcm_universe.py download && python scripts/fxcm_universe.py build`, `python scripts/fundamenty.py download`).
   FRED: `python -c "import sys; sys.path.insert(0,'scripts'); import signals_live; signals_live.refresh_rates()"`.
@@ -28,7 +31,9 @@ add markets.
   Note in docs/CHANGE_LOG.md, commit and push. Tell the user briefly what was tried and what passed.
   The gate v3 (user's decision 2026-10-02 evening): return per drawdown (CAGR / max dd, open trades at daily
   closes) better by >= 10 % in both tests, >= 85 % of the champion's return, dd <= 30 %, >= 3 of 4 two-year
-  blocks at least as good; the monthly profile keeps >= 2 wins a month. The user allowed changing the rules.
+  blocks at least as good; the monthly profile keeps >= 2 wins a month (margins fitted with >= 2.0 on the
+  selection years, the test tolerates 1.8). The user allowed changing the rules. A new rule option must also
+  be implemented in signals_live (diagnostika.live_unsupported lists what the live run supports).
 - Weekly research (user's specification 2026-10-04; part of the Saturday job, after the data download and
   before self_learn): `python scripts/tydenni_analyza.py` (the last completed FX week, the 12 pairs; `--pary` for
   any other list, `--rychle` without the walk-forward of combinations) -> docs/tydenni/<YYYY-Www>.md (Czech
@@ -84,6 +89,13 @@ re-downloaded by the scripts.
   all rejected. Re-test them once a quarter with the new data as new names (e.g. `vyzkum_udalosti_2027Q1`), never
   every week (repeated tests of the same idea inflate lucky passes); after 8+ closed forward trades compare the
   trades the research supported vs opposed (forward_trades.json vyzkum_pro / vyzkum_proti).
+- (done 2026-10-04, R-029, docs/AUDIT_2026-10-04.md) code audit: live decision time (16:00 New York) in the
+  backtest, ESMA leverage 1:20 for AUD/NZD pairs, causal weekly indicators, forward test = backtest. Round 25
+  (leverage: same position volume / minimum target in price) through the gate. Open for the user: deciding right
+  before the close instead of 16:00 (historically +8-15 points a year, the last 10 minutes NEOVĚŘENO).
+- Re-validation (from 2027-04, audit R-029: about 5 % of pure-noise changes pass gate v3): check every accepted
+  component of the champions (exit before decisions, stop 4 ATR, RSI(3) < 15, vol sizing) only on the data after its
+  acceptance (2026-10 onwards) - that is truly new data; report, change the champion only through the gate.
 - Next (new families only): BoC dates (history not on the site; try archived press releases), RBNZ (403);
   BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (weekly bars, Friday
   intraday path) only with an economic reason first; forward test review after 4+ weeks of live trades.

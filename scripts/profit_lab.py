@@ -18,7 +18,6 @@ Selection on 2014-2022 (both 2014-19 and 2020-22 must meet the conditions),
 shown once on 2023-2026.
 """
 
-import math
 import pickle
 import sys
 import time
@@ -50,26 +49,51 @@ PERIODS = {"A": (date(2014, 1, 1), date(2019, 12, 31)), "B": (date(2020, 1, 1), 
 
 
 def weekly_aligned(dates, o, h, l, c):
-    """Weekly indicators known at each day (completed weeks + the current price)."""
+    """Weekly indicators known at each day: completed weeks + the current week up to that day (its close so far,
+    its high / low so far). On the week's last day this equals the completed week. week_end = Friday (the live
+    model decides only at the Friday close). Audit 2026-10-04: before, every day of a week got the week's FINAL
+    close / high / low (look-ahead on Monday-Thursday) and week_end looked at the next day's date."""
     keys = [tuple(d.isocalendar()[:2]) for d in dates]
-    last_of_week = np.array([i == len(keys) - 1 or keys[i + 1] != keys[i] for i in range(len(keys))])
+    n = len(keys)
     order, wc, wh, wl = [], {}, {}, {}
     for k, ci, hi, li in zip(keys, c, h, l):
         if k not in wc:
             order.append(k)
             wh[k], wl[k] = hi, li
         wc[k], wh[k], wl[k] = ci, max(wh[k], hi), min(wl[k], li)
-    C = np.array([wc[k] for k in order])
+    C = np.array([wc[k] for k in order])                      # completed-week values (used only for earlier weeks)
     Hh = np.array([wh[k] for k in order])
     Ll = np.array([wl[k] for k in order])
     pos = {k: i for i, k in enumerate(order)}
-    ind = {"w_rsi2": SM.rsi(C, 2), "w_rsi3": SM.rsi(C, 3), "w_sma10": SM.sma(C, 10), "w_sma20": SM.sma(C, 20),
-           "w_sma40": SM.sma(C, 40), "w_hi52": SM.rolling_max(Hh, 52), "w_lo52": SM.rolling_min(Ll, 52)}
-    hh4, ll4 = SM.rolling_max(Hh, 4), SM.rolling_min(Ll, 4)
-    ind["w_wr4"] = 100 * (C - ll4) / np.where(hh4 - ll4 == 0, np.nan, hh4 - ll4)
-    out = {k: np.array([v[pos[kk]] for kk in keys]) for k, v in ind.items()}
-    out["week_end"] = last_of_week
-    out["w_close"] = np.array([C[pos[kk]] for kk in keys])
+    d = np.diff(C, prepend=C[0])
+    state = {m: (SM.wilder(np.clip(d, 0, None), m), SM.wilder(np.clip(-d, 0, None), m)) for m in (2, 3)}
+    out = {name: np.full(n, np.nan) for name in ("w_rsi2", "w_rsi3", "w_sma10", "w_sma20", "w_sma40", "w_hi52",
+                                                  "w_lo52", "w_wr4")}
+    run_h = run_l = None
+    for i, k in enumerate(keys):
+        p = pos[k]
+        if i == 0 or keys[i - 1] != k:
+            run_h, run_l = h[i], l[i]
+        run_h, run_l = max(run_h, h[i]), min(run_l, l[i])
+        ci = c[i]
+        if p >= 1:
+            for m in (2, 3):
+                ag, al = state[m][0][p - 1], state[m][1][p - 1]
+                if not (np.isnan(ag) or np.isnan(al)):
+                    delta = ci - C[p - 1]
+                    g, q = (ag * (m - 1) + max(delta, 0.0)) / m, (al * (m - 1) + max(-delta, 0.0)) / m
+                    out[f"w_rsi{m}"][i] = 50.0 if g == 0 and q == 0 else 100.0 if q == 0 else 100 - 100 / (1 + g / q)
+        for m in (10, 20, 40):
+            if p >= m - 1:
+                out[f"w_sma{m}"][i] = (C[p - m + 1:p].sum() + ci) / m
+        if p >= 51:
+            out["w_hi52"][i] = max(Hh[p - 51:p].max(), run_h)
+            out["w_lo52"][i] = min(Ll[p - 51:p].min(), run_l)
+        if p >= 3:
+            hh4, ll4 = max(Hh[p - 3:p].max(), run_h), min(Ll[p - 3:p].min(), run_l)
+            out["w_wr4"][i] = 100 * (ci - ll4) / (hh4 - ll4) if hh4 > ll4 else np.nan
+    out["week_end"] = np.array([dd.weekday() == 4 for dd in dates])
+    out["w_close"] = np.asarray(c, float).copy()
     return out
 
 

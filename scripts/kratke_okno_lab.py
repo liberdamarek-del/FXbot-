@@ -34,6 +34,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
+import fundamenty as F  # noqa: E402
 import profit_lab2 as P  # noqa: E402
 import strategy_mining as SM  # noqa: E402
 import vyzkum_data as V  # noqa: E402
@@ -43,7 +44,7 @@ HOLDS = (1, 5, 10, 20)
 REBAL = {"14 dní": 10, "měsíc": 21, "půl roku": 126}
 LOOKS = {"3 měsíce": 63, "6 měsíců": 126, "1 rok": 252}
 CROSS = ["sp500", "vix", "zlato", "ropa_wti", "med", "us10y", "nikkei", "stoxx50"]
-CB_OF = {"USD": "FED", "EUR": "ECB", "JPY": "BOJ", "GBP": "BOE"}
+CB_OF = F.CB_OF                             # one map of the four central banks (fundamenty)
 RNG = np.random.default_rng(7)
 LEV = 30
 

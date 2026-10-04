@@ -18,12 +18,11 @@ always re-fitted on the selection years only (largest annual return with the
 max drawdown <= DD_MAX). Two walk-forward splits:
     select 2012-2018 -> test 2019-2022,   select 2012-2022 -> test 2023-2026.
 Universe: the 12 pairs the bot follows live (DEFAULT_ACTIVE, FXCM hourly
-2012-2026; the 41-pair runs of R-010 are kept in the log). Gate: a candidate replaces
-the champion only if in BOTH test periods its annual return is higher by
->= MIN_GAIN and its drawdown stays within the risk budget (max(DD_MAX, the
-champion's) + DD_SLACK), AND in the
-last test period (2023-2026) its trades earn on average > 0 in each market
-group separately (12 pairs: G1 = the 7 USD pairs, G2 = the 5 crosses). Note: each experiment looks at the same test years again, so a
+2012-2026; the 41-pair runs of R-010 are kept in the log). Gate v3 (user's decision 2026-10-02, `passes`):
+a candidate replaces the champion only if in BOTH test periods its return per drawdown (CAGR / max dd)
+is better by >= MIN_CALMAR_GAIN, it keeps >= MIN_RETURN_KEEP of the champion's annual return, its test
+drawdown is <= DD_CAP, it meets the profile's wins a month, and it is at least as good in >= MIN_BLOCKS
+of the 4 two-year test blocks. Note: each experiment looks at the same test years again, so a
 small part of every accepted gain is luck; the forward test (ledger) stays
 the final judge. Nothing here trades or touches the production database.
 """
@@ -60,11 +59,11 @@ PROFILES = {"max": {"state": LEARNING / "champion_12.json", "min_wpm": 0.0, "min
 PROFILE = PROFILES["max"]
 LOG = PROJECT_ROOT / "docs" / "UCENI_LOG.md"
 SPLITS = (((2012, 2018), (2019, 2022)), ((2012, 2022), (2023, 2026)))
-DD_MAX = 0.20
-MIN_GAIN = 0.01
-DD_SLACK = 0.03
-EVAL_VERSION = 3                     # 2: drawdown with open trades at daily closes, 2-year blocks in the test
+DD_MAX = 0.20                        # margin fitting on the selection years: max drawdown <= 20 %
+EVAL_VERSION = 4                     # 2: drawdown with open trades at daily closes, 2-year blocks in the test
                                      # 3: blocks with drawdown; risk-adjusted gate (user's decision 2026-10-02)
+                                     # 4: audit 2026-10-04: leverage per pair (1:20 AUD/NZD), live decision time
+                                     #    (decide_h=1: 16:00 New York, as the Friday run), causal weekly values
 MIN_CALMAR_GAIN = 0.10               # gate v3: return per drawdown (CAGR / max dd) better by >= 10 % in both tests
 MIN_RETURN_KEEP = 0.85               # ... while keeping >= 85 % of the champion's annual return
 DD_CAP = 0.30                        # ... and a test drawdown of at most 30 %
@@ -77,7 +76,7 @@ REF_SL_MARGIN = 84.0                 # median stop of the champion in % of the m
 START = {                            # CH-009 rule set as pre-registered (docs/CHANGE_LOG.md), on the 12 pairs
     "name": "CH-009 (12 paru)",
     "universe": "12",
-    "base": {"signal": "D RSI2<5", "weekly": True, "tp": 0.75, "sl": 3.0, "hold_days": 20},
+    "base": {"signal": "D RSI2<5", "weekly": True, "tp": 0.75, "sl": 3.0, "hold_days": 20, "decide_h": 1},
     "tiers": [{"fund": "rates_up+carry", "rates_thr": 0.25}, {"fund": "rates_up", "rates_thr": 0.25},
               {"fund": "rates_up", "rates_thr": 0.10}, {"fund": "rates_up", "rates_thr": 0.0}],
     "sizing": "flat",
@@ -109,15 +108,20 @@ def group_one(cfg: dict) -> set:
     return {p for p in symbols_of(cfg) if "USD" in p}
 
 
-def trade_lists(cfg: dict) -> list[list[dict]]:
+def trade_lists(cfg: dict, change=None) -> list[list[dict]]:
+    """The champion's (or a candidate's) trades per tier, plus its options. `change` (Rule -> Rule) is a
+    robustness variant of every tier's rule (champion_report: costs x2, entry 1 h earlier, ...)."""
     symbols = symbols_of(cfg)
     out = []
     for tier in cfg["tiers"]:
         fields = {**cfg["base"], **tier}
         syms = [p for p in symbols if p in fields.pop("pairs", symbols)]     # a tier may be limited to some pairs
-        key = (tuple(syms), json.dumps(fields, sort_keys=True))
+        rule = replace(D.Rule("cfg"), **fields)
+        if change is not None:
+            rule = change(rule)
+        key = (tuple(syms), repr(rule))
         if key not in _trades_cache:
-            _trades_cache[key] = D.simulate(replace(D.Rule("cfg"), **fields), syms)
+            _trades_cache[key] = D.simulate(rule, syms)
         trades = [dict(t) for t in _trades_cache[key]]
         if cfg["sizing"] == "vol":
             for t in trades:
@@ -127,6 +131,10 @@ def trade_lists(cfg: dict) -> list[list[dict]]:
         out = recent_filter(out, *cfg["recent"])
     if cfg.get("cluster"):
         cluster_sizing(out, cfg["cluster"])
+    if cfg.get("notional_parity"):                      # 1:20 pairs: the same position volume as at 1:30 (more margin)
+        for tl in out:
+            for t in tl:
+                t["size_mult"] = t.get("size_mult", 1.0) * P.LEVERAGE / P.leverage(t["pair"])
     if cfg.get("rates_size"):                           # [ref, lo, hi]: size x clip(rate change / ref, lo, hi)
         ref, lo, hi = cfg["rates_size"]
         for tl in out:
@@ -284,7 +292,8 @@ def _with(cfg, **changes):
     for k, v in changes.items():
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
-                 "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop", "cb_tight"):
+                 "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop", "cb_tight",
+                 "min_tp_price", "decide_h"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -549,6 +558,14 @@ EXPERIMENTS = [
     ("vyzkum_udalosti", "doplnek: obchody na den rozhodnuti Fed/ECB/BoJ/BoE nebo US NFP/CPI, kdyz technicky stav "
      "paru odpovida potvrzenemu vzorci (vstup pri zavreni den predem, vystup pri zavreni dne udalosti)",
      lambda c: _with(c, vyzkum_udalosti=True)),
+    # round 25 (audit 2026-10-04): the pairs of AUD / NZD have leverage 1:20, not 1:30 (ESMA) - their positions
+    # were 1.5x too big in the history and the 10 % margin target needs a 1.5x bigger move
+    ("r25_paka_stejny_objem", "pary s pakou 1:20 (AUD/USD, NZD/USD, AUD/JPY) s 1.5x vyssi marzi = stejny objem "
+     "pozice jako pri 1:30 (obchodnik ridi riziko objemem pozice, ne marzi)", lambda c: _with(c, notional_parity=True)),
+    ("r25_min_cil_v_cene", "minimalni cil 0.333 % ceny u vsech paru (u paru 1:20 = 6.7 % marze misto 10 %)",
+     lambda c: _with(c, min_tp_price=True)),
+    ("r25_objem_i_cil", "oboje: stejny objem pozice i stejny minimalni cil v cene jako u paru 1:30",
+     lambda c: _with(c, notional_parity=True, min_tp_price=True)),
 ]
 
 
@@ -585,8 +602,9 @@ def data_mark(cfg: dict) -> str:
 def log(lines: list[str]) -> None:
     if not LOG.exists():
         LOG.write_text("# Denik uceni modelu\n\n_Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich "
-                       "obdobich (vyber velikosti vzdy jen na starsich datech) a rozhodnuti. Prijato jen, kdyz roste "
-                       f"rocni vynos o >= {MIN_GAIN:.0%} v obou testech a propad se nezhorsi o vic nez {DD_SLACK:.0%}._\n\n",
+                       "obdobich (vyber velikosti vzdy jen na starsich datech) a rozhodnuti. Brana v3: v obou testech "
+                       f"vynos na propad lepsi o >= {MIN_CALMAR_GAIN:.0%}, aspon {MIN_RETURN_KEEP:.0%} vynosu sampiona, "
+                       f"propad <= {DD_CAP:.0%}, aspon {MIN_BLOCKS} ze 4 dvouletych bloku stejne dobre._\n\n",
                        encoding="utf-8")
     with LOG.open("a", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")

@@ -105,9 +105,10 @@ def entries_for_pair(symbol: str, fund_rows: dict) -> dict:
 def indicators(o, h, l, c, atr) -> dict:
     out = {"atr_pct": np.array([np.nan] * len(c))}
     from numpy.lib.stride_tricks import sliding_window_view
-    w = sliding_window_view(atr, 250)
     pct = np.full(len(c), np.nan)
-    pct[249:] = (w <= w[:, -1:]).mean(axis=1)
+    if len(c) >= 250:                                    # shorter history: no percentile yet
+        w = sliding_window_view(atr, 250)
+        pct[249:] = (w <= w[:, -1:]).mean(axis=1)
     out["atr_pct"] = pct
     for n in (2, 3, 4):
         out[f"rsi{n}"] = SM.rsi(c, n)
@@ -122,7 +123,9 @@ def indicators(o, h, l, c, atr) -> dict:
                                                          SM.rolling_max(h, n) - SM.rolling_min(l, n)), nan=50), 3)
     for n, k in ((20, 2.0), (20, 1.5), (10, 2.0)):
         m = SM.sma(c, n)
-        sd = np.sqrt(np.maximum(SM.sma(c * c, n) - m ** 2, 0))
+        sd = np.full(len(c), np.nan)
+        if len(c) >= n:                                  # per window: E[c^2] - E[c]^2 on running sums cancels
+            sd[n - 1:] = sliding_window_view(c, n).std(axis=1)   # digits and depends on where the series starts
         out[f"bb{n}_{k}"] = (c - (m - k * sd)) / np.where(sd == 0, np.nan, 2 * k * sd)
     out["ibs"] = (c - l) / np.where(h - l == 0, np.nan, h - l)
     down = np.concatenate([[0], (np.diff(c) < 0).astype(int)])

@@ -130,6 +130,26 @@ def check_fundamentals_db(today: date) -> None:
 # model state and outputs
 # ----------------------------------------------------------------------
 
+LIVE_CFG = {"name", "universe", "base", "tiers", "sizing", "max_ccy", "notional_parity"}
+LIVE_BASE = {"signal", "weekly", "tp", "sl", "hold_days", "exit_before_cb", "decide_h", "min_tp_price"}
+LIVE_TIER = {"fund", "rates_thr", "signal"}
+
+
+def live_unsupported(cfg: dict) -> list[str]:
+    """Options of a champion that scripts/signals_live.py does not implement (the backtest would trade a
+    different rule than the live signals)."""
+    bad = [k for k, v in cfg.items() if k not in LIVE_CFG and v]
+    bad += [k for k, v in cfg["base"].items() if k not in LIVE_BASE and v]
+    bad += [f"stupen.{k}" for t in cfg["tiers"] for k in t if k not in LIVE_TIER]
+    if cfg.get("max_ccy"):
+        bad.append("max_ccy")
+    if cfg["base"].get("exit_before_cb") not in (None, "", "zisk"):
+        bad.append(f"exit_before_cb={cfg['base']['exit_before_cb']}")
+    if cfg["base"].get("weekly") is False:
+        bad.append("weekly=False")
+    return sorted(set(bad))
+
+
 def check_state() -> str | None:
     name = None
     for file in ("champion_12.json", "champion_12_mesicne.json"):
@@ -144,6 +164,15 @@ def check_state() -> str | None:
                                   f"vyzkouseno {len(st['tried'])} pokusu")
         if file == "champion_12_mesicne.json":
             name = st["config"]["name"]
+            import signals_live as SLV
+            unknown = live_unsupported(st["config"])
+            report("zivy model", ERR if unknown else OK,
+                   "zivy vypocet umi vsechny volby sampiona" if not unknown else
+                   f"zivy vypocet neumi volby {', '.join(unknown)} - signaly by neodpovidaly testovanemu pravidlu")
+            dh = st["config"]["base"].get("decide_h", 0)
+            report("cas rozhodnuti", OK if dh == SLV.DECIDE_H else ERR,
+                   f"model testovan s rozhodnutim {dh} h pred zavrenim, zive {SLV.DECIDE_H} h"
+                   + ("" if dh == SLV.DECIDE_H else " - vysledky z historie neplati pro zivy postup"))
     stats = LEARNING / "pair_stats.json"
     if stats.exists() and name:
         rule = json.loads(stats.read_text())["pravidlo"]

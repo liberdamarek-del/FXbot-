@@ -8,7 +8,10 @@ pairs, on the hourly path 2012-2026 with costs and swap:
 - TP1 = the model's own target (tp ATR), TP2 / TP3 = 1.0 / 1.5 ATR further
   targets with the same stop and time limit;
 - probability that each target is reached before the stop (and within the
-  holding time), from the best move of each trade run without a target;
+  holding time), from the best move of each trade run without a target - on the
+  same entries as the rule's own trades; it is a historical frequency on the years
+  the rule was chosen on (in-sample), not a calibrated forecast: the forward test
+  (learning/forward_trades.json) is the check;
 - average result of the whole position closed at that target (or stop / time);
 only trades whose TP1 is >= 10 % of the margin count (as in live trading).
 Small samples are shrunk toward the tier's average over the 12 pairs
@@ -47,11 +50,18 @@ def main() -> int:
     for k, tier in enumerate(cfg["tiers"]):
         base_rule = replace(D.Rule("t"), **{**cfg["base"], **tier})
         tp1, sl = base_rule.tp, base_rule.sl
-        # best move before stop / time, without a target; same validity as live (TP1 >= 10 % of the margin)
-        free = [t for t in D.simulate(replace(base_rule, tp=1e6, min_tp_pct=0.0), pairs)
-                if t["sl_pct"] * tp1 / sl >= 10.0 - 1e-9]
-        runs = {L: D.simulate(replace(base_rule, tp=L, min_tp_pct=0.0), pairs) for L in tps}
-        runs = {L: [t for t in v if t["sl_pct"] * tp1 / sl >= 10.0 - 1e-9] for L, v in runs.items()}
+        # the rule's own trades (one position per pair, TP1, live validity: TP1 >= 10 % of the margin); the other
+        # targets and the best move without a target are measured on exactly these entries (audit 2026-10-04:
+        # separate runs had different entries because a longer trade blocks the pair longer)
+        rule_trades = [t for t in D.simulate(replace(base_rule, min_tp_pct=0.0), pairs)
+                       if t["sl_pct"] * tp1 / sl >= 10.0 - 1e-9]
+        keys = {(t["pair"], t["day"], t["side"]) for t in rule_trades}
+
+        def same_entries(rule):
+            return [t for t in D.simulate(replace(rule, min_tp_pct=0.0, one_per_pair=False), pairs)
+                    if (t["pair"], t["day"], t["side"]) in keys]
+        free = same_entries(replace(base_rule, tp=1e6))                 # best move before stop / time
+        runs = {L: (rule_trades if L == tp1 else same_entries(replace(base_rule, tp=L))) for L in tps}
         tier_out = {"index": k, "obchodu": len(runs[tp1]), "pary": {}, "tp": []}
         prior_hit = {L: float(np.mean([t["mfe_atr"] >= L for t in free])) if free else 0.0 for L in tps}
         prior_ev = {L: float(np.mean([t["margin_pct"] for t in runs[L]])) if runs[L] else 0.0 for L in tps}

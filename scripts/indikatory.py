@@ -84,7 +84,7 @@ def rsi(c: np.ndarray, n: int) -> np.ndarray:
         wilder(np.where(np.isnan(d), np.nan, np.maximum(-d, 0)), n)
     with np.errstate(divide="ignore", invalid="ignore"):
         r = 100 - 100 / (1 + up / dn)
-    return np.where(dn == 0, 100.0, r)
+    return np.where(dn == 0, np.where(up == 0, 50.0, 100.0), r)      # no movement at all = neutral
 
 
 def true_range(h, l, c) -> np.ndarray:
@@ -359,7 +359,7 @@ class Builder:
     def ind(self, name: str, *args):
         key = (name, args)
         if key not in self._ind:
-            o, h, l, c = self.o, self.h, self.l, self.c
+            h, l, c = self.h, self.l, self.c
             self._ind[key] = {
                 "rsi": lambda: rsi(c, *args), "SMA": lambda: sma(c, *args), "EMA": lambda: ema(c, *args),
                 "atr": lambda: atr(h, l, c, *args), "adx": lambda: adx(h, l, c, *args),

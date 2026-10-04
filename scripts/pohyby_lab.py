@@ -27,13 +27,14 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
+import fundamenty as F  # noqa: E402
 import vyzkum_data as V  # noqa: E402
 from src.instruments import DEFAULT_ACTIVE, get_instrument  # noqa: E402
 
 NY = ZoneInfo("America/New_York")
 UTC = timezone.utc
 LEV = 30
-CB_OF = {"USD": "FED", "EUR": "ECB", "JPY": "BOJ", "GBP": "BOE"}
+CB_OF = F.CB_OF                             # one map of the four central banks (fundamenty)
 X_NAMES = ["sp500", "vix", "zlato", "ropa_wti", "med", "us10y", "nikkei", "stoxx50"]
 X_CZ = {"sp500": "akcie USA (S&P 500)", "vix": "strach (VIX)", "zlato": "zlato", "ropa_wti": "ropa WTI",
         "med": "med", "us10y": "US 10letý výnos", "nikkei": "akcie Japonsko", "stoxx50": "akcie Evropa",

@@ -214,8 +214,8 @@ def event_trades(rules: list[dict]) -> list[dict]:
             pct = result / entry * 100
             trades[key] = {"pair": pair, "side": side, "day": bars["day"][i - 1], "entry": entry,
                            "t_in": int(s["ts"][k0]) + 3600, "t_out": int(s["ts"][k_out]) + 3600, "reason": why,
-                           "price_pct": pct, "margin_pct": pct * P.LEVERAGE, "days": 1.0, "tp_pct": 0.0,
-                           "sl_pct": stop / entry * 100 * P.LEVERAGE, "mfe_atr": 0.0, "marks": [],
+                           "price_pct": pct, "margin_pct": pct * P.leverage(pair), "days": 1.0, "tp_pct": 0.0,
+                           "sl_pct": stop / entry * 100 * P.leverage(pair), "mfe_atr": 0.0, "marks": [],
                            "udalost": r["udalost"], "stav": r["stav"]}
     return sorted((t for k, t in trades.items() if k in seen), key=lambda t: t["t_in"])
 

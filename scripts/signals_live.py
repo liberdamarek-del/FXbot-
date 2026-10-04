@@ -32,6 +32,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
+import fundamenty as F  # noqa: E402
 import profit_lab2 as P  # noqa: E402
 import research_factors as RF  # noqa: E402
 import strategy_mining as SM  # noqa: E402
@@ -41,6 +42,7 @@ from src.sources.http import fetch  # noqa: E402
 
 UTC = timezone.utc
 NEW_YORK = ZoneInfo("America/New_York")
+DECIDE_H = 1                                   # the Friday decision 1 h before the 17:00 New York close (= Rule.decide_h)
 LEARNING = PROJECT_ROOT / "learning"
 CHAMPION = LEARNING / "champion_12_mesicne.json"
 FORWARD = LEARNING / "forward_trades.json"
@@ -88,6 +90,7 @@ def daily(hb: dict) -> dict:
     l_ = np.array([hb["l"][a:b + 1].min() for a, b in zip(first, last)])
     hours = np.array([b - a + 1 for a, b in zip(first, last)])
     keep = (hours >= 18) | (np.arange(len(days)) == len(days) - 1)        # the current day may be partial
+    keep &= np.array([d.weekday() < 5 for d in days])   # a tick after the Friday close is no trading day (as FXCM)
     return {"days": [d for d, k in zip(days, keep) if k], "o": o[keep], "h": h[keep], "l": l_[keep], "c": c[keep],
             "last_ts": np.array([hb["ts"][b] for b in last])[keep]}
 
@@ -130,7 +133,7 @@ def rsi_trigger(closes: np.ndarray, n: int, level: float, side: int) -> float:
 TP_LEVELS = (0.75, 1.0, 1.5)               # replaced by learning/pair_stats.json "tp_atr" when present
 
 
-CB_OF = {"USD": "FED", "EUR": "ECB", "JPY": "BOJ", "GBP": "BOE"}
+CB_OF = F.CB_OF                             # one map of the four central banks (fundamenty)
 CB_LABEL = {"FED": "Fed", "ECB": "ECB", "BOJ": "BoJ", "BOE": "BoE"}
 DAYS_CZ = ("po", "út", "st", "čt", "pá", "so", "ne")
 
@@ -165,28 +168,40 @@ def cb_exit_note(pair: str, start: date, base: dict) -> dict | None:
             "text": f"Rozhodnutí v příštích 4 týdnech: {when}" if dates else "V příštích 4 týdnech žádné rozhodnutí."}
 
 
-def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, kind: str) -> dict:
-    """Entry, three targets and the stop for one trade (prices and % of the margin)."""
+def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, kind: str, lev: int) -> dict:
+    """Entry, three targets and the stop for one trade (prices and % of the margin at the pair's leverage)."""
     stats_path = LEARNING / "pair_stats.json"
     levels = json.loads(stats_path.read_text()).get("tp_atr", TP_LEVELS) if stats_path.exists() else TP_LEVELS
     tps = [{"cislo": i + 1, "atr": L, "cena": round(entry + side * L * atr, decimals),
-            "proc_marze": round(L * atr / entry * 100 * P.LEVERAGE, 1)} for i, L in enumerate(levels)]
-    return {"typ": kind, "vstup": round(entry, decimals), "tp": tps,
+            "proc_marze": round(L * atr / entry * 100 * lev, 1)} for i, L in enumerate(levels)]
+    return {"typ": kind, "vstup": round(entry, decimals), "tp": tps, "paka": lev,
             "sl": {"atr": base["sl"], "cena": round(entry - side * base["sl"] * atr, decimals),
-                   "proc_marze": round(base["sl"] * atr / entry * 100 * P.LEVERAGE, 1)}}
+                   "proc_marze": round(base["sl"] * atr / entry * 100 * lev, 1)}}
 
 
 def decision_ready(day: date, last_bar_open: int, now: float | None = None) -> bool:
-    """True when `day` is a Friday whose close is reached: the hourly bars go
+    """True when `day` is a Friday whose decision moment is reached: the hourly bars go
     to 15:00 New York or later (the close is 17:00) and the clock is past
-    16:00 New York (the decision time, ~1 hour before the close, as tested).
-    Earlier on Friday the daily bar is unfinished and an RSI signal would come
-    from a partial day (the hourly updates run all Friday)."""
+    16:00 New York (the decision time, 1 hour before the close, as tested: decide_h=1).
+    Earlier on Friday an RSI signal would come from a shorter part of the day than tested
+    (the hourly updates run all Friday)."""
     if day.weekday() != 4:
         return False
     close = datetime(day.year, day.month, day.day, 17, tzinfo=NEW_YORK).timestamp()
     now = time.time() if now is None else now
     return close - (last_bar_open + 3600) <= 3600 and now >= close - 3600
+
+
+def decision_cut(day: date) -> int:
+    """The tested decision moment of a Friday: 16:00 New York, 1 h before the close (profit_deep Rule.decide_h=1:
+    the earlier days with their full closes, the Friday up to 16:00). Every run after it decides the same."""
+    return int(datetime(day.year, day.month, day.day, 17 - DECIDE_H, tzinfo=NEW_YORK).timestamp())
+
+
+def until(hb: dict, ts: int) -> dict:
+    """Hourly bars that opened before `ts`."""
+    keep = hb["ts"] < ts
+    return {k: v[keep] for k, v in hb.items()}
 
 
 def stale_rates(rates: dict, day: date) -> dict:
@@ -214,28 +229,50 @@ def research_view(pair: str, D: dict, lock: dict | None) -> dict | None:
         return None
 
 
-def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, lock: dict | None = None) -> dict:
+def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, lock: dict | None = None,
+                  hourly: dict | None = None) -> dict:
     inst = get_instrument(pair)
     hb = yahoo_hourly(YAHOO[pair], "2y")                 # 2 years: the research conditions need 250+ daily bars
+    if hourly is not None:
+        hourly[pair] = hb                                # reused by the forward test (no second download)
     D = daily(hb)
-    c, h, l_ = D["c"], D["h"], D["l"]
+    day = D["days"][-1]
+    latest = float(D["c"][-1])
+    is_friday = decision_ready(day, int(D["last_ts"][-1]))
+    Dd = D
+    if is_friday:                                        # the tested decision: the Friday up to 16:00 New York
+        cut = decision_cut(day)
+        Dd = daily(until(hb, cut))
+        if Dd["days"][-1] != day or int(Dd["last_ts"][-1]) != cut - 3600:
+            return {"par": pair, "den": day.isoformat(), "cena": round(latest, inst.decimals), "smer": "NIC",
+                    "stupen": "-", "signal": None, "podminka": "nedostatek dat: chybi hodinova svicka 15-16 h New York",
+                    "chyba": "chybi hodinova svicka pred patecnim rozhodnutim"}
+    c, h, l_ = Dd["c"], Dd["h"], Dd["l"]
     atr = SM.wilder(SM.true_range(h, l_, c), 14)
     rsi2, rsi3 = SM.rsi(c, 2), SM.rsi(c, 3)
-    day = D["days"][-1]
     kb, kq = (P.rate_at(rates[x], day.year, day.month, 2) for x in (inst.base, inst.quote))
     ob, oq = (P.rate_at(rates[x], day.year, day.month, 5) for x in (inst.base, inst.quote))
-    carry = kb - kq
-    mom = (kb - kq) - (ob - oq)
+    carry = None if kb is None or kq is None else kb - kq
+    mom = None if carry is None or ob is None or oq is None else carry - (ob - oq)
+    nb, nq = (P.rate_at(rates[x], day.year, day.month, 1) for x in (inst.base, inst.quote))
+    carry_fin = (nb - nq) if nb is not None and nq is not None else carry   # the swap uses the newer month, as the backtest
     base = cfg["base"]
-    out = {"par": pair, "cena": round(float(c[-1]), inst.decimals), "den": day.isoformat(),
+    lev = P.leverage(pair)
+    out = {"par": pair, "cena": round(latest, inst.decimals), "den": day.isoformat(), "paka": lev,
            "rsi2": round(float(rsi2[-1]), 1), "rsi3": round(float(rsi3[-1]), 1),
            "atr": round(float(atr[-1]), inst.decimals), "atr_proc": round(float(atr[-1] / c[-1] * 100), 3),
-           "rozdil_sazeb": round(carry, 2), "zmena_sazeb_3m": round(mom, 2), "desetinna_mista": inst.decimals,
-           "signal": None, "vyzkum": research_view(pair, D, lock)}
+           "rozdil_sazeb": None if carry is None else round(carry, 2),
+           "zmena_sazeb_3m": None if mom is None else round(mom, 2), "desetinna_mista": inst.decimals,
+           "signal": None, "vyzkum": research_view(pair, D, lock),
+           "rozdil_sazeb_swap": None if carry_fin is None else round(carry_fin, 2)}
+    if is_friday:
+        out["cena_rozhodnuti"] = round(float(c[-1]), inst.decimals)            # the 16:00 New York price
     stale = {c: m for c, m in stale_rates(rates, day).items() if c in (inst.base, inst.quote)}
-    if stale:
+    if stale or mom is None:        # missing data is not neutral data: no rate-based decision on this pair
         out["varovani"] = ("zastarala sazba " + ", ".join(f"{c} (posledni udaj {m})" for c, m in stale.items())
-                           + " - zmena sazeb tu muze byt nepresna, ber s rezervou")
+                           + " - zmenu sazeb nelze spocitat, model u tohoto paru nerozhoduje")
+        out.update(smer="NIC", stupen="-", podminka="nedostatek dat: zastarala sazba, signal se nevyhodnocuje")
+        return out
     # which direction and tier the fundamentals allow
     allowed = []
     for side in (1, -1):
@@ -261,30 +298,32 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
             trig.append(rsi_trigger(prev, 3, 15.0, side))
         level = max(trig) if side > 0 else min(trig)     # the easier of the two signals
         out["spoustec"] = round(level, inst.decimals)
-        out["plan"] = make_plan(side, level, float(atr[-1]), base, inst.decimals, "podminka")
+        out["plan"] = make_plan(side, level, float(atr[-1]), base, inst.decimals, "podminka", lev)
         note = cb_exit_note(pair, day, base)
         if note:
             out["plan"]["pred_rozhodnutim"] = note
         word, rel = ("KOUPIT", "pod") if side > 0 else ("PRODAT", "nad")
         if day.weekday() == 4:
-            out["podminka"] = f"{word}, kdyz patecni zaviraci cena bude {rel} {level:.{inst.decimals}f}"
+            out["podminka"] = f"{word}, kdyz cena v 16:00 New York (obvykle 22:00 Praha) bude {rel} {level:.{inst.decimals}f}"
         else:
             out["podminka"] = (f"jen {word}; signal se vyhodnoti v patek (dnes by nastal pri cene {rel} "
                                f"{level:.{inst.decimals}f})")
         hit_rsi2 = rsi2[-1] < 5 if side > 0 else rsi2[-1] > 95
         hit_rsi3 = ("RSI3" in sig) and (rsi3[-1] < 15 if side > 0 else rsi3[-1] > 85)
-        is_friday = decision_ready(day, int(D["last_ts"][-1]))
         out["rozhodovaci_den"] = is_friday
         out["v_pasmu"] = bool(hit_rsi2 or hit_rsi3)
-        out["cil_ok"] = bool(base["tp"] * atr[-1] / c[-1] * 100 * P.LEVERAGE >= 10.0 - 1e-9)
+        min_tp = 10.0 * (lev / P.LEVERAGE if base.get("min_tp_price") else 1.0)   # % of the margin, as simulate
+        out["cil_ok"] = bool(base["tp"] * atr[-1] / c[-1] * 100 * lev >= min_tp - 1e-9)
         if is_friday and (hit_rsi2 or hit_rsi3):
             entry = float(c[-1])
             tp = entry + side * base["tp"] * atr[-1]
             sl = entry - side * base["sl"] * atr[-1]
-            sl_margin = base["sl"] * atr[-1] / entry * 100 * P.LEVERAGE
-            tp_margin = base["tp"] * atr[-1] / entry * 100 * P.LEVERAGE
+            sl_margin = base["sl"] * atr[-1] / entry * 100 * lev
+            tp_margin = base["tp"] * atr[-1] / entry * 100 * lev
             mult = float(np.clip(REF_SL_MARGIN / sl_margin, 0.5, 2.0)) if cfg.get("sizing") == "vol" else 1.0
-            if tp_margin >= 10.0 - 1e-9:
+            if cfg.get("notional_parity"):
+                mult *= P.LEVERAGE / lev                 # the same position volume as a 1:30 pair (self_learn)
+            if tp_margin >= min_tp - 1e-9:
                 out["signal"] = {
                     "smer": out["smer"], "stupen": out["stupen"], "vstup": round(entry, inst.decimals),
                     "tp": round(tp, inst.decimals), "sl": round(sl, inst.decimals),
@@ -292,7 +331,8 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
                     "zisk_tp_proc_marze": round(tp_margin, 1), "ztrata_sl_proc_marze": round(sl_margin, 1),
                     "zavrit_nejpozdeji": (day + timedelta(days=28)).isoformat(),
                     "vyzkum": research_votes(out["vyzkum"], side),
-                    "plan": {**make_plan(side, entry, float(atr[-1]), base, inst.decimals, "trh"),
+                    "paka": lev, "cas_rozhodnuti": decision_cut(day),
+                    "plan": {**make_plan(side, entry, float(atr[-1]), base, inst.decimals, "trh", lev),
                              **({"pred_rozhodnutim": cb_exit_note(pair, day, base)} if cb_exit_note(pair, day, base) else {})},
                     "duvod": (f"RSI(2) {rsi2[-1]:.0f}{', RSI(3) %.0f' % rsi3[-1] if 'RSI3' in sig else ''} = prudky "
                               f"{'propad' if side > 0 else 'rust'}; rozdil sazeb {inst.base}-{inst.quote} se za 3 mesice "
@@ -354,39 +394,50 @@ def rank_pairs(pairs: list) -> None:
 # ----------------------------------------------------------------------
 
 def resolve_forward(trades: list, hourly_cache: dict) -> None:
-    """Close open model trades on the hourly path (SL first when both in one hour)."""
+    """Close open model trades on the hourly path exactly as the backtest does (scripts/profit_deep.simulate):
+    costs (half the spread + slippage on entry and exit), per hour the stop first, then the target, then at the
+    New York close bar the exit in profit before a central bank decision, the time exit after the rule's
+    holding period (20 trading days = 480 hours, as profit_deep.simulate),
+    and the swap (rate difference -/+ 1 % p.a.). Results in % of the margin at the pair's leverage."""
     for t in trades:
         if t["stav"] != "otevreny":
             continue
         hb = hourly_cache.get(t["par"])
         if hb is None:
             continue
+        inst = get_instrument(t["par"])
+        half = (P.SPREAD_PIPS[t["par"]] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip
         side = 1 if t["smer"] == "KOUPIT" else -1
-        after = hb["ts"] > t["cas_vstupu"]
+        entry = t["vstup"] + side * half                  # bought at the ask / sold at the bid
+        after = hb["ts"] >= t["cas_vstupu"]               # from the first hour after the entry moment
         ts, hh, ll, cc = hb["ts"][after], hb["h"][after], hb["l"][after], hb["c"][after]
         decisions = {d for d, _ in cb_decisions(t["par"], date.fromisoformat(t["den"]), 40)} if t.get("cb_vystup") else set()
+        hold = t.get("drzeni_dni", 20)
+        n_bars = P.HOLD_BARS.get(hold, 24 * hold)        # the backtest's time exit: the close of the n-th hour
+        exit_px = None
         for j in range(len(ts)):
-            if decisions:                                # NY close bar (16:00-17:00 New York) before a decision day
+            if (side > 0 and ll[j] - half <= t["sl"]) or (side < 0 and hh[j] + half >= t["sl"]):
+                exit_px, why = t["sl"], "SL"
+            elif (side > 0 and hh[j] - half >= t["tp"]) or (side < 0 and ll[j] + half <= t["tp"]):
+                exit_px, why = t["tp"], "TP"
+            else:
                 bar = datetime.fromtimestamp(int(ts[j]), tz=NEW_YORK)
                 nxt = bar.date() + timedelta(days=3 if bar.weekday() == 4 else 1)
-                if bar.hour == 16 and nxt in decisions and side * (float(cc[j]) - t["vstup"]) > 0:
-                    t.update(stav="uzavreny", vystup=float(cc[j]), duvod_vystupu="pred rozhodnutim CB",
-                             cas_vystupu=int(ts[j]) + 3600)
-                    break
-            if (side > 0 and ll[j] <= t["sl"]) or (side < 0 and hh[j] >= t["sl"]):
-                t.update(stav="uzavreny", vystup=t["sl"], duvod_vystupu="SL", cas_vystupu=int(ts[j]) + 3600)
+                close_px = float(cc[j]) - side * half
+                if decisions and bar.hour == 16 and nxt in decisions and side * (close_px - entry) > 0:
+                    exit_px, why = close_px, "pred rozhodnutim CB"
+                elif j >= n_bars - 1:
+                    exit_px, why = close_px, "cas"
+            if exit_px is not None:
+                t.update(stav="uzavreny", vystup=float(exit_px), duvod_vystupu=why, cas_vystupu=int(ts[j]) + 3600)
                 break
-            if (side > 0 and hh[j] >= t["tp"]) or (side < 0 and ll[j] <= t["tp"]):
-                t.update(stav="uzavreny", vystup=t["tp"], duvod_vystupu="TP", cas_vystupu=int(ts[j]) + 3600)
-                break
-            if j >= 480:                                 # 20 trading days of hourly bars
-                t.update(stav="uzavreny", vystup=float(cc[j]), duvod_vystupu="cas", cas_vystupu=int(ts[j]) + 3600)
-                break
+        lev = P.leverage(t["par"])
         if t["stav"] == "uzavreny":
-            move = side * (t["vystup"] - t["vstup"]) / t["vstup"] * 100
-            t["vysledek_proc_marze"] = round(move * P.LEVERAGE, 1)
+            days = (t["cas_vystupu"] - t["cas_vstupu"]) / 86400
+            fin = t.get("swap_proc_rocne", 0.0) / 100 / 365 * days * entry
+            t["vysledek_proc_marze"] = round((side * (t["vystup"] - entry) + fin) / entry * 100 * lev, 1)
         elif len(cc):
-            t["prubezne_proc_marze"] = round(side * (float(cc[-1]) - t["vstup"]) / t["vstup"] * 100 * P.LEVERAGE, 1)
+            t["prubezne_proc_marze"] = round(side * (float(cc[-1]) - side * half - entry) / entry * 100 * lev, 1)
 
 
 def main() -> int:
@@ -397,22 +448,19 @@ def main() -> int:
     cfg, shares = ch["config"], ch["shares"]
     today = datetime.now(UTC).date()
     pairs, cache = [], {}
+    research_error = None
     try:
         import vyzkum_most as VM
         lock = VM.live_lock(list(DEFAULT_ACTIVE))
-    except Exception as exc:                              # research is information only: never blocks the signals
-        print(f"vyzkum nedostupny: {type(exc).__name__}: {exc}", file=sys.stderr)
+    except Exception as exc:                              # research is information only: never blocks the signals,
+        research_error = f"{type(exc).__name__}: {exc}"   # but the failure is shown (stav vyzkum_chyba)
+        print(f"vyzkum nedostupny: {research_error}", file=sys.stderr)
         lock = None
     for pair in DEFAULT_ACTIVE:
         try:
-            pairs.append(evaluate_pair(pair, cfg, shares, rates, today, lock))
+            pairs.append(evaluate_pair(pair, cfg, shares, rates, today, lock, cache))
         except Exception as exc:
             pairs.append({"par": pair, "chyba": f"data nedostupna: {type(exc).__name__}"})
-    for pair in DEFAULT_ACTIVE:
-        try:
-            cache[pair] = yahoo_hourly(YAHOO[pair], "3mo")
-        except Exception:
-            pass
     rank_pairs(pairs)
     czk = {}
     for ccy, sym in CZK.items():
@@ -431,10 +479,13 @@ def main() -> int:
         key = f"{p['den']}_{p['par'].replace('/', '')}"
         if any(t["id"] == key for t in forward):
             continue
+        if now > s.get("cas_rozhodnuti", now) + DECIDE_H * 3600:
+            continue                                     # only signals published before the close (no back-dating)
         forward.append({"id": key, "par": p["par"], "smer": s["smer"], "stupen": s["stupen"], "den": p["den"],
-                        "cas_vstupu": now, "vstup": s["vstup"], "tp": s["tp"], "sl": s["sl"],
+                        "cas_vstupu": s.get("cas_rozhodnuti", now), "vstup": s["vstup"], "tp": s["tp"], "sl": s["sl"],
                         "marze_proc_uctu": s["marze_proc_uctu"], "stav": "otevreny",
-                        "cb_vystup": cfg["base"].get("exit_before_cb") == "zisk",
+                        "cb_vystup": cfg["base"].get("exit_before_cb") == "zisk", "drzeni_dni": cfg["base"]["hold_days"],
+                        "swap_proc_rocne": round((1 if s["smer"] == "KOUPIT" else -1) * p["rozdil_sazeb_swap"] - P.FIN_MARKUP, 2),
                         **({"vyzkum_pro": s["vyzkum"]["pro"], "vyzkum_proti": s["vyzkum"]["proti"]}
                            if s.get("vyzkum") else {})})
     resolve_forward(forward, cache)
@@ -455,6 +506,7 @@ def main() -> int:
     state = {
         "aktualizovano": datetime.now(UTC).isoformat(timespec="minutes"),
         "den_dat": day.isoformat(), "je_patek": any(p.get("rozhodovaci_den") for p in pairs),
+        "trh_zavren": any(p.get("rozhodovaci_den") for p in pairs) and now > decision_cut(day) + DECIDE_H * 3600,
         "pravidlo": cfg["name"],
         "pravidlo_popis": {"tp_atr": cfg["base"]["tp"], "sl_atr": cfg["base"]["sl"], "drzeni_dni": cfg["base"]["hold_days"],
                            "vystup_pred_cb": cfg["base"].get("exit_before_cb") == "zisk",
@@ -468,14 +520,15 @@ def main() -> int:
                                       "ziskovych_mesicne": round(ev["1"]["test_wins_month"], 1)}},
         "pary": pairs,
         "vyzkum_pravidla": (lock or {}).get("_pravidla", []),
+        "vyzkum_chyba": research_error,
         "signaly": [dict(par=p["par"], odhad_uspesnosti=p.get("odhad_uspesnosti"), uspesnost_hist=p.get("uspesnost_hist"),
                          n_hist=p.get("n_hist"), pravdepodobnost_uspechu=p.get("pravdepodobnost_uspechu"),
                          varovani=p.get("varovani"), **p["signal"])
                     for p in pairs if p.get("signal")],
         "razeni": "signal, pak pripravene ke vstupu, pak ostatni povolene, nakonec bez smeru; uvnitr podle odhadu uspesnosti",
         "fundamenty": fund,
-        "varovani": [f"Sazba {CCY_CZ[c]} ({c}) z OECD ma posledni udaj za {m}; zmena sazeb u paru s {c} je proto "
-                     "jen odhad (pocita se jako 0). Signaly s touto menou ber s rezervou."
+        "varovani": [f"Sazba {CCY_CZ[c]} ({c}) z OECD ma posledni udaj za {m}; zmenu sazeb u paru s {c} nelze "
+                     "spocitat, proto je model u tech paru nevyhodnocuje (chybejici udaj se nedoplnuje odhadem)."
                      for c, m in stale.items() if c in CCY_CZ],
         "vix": {"hodnota": vix_rows[-1][1], "den": vix_rows[-1][0].isoformat()},
         "czk": czk,

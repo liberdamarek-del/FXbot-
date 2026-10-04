@@ -35,7 +35,7 @@ import math
 import pickle
 import sys
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -119,9 +119,13 @@ def true_range(h, l, c):
 
 
 def rsi(c, n):
+    """Wilder RSI. No movement at all over the window (up = down = 0, e.g. a stuck price feed) is 50 (neutral),
+    not 0: a flat price is neither oversold nor overbought (audit 2026-10-04: 0 gave a false BUY signal)."""
     d = np.diff(c, prepend=c[0])
     up, dn = wilder(np.clip(d, 0, None), n), wilder(np.clip(-d, 0, None), n)
-    return 100 - 100 / (1 + up / np.where(dn == 0, 1e-12, dn))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        r = 100 - 100 / (1 + up / np.where(dn == 0, 1e-12, dn))
+    return np.where((up == 0) & (dn == 0), 50.0, r)
 
 
 def sign_of(x):

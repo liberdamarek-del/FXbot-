@@ -23,7 +23,7 @@ period 2023-2026 is shown once. Units: % of the margin = 30 x net % move.
 import pickle
 import sys
 import time
-from datetime import date, datetime, timezone
+from datetime import date, timezone
 from pathlib import Path
 
 import numpy as np
@@ -34,6 +34,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import fxcm_universe as U  # noqa: E402
 import research_factors as RF  # noqa: E402
+import research_signals as RS  # noqa: E402
 import strategy_mining as SM  # noqa: E402
 import winrate_lab as W1  # noqa: E402
 from profit_lab import weekly_aligned  # noqa: E402
@@ -42,8 +43,17 @@ from src.path_archive import trading_date  # noqa: E402
 
 UTC = timezone.utc
 OUT = PROJECT_ROOT / "data" / "research" / "profit2"
-LEVERAGE = 30
-MIN_TP_PCT = 10.0 / LEVERAGE
+LEVERAGE = 30                                       # major pairs (the research labs use it for every pair)
+MIN_TP_PCT = 10.0 / LEVERAGE                         # 10 % of the margin at 1:30, in % of the price
+ESMA_MAJORS = {"USD", "EUR", "JPY", "GBP", "CAD", "CHF"}
+
+
+def leverage(pair: str) -> int:
+    """Retail leverage of an EU broker (ESMA): 1:30 for pairs of two major currencies (USD, EUR, JPY, GBP, CAD,
+    CHF), 1:20 for the other pairs (e.g. AUD/USD, NZD/USD, AUD/JPY). The margin of a position is notional /
+    leverage, so % of the margin = % price move x leverage (audit 2026-10-04: 1:30 was used for all pairs)."""
+    base, quote = pair.split("/")
+    return 30 if base in ESMA_MAJORS and quote in ESMA_MAJORS else 20
 HOLD_BARS = {5: 120, 10: 240, 20: 480}            # 120 hourly bars = one trading week
 MAX_BARS = max(HOLD_BARS.values())
 EXITS = ([("ATR", tp, sl, hd) for tp in (0.75, 1.0, 1.5, 2.0, 3.0, 4.0) for sl in (1.0, 1.5, 2.0, 3.0, 4.0)
@@ -54,8 +64,7 @@ ENTRIES = (("MARKET", 0.0), ("LIMIT 0.5", 0.5), ("LIMIT 1.0", 1.0))
 PERIODS = {"A": (date(2012, 1, 1), date(2018, 12, 31)), "B": (date(2019, 1, 1), date(2022, 12, 31)),
            "TEST": (date(2023, 1, 1), date(2026, 9, 30))}
 MIN_HOURS = 20                                     # a trading day needs >= 20 valid hourly bars
-SPREAD_PIPS = {"EUR/USD": 0.8, "USD/JPY": 0.9, "GBP/USD": 1.2, "USD/CHF": 1.4, "AUD/USD": 1.0, "USD/CAD": 1.5,
-               "NZD/USD": 1.5, "EUR/JPY": 1.5, "GBP/JPY": 2.5, "EUR/GBP": 1.2, "EUR/CHF": 1.6, "AUD/JPY": 1.6,
+SPREAD_PIPS = {**RS.SPREAD_PIPS,                   # the 12 live pairs: one table (research_signals)
                "CAD/JPY": 2.0, "NZD/JPY": 2.2, "GBP/CHF": 2.6, "AUD/CAD": 2.0, "AUD/CHF": 2.0, "AUD/NZD": 2.5,
                "CAD/CHF": 2.2, "EUR/AUD": 2.2, "EUR/NZD": 3.5, "GBP/CAD": 3.2, "GBP/NZD": 4.5, "NZD/CAD": 2.6,
                "NZD/CHF": 2.6,
@@ -63,8 +72,8 @@ SPREAD_PIPS = {"EUR/USD": 0.8, "USD/JPY": 0.9, "GBP/USD": 1.2, "USD/CHF": 1.4, "
                "USD/NOK": 40, "EUR/NOK": 40, "USD/SEK": 40, "EUR/SEK": 40, "USD/MXN": 60, "USD/ZAR": 100,
                "ZAR/JPY": 3.0, "USD/PLN": 30, "EUR/PLN": 25, "USD/HUF": 30, "EUR/HUF": 30, "USD/CZK": 20,
                "EUR/CZK": 15, "CHF/JPY": 2.5, "EUR/CAD": 2.5, "GBP/AUD": 3.0}
-SLIPPAGE_PIPS = 0.4
-FIN_MARKUP = 1.0
+SLIPPAGE_PIPS = RS.SLIPPAGE_PIPS
+FIN_MARKUP = RS.FINANCING_MARKUP
 
 
 # ----------------------------------------------------------------------

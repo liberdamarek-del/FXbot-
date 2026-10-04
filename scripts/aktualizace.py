@@ -24,6 +24,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import diagnostika as DG  # noqa: E402
+import profit_lab2 as P  # noqa: E402
 import signals_live as SL  # noqa: E402
 from src.instruments import DEFAULT_ACTIVE, get_instrument  # noqa: E402
 
@@ -33,7 +34,7 @@ STAV = PROJECT_ROOT / "data" / "live" / "stav.json"
 JOURNAL = PROJECT_ROOT / "data" / "live" / "denik_uzivatele.json"   # not in git (personal data)
 CURRENCIES = ("USD", "EUR", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD")
 IMPACT_CZ = {"High": "vysoký", "Medium": "střední"}
-DAYS_CZ = ("po", "út", "st", "čt", "pá", "so", "ne")
+DAYS_CZ = SL.DAYS_CZ
 
 
 def praha(ts: int) -> str:
@@ -176,11 +177,11 @@ def read_journal(folder: Path) -> list[dict]:
 
 
 def journal_summary(rows: list[dict], prices: dict) -> dict:
-    """Closed results in % of the margin (leverage 30) and open trades with the
+    """Closed results in % of the margin (the pair's leverage, ESMA) and open trades with the
     current price; flags open trades whose price is beyond their SL or TP."""
     def pct(r, price):
         side = 1 if r["smer"] == "KOUPIT" else -1
-        return side * (price - r["vstup"]) / r["vstup"] * 100 * 30
+        return side * (price - r["vstup"]) / r["vstup"] * 100 * P.leverage(r["par"])
     closed = [r for r in rows if r.get("stav") == "uzavreny" and r.get("vystup") and r.get("vstup")]
     results = [pct(r, r["vystup"]) for r in closed]
     open_ = []

@@ -5,6 +5,9 @@ pair, week-clustered t, delayed entry, rate-signal variants, portfolio.
     python scripts/profit_deep.py           # -> docs/ZISK10_OVERENI.md
 """
 
+import hashlib
+import os
+import pickle
 import sys
 import time
 from collections import defaultdict
@@ -45,8 +48,11 @@ class Rule:
     hold_days: int = 20
     delay_h: int = 0                  # execute this many hours after the close
     one_per_pair: bool = True
-    min_tp_pct: float = P.MIN_TP_PCT
-    early_h: int = 0                  # decide and enter this many hours before the daily close
+    min_tp_pct: float = P.MIN_TP_PCT                  # minimum target in % of the price at 1:30 (= 10 % of the margin)
+    min_tp_price: bool = False        # True: the same minimum price move for every pair (1:20 pairs: < 10 % of the margin)
+    early_h: int = 0                  # decide and enter this many hours before the daily close (every day cut)
+    decide_h: int = 0                 # live timing: decide and enter this many hours before the decision day's close,
+                                      # earlier days keep their full closes (the live run at 16:05 New York = 1)
     cost_x: float = 1.0               # spread + slippage multiplier
     rates_src: str = "oecd"           # "oecd" = monthly 3m interbank (FRED), "y2" = daily 2y yields (fundamentals DB)
     max_sl_margin: float = 1e9        # skip trades whose stop is wider than this % of the margin
@@ -104,6 +110,62 @@ def series_early(symbol: str, early: int) -> dict:
     s["dl"] = np.array([s["l"][a:b + 1].min() for a, b in zip(first, last)])
     s["close_ts"] = s["ts"][last] + 3600
     return s
+
+
+SIM_START = 260                       # first decision day of simulate (a year of indicator history)
+LIVE_WINDOW = 1000                    # days of history for the live-timing indicators (equal to the full series to 1e-9)
+KNOWN_AT_DECISION = {"carry", "carry_fin", "rates_mom", "vix", "vix_rise", "week_end"}
+
+
+def prepared_live(symbol: str, lag: int, window: int, src: str, cut: int, weekdays: tuple):
+    """Indicators as the live run sees them `cut` hours before the close of each decision day (weekday in
+    `weekdays`): the earlier days with their full closes, the decision day up to that hour (its high / low so
+    far, its price at that hour as the close). Other days and the monthly / daily known inputs (rates, carry,
+    VIX, the week end) are unchanged. Exact: every indicator is causal (tests) and LIVE_WINDOW days of history
+    reproduce the full-series values (to < 1e-10, floating point)."""
+    key = ("live", symbol, lag, window, src, cut, weekdays)
+    if key not in _cache:
+        s, I = prepared(symbol, lag, window, 0, src)
+        J = {k: (v.copy() if isinstance(v, np.ndarray) else v) for k, v in I.items()}
+        for k, (rows, values) in _live_rows(symbol, s, cut, weekdays).items():
+            J[k][rows] = values
+        _cache[key] = (s, J)
+    return _cache[key]
+
+
+def _live_rows(symbol: str, s: dict, cut: int, weekdays: tuple) -> dict:
+    """{indicator: (decision-day rows, values)} of the price-based indicators at `cut` hours before the close;
+    cached on disk, valid for the same price data and the same indicator code (hash of its source files)."""
+    path = P.OUT / f"live_{symbol.replace('/', '')}_{cut}_{''.join(map(str, weekdays))}.pkl"
+    code = b"".join((PROJECT_ROOT / "scripts" / f).read_bytes()
+                    for f in ("profit_lab2.py", "profit_lab.py", "winrate_lab.py", "strategy_mining.py"))
+    stamp = (hashlib.sha256(code).hexdigest(), LIVE_WINDOW, SIM_START, len(s["ts"]), int(s["ts"][-1]),
+             float(s["c"][-1]), len(s["days"]))
+    if path.exists():
+        saved = pickle.loads(path.read_bytes())
+        if saved["stamp"] == stamp:
+            return saved["rows"]
+    rates = _cache.setdefault("rates", P.monthly_rates())        # only for the call; rate keys are not taken
+    found = defaultdict(lambda: ([], []))
+    for i, d in enumerate(s["days"]):
+        a, b = s["first"][i], s["last"][i] - cut
+        if i < SIM_START or d.weekday() not in weekdays or b < a:
+            continue
+        lo = max(0, i - LIVE_WINDOW)
+        pre = {"do": s["do"][lo:i + 1], "days": s["days"][lo:i + 1],
+               "dh": np.append(s["dh"][lo:i], s["h"][a:b + 1].max()),
+               "dl": np.append(s["dl"][lo:i], s["l"][a:b + 1].min()),
+               "dc": np.append(s["dc"][lo:i], s["c"][b])}
+        for k, v in P.indicators(pre, rates, symbol).items():
+            if k not in KNOWN_AT_DECISION and isinstance(v, np.ndarray) and v.shape == (i + 1 - lo,):
+                found[k][0].append(i)
+                found[k][1].append(v[-1])
+    rows = {k: (np.array(r, int), np.array(v)) for k, (r, v) in found.items()}
+    P.OUT.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(f".{os.getpid()}.tmp")                 # parallel learning runs: never a half-written file
+    tmp.write_bytes(pickle.dumps({"stamp": stamp, "rows": rows}))
+    os.replace(tmp, path)
+    return rows
 
 
 def y2_rates(symbol: str, close_ts: np.ndarray, window_months: int, lag_months: int = 0,
@@ -321,7 +383,7 @@ def fomc_addon(symbols) -> list[dict]:
             pct = side * (out - entry) / entry * 100
             trades.append({"pair": symbol, "side": side, "day": s["days"][i - 1], "entry": entry,
                            "t_in": int(s["ts"][k0]) + 3600, "t_out": int(s["ts"][k1]) + 3600, "reason": "FOMC",
-                           "price_pct": pct, "margin_pct": pct * P.LEVERAGE, "days": 1.0, "tp_pct": 0.0,
+                           "price_pct": pct, "margin_pct": pct * P.leverage(symbol), "days": 1.0, "tp_pct": 0.0,
                            "sl_pct": 84.0, "mfe_atr": 0.0, "marks": []})
     return sorted(trades, key=lambda t: t["t_in"])
 
@@ -376,9 +438,10 @@ def scale_addon(base: list[dict], k_atr: float, tp_atr: float = 0.75, sl_atr: fl
         fin = (side * I["carry_fin"][i] - P.FIN_MARKUP) / 100 / 365 * held * entry
         pct = (result + fin) / entry * 100
         out.append({"pair": pair, "side": side, "day": t["day"], "entry": entry, "t_in": int(ts[fill]),
-                    "t_out": int(ts[exit_k]) + 3600, "reason": reason, "price_pct": pct, "margin_pct": pct * P.LEVERAGE,
-                    "days": held, "tp_pct": TP / entry * 100 * P.LEVERAGE, "sl_pct": SL / entry * 100 * P.LEVERAGE,
-                    "mfe_atr": best / atr, "marks": [(m, v * P.LEVERAGE) for m, v in marks if m < int(ts[exit_k]) + 3600],
+                    "t_out": int(ts[exit_k]) + 3600, "reason": reason, "price_pct": pct,
+                    "margin_pct": pct * P.leverage(pair), "days": held, "tp_pct": TP / entry * 100 * P.leverage(pair),
+                    "sl_pct": SL / entry * 100 * P.leverage(pair), "mfe_atr": best / atr,
+                    "marks": [(m, v * P.leverage(pair)) for m, v in marks if m < int(ts[exit_k]) + 3600],
                     "size_factor": t.get("size_factor", 1.0), "stack": True, "base": (pair, t["t_in"])})
     return out
 
@@ -386,10 +449,19 @@ def scale_addon(base: list[dict], k_atr: float, tp_atr: float = 0.75, sl_atr: fl
 def simulate(rule: Rule, symbols=None) -> list[dict]:
     defs = P.signal_defs()
     trades = []
+    if rule.decide_h and (rule.early_h or rule.limit_atr or rule.knife_days or rule.confirm_up or rule.tp_retrace):
+        raise NotImplementedError("decide_h: these options use the decision day's full close")
+    decision_days = (rule.weekdays or ((rule.weekday,) if rule.weekday >= 0 else (4,) if rule.weekly else tuple(range(7))))
     for symbol in symbols or U.universe():
-        s, I = prepared(symbol, rule.rates_lag, rule.rates_window, rule.early_h, rule.rates_src)
+        if rule.decide_h:
+            s, I = prepared_live(symbol, rule.rates_lag, rule.rates_window, rule.rates_src, rule.decide_h,
+                                 tuple(decision_days))
+        else:
+            s, I = prepared(symbol, rule.rates_lag, rule.rates_window, rule.early_h, rule.rates_src)
         inst = get_instrument(symbol)
         half = (P.SPREAD_PIPS[symbol] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip * rule.cost_x
+        lev = P.leverage(symbol)
+        min_tp = rule.min_tp_pct * (1.0 if rule.min_tp_price else P.LEVERAGE / lev)   # same % of the margin by default
         ts, hh, hl, hc = s["ts"], s["h"], s["l"], s["c"]
         L = P.HOLD_BARS.get(rule.hold_days, 24 * rule.hold_days)
         busy_until = -1
@@ -405,7 +477,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         names = rule.signal.split("|")
         signal = {sd: np.logical_or.reduce([np.nan_to_num(defs[nm][0 if sd > 0 else 1](I)).astype(bool)
                                             for nm in names]) for sd in (1, -1)}
-        for i in range(260, len(s["days"]) - 1):
+        for i in range(SIM_START, len(s["days"]) - 1):
             if rule.weekdays:
                 if s["days"][i].weekday() not in rule.weekdays:
                     continue
@@ -459,7 +531,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 if rule.fund == "rates_up+carry" and not (side * I["rates_mom"][i] >= rule.rates_thr
                                                           and np.sign(I["carry"][i]) == side):
                     continue
-                k0 = s["last"][i] + rule.delay_h
+                k0 = s["last"][i] - rule.decide_h + rule.delay_h
                 if rule.confirm_up:
                     turn = next((m for m in range(1, rule.confirm_up + 1) if i + m < len(s["days"])
                                  and side * (s["dc"][i + m] - s["dc"][i + m - 1]) > 0), None)
@@ -488,7 +560,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     TP, SL = rule.tp * atr, rule.sl * atr
                     if rule.tp_retrace and i >= 5:
                         TP = float(np.clip(rule.tp_retrace * side * (s["dc"][i - 5] - s["dc"][i]), 0.5 * atr, 1.5 * atr))
-                if TP / entry * 100 < rule.min_tp_pct - 1e-9 or SL / entry * 100 * P.LEVERAGE > rule.max_sl_margin:
+                if TP / entry * 100 < min_tp - 1e-9 or SL / entry * 100 * lev > rule.max_sl_margin:
                     continue
                 # the position may be split into parts with their own targets (rule.tp_parts, in ATR); one part = TP
                 parts = [x * atr for x in rule.tp_parts] if rule.tp_parts else [TP]
@@ -562,11 +634,11 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 pct = (result + fin) / entry * 100
                 trades.append({"pair": symbol, "side": side, "day": s["days"][i], "entry": entry,
                                "t_in": int(ts[fill]), "t_out": int(ts[exit_k]) + 3600, "reason": reason,
-                               "price_pct": pct, "margin_pct": pct * P.LEVERAGE, "days": held,
-                               "tp_pct": TP / entry * 100 * P.LEVERAGE, "sl_pct": SL / entry * 100 * P.LEVERAGE,
+                               "price_pct": pct, "margin_pct": pct * lev, "days": held,
+                               "tp_pct": TP / entry * 100 * lev, "sl_pct": SL / entry * 100 * lev,
                                "mfe_atr": best / atr,               # best move for the trade before its exit
                                "rm": float(side * I["rates_mom"][i]),   # rate-difference change for the trade
-                               "marks": [(m, v * P.LEVERAGE) for m, v in marks if m < int(ts[exit_k]) + 3600],
+                               "marks": [(m, v * lev) for m, v in marks if m < int(ts[exit_k]) + 3600],
                                "size_factor": (rule.cb_size if rule.cb_size != 1.0 and news(symbol, s, I, "cb_ahead:7")[i]
                                                else 1.0)
                                * (rule.cb_week_size if rule.cb_week_size != 1.0 and news(symbol, s, I, "cb_week")[i]
