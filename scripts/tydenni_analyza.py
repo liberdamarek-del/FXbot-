@@ -785,8 +785,8 @@ def combos(ds: Dataset, sel: np.ndarray, period: str = "year") -> dict:
     out["triple"] = triples[:CONFIG["top_triples"]]
     quads = stage([p + (x,) for p, _, _ in out["triple"] for x in pool if x not in p])
     out["quad"] = quads[:CONFIG["top_quads"]]
-    out["tests"] = len(pool) + len(list(itertools.combinations(pool, 2))) + len(out["pair"]) * len(pool) \
-        + len(out["triple"]) * len(pool)
+    out["tests"] = len(ds.conds) + len(list(itertools.combinations(pool, 2))) + len(out["pair"]) * len(pool) \
+        + len(out["triple"]) * len(pool)                   # every single screened + every combination tried
     return out
 
 
