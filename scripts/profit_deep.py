@@ -12,6 +12,8 @@ from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
+import json
+
 import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -148,7 +150,13 @@ def extra(symbol: str, s: dict, I: dict, what: str, rule) -> np.ndarray:
     COT crowding difference (base minus quote speculator z-score, 0 for USD)."""
     if what in I:
         return I[what]
-    if what.startswith("confirm:oecd"):                 # OECD rate difference change over another window (months)
+    if what == "confirm:acc":                           # the rate divergence still widens: 3-month change now
+        now = prepared(symbol, rule.rates_lag, 3, rule.early_h)[1]["rates_mom"]          # minus 3 months before
+        before = prepared(symbol, rule.rates_lag + 3, 3, rule.early_h)[1]["rates_mom"]
+        I[what] = now - before
+    elif what == "confirm:une":                         # labour market: base unemployment falls vs the quote's
+        I[what] = np.nan_to_num(unemployment_change(symbol, s["days"]))              # (6 months; no data = pass)
+    elif what.startswith("confirm:oecd"):                 # OECD rate difference change over another window (months)
         I[what] = prepared(symbol, rule.rates_lag, int(what.split("oecd")[1]), rule.early_h)[1]["rates_mom"]
     elif what.startswith("confirm:"):
         src = what.split(":", 1)[1]
@@ -165,6 +173,36 @@ def extra(symbol: str, s: dict, I: dict, what: str, rule) -> np.ndarray:
             return np.nan if v is None else v
         I[what] = np.array([z(inst.base, t) - z(inst.quote, t) for t in s["close_ts"]])
     return I[what]
+
+
+def unemployment_change(symbol: str, days) -> np.ndarray:
+    """-(6-month change of the base unemployment rate - that of the quote) known at each day (monthly data with a
+    2-month lag, quarterly CHF / NZD with 4 months): > 0 = the base economy's labour market improves relatively."""
+    import bisect
+
+    import fundamenty as F
+    une = _cache.setdefault("une", json.loads((F.MACRO / "macro.json").read_text())["unemployment"])
+    inst = get_instrument(symbol)
+
+    def at(ccy, y, m):
+        series = une.get(ccy)
+        if not series:
+            return None
+        lag = 4 if ccy in F.UNEMPLOYMENT_QUARTERLY else 2
+        m -= lag
+        while m <= 0:
+            y, m = y - 1, m + 12
+        keys = _cache.setdefault(("une_keys", ccy), sorted(series))
+        k = bisect.bisect_right(keys, f"{y}-{m:02d}") - 1
+        return series[keys[k]] if k >= 0 and int(keys[k][:4]) * 12 + int(keys[k][5:7]) >= y * 12 + m - 3 else None
+
+    out = []
+    for d in days:
+        y0, m0 = (d.year, d.month - 6) if d.month > 6 else (d.year - 1, d.month + 6)
+        vals = [at(inst.base, d.year, d.month), at(inst.base, y0, m0), at(inst.quote, d.year, d.month),
+                at(inst.quote, y0, m0)]
+        out.append(np.nan if None in vals else -((vals[0] - vals[1]) - (vals[2] - vals[3])))
+    return np.array(out)
 
 
 # months without a source for a central bank (scripts/fundamenty.py could not read them): no filter there
@@ -527,6 +565,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                                "price_pct": pct, "margin_pct": pct * P.LEVERAGE, "days": held,
                                "tp_pct": TP / entry * 100 * P.LEVERAGE, "sl_pct": SL / entry * 100 * P.LEVERAGE,
                                "mfe_atr": best / atr,               # best move for the trade before its exit
+                               "rm": float(side * I["rates_mom"][i]),   # rate-difference change for the trade
                                "marks": [(m, v * P.LEVERAGE) for m, v in marks if m < int(ts[exit_k]) + 3600],
                                "size_factor": (rule.cb_size if rule.cb_size != 1.0 and news(symbol, s, I, "cb_ahead:7")[i]
                                                else 1.0)

@@ -281,6 +281,29 @@ def bis_cpi() -> dict:
     return out
 
 
+UNEMPLOYMENT_EXTRA = {"CHF": "LRHUTTTTCHQ156S", "NZD": "LRUNTTTTNZQ156S"}    # FRED (OECD), quarterly
+UNEMPLOYMENT_QUARTERLY = {"CHF", "NZD"}
+
+
+def unemployment_extra() -> dict:
+    """Unemployment rates the OECD SDMX query misses: EUR = EU27 monthly (Eurostat une_rt_m; the euro area code
+    returns nothing), CHF and NZD quarterly from FRED (quarter -> its last month)."""
+    out = {}
+    d = json.loads(_get("https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m"
+                        "?geo=EU27_2020&s_adj=SA&age=TOTAL&sex=T&unit=PC_ACT"))
+    when = {i: t for t, i in d["dimension"]["time"]["category"]["index"].items()}
+    out["EUR"] = {when[int(k)]: float(v) for k, v in sorted(d["value"].items(), key=lambda x: int(x[0]))}
+    for ccy, sid in UNEMPLOYMENT_EXTRA.items():
+        series = {}
+        for line in _get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}").strip().splitlines()[1:]:
+            day, value = line.split(",")
+            if value and value != ".":
+                y, m = int(day[:4]), int(day[5:7]) + 2           # quarter start -> quarter end month
+                series[f"{y}-{m:02d}"] = float(value)
+        out[ccy] = series
+    return out
+
+
 def download() -> int:
     events, errors = {}, []
     for name, job in (("FED", fed), ("ECB", lambda: sorted(set(ecb()) | set(ecb_future()))),
@@ -298,6 +321,11 @@ def download() -> int:
     EVENTS.write_text(json.dumps({"stazeno": date.today().isoformat(), "chyby": errors, **events}, indent=1))
     MACRO.mkdir(parents=True, exist_ok=True)
     m = macro()
+    try:
+        for ccy, series in unemployment_extra().items():
+            m["unemployment"].setdefault(ccy, series)
+    except Exception as exc:
+        m["errors"].append(f"unemployment_extra: {type(exc).__name__}: {str(exc)[:80]}")
     try:
         m["cpi_bis"] = bis_cpi()
     except Exception as exc:

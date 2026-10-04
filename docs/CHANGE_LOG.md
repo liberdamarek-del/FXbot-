@@ -464,3 +464,14 @@ trend trader (dips + breakouts, half to 1.5 ATR), 6 / 12-month rate confirmation
 8 currencies (`fundamenty.bis_cpi`, macro.json "cpi_bis") adds nothing to the rate filter; the weekend-gap fade
 works only at the first Sunday quote (after 1 hour it loses) - not tradable; the move after central bank decisions
 continued in 2012-18 and reversed in 2019-26 - unstable. No change to the live model.
+
+## R-026 - Saturday learning 2026-10-03 (run 2026-10-04 03:30 UTC): round 23, unemployment data (all rejected)
+
+Data: FXCM build (still ends 2026-09-25, the week files lag), fundamentals, FRED rates. New
+`fundamenty.unemployment_extra()` fills the unemployment gaps (EUR = EU27 monthly from Eurostat, the euro area code
+returns nothing; CHF and NZD quarterly from FRED) -> all 8 currencies. Options: confirm "acc" (the rate divergence
+still widens), confirm "une" (6-month unemployment change in favour of the bought currency, no data = pass),
+cfg `rates_size` (size by the rate change), trades carry "rm". Rejected: vol sizing in the monthly profile under
+gate v3 (2023-26 return/dd 2.21 vs 1.43, but 2019-22 3.33 vs 4.49 and only 70 % of the return), size by the rate
+change, accelerating divergence and the labour market for the weak tiers (too few wins a month in the monthly
+profile, lower in max). No change to the live model.

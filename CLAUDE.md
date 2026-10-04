@@ -63,9 +63,10 @@ re-downloaded by the scripts.
   currency, targets 0.5/0.6/1.0 ATR, stop 5 ATR / on the close, 30 days, decaying target, Thursday entries,
   strongest tier as trend trader, 6/12-month rate confirmation, drawdown brake, BIS inflation, weekend gaps,
   post-decision drift - all rejected; do not repeat these families.
-- Next: macro trends (CPI y/y, unemployment; OECD SDMX in data/research/fundamenty/macro.json - JPY CPI ends
-  2021, AUD monthly only from 2025, EUR/CHF/NZD unemployment missing: find sources first, e.g. Eurostat, e-Stat);
-  meeting dates of SNB, RBA, BoC, RBNZ (sources reachable except RBNZ); BoE dates 8/2015-12/2016 missing;
-  exit or tighten the stop before a decision instead of skipping the entry; trades after a decision in the
-  entry week (better in 2023-26 only); position size by distance to the next decision.
+- (done 2026-10-04, R-026) macro: BIS CPI (all 8, macro.json "cpi_bis") and unemployment (all 8 incl. Eurostat
+  EU27 / FRED CHF, NZD) as confirmations, accelerating rate divergence, size by rate change, vol sizing in the
+  monthly profile under v3 - all rejected.
+- Next (new families only): BoC dates (history not on the site; try archived press releases), RBNZ (403);
+  BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (weekly bars, Friday
+  intraday path) only with an economic reason first; forward test review after 4+ weeks of live trades.
 

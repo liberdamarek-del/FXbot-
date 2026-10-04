@@ -126,6 +126,11 @@ def trade_lists(cfg: dict) -> list[list[dict]]:
         out = recent_filter(out, *cfg["recent"])
     if cfg.get("cluster"):
         cluster_sizing(out, cfg["cluster"])
+    if cfg.get("rates_size"):                           # [ref, lo, hi]: size x clip(rate change / ref, lo, hi)
+        ref, lo, hi = cfg["rates_size"]
+        for tl in out:
+            for t in tl:
+                t["size_mult"] = t.get("size_mult", 1.0) * float(np.clip(np.nan_to_num(t.get("rm", ref)) / ref, lo, hi))
     for addon in cfg.get("addons", []):                 # extra trade generators (their own margin share)
         if addon == "fomc":
             out.append([dict(t) for t in D.fomc_addon(symbols)])
@@ -509,6 +514,15 @@ EXPERIMENTS = [
      lambda c: _with(c, cb_tight=1.0)),
     ("pred_cb_ztrata_stop_05_atr", "obchod ve ztrate den pred rozhodnutim centralni banky: stop na 0.5 ATR od zavreni",
      lambda c: _with(c, cb_tight=0.5)),
+    # round 23 (Saturday learning 2026-10-03/04): conviction and the macro picture behind the rate divergence
+    ("v3_velikost_podle_volatility", "marze neprimo umerna sirce stopu (stejne riziko na obchod) - znovu pod branou v3",
+     lambda c: _with(c, sizing="vol")),
+    ("velikost_podle_sazeb", "velikost podle sily zmeny rozdilu sazeb: zmena / 0.3 p.b., 0.5-1.5x (silnejsi divergence = vetsi sazka)",
+     lambda c: _with(c, rates_size=[0.3, 0.5, 1.5])),
+    ("sazby_zrychluji_slabe", "slabsi stupne: rozdil sazeb se dal rozevira (zmena za 3 mesice vetsi nez 3 mesice predtim)",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "acc"} for x in t[2:]])),
+    ("trh_prace_slabe", "slabsi stupne: i nezamestnanost za 6 mesicu se vyviji ve prospech kupovane meny",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "une"} for x in t[2:]])),
 ]
 
 
