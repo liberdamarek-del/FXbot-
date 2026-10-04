@@ -29,6 +29,16 @@ add markets.
   The gate v3 (user's decision 2026-10-02 evening): return per drawdown (CAGR / max dd, open trades at daily
   closes) better by >= 10 % in both tests, >= 85 % of the champion's return, dd <= 30 %, >= 3 of 4 two-year
   blocks at least as good; the monthly profile keeps >= 2 wins a month. The user allowed changing the rules.
+- Weekly research (user's specification 2026-10-04; part of the Saturday job, after the data download and
+  before self_learn): `python scripts/tydenni_analyza.py` (the last completed FX week, the 12 pairs; `--pary` for
+  any other list, `--rychle` without the walk-forward of combinations) -> docs/tydenni/<YYYY-Www>.md (Czech
+  report: 0 data quality, 1 what happened, 2 each pair by day / UTC session with events and reactions, 3-8
+  fundamental / technical / combination / fundamental+technical winners, failed signals, regime, 9 archive) and
+  learning/tydenni/<week>.json.gz + udalosti.jsonl (tracked: the long-term record). Keep A) descriptive,
+  B) attribution, C) predictive apart; labels NEOVĚŘENO / TIMESTAMP UNVERIFIED / FUNDAMENT UNVERIFIED /
+  INSUFFICIENT SAMPLE / POSSIBLE OVERFIT; never fill missing data. Query a condition's weekly record:
+  `python scripts/tydenni_analyza.py --dotaz "RSI14>50 & C>EMA20" --par EUR/USD --tf 1H --tydnu 20 [--rezim trend]`.
+  Findings go into the model only as experiments through the gate. Method: docs/TYDENNI_VYZKUM.md.
 - Start every job with the diagnostics (inside aktualizace.py); on CHYBA other than a known open item
   (docs/AUDIT_2026-10-02.md) do not publish signals, report it.
 

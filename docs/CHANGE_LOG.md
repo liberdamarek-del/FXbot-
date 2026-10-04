@@ -475,3 +475,26 @@ cfg `rates_size` (size by the rate change), trades carry "rm". Rejected: vol siz
 gate v3 (2023-26 return/dd 2.21 vs 1.43, but 2019-22 3.33 vs 4.49 and only 70 % of the return), size by the rate
 change, accelerating divergence and the labour market for the weak tiers (too few wins a month in the monthly
 profile, lower in max). No change to the live model.
+
+## R-027 - 2026-10-04: weekly FX research module (user's specification)
+
+New `scripts/indikatory.py` (causal indicators and an 804-setting condition grid: RSI 5-28 x 20/80..40/60, SMA/EMA
+5-200, EMA crosses, MACD 5/8/12 x 17/21/26/34 x 5/9/12, Bollinger 10-50 x 1.5-3.0, Stochastic 5-21 x 3/5, ATR 5-28,
+ADX 7-28 x 20-35; neighbouring settings for robustness; resampling and higher-timeframe alignment) and
+`scripts/tydenni_analyza.py` (every Saturday, the last completed FX week): data quality first (missing bars,
+duplicates, timestamps, OHLC, gaps, weekend / after-close bars, outliers, source sync Yahoo 15m vs 1h and Yahoo vs
+FXCM); A) descriptive per pair (week OHLC, changes, max rise / fall from the open, drawdown / recovery, range,
+volatility, ATR, up/down/sideways hours under 0.05/0.10/0.20/0.30 %, strongest / weakest day, largest 15m/30m/1h
+move) and per day and UTC session (00-06 ... 22-24); events of the week (ForexFactory archive) with type, time
+flags, US actual values from ALFRED (release-day vintage, verified against the previous first release), surprise
+(actual - forecast, relative, sign by convention) and pair reactions before / +15m ... +24h; big hourly moves with
+the events and cross-asset moves of the same hour; currency factor model (common vs individual move), correlations
+and pairwise lead / lag on 15-minute bars with a timestamp-offset flag; B) attribution inside the week; C) predictive:
+non-overlapping forward returns per timeframe (15M 1h, 30M 2h, 1H 4h, 4H 24h, 1D 5 days), in-sample 2012-2019 /
+out-of-sample 2020 -> (15M/30M: 75/25 % of 60 days), staged combinations (one indicator family per component,
+overlap filter), walk-forward (years / weeks), robustness (ROBUST / POSSIBLE OVERFIT), regimes (volatility, ADX,
+VIX risk, dollar, US 2y), the week as a new test of conditions locked before it, the user's pre-registered
+combinations, event days (Fed/ECB/BoJ/BoE, NFP, CPI 2012 ->) x technical state, surprise x technical state from the
+growing archive; Czech report docs/tydenni/<week>.md, archive learning/tydenni/ and a query CLI (`--dotaz`).
+Test F2 (no look-ahead in all 804 conditions, higher timeframe, locked set; samples; factors; quality; DST week;
+neighbours; families). Saturday routine extended; docs/TYDENNI_VYZKUM.md describes the method. Research only.
