@@ -124,12 +124,16 @@ def mtm_drawdown(taken: list[dict], margins: list[float]) -> float:
 
 
 def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_ccy: int | None = None,
-                  brake=None, money: str | None = None) -> dict:
+                  brake=None, money: str | None = None, max_trades: int | None = None,
+                  pause_sl_days: float | None = None) -> dict:
     """Chronological account with compounding, one position per pair. `share`
     = margin share of the equity per trade, one number or one per list. `brake`
     = (drawdown, factor): while the account (closed trades) is more than
-    `drawdown` below its peak, new trades get `factor` x the margin. `money` = a bet-sizing system (Money)."""
+    `drawdown` below its peak, new trades get `factor` x the margin. `money` = a bet-sizing system (Money).
+    `max_trades` = at most this many open trades in the account (at the same moment the stronger list first).
+    `pause_sl_days` = no new trade in a pair for this many days after the account's trade there hit its stop."""
     mm = Money(money) if money else None
+    last_sl = {}                                      # pair -> exit time of the account's last stopped trade
     shares = list(share) if isinstance(share, (list, tuple)) else [share] * len(trade_lists)
     events = []
     for rank, trades in enumerate(trade_lists):
@@ -155,6 +159,8 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
             pnl = margin * tr["margin_pct"] / 100
             if mm:
                 mm.update(tr["margin_pct"])
+            if tr.get("reason") == "SL":
+                last_sl[pair] = t_out
             month = datetime.fromtimestamp(t_out, tz=UTC).strftime("%Y-%m")
             start_equity_month.setdefault(month, equity)
             equity += pnl
@@ -172,6 +178,10 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
             if tr["base"] not in taken_keys:
                 continue
         elif tr["pair"] in busy:
+            continue
+        if pause_sl_days and not tr.get("stack") and t_in < last_sl.get(tr["pair"], -10 ** 12) + pause_sl_days * 86400:
+            continue
+        if max_trades and not tr.get("stack") and sum(1 for x in open_pos if not x[3].get("stack")) >= max_trades:
             continue
         if max_ccy and not tr.get("stack"):                                   # at most max_ccy open trades long (short) one currency
             bought, sold = _legs(tr)

@@ -200,7 +200,8 @@ def recent_filter(lists: list[list[dict]], months: float, floor: float) -> list[
 
 def run_pf(lists, sh, years, cfg: dict) -> dict:
     """The account simulation with the configuration's portfolio options (one place for all callers)."""
-    return PS.run_portfolio(lists, list(sh), years, cfg.get("max_ccy"), cfg.get("brake"), cfg.get("sazeni"))
+    return PS.run_portfolio(lists, list(sh), years, cfg.get("max_ccy"), cfg.get("brake"), cfg.get("sazeni"),
+                            cfg.get("max_obchodu"), cfg.get("pauza_po_stopu"))
 
 
 def fit_shares(lists, cfg, years) -> tuple:
@@ -605,6 +606,15 @@ EXPERIMENTS = [
      lambda c: _with(c, rates_window=2)),
     ("r28_bez_vanoc", "zadny novy obchod od 15. 12. do 5. 1. (mely trh na konci roku, siroke spready, mezery)",
      lambda c: _with(c, skip_holidays=True)),
+    # round 29 (learning run 2026-10-05 noon): the losers come in clusters (a market-wide turn hits several pairs in
+    # one week, docs/HAZARD.md) and a 4-ATR stop usually means news the 2-month-lagged rates do not show yet
+    ("r29_max_5_obchodu", "nejvys 5 otevrenych obchodu v uctu najednou (dnes az 9; shluk ztrat pri obratu celeho trhu), "
+     "pri soucasnem vstupu ma prednost silnejsi stupen", lambda c: _with(c, max_obchodu=5)),
+    ("r29_max_7_obchodu", "nejvys 7 otevrenych obchodu v uctu najednou", lambda c: _with(c, max_obchodu=7)),
+    ("r29_pauza_po_stopu_2t", "po zasazenem stopu v paru 2 tydny zadny novy obchod v tom paru (velky pohyb proti = "
+     "nova informace, kterou mesicni sazby se zpozdenim 2 mesicu jeste nevidi)", lambda c: _with(c, pauza_po_stopu=14)),
+    ("r29_pauza_po_stopu_4t", "po zasazenem stopu v paru 4 tydny zadny novy obchod v tom paru",
+     lambda c: _with(c, pauza_po_stopu=28)),
 ]
 
 

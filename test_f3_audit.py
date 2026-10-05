@@ -180,6 +180,24 @@ eq = eq + 2 * 0.1 * eq * 0.2                                      # the next tra
 eq = eq + 0.1 * eq * 0.2                                          # back to 1x after the win
 assert abs(mart["equity"] - eq) < 1e-12 and abs(flat["equity"] - 0.95 * 1.02 * 1.02) < 1e-12
 
+# ---------------------------------------------------------------- open-trade cap and pause after a stop (round 29)
+D1 = 86400
+pt = [{"pair": "EUR/USD", "side": 1, "day": date(2024, 3, 1), "t_in": T0, "t_out": T0 + 3 * D1, "margin_pct": -50.0,
+       "reason": "SL"},
+      {"pair": "EUR/USD", "side": 1, "day": date(2024, 3, 1), "t_in": T0 + 10 * D1, "t_out": T0 + 12 * D1,
+       "margin_pct": 10.0, "reason": "TP"},                      # 7 days after the stop
+      {"pair": "EUR/USD", "side": 1, "day": date(2024, 3, 1), "t_in": T0 + 20 * D1, "t_out": T0 + 22 * D1,
+       "margin_pct": 10.0, "reason": "TP"},                      # 17 days after the stop
+      {"pair": "GBP/USD", "side": 1, "day": date(2024, 3, 1), "t_in": T0 + 4 * D1, "t_out": T0 + 6 * D1,
+       "margin_pct": 10.0, "reason": "TP"}]                      # another pair: not paused
+assert len(PS.run_portfolio([pt], 0.1, (2024, 2024))["trades"]) == 4
+paused = PS.run_portfolio([pt], 0.1, (2024, 2024), pause_sl_days=14)["trades"]
+assert [(t["pair"], t["t_in"]) for t in paused] == [("EUR/USD", T0), ("GBP/USD", T0 + 4 * D1), ("EUR/USD", T0 + 20 * D1)]
+same = [{"pair": p, "side": 1, "day": date(2024, 3, 1), "t_in": T0, "t_out": T0 + 5 * D1, "margin_pct": 5.0,
+         "reason": "TP"} for p in ("EUR/USD", "GBP/USD", "USD/JPY")]
+capped = PS.run_portfolio([same[:1], same[1:]], [0.1, 0.05], (2024, 2024), max_trades=2)
+assert [t["pair"] for t in capped["trades"]] == ["EUR/USD", "GBP/USD"] and capped["max_open"] == 2   # stronger list first
+
 print("=" * 60)
 print("F3 AUDIT 2026-10-04 REGRESSIONS")
 print("=" * 60)
@@ -190,5 +208,6 @@ print("LIVE TIMING (DECISION AT 16:00 NEW YORK, EARLIER DAYS FULL): PASS")
 print("FORWARD TEST: COSTS, STOP BEFORE TARGET, LEVERAGE, TIME EXIT: PASS")
 print("LIVE DAILY BARS: NO PHANTOM SATURDAY, FRIDAY UP TO 16:00 NEW YORK: PASS")
 print("BET SIZING (MARTINGALE / FIBONACCI / D'ALEMBERT / ANTI) IN THE ACCOUNT SIMULATION: PASS")
+print("OPEN-TRADE CAP AND PAUSE AFTER A STOP IN THE ACCOUNT SIMULATION: PASS")
 print("RESULT: PASS")
 print("=" * 60)

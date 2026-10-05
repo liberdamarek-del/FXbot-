@@ -594,3 +594,20 @@ months as confirmation for the weak tiers / all tiers (monthly profile: no margi
 2023-26 +21.1 % / +3.8 %), a 2-month rate window instead of 3 (monthly: infeasible; max 2019-22 +30.1 %), no new
 trade 15 December - 5 January (monthly: 2019-22 +52.8 % / dd 23 % vs +53.0 % / 29 %, 2023-26 +28.0 % / 24 % - return
 per drawdown +23 % and -1 %; max: slightly worse in both). New rule option `skip_holidays` (simulator + live run).
+
+## R-033 - 2026-10-05 learning run (noon): round 29 (all rejected)
+
+Loser clusters and stale rate signals, through gate v3. New account options `max_obchodu` (at most N open trades at
+once, at the same moment the stronger tier first) and `pauza_po_stopu` (no new trade in a pair for N days after the
+account's trade there hit its stop) in `portfolio_sim.run_portfolio` / `self_learn.run_pf`, with a regression test
+(test_f3_audit.py). Not in the live run (diagnostika.live_unsupported reports them) - only needed if one passes.
+- at most 5 / 7 open trades: monthly 2019-22 +49.9 % / +52.4 % (champion +53.0 %), 2023-26 +27.8 % / +28.2 % at the
+  same drawdowns; max 2023-26 +19.3 % / +19.7 % with dd 28 % (no gain in return per drawdown). Rejected.
+- pause 2 / 4 weeks after a stop in the pair: monthly 2023-26 identical to the champion (the weekly signals almost
+  never come back to a stopped pair within 4 weeks), 2019-22 +53.0 % / +51.6 %; max 2019-22 +64.5 % / +63.3 % but
+  dd 27 % (return per drawdown below the champion), 2023-26 identical. Rejected.
+- BoE dates 8/2015-12/2016 (ideas queue): the summary pages of those months are not at the URL scheme the collector
+  uses and the site index lists none of them; still missing. Found: the 2015 minutes pages of June / July say "meeting
+  ending 3 June / 8 July" (the vote day) and May 2015 "7 and 8 May"; the stored decision days 2015-05-08, 2015-06-03,
+  2015-07-08 may be a day (May: a weekend) before the announcement - NEOVĚŘENO, not changed without a source of the
+  announcement days.

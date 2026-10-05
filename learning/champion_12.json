@@ -215,7 +215,11 @@
   "r28_vynosy_2r_slabe",
   "r28_vynosy_2r_vse",
   "r28_sazby_okno_2m",
-  "r28_bez_vanoc"
+  "r28_bez_vanoc",
+  "r29_max_5_obchodu",
+  "r29_max_7_obchodu",
+  "r29_pauza_po_stopu_2t",
+  "r29_pauza_po_stopu_4t"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4"
 }
