@@ -1674,3 +1674,15 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+15.6%** rocne, propad 37%, 0.9 ziskovych/mesic (marze 15% / 0% / 0% / 0%), po 2 letech +14% / +38%, vynos/propad 0.43; 2023-26: **+11.7%** rocne, propad 14%, 3.5 ziskovych/mesic (marze 6% / 6% / 1% / 1%), po 2 letech +2% / +25%, vynos/propad 0.85
 * sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
 
+### 2026-10-05 - [champion_12_mesicne] r26_denne_vse: zamitnuto
+
+* uvolneni: rozhodovat kazdy obchodni den v 16:00 New York, ne jen v patek (vsechny stupne)
+* kandidat: 2019-22: **+22.4%** rocne, propad 22%, 6.6 ziskovych/mesic (marze 8% / 2% / 1% / 1%), po 2 letech +11% / +34%, vynos/propad 1.02; 2023-26: **+15.6%** rocne, propad 11%, 5.2 ziskovych/mesic (marze 6% / 5% / 1% / 1%), po 2 letech +17% / +16%, vynos/propad 1.40
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12] r26_denne_vse: zamitnuto
+
+* uvolneni: rozhodovat kazdy obchodni den v 16:00 New York, ne jen v patek (vsechny stupne)
+* kandidat: 2019-22: **+23.9%** rocne, propad 23%, 1.6 ziskovych/mesic (marze 10% / 0% / 0% / 0%), po 2 letech +10% / +89%, vynos/propad 1.03; 2023-26: **+12.5%** rocne, propad 16%, 1.6 ziskovych/mesic (marze 8% / 0% / 0% / 0%), po 2 letech +17% / +9%, vynos/propad 0.80
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+

@@ -40,7 +40,11 @@ Data a postup:
 3. **Proč na tom jiní vydělávají:** platí za obchod desetinu toho co retail, nebo na obchodech přímo
    vydělávají (kapitola 1). Stejná výhoda +1 až +2 pipy na obchod je pro banku zisk, pro retailový účet
    ztráta.
-4. **Uvolnění pravidel denního modelu** (kolo 26, přes stejnou bránu): «KOLO26».
+4. **Uvolnění pravidel denního modelu** (kolo 26, přes stejnou bránu, kapitola 5):
+   * Zrušení minimálního cíle 10 % marže nic nezhorší, ale ani dost nezlepší.
+   * Volnější vstup (RSI(2) < 10) nebo rozhodování každý den přidá obchody: až 5–7 ziskových měsíčně místo
+     2–3. Roční výnos ale klesne zhruba na polovinu.
+   * Bránou neprošlo nic. Šampion zůstává.
 5. Ziskový systém v rámci dne by navíc musel obchodovat **automaticky**, desítky obchodů denně. Ručně to
    nejde a projekt k brokerovi obchody neposílá (jen čte).
 
@@ -143,7 +147,31 @@ Minutové BID/ASK svíčky FXCM 2016–2026 (asi 3,8 milionu minut na pár).
 
 ## 5. Uvolnění pravidel denního modelu (kolo 26, brána v3)
 
-«KOLO26_TABULKA»
+Šampion měsíčního profilu (živý čas): **2019–22 +53,0 % ročně, propad 29 %; 2023–26 +28,2 %, propad 24 %;
+3,1 / 2,0 ziskového obchodu měsíčně**.
+
+| Uvolnění | Měsíční profil 2019–22 | 2023–26 | Ziskových měsíčně | Brána |
+|---|---|---|---|---|
+| bez minimálního cíle 10 % marže (i malé cíle v klidných obdobích) | +56,2 % / 20 % | +28,6 % / 24 % | 3,4 / 2,1 | zamítnuto: v letech 2023–26 lepší jen o 2 % (nutných 10 %) |
+| minimální cíl 5 % marže | stejné jako výše | | | zamítnuto (cíle pod 5 % se nevyskytují) |
+| vstup už při RSI(2) < 10 (místo < 5) | +24,0 % / 25 % | +14,9 % / 16 % | 4,7 / 3,2 | zamítnuto: víc obchodů, poloviční výnos |
+| RSI(2) < 10 a bez minimálního cíle | +22,1 % / 25 % | +15,9 % / 14 % | 5,1 / 3,4 | zamítnuto |
+| rozhodovat každý den v 16:00 New York, ne jen v pátek | +22,4 % / 22 % | +15,6 % / 11 % | **6,6 / 5,2** | zamítnuto: víc ziskových obchodů, ale nižší výnos |
+
+Profil max: všech 5 uvolnění je horších než šampion (např. bez minimálního cíle 2019–22 +42,9 % proti
++62,8 %).
+
+Co z toho plyne:
+
+* Přísnost pravidel model nebrzdí. Volnější vstupy přidají obchody, které jsou v průměru slabší, takže
+  roční výnos klesne. Pravidlo minimálního cíle přitom vyřazuje jen málo obchodů a jeho zrušení nic nezhorší.
+* Kdo chce **víc obchodů měsíčně za cenu nižšího výnosu**, může vzít variantu „každý den“:
+  * 5–7 ziskových obchodů měsíčně;
+  * asi +16–22 % ročně;
+  * propad 11–22 %.
+
+  Bránou neprošla, protože brána hlídá výnos na riziko, ne počet obchodů. Je to rozhodnutí pro uživatele.
+  Živě by navíc vyžadovala denní vyhodnocení ve 22:00 a vstup každý den.
 
 ## 6. Závěr
 
