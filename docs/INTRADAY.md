@@ -1,7 +1,5 @@
 # Obchodování v rámci dne (hodiny, minuty) – výzkum 5. 10. 2026
 
-_Rozpracováno: výsledky běžících výpočtů se doplňují (značky «…»)._
-
 _Otázka uživatele: zkoušel jsi obchodování v rámci dne, hodinové nebo minutové? Proč existují modely, které to
 dělají a vydělávají? Zkoušej, dokud na něco nepřijdeš, klidně uvolni pravidla._
 
@@ -122,8 +120,19 @@ Typické náklady na celý obchod (tam i zpět, medián):
 * Hrubá výhoda je kladná v každém horizontu a téměř v každém roce, takže model něco skutečného vidí.
 * Po nákladech zůstává kolem nuly a v žádném horizontu není jistě kladná ve všech obdobích.
 * Při 30násobné páce dělá i 0,018 % ceny jen asi 0,5 % marže na obchod.
-* Obchod jen tehdy, když předpovězený pohyb převýší náklady páru 1× nebo 2× (předem stanovené dvě úrovně):
-  «ML_K».
+* Obchod jen tehdy, když předpovězený pohyb převýší náklady páru 1× nebo 2× (předem stanovené dvě úrovně,
+  místo prahu z předchozího roku):
+
+  | Práh | Horizont | 2016–18 čistě | 2019–22 čistě | 2023–26 čistě |
+  |---|---|---|---|---|
+  | 1× náklady | 4 h | −0,003 % | −0,009 % (t −2,8) | −0,014 % (t −3,7) |
+  | 1× náklady | 8 h | −0,005 % | −0,012 % (t −3,1) | −0,005 % |
+  | 1× náklady | 24 h | −0,009 % | −0,015 % (t −2,1) | −0,002 % |
+  | 2× náklady | 4 h | +0,006 % (t 0,9) | −0,004 % | +0,004 % (t 0,4) |
+  | 2× náklady | 8 h | +0,009 % (t 1,5) | −0,011 % | −0,001 % |
+  | 2× náklady | 24 h | −0,009 % | −0,022 % (t −2,3) | +0,013 % (t 1,4) |
+
+  Ani jedna úroveň není kladná ve všech třech obdobích.
 
 ## 4. Minutové strategie (`scripts/minute_lab.py`)
 
