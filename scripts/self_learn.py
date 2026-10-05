@@ -198,6 +198,11 @@ def recent_filter(lists: list[list[dict]], months: float, floor: float) -> list[
     return out
 
 
+def run_pf(lists, sh, years, cfg: dict) -> dict:
+    """The account simulation with the configuration's portfolio options (one place for all callers)."""
+    return PS.run_portfolio(lists, list(sh), years, cfg.get("max_ccy"), cfg.get("brake"), cfg.get("sazeni"))
+
+
 def fit_shares(lists, cfg, years) -> tuple:
     """Tier margins (non-increasing) with the largest annual return at max drawdown <= DD_MAX."""
     best = (-np.inf, None, None)
@@ -208,7 +213,7 @@ def fit_shares(lists, cfg, years) -> tuple:
              and sum(1 for x in sh if x >= 0.12) <= 2           # keep the grid small: few big tiers
              and sh[0] <= cfg.get("max_share", 1.0)]            # optional risk cap on the margin per trade
     for sh in (m + e for m in mains for e in itertools.product(ADDON_STEPS, repeat=len(lists) - n_main)):
-        r = PS.run_portfolio(lists, list(sh), years, cfg.get("max_ccy"), cfg.get("brake"))
+        r = run_pf(lists, sh, years, cfg)
         if r["wins_month"] < PROFILE["min_wpm"] or r["months_2wins"] < PROFILE["min_m2"]:
             continue
         if r["max_dd"] <= DD_MAX and r["cagr"] > best[0]:
@@ -240,7 +245,7 @@ def evaluate(cfg: dict) -> dict:
         if sh is None:
             out[k] = None
             continue
-        r_test = PS.run_portfolio(lists, list(sh), test, cfg.get("max_ccy"), cfg.get("brake"))
+        r_test = run_pf(lists, sh, test, cfg)
         g1 = group_one(cfg)
         e_g = {g: [t["margin_pct"] for t in r_test["trades"] if (t["pair"] in g1) == (g == "G1")] for g in ("G1", "G2")}
         out[k] = {"e_G1": float(np.mean(e_g["G1"])) if e_g["G1"] else 0.0,
@@ -248,7 +253,7 @@ def evaluate(cfg: dict) -> dict:
                   "test_dd": r_test["max_dd"], "test_n_year": r_test["n_year"], "test_win": r_test["win"],
                   "test_wins_month": r_test["wins_month"], "test_months_2wins": r_test["months_2wins"],
                   "blocks": [[r["cagr"], r["max_dd"]] for r in
-                             (PS.run_portfolio(lists, list(sh), b, cfg.get("max_ccy"), cfg.get("brake")) for b in BLOCKS[k])]}
+                             (run_pf(lists, sh, b, cfg) for b in BLOCKS[k])]}
     return out
 
 
@@ -579,6 +584,18 @@ EXPERIMENTS = [
                       lambda t: [{**t[0], "signal": "D RSI2<10|D RSI3<15"} if "signal" in t[0] else t[0]] + t[1:])),
     ("r26_denne_vse", "uvolneni: rozhodovat kazdy obchodni den v 16:00 New York, ne jen v patek (vsechny stupne)",
      lambda c: _with(c, weekly=False)),
+    # round 27 (user 2026-10-05: martingale and other gambling systems): bet size from the account's own sequence of
+    # closed trades (portfolio_sim.Money). Theory: none can change the expected result, only its distribution.
+    ("r27_martingale_2x", "martingale: po ztratovem obchodu dvojnasobna marze dalsiho (nejvys 3x za sebou = 8x), po zisku zpet",
+     lambda c: _with(c, sazeni="martingale:2:3")),
+    ("r27_martingale_15x", "mirny martingale: po ztrate 1.5x marze (nejvys 3x za sebou = 3.4x), po zisku zpet",
+     lambda c: _with(c, sazeni="martingale:1.5:3")),
+    ("r27_anti_martingale", "anti-martingale: po ziskovem obchodu 1.5x marze (nejvys 2x za sebou = 2.25x), po ztrate zpet",
+     lambda c: _with(c, sazeni="anti:1.5:2")),
+    ("r27_dalembert", "d'Alembert: po ztrate +0.5 nasobku marze, po zisku -0.5 (1-3x)",
+     lambda c: _with(c, sazeni="dalembert:0.5:3")),
+    ("r27_fibonacci", "Fibonacci: po ztrate o krok vys (1, 1, 2, 3, 5x), po zisku o dva kroky niz",
+     lambda c: _with(c, sazeni="fibonacci:4")),
 ]
 
 

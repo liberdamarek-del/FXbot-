@@ -39,6 +39,43 @@ SHARES = (0.02, 0.03, 0.05, 0.08, 0.10)
 SPANS = {"2012-18": (2012, 2018), "2019-22": (2019, 2022), "2023-26": (2023, 2026)}
 
 
+class Money:
+    """Bet sizing of gambling systems on the account's own sequence of CLOSED trades (known at each entry); the
+    multiplier scales the margin of the next trade (user's question 2026-10-05, docs/HAZARD.md):
+        martingale:F:N   x F after each loss in a row (at most N steps), back to 1 after a win
+        anti:F:N         x F after each win in a row (at most N steps), back to 1 after a loss
+        dalembert:S:C    +S after a loss, -S after a win, starting at 1, kept between 1 and C
+        fibonacci:N      one step up the Fibonacci sequence after a loss, two steps down after a win (<= step N)
+    No system can change the expected result of the trades; they only reshape its distribution."""
+
+    FIB = (1, 1, 2, 3, 5, 8, 13, 21, 34)
+
+    def __init__(self, spec: str):
+        kind, *args = spec.split(":")
+        if kind not in ("martingale", "anti", "dalembert", "fibonacci"):
+            raise ValueError(f"neznamy system sazeni {spec}")
+        self.kind, self.args = kind, [float(a) for a in args]
+        self.level = 1.0 if kind == "dalembert" else 0.0
+
+    def update(self, margin_pct: float) -> None:
+        win = margin_pct > 0
+        if self.kind == "martingale":
+            self.level = 0.0 if win else min(self.level + 1, self.args[1])
+        elif self.kind == "anti":
+            self.level = min(self.level + 1, self.args[1]) if win else 0.0
+        elif self.kind == "dalembert":
+            self.level = float(np.clip(self.level + (-self.args[0] if win else self.args[0]), 1.0, self.args[1]))
+        else:
+            self.level = max(self.level - 2, 0) if win else min(self.level + 1, self.args[0])
+
+    def mult(self) -> float:
+        if self.kind in ("martingale", "anti"):
+            return self.args[0] ** self.level
+        if self.kind == "dalembert":
+            return self.level
+        return float(self.FIB[int(self.level)])
+
+
 def rule_of(c: dict, meta, exits) -> D.Rule:
     sname, trend, fund, rhythm = meta[c["m"]]
     kind, tp, sl, hd = exits[c["x"]]
@@ -87,11 +124,12 @@ def mtm_drawdown(taken: list[dict], margins: list[float]) -> float:
 
 
 def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_ccy: int | None = None,
-                  brake=None) -> dict:
+                  brake=None, money: str | None = None) -> dict:
     """Chronological account with compounding, one position per pair. `share`
     = margin share of the equity per trade, one number or one per list. `brake`
     = (drawdown, factor): while the account (closed trades) is more than
-    `drawdown` below its peak, new trades get `factor` x the margin."""
+    `drawdown` below its peak, new trades get `factor` x the margin. `money` = a bet-sizing system (Money)."""
+    mm = Money(money) if money else None
     shares = list(share) if isinstance(share, (list, tuple)) else [share] * len(trade_lists)
     events = []
     for rank, trades in enumerate(trade_lists):
@@ -115,6 +153,8 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
         while open_pos and open_pos[0][0] <= moment:
             t_out, pair, margin, tr = open_pos.pop(0)
             pnl = margin * tr["margin_pct"] / 100
+            if mm:
+                mm.update(tr["margin_pct"])
             month = datetime.fromtimestamp(t_out, tz=UTC).strftime("%Y-%m")
             start_equity_month.setdefault(month, equity)
             equity += pnl
@@ -142,6 +182,8 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
         margin = shares[rank] * equity * tr.get("size_mult", 1.0) * tr.get("size_factor", 1.0)
         if brake and equity < (1 - brake[0]) * peak:
             margin *= brake[1]
+        if mm:
+            margin *= mm.mult()
         if used + margin > MARGIN_CAP * equity:
             continue
         max_used = max(max_used, (used + margin) / equity)

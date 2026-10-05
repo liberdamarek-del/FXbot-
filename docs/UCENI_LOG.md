@@ -1686,3 +1686,63 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+23.9%** rocne, propad 23%, 1.6 ziskovych/mesic (marze 10% / 0% / 0% / 0%), po 2 letech +10% / +89%, vynos/propad 1.03; 2023-26: **+12.5%** rocne, propad 16%, 1.6 ziskovych/mesic (marze 8% / 0% / 0% / 0%), po 2 letech +17% / +9%, vynos/propad 0.80
 * sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
 
+### 2026-10-05 - [champion_12_mesicne] r27_martingale_2x: zamitnuto
+
+* martingale: po ztratovem obchodu dvojnasobna marze dalsiho (nejvys 3x za sebou = 8x), po zisku zpet
+* kandidat: 2019-22: **+54.2%** rocne, propad 33%, 3.1 ziskovych/mesic (marze 20% / 20% / 5% / 5%), po 2 letech +38% / +81%, vynos/propad 1.64; 2023-26: **+28.9%** rocne, propad 32%, 2.0 ziskovych/mesic (marze 20% / 20% / 3% / 2%), po 2 letech +17% / +48%, vynos/propad 0.91
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12] r27_martingale_2x: zamitnuto
+
+* martingale: po ztratovem obchodu dvojnasobna marze dalsiho (nejvys 3x za sebou = 8x), po zisku zpet
+* kandidat: 2019-22: **+62.7%** rocne, propad 23%, 3.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +63% / +71%, vynos/propad 2.72; 2023-26: **+11.9%** rocne, propad 55%, 2.0 ziskovych/mesic (marze 15% / 15% / 3% / 3%), po 2 letech -5% / +37%, vynos/propad 0.22
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-05 - [champion_12_mesicne] r27_martingale_15x: zamitnuto
+
+* mirny martingale: po ztrate 1.5x marze (nejvys 3x za sebou = 3.4x), po zisku zpet
+* kandidat: 2019-22: **+58.0%** rocne, propad 31%, 3.1 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +47% / +78%, vynos/propad 1.85; 2023-26: **+29.1%** rocne, propad 25%, 2.0 ziskovych/mesic (marze 20% / 20% / 3% / 3%), po 2 letech +18% / +47%, vynos/propad 1.18
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12] r27_martingale_15x: zamitnuto
+
+* mirny martingale: po ztrate 1.5x marze (nejvys 3x za sebou = 3.4x), po zisku zpet
+* kandidat: 2019-22: **+66.8%** rocne, propad 23%, 3.0 ziskovych/mesic (marze 20% / 20% / 5% / 5%), po 2 letech +72% / +71%, vynos/propad 2.90; 2023-26: **+14.5%** rocne, propad 46%, 2.0 ziskovych/mesic (marze 15% / 15% / 5% / 5%), po 2 letech +1% / +34%, vynos/propad 0.32
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-05 - [champion_12_mesicne] r27_anti_martingale: zamitnuto
+
+* anti-martingale: po ziskovem obchodu 1.5x marze (nejvys 2x za sebou = 2.25x), po ztrate zpet
+* kandidat: 2019-22: **+55.0%** rocne, propad 22%, 3.1 ziskovych/mesic (marze 10% / 10% / 3% / 2%), po 2 letech +46% / +74%, vynos/propad 2.45; 2023-26: **+22.0%** rocne, propad 25%, 2.0 ziskovych/mesic (marze 8% / 8% / 4% / 2%), po 2 letech +14% / +32%, vynos/propad 0.87
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12] r27_anti_martingale: zamitnuto
+
+* anti-martingale: po ziskovem obchodu 1.5x marze (nejvys 2x za sebou = 2.25x), po ztrate zpet
+* kandidat: 2019-22: **+62.4%** rocne, propad 35%, 0.9 ziskovych/mesic (marze 15% / 15% / 0% / 0%), po 2 letech +61% / +164%, vynos/propad 1.78; 2023-26: **+25.5%** rocne, propad 24%, 1.1 ziskovych/mesic (marze 8% / 8% / 0% / 0%), po 2 letech +27% / +28%, vynos/propad 1.07
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-05 - [champion_12_mesicne] r27_dalembert: zamitnuto
+
+* d'Alembert: po ztrate +0.5 nasobku marze, po zisku -0.5 (1-3x)
+* kandidat: 2019-22: **+56.6%** rocne, propad 31%, 3.1 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +43% / +80%, vynos/propad 1.81; 2023-26: **+29.8%** rocne, propad 25%, 2.0 ziskovych/mesic (marze 20% / 20% / 3% / 3%), po 2 letech +18% / +47%, vynos/propad 1.21
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12] r27_dalembert: zamitnuto
+
+* d'Alembert: po ztrate +0.5 nasobku marze, po zisku -0.5 (1-3x)
+* kandidat: 2019-22: **+66.2%** rocne, propad 23%, 3.0 ziskovych/mesic (marze 20% / 20% / 5% / 5%), po 2 letech +69% / +73%, vynos/propad 2.87; 2023-26: **+19.3%** rocne, propad 42%, 2.0 ziskovych/mesic (marze 15% / 15% / 5% / 5%), po 2 letech +9% / +34%, vynos/propad 0.46
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-05 - [champion_12_mesicne] r27_fibonacci: zamitnuto
+
+* Fibonacci: po ztrate o krok vys (1, 1, 2, 3, 5x), po zisku o dva kroky niz
+* kandidat: 2019-22: **+58.7%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +53% / +73%, vynos/propad 2.05; 2023-26: **+28.0%** rocne, propad 25%, 2.0 ziskovych/mesic (marze 20% / 20% / 5% / 4%), po 2 letech +19% / +44%, vynos/propad 1.12
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12] r27_fibonacci: zamitnuto
+
+* Fibonacci: po ztrate o krok vys (1, 1, 2, 3, 5x), po zisku o dva kroky niz
+* kandidat: 2019-22: **+67.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +78% / +68%, vynos/propad 2.84; 2023-26: **+13.7%** rocne, propad 42%, 2.0 ziskovych/mesic (marze 15% / 15% / 5% / 5%), po 2 letech +4% / +28%, vynos/propad 0.32
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+

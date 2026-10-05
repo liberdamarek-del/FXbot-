@@ -14,7 +14,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
-import portfolio_sim as PS  # noqa: E402
 import portfolio_tiers as PT  # noqa: E402
 import self_learn as SL  # noqa: E402
 
@@ -50,15 +49,15 @@ def main(argv: list[str]) -> int:
             "mesicu s >= 2 ziskovymi | **rocne** | max. propad | max. vazana marze |", "|---|---|---|---|---|---|---|---|---|"]
     for label, yrs in (("2012-2022 (vyber)", (2012, 2022)), ("**2023-2026 (test)**", (2023, 2026)),
                        ("cele 2012-2026", (2012, 2026))):
-        r = PS.run_portfolio(lists, shares, yrs, cfg.get("max_ccy"), cfg.get("brake"))
+        r = SL.run_pf(lists, shares, yrs, cfg)
         out.append(f"| {label} | {r['n_year']:.0f} | {r['win']:.0%} | {r['e']:+.1f} % | {r['wins_month']:.1f} | "
                    f"{r['months_2wins']:.0%} | **{r['cagr']:+.1%}** | {r['max_dd']:.1%} | {r['max_used']:.0%} |")
     out += ["", "| rok | " + " | ".join(str(y) for y in range(2013, 2027)) + " |", "|---" * 15 + "|"]
-    years = [PS.run_portfolio(lists, shares, (y, y), cfg.get("max_ccy"), cfg.get("brake")) for y in range(2013, 2027)]
+    years = [SL.run_pf(lists, shares, (y, y), cfg) for y in range(2013, 2027)]
     out += ["| vynos | " + " | ".join(f"{r['equity'] - 1:+.0%}" for r in years) + " |",
             "| obchodu | " + " | ".join(str(len(r["trades"])) for r in years) + " |",
             "| propad | " + " | ".join(f"{r['max_dd']:.0%}" for r in years) + " |", ""]
-    full = PS.run_portfolio(lists, shares, (2012, 2026), cfg.get("max_ccy"), cfg.get("brake"))
+    full = SL.run_pf(lists, shares, (2012, 2026), cfg)
     (d50, d95, d99), (c5, c50, c95) = PT.bootstrap_dd(full["month_returns"])
     out += [f"Nejhorsi mesic {min(full['month_returns']):+.1%}. Nahodne preskladane mesice (4 000 desetiletych drah): "
             f"propad median {d50:.0%}, v 5 % drah >= {d95:.0%}, v 1 % >= {d99:.0%}; rocne 5. / 50. / 95. percentil "
@@ -76,7 +75,7 @@ def main(argv: list[str]) -> int:
             vl, sh = lists, [x / 2 for x in shares]
         else:
             vl, sh = SL.trade_lists(cfg, change), shares
-        a, b = (PS.run_portfolio(vl, sh, yrs, cfg.get("max_ccy"), cfg.get("brake")) for yrs in ((2012, 2022), (2023, 2026)))
+        a, b = (SL.run_pf(vl, sh, yrs, cfg) for yrs in ((2012, 2022), (2023, 2026)))
         out.append(f"| {label} | {a['cagr']:+.1%} / {a['max_dd']:.0%} | {b['cagr']:+.1%} / {b['max_dd']:.0%} |")
     (PROJECT_ROOT / "docs" / "SAMPION_12.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print("\n".join(out))
