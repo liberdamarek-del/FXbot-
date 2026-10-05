@@ -133,8 +133,13 @@ Minutové BID/ASK svíčky FXCM 2016–2026 (asi 3,8 milionu minut na pár).
 | minutový šok > 4–8 ATR (sledovat / proti) | přestřelení | vše záporné | kolem nuly |
 | NFP a CPI v 8:30 New York (pohyb prvních 1–5 minut sledovat / proti, držet 15–120 min) | reakce na zprávu | nic stabilního (jen asi 40 zpráv na období) | – |
 
-Páry EUR/USD, USD/JPY, GBP/USD, USD/CHF; noční scalper a zprávy i na EUR/GBP, EUR/CHF, USD/CAD,
-EUR/JPY: «MINUTY2».
+* **Páry EUR/USD, USD/JPY, GBP/USD, USD/CHF:** 39 variant, po nákladech kladná ani jedna.
+* **Noční scalper a zprávy navíc na EUR/GBP, EUR/CHF, USD/CAD a EUR/JPY** (klasické páry nočních robotů):
+  * noční scalper: všech 9 variant záporných ve všech obdobích. Před náklady +0,006 až +0,015 %
+    ve všech obdobích, úspěšnost 53–70 %.
+  * zprávy: 1 z 24 variant kladná ve všech třech obdobích (CPI, proti pohybu prvních 5 minut, držet
+    60 min, jen USD/CAD). Jistota je ale t 1,5 / 0,2 / 0,6 při 38–50 obchodech na období a u 24 variant
+    by se taková jedna čekala i náhodou. Neprokázáno.
 
 ## 5. Uvolnění pravidel denního modelu (kolo 26, brána v3)
 
