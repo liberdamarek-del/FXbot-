@@ -159,6 +159,27 @@ D_dec = SL.daily(SL.until(yb, cut))
 assert D_dec["days"][-1] == friday and int(D_dec["last_ts"][-1]) == cut - H
 assert abs(D_dec["c"][-1] - yb["c"][np.searchsorted(yb["ts"], cut) - 1]) < 1e-12   # the 16:00 price
 
+# ---------------------------------------------------------------- bet-sizing systems (portfolio_sim.Money, R-031)
+import portfolio_sim as PS  # noqa: E402
+
+seq = [-1, -1, 5, -1, -1, -1, -1, 3]
+for spec, want in (("martingale:2:3", [1, 2, 4, 1, 2, 4, 8, 8]), ("fibonacci:5", [1, 1, 2, 1, 1, 2, 3, 5]),
+                   ("dalembert:0.5:3", [1, 1.5, 2, 1.5, 2, 2.5, 3, 3]), ("anti:1.5:2", [1, 1, 1, 1.5, 1, 1, 1, 1])):
+    mm, got = PS.Money(spec), []
+    for r in seq:
+        got.append(mm.mult())
+        mm.update(r)
+    assert np.allclose(got, want), (spec, got)
+T0 = int(datetime(2024, 3, 1, tzinfo=UTC).timestamp())
+seq_trades = [{"pair": p, "side": 1, "day": date(2024, 3, 1), "t_in": T0 + k * 10 * 86400, "t_out": T0 + (k * 10 + 5) * 86400,
+               "margin_pct": v} for k, (p, v) in enumerate((("EUR/USD", -50.0), ("GBP/USD", 20.0), ("USD/JPY", 20.0)))]
+flat = PS.run_portfolio([seq_trades], 0.1, (2024, 2024))
+mart = PS.run_portfolio([seq_trades], 0.1, (2024, 2024), money="martingale:2:3")
+eq = 1 - 0.1 * 0.5                                                # loss of 50 % of a 10 % margin
+eq = eq + 2 * 0.1 * eq * 0.2                                      # the next trade doubled after the loss
+eq = eq + 0.1 * eq * 0.2                                          # back to 1x after the win
+assert abs(mart["equity"] - eq) < 1e-12 and abs(flat["equity"] - 0.95 * 1.02 * 1.02) < 1e-12
+
 print("=" * 60)
 print("F3 AUDIT 2026-10-04 REGRESSIONS")
 print("=" * 60)
@@ -168,5 +189,6 @@ print("RSI FLAT = 50, BOTH INDICATOR LIBRARIES AGREE, BOLLINGER INDEPENDENT OF T
 print("LIVE TIMING (DECISION AT 16:00 NEW YORK, EARLIER DAYS FULL): PASS")
 print("FORWARD TEST: COSTS, STOP BEFORE TARGET, LEVERAGE, TIME EXIT: PASS")
 print("LIVE DAILY BARS: NO PHANTOM SATURDAY, FRIDAY UP TO 16:00 NEW YORK: PASS")
+print("BET SIZING (MARTINGALE / FIBONACCI / D'ALEMBERT / ANTI) IN THE ACCOUNT SIMULATION: PASS")
 print("RESULT: PASS")
 print("=" * 60)

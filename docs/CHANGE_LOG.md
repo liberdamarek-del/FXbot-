@@ -572,3 +572,17 @@ vs +53.0 % / 29 %, 2023-26 +28.6 % vs +28.2 % - only +2 % return per drawdown), 
 RSI(2) < 10 (+24.0 % / +14.9 %), RSI(2) < 10 without the minimum (+22.1 % / +15.9 %), daily decisions (6.6 / 5.2
 winning trades a month, +22.4 % / +15.6 %). Live: RSI thresholds are read from the champion's rule
 (`signals_live.signal_parts`), min_tp_pct is supported live, diagnostics flag unsupported signals / daily tiers.
+
+## R-031 - 2026-10-05: martingale and other gambling systems (user's question; docs/HAZARD.md)
+
+`scripts/hazard_lab.py`: theory (100,000 sessions of 100 bets): martingale raises the share of winning sessions on a
+fair bet from 46 % to 82 % at an unchanged result per unit staked (0.000) and a worst session of -1,885 vs -40 units;
+with costs it loses 4x more than a flat stake (it stakes more). Kelly on the champion's 2012-2022 trades: 36 % (monthly)
+/ 42 % (max) of the account as margin per trade vs the model's 20 % with up to 9 trades open (88-98 % of the account
+tied up) - the model already bets near Kelly. Grid / martingale robot on hourly FXCM 2012-2026 (5 pairs x equal /
+doubling x 5 / 8 levels x 3 directions, ESMA close-out at 50 % margin level, no swap): 99.6 % of the baskets closed
+in profit, yet 34 of 60 accounts ended below 10 % and 59 of 60 had a drawdown >= 50 %; with doubling 29 of 30 ended
+below half. `portfolio_sim.Money` (martingale / anti / d'Alembert / Fibonacci on the account's closed trades) and
+`self_learn.run_pf` (one call for the account simulation, also used by champion_report). Round 27 through gate v3,
+all REJECTED in both profiles: martingale 2x (max profile 2023-26 drawdown 55 % vs 28 %), martingale 1.5x,
+anti-martingale, d'Alembert, Fibonacci. Test F3 extended.

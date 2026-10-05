@@ -101,6 +101,9 @@ re-downloaded by the scripts.
   retail costs; round 26 (no minimum target, RSI2 < 10, daily decisions) rejected. Do not repeat these families with
   retail costs; re-test the night scalper / hourly ML only with a real ECN account cost (< 0.3 pip incl. commission)
   and automatic execution (the project does not send orders).
+- (done 2026-10-05, R-031, docs/HAZARD.md) gambling systems: martingale / anti / d'Alembert / Fibonacci as bet sizing
+  (round 27, cfg `sazeni`) and a grid / martingale robot - all rejected; Kelly says the model already bets near the
+  growth optimum. Do not repeat bet-sizing-by-streak families.
 - Next (new families only): BoC dates (history not on the site; try archived press releases), RBNZ (403);
   BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (weekly bars, Friday
   intraday path) only with an economic reason first; forward test review after 4+ weeks of live trades.
