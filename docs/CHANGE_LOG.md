@@ -586,3 +586,11 @@ below half. `portfolio_sim.Money` (martingale / anti / d'Alembert / Fibonacci on
 `self_learn.run_pf` (one call for the account simulation, also used by champion_report). Round 27 through gate v3,
 all REJECTED in both profiles: martingale 2x (max profile 2023-26 drawdown 55 % vs 28 %), martingale 1.5x,
 anti-martingale, d'Alembert, Fibonacci. Test F3 extended.
+
+## R-032 - 2026-10-05 learning run (morning): round 28 (all rejected)
+
+Forward-looking rate expectations and year-end liquidity, through gate v3: 2-year yield differential change over 3
+months as confirmation for the weak tiers / all tiers (monthly profile: no margins with >= 2 wins a month; max:
+2023-26 +21.1 % / +3.8 %), a 2-month rate window instead of 3 (monthly: infeasible; max 2019-22 +30.1 %), no new
+trade 15 December - 5 January (monthly: 2019-22 +52.8 % / dd 23 % vs +53.0 % / 29 %, 2023-26 +28.0 % / 24 % - return
+per drawdown +23 % and -1 %; max: slightly worse in both). New rule option `skip_holidays` (simulator + live run).

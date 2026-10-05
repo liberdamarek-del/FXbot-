@@ -211,7 +211,11 @@
   "r27_martingale_15x",
   "r27_anti_martingale",
   "r27_dalembert",
-  "r27_fibonacci"
+  "r27_fibonacci",
+  "r28_vynosy_2r_slabe",
+  "r28_vynosy_2r_vse",
+  "r28_sazby_okno_2m",
+  "r28_bez_vanoc"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4"
 }

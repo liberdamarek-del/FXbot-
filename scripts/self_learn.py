@@ -298,7 +298,7 @@ def _with(cfg, **changes):
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
                  "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop", "cb_tight",
-                 "min_tp_price", "decide_h", "weekly"):
+                 "min_tp_price", "decide_h", "weekly", "rates_window", "skip_holidays"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -596,6 +596,15 @@ EXPERIMENTS = [
      lambda c: _with(c, sazeni="dalembert:0.5:3")),
     ("r27_fibonacci", "Fibonacci: po ztrate o krok vys (1, 1, 2, 3, 5x), po zisku o dva kroky niz",
      lambda c: _with(c, sazeni="fibonacci:4")),
+    # round 28 (learning run 2026-10-05 morning): forward-looking rate expectations and market liquidity
+    ("r28_vynosy_2r_slabe", "slabsi stupne: i 2lete vynosy (trzni ocekavani sazeb, denne, bez zpozdeni) se za 3 mesice "
+     "rozevrely ve smeru obchodu", lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "y2"} for x in t[2:]])),
+    ("r28_vynosy_2r_vse", "vsechny stupne: potvrzeni zmenou rozdilu 2letych vynosu za 3 mesice",
+     lambda c: _tiers(c, lambda t: [{**x, "confirm_src": "y2"} for x in t])),
+    ("r28_sazby_okno_2m", "rychlejsi zmena sazeb: rozdil sazeb za 2 mesice misto 3 (trh reaguje na cerstve preceneni)",
+     lambda c: _with(c, rates_window=2)),
+    ("r28_bez_vanoc", "zadny novy obchod od 15. 12. do 5. 1. (mely trh na konci roku, siroke spready, mezery)",
+     lambda c: _with(c, skip_holidays=True)),
 ]
 
 

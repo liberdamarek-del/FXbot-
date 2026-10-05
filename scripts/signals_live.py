@@ -322,6 +322,9 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
                                f"{level:.{inst.decimals}f})")
         hits = [(SM.rsi(c, n)[-1] < x) if side > 0 else (SM.rsi(c, n)[-1] > 100 - x) for n, x in parts]
         hit_rsi2, hit_rsi3 = bool(hits[0]), any(hits[1:])
+        if base.get("skip_holidays") and ((day.month == 12 and day.day >= 15) or (day.month == 1 and day.day <= 5)):
+            is_friday = False                            # the tested rule opens no trade at the year end
+            out["podminka"] = "konec roku (15. 12. - 5. 1.): model nove obchody neotevira"
         out["rozhodovaci_den"] = is_friday
         out["v_pasmu"] = bool(hit_rsi2 or hit_rsi3)
         min_tp = base.get("min_tp_pct", P.MIN_TP_PCT) * (lev if base.get("min_tp_price") else P.LEVERAGE)  # % margin

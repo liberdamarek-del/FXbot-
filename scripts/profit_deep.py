@@ -90,6 +90,7 @@ class Rule:
                                       # central bank gets its stop tightened to this many ATR beyond that close
     decay_days: int = 0               # > 0: after this many trading days the target drops to decay_tp x ATR
     decay_tp: float = 0.0             # (a trader takes a smaller profit when the bounce is late)
+    skip_holidays: bool = False       # no new trade from 15 December to 5 January (thin year-end market, wide spreads)
     tp_retrace: float = 0.0           # > 0: target = this share of the last 5 days' move against the trade
                                       # (0.5-1.5 ATR) instead of the fixed tp (a deeper fall, a bigger bounce)
 
@@ -486,6 +487,10 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     continue
             elif rule.weekly and not I["week_end"][i]:
                 continue
+            if rule.skip_holidays:
+                d = s["days"][i]
+                if (d.month == 12 and d.day >= 15) or (d.month == 1 and d.day <= 5):
+                    continue
             atr = I["atr"][i]
             if np.isnan(atr):
                 continue

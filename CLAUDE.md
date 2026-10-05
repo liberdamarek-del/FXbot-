@@ -104,6 +104,8 @@ re-downloaded by the scripts.
 - (done 2026-10-05, R-031, docs/HAZARD.md) gambling systems: martingale / anti / d'Alembert / Fibonacci as bet sizing
   (round 27, cfg `sazeni`) and a grid / martingale robot - all rejected; Kelly says the model already bets near the
   growth optimum. Do not repeat bet-sizing-by-streak families.
+- (done 2026-10-05 morning, R-032) round 28: 2-year yields as confirmation (weak / all tiers), 2-month rate window,
+  no trades over the year end - all rejected.
 - Next (new families only): BoC dates (history not on the site; try archived press releases), RBNZ (403);
   BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (weekly bars, Friday
   intraday path) only with an economic reason first; forward test review after 4+ weeks of live trades.
