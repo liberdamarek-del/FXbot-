@@ -108,6 +108,8 @@ re-downloaded by the scripts.
   no trades over the year end - all rejected.
 - (done 2026-10-05 noon, R-033) round 29: at most 5 / 7 open trades in the account, pause 2 / 4 weeks after a stop
   in the pair - all rejected (do not repeat open-trade caps or post-stop pauses).
+- (done 2026-10-05 afternoon, R-034) round 30: the bought currency's own rate not falling (weak / all tiers), both
+  legs of the divergence - all rejected (too few trades; do not repeat rate-decomposition confirmations).
 - Next (new families only): BoE announcement days 2015-05/06/07 (stored = vote day? R-033, NEOVĚŘENO); BoC dates (history not on the site; try archived press releases), RBNZ (403);
   BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (weekly bars, Friday
   intraday path) only with an economic reason first; forward test review after 4+ weeks of live trades.

@@ -611,3 +611,14 @@ account's trade there hit its stop) in `portfolio_sim.run_portfolio` / `self_lea
   ending 3 June / 8 July" (the vote day) and May 2015 "7 and 8 May"; the stored decision days 2015-05-08, 2015-06-03,
   2015-07-08 may be a day (May: a weekend) before the announcement - NEOVĚŘENO, not changed without a source of the
   announcement days.
+
+## R-034 - 2026-10-05 learning run (afternoon): round 30 (all rejected)
+
+Where the rate divergence comes from, through gate v3. New tier confirmations `confirm_src` "own" (the bought
+currency's own OECD rate did not fall over the rule's window) and "both" (and the sold currency's did not rise), from
+the per-currency change `extra(..., "rate_chg:base/quote")` (checked: base minus quote equals `rates_mom` exactly).
+Not in the live run (diagnostika.live_unsupported reports `stupen.confirm_src`) - only needed if one passes.
+- bought currency not cutting, weak tiers / all tiers: monthly profile infeasible (no margins with >= 2 wins a month);
+  max 2019-22 +51.8 % / +30.1 % (champion +62.8 %), 2023-26 +21.5 % / +20.3 % (champion +19.7 %) - too few trades.
+- both legs (bought not cutting, sold not hiking), weak tiers: monthly infeasible; max 2019-22 +57.2 % / dd 21 %
+  (return per drawdown +3 %, needs +10 %), 2023-26 +17.3 % / dd 31 %. Rejected.

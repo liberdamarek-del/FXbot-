@@ -219,7 +219,10 @@
   "r29_max_5_obchodu",
   "r29_max_7_obchodu",
   "r29_pauza_po_stopu_2t",
-  "r29_pauza_po_stopu_4t"
+  "r29_pauza_po_stopu_4t",
+  "r30_kupovana_nesnizuje_slabe",
+  "r30_kupovana_nesnizuje_vse",
+  "r30_obe_meny_slabe"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4"
 }

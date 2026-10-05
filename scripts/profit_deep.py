@@ -219,6 +219,16 @@ def extra(symbol: str, s: dict, I: dict, what: str, rule) -> np.ndarray:
         I[what] = now - before
     elif what == "confirm:une":                         # labour market: base unemployment falls vs the quote's
         I[what] = np.nan_to_num(unemployment_change(symbol, s["days"]))              # (6 months; no data = pass)
+    elif what.startswith("rate_chg:"):                  # one currency's own OECD rate change (lag, window as the rule)
+        rates = _cache.setdefault("rates", P.monthly_rates())
+        inst = get_instrument(symbol)
+        ccy = inst.base if what.endswith(":base") else inst.quote
+        out = []
+        for d in s["days"]:
+            now = P.rate_at(rates[ccy], d.year, d.month, rule.rates_lag)
+            old = P.rate_at(rates[ccy], d.year, d.month, rule.rates_lag + rule.rates_window)
+            out.append(np.nan if now is None or old is None else now - old)
+        I[what] = np.array(out)
     elif what.startswith("confirm:oecd"):                 # OECD rate difference change over another window (months)
         I[what] = prepared(symbol, rule.rates_lag, int(what.split("oecd")[1]), rule.early_h)[1]["rates_mom"]
     elif what.startswith("confirm:"):
@@ -501,7 +511,12 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     continue
                 if I["vix"][i] > rule.max_vix or I["vix_rise"][i] > rule.max_vix_rise:
                     continue
-                if rule.confirm_src and not (side * extra(symbol, s, I, "confirm:" + rule.confirm_src, rule)[i] >= 0):
+                if rule.confirm_src in ("own", "both"):     # the bought currency's rate not falling (both: and the
+                    db, dq = extra(symbol, s, I, "rate_chg:base", rule), extra(symbol, s, I, "rate_chg:quote", rule)
+                    bought, sold = (db[i], dq[i]) if side > 0 else (dq[i], db[i])     # sold one's not rising)
+                    if not (bought >= 0 and (rule.confirm_src == "own" or sold <= 0)):
+                        continue
+                elif rule.confirm_src and not (side * extra(symbol, s, I, "confirm:" + rule.confirm_src, rule)[i] >= 0):
                     continue
                 if rule.max_cot < 1e9 and side * extra(symbol, s, I, "cot", rule)[i] > rule.max_cot:
                     continue

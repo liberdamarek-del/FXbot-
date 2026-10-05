@@ -1842,3 +1842,39 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+63.3%** rocne, propad 27%, 3.0 ziskovych/mesic (marze 20% / 20% / 10% / 6%), po 2 letech +72% / +65%, vynos/propad 2.32; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
 * sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
 
+### 2026-10-05 - [champion_12_mesicne] r30_kupovana_nesnizuje_slabe: zamitnuto
+
+* slabsi stupne: sazba kupovane meny za 3 mesice neklesla (rozdil sazeb neroste jen tim, ze druha banka v krizi snizuje)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12_mesicne] r30_kupovana_nesnizuje_vse: zamitnuto
+
+* vsechny stupne: sazba kupovane meny za 3 mesice neklesla
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12_mesicne] r30_obe_meny_slabe: zamitnuto
+
+* slabsi stupne: kupovana mena sazbu nesnizuje a prodavana nezvysuje (rozdil roste z obou stran)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-05 - [champion_12] r30_kupovana_nesnizuje_slabe: zamitnuto
+
+* slabsi stupne: sazba kupovane meny za 3 mesice neklesla (rozdil sazeb neroste jen tim, ze druha banka v krizi snizuje)
+* kandidat: 2019-22: **+51.8%** rocne, propad 27%, 2.3 ziskovych/mesic (marze 20% / 20% / 10% / 5%), po 2 letech +59% / +53%, vynos/propad 1.90; 2023-26: **+21.5%** rocne, propad 23%, 1.6 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +20% / +27%, vynos/propad 0.92
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-05 - [champion_12] r30_kupovana_nesnizuje_vse: zamitnuto
+
+* vsechny stupne: sazba kupovane meny za 3 mesice neklesla
+* kandidat: 2019-22: **+30.1%** rocne, propad 21%, 0.7 ziskovych/mesic (marze 20% / 20% / 0% / 0%), po 2 letech +20% / +98%, vynos/propad 1.44; 2023-26: **+20.3%** rocne, propad 25%, 1.3 ziskovych/mesic (marze 15% / 15% / 6% / 5%), po 2 letech +17% / +27%, vynos/propad 0.80
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-05 - [champion_12] r30_obe_meny_slabe: zamitnuto
+
+* slabsi stupne: kupovana mena sazbu nesnizuje a prodavana nezvysuje (rozdil roste z obou stran)
+* kandidat: 2019-22: **+57.2%** rocne, propad 21%, 2.1 ziskovych/mesic (marze 20% / 20% / 10% / 6%), po 2 letech +61% / +62%, vynos/propad 2.69; 2023-26: **+17.3%** rocne, propad 31%, 1.4 ziskovych/mesic (marze 15% / 15% / 10% / 6%), po 2 letech +9% / +35%, vynos/propad 0.56
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+

@@ -615,6 +615,14 @@ EXPERIMENTS = [
      "nova informace, kterou mesicni sazby se zpozdenim 2 mesicu jeste nevidi)", lambda c: _with(c, pauza_po_stopu=14)),
     ("r29_pauza_po_stopu_4t", "po zasazenem stopu v paru 4 tydny zadny novy obchod v tom paru",
      lambda c: _with(c, pauza_po_stopu=28)),
+    # round 30 (learning run 2026-10-05 afternoon): where does the rate divergence come from? A difference widened by
+    # the other bank's cuts (crisis cuts, safe havens) is not the same as one widened by the bought currency's hikes
+    ("r30_kupovana_nesnizuje_slabe", "slabsi stupne: sazba kupovane meny za 3 mesice neklesla (rozdil sazeb neroste "
+     "jen tim, ze druha banka v krizi snizuje)", lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "own"} for x in t[2:]])),
+    ("r30_kupovana_nesnizuje_vse", "vsechny stupne: sazba kupovane meny za 3 mesice neklesla",
+     lambda c: _tiers(c, lambda t: [{**x, "confirm_src": "own"} for x in t])),
+    ("r30_obe_meny_slabe", "slabsi stupne: kupovana mena sazbu nesnizuje a prodavana nezvysuje (rozdil roste z obou stran)",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "both"} for x in t[2:]])),
 ]
 
 
