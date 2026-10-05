@@ -201,7 +201,11 @@
   "vyzkum_udalosti",
   "r25_paka_stejny_objem",
   "r25_min_cil_v_cene",
-  "r25_objem_i_cil"
+  "r25_objem_i_cil",
+  "r26_bez_min_cile",
+  "r26_min_cil_5",
+  "r26_rsi2_pod_10",
+  "r26_rsi10_bez_min_cile"
  ],
  "data_do": "2026-09-25 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4"
 }

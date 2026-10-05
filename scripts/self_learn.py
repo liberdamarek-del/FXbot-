@@ -293,7 +293,7 @@ def _with(cfg, **changes):
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
                  "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop", "cb_tight",
-                 "min_tp_price", "decide_h"):
+                 "min_tp_price", "decide_h", "weekly"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -566,6 +566,19 @@ EXPERIMENTS = [
      lambda c: _with(c, min_tp_price=True)),
     ("r25_objem_i_cil", "oboje: stejny objem pozice i stejny minimalni cil v cene jako u paru 1:30",
      lambda c: _with(c, notional_parity=True, min_tp_price=True)),
+    # round 26 (user 2026-10-05: "maybe your settings are too strict - loosen the rules"): more trades a month.
+    # The 10 %-of-margin minimum target was only ever made stricter (cil_15_procent), never loosened.
+    ("r26_bez_min_cile", "uvolneni: obchod i kdyz cil (0.75 ATR) je mensi nez 10 % marze (klidne obdobi, mene volatilni pary)",
+     lambda c: _with(c, min_tp_pct=0.0)),
+    ("r26_min_cil_5", "uvolneni: minimalni cil 5 % marze misto 10 %", lambda c: _with(c, min_tp_pct=P.MIN_TP_PCT / 2)),
+    ("r26_rsi2_pod_10", "uvolneni: vstup uz pri RSI(2) < 10 misto < 5 (silny stupen RSI(2) < 10 nebo RSI(3) < 15)",
+     lambda c: _tiers(_with(c, signal="D RSI2<10"),
+                      lambda t: [{**t[0], "signal": "D RSI2<10|D RSI3<15"} if "signal" in t[0] else t[0]] + t[1:])),
+    ("r26_rsi10_bez_min_cile", "uvolneni: RSI(2) < 10 a bez minimalniho cile",
+     lambda c: _tiers(_with(c, signal="D RSI2<10", min_tp_pct=0.0),
+                      lambda t: [{**t[0], "signal": "D RSI2<10|D RSI3<15"} if "signal" in t[0] else t[0]] + t[1:])),
+    ("r26_denne_vse", "uvolneni: rozhodovat kazdy obchodni den v 16:00 New York, ne jen v patek (vsechny stupne)",
+     lambda c: _with(c, weekly=False)),
 ]
 
 

@@ -20,6 +20,7 @@ model's own live record.
 """
 
 import json
+import re
 import sys
 import time
 from datetime import date, datetime, timedelta, timezone
@@ -192,6 +193,18 @@ def decision_ready(day: date, last_bar_open: int, now: float | None = None) -> b
     return close - (last_bar_open + 3600) <= 3600 and now >= close - 3600
 
 
+def signal_parts(sig: str) -> list[tuple[int, float]]:
+    """'D RSI2<5|D RSI3<15' -> [(2, 5.0), (3, 15.0)]: the RSI signals the live run implements. Anything else
+    raises (diagnostika.live_unsupported reports it before a signal could differ from the tested rule)."""
+    out = []
+    for part in sig.split("|"):
+        m = re.fullmatch(r"D RSI(\d+)<(\d+(?:\.\d+)?)", part.strip())
+        if not m:
+            raise ValueError(f"signal '{part}' neni v zivem vypoctu implementovan")
+        out.append((int(m.group(1)), float(m.group(2))))
+    return out
+
+
 def decision_cut(day: date) -> int:
     """The tested decision moment of a Friday: 16:00 New York, 1 h before the close (profit_deep Rule.decide_h=1:
     the earlier days with their full closes, the Friday up to 16:00). Every run after it decides the same."""
@@ -293,9 +306,8 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
         out["marze_zaklad"] = shares[k]
         out["stupen_index"] = k
         prev = c[:-1]                                     # Wilder state up to the day before the decision bar
-        trig = [rsi_trigger(prev, 2, 5.0, side)]
-        if "RSI3" in sig:
-            trig.append(rsi_trigger(prev, 3, 15.0, side))
+        parts = signal_parts(sig)
+        trig = [rsi_trigger(prev, n, x, side) for n, x in parts]
         level = max(trig) if side > 0 else min(trig)     # the easier of the two signals
         out["spoustec"] = round(level, inst.decimals)
         out["plan"] = make_plan(side, level, float(atr[-1]), base, inst.decimals, "podminka", lev)
@@ -308,11 +320,11 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
         else:
             out["podminka"] = (f"jen {word}; signal se vyhodnoti v patek (dnes by nastal pri cene {rel} "
                                f"{level:.{inst.decimals}f})")
-        hit_rsi2 = rsi2[-1] < 5 if side > 0 else rsi2[-1] > 95
-        hit_rsi3 = ("RSI3" in sig) and (rsi3[-1] < 15 if side > 0 else rsi3[-1] > 85)
+        hits = [(SM.rsi(c, n)[-1] < x) if side > 0 else (SM.rsi(c, n)[-1] > 100 - x) for n, x in parts]
+        hit_rsi2, hit_rsi3 = bool(hits[0]), any(hits[1:])
         out["rozhodovaci_den"] = is_friday
         out["v_pasmu"] = bool(hit_rsi2 or hit_rsi3)
-        min_tp = 10.0 * (lev / P.LEVERAGE if base.get("min_tp_price") else 1.0)   # % of the margin, as simulate
+        min_tp = base.get("min_tp_pct", P.MIN_TP_PCT) * (lev if base.get("min_tp_price") else P.LEVERAGE)  # % margin
         out["cil_ok"] = bool(base["tp"] * atr[-1] / c[-1] * 100 * lev >= min_tp - 1e-9)
         if is_friday and (hit_rsi2 or hit_rsi3):
             entry = float(c[-1])

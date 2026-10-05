@@ -131,7 +131,7 @@ def check_fundamentals_db(today: date) -> None:
 # ----------------------------------------------------------------------
 
 LIVE_CFG = {"name", "universe", "base", "tiers", "sizing", "max_ccy", "notional_parity"}
-LIVE_BASE = {"signal", "weekly", "tp", "sl", "hold_days", "exit_before_cb", "decide_h", "min_tp_price"}
+LIVE_BASE = {"signal", "weekly", "tp", "sl", "hold_days", "exit_before_cb", "decide_h", "min_tp_price", "min_tp_pct"}
 LIVE_TIER = {"fund", "rates_thr", "signal"}
 
 
@@ -145,8 +145,14 @@ def live_unsupported(cfg: dict) -> list[str]:
         bad.append("max_ccy")
     if cfg["base"].get("exit_before_cb") not in (None, "", "zisk"):
         bad.append(f"exit_before_cb={cfg['base']['exit_before_cb']}")
-    if cfg["base"].get("weekly") is False:
+    if cfg["base"].get("weekly") is False or any(t.get("weekly") is False for t in cfg["tiers"]):
         bad.append("weekly=False")
+    import signals_live as SLV
+    for sig in [cfg["base"].get("signal", "")] + [t["signal"] for t in cfg["tiers"] if "signal" in t]:
+        try:
+            SLV.signal_parts(sig)
+        except ValueError:
+            bad.append(f"signal={sig}")
     return sorted(set(bad))
 
 
