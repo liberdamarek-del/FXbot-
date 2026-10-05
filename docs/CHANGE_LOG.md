@@ -553,3 +553,22 @@ RSI(3) < 15 and vol sizing are better in one or both tests but below +10 % or mi
 not pass either, so the champions stay. Live: the Friday decision from the day up to 16:00 New York whatever the run
 time; the forward test records only signals published before the close; a tick after the Friday close no longer
 creates a phantom Saturday bar; on the weekend the dashboard says the Friday signals can no longer be entered.
+
+## R-030 - 2026-10-05: intraday (hourly / minute) research and loosened rules (user's question; docs/INTRADAY.md)
+
+Hourly FXCM BID/ASK 2012-2026 (`scripts/intraday_lab.py`): 300 variants in 9 families (hour-of-day seasonality,
+hourly shocks, weekend gaps, carry by session, Asian range breakout, intraday momentum, previous-day high / low,
+Gotobi, hourly dips in the rate direction) with max(retail, real FXCM spread) + slippage and no minimum profit per
+trade - none positive after costs in all three periods; per pair x hour (1,728 combinations) 683 are gross-positive
+in both checks (chance ~432) but only 12 net-positive and none with t > 2. Walk-forward LightGBM on 30 hourly
+features (`scripts/intraday_ml.py`, yearly retrain 2016-2026, threshold on the previous year): gross edge positive in
+every horizon (1 h +0.011..+0.021 %, 4 h +0.015..+0.032 %, 8 h, 24 h ~+0.025 %), net around zero or negative.
+Minute FXCM BID/ASK 2016-2026 (`scripts/fxcm_m1.py`, `scripts/minute_lab.py`; night scalper, round numbers
+(Osler 2003), London open range, minute spikes, NFP / CPI): nothing robust after costs; the night scalper is
+gross-positive in every period (+0.002..+0.015 %, 53-73 % wins) but loses the spread. Conclusion: short-term
+patterns exist but are smaller than retail costs (1-3 pips); that is why banks / HFT (0.1-0.3 pip) earn on them.
+Round 26 (loosened rules, gate v3), all REJECTED in both profiles: no minimum target (monthly 2019-22 +56.2 % / dd 20 %
+vs +53.0 % / 29 %, 2023-26 +28.6 % vs +28.2 % - only +2 % return per drawdown), 5 % minimum target (identical),
+RSI(2) < 10 (+24.0 % / +14.9 %), RSI(2) < 10 without the minimum (+22.1 % / +15.9 %), daily decisions (6.6 / 5.2
+winning trades a month, +22.4 % / +15.6 %). Live: RSI thresholds are read from the champion's rule
+(`signals_live.signal_parts`), min_tp_pct is supported live, diagnostics flag unsupported signals / daily tiers.

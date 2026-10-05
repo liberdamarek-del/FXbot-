@@ -96,6 +96,11 @@ re-downloaded by the scripts.
 - Re-validation (from 2027-04, audit R-029: about 5 % of pure-noise changes pass gate v3): check every accepted
   component of the champions (exit before decisions, stop 4 ATR, RSI(3) < 15, vol sizing) only on the data after its
   acceptance (2026-10 onwards) - that is truly new data; report, change the champion only through the gate.
+- (done 2026-10-05, R-030, docs/INTRADAY.md) intraday: 300 hourly variants, walk-forward LightGBM 1-24 h, FXCM minute
+  data 2016-2026 (night scalper, round numbers, London open range, spikes, NFP/CPI) - gross edges exist, none survives
+  retail costs; round 26 (no minimum target, RSI2 < 10, daily decisions) rejected. Do not repeat these families with
+  retail costs; re-test the night scalper / hourly ML only with a real ECN account cost (< 0.3 pip incl. commission)
+  and automatic execution (the project does not send orders).
 - Next (new families only): BoC dates (history not on the site; try archived press releases), RBNZ (403);
   BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (weekly bars, Friday
   intraday path) only with an economic reason first; forward test review after 4+ weeks of live trades.

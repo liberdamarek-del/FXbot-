@@ -1,7 +1,9 @@
 """Machine learning on hourly FX data (user's question 2026-10-05): can a model of the kind that "trades intraday
 and earns" find an edge after retail costs on our 12 pairs?
 
-    python scripts/intraday_ml.py [--horizonty 1,4,8,24]     # -> data/research/intraday/ml.pkl + printed tables
+    python scripts/intraday_ml.py [--horizonty 1,4,8,24] [--naklady k]   # -> data/research/intraday/ml*.pkl
+
+Research only (the live model does not use it); needs `pip install lightgbm` (not in requirements.txt).
 
 Model: LightGBM regression of the forward return over h hours (in units of the hourly ATR) from ~30 causal
 features at each hourly close: past returns 1-120 h, position in the 24 h / 120 h range, hourly RSI(2/14), the
