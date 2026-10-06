@@ -8,7 +8,9 @@ promotion of model changes without the walk-forward gate (`scripts/self_learn.py
 Scope (user's decision 2026-10-01): only the 12 live pairs (src/instruments.DEFAULT_ACTIVE). Do not
 add markets.
 
-## Jobs (routines fire into this session; user's decision 2026-10-02: hourly updates, learning several times a day)
+## Jobs (routines fire into this session; user's decision 2026-10-02: hourly updates; 2026-10-06: learning 2x a week)
+Reports to the user (user's decision 2026-10-06): short and plain - signals, the user's trades, the model's trades
+and real improvements of the model. Rejected experiments at most one sentence, no gate details unless asked.
 - Update (weekdays every hour, the platform minimum): `git pull origin main`, `python scripts/aktualizace.py`
   (diagnostics + live signals/plans + this week's calendar + next central bank decisions -> data/live/stav.json).
   Then ArtifactData: `list denik` with out_dir -> `python scripts/aktualizace.py --denik <out_dir>` (the user's
@@ -21,7 +23,8 @@ add markets.
   up to 16:00 New York (`decision_cut`), exactly as the backtest and the learning (`Rule.decide_h=1`, audit
   2026-10-04); a run after 16:00 (also the 23:07 Prague update) decides the same. Keep `signals_live.DECIDE_H`
   and the champions' `decide_h` equal (diagnostics: CHYBA otherwise).
-- Learning (weekdays 07:40, 12:40, 17:40 Prague; Saturday 08:57 also downloads data first:
+- Learning (Wednesday 17:40 and Saturday 08:57 Prague - user's decision 2026-10-06, was 3x every weekday;
+  Saturday also downloads data first:
   `python scripts/fxcm_universe.py download && python scripts/fxcm_universe.py build`, `python scripts/fundamenty.py download`).
   FRED: `python -c "import sys; sys.path.insert(0,'scripts'); import signals_live; signals_live.refresh_rates()"`.
   Add 3-5 new, economically motivated experiments to `EXPERIMENTS` in `scripts/self_learn.py` (ideas queue

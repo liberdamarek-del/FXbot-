@@ -635,3 +635,11 @@ live run (diagnostika.live_unsupported reports them) - only needed if one passes
   the 2019-22 split and the 85 % return condition. Rejected.
 - exit once RSI(2) > 70: monthly infeasible (fewer winning trades a month), max 2019-22 +26.0 %, 2023-26 +13.8 % -
   the 0.75 ATR target already takes the reversion; closing earlier cuts the winners. Rejected.
+
+## R-036 - 2026-10-06: learning 2x a week, shorter reports (user's decision)
+
+The user asked what the gate conditions are and said the frequent "rejected" reports do not help. Decision: learning
+runs on Wednesday 17:40 and Saturday 08:57 Prague (was 3x every weekday + Saturday; fewer tests of the same years
+also lower the chance of a lucky pass, about 5 % per tested noise idea). Reports: short and plain, focused on signals,
+the user's trades, the model's forward trades and real improvements; rejected experiments at most one sentence.
+Routines updated (weekday learning -> Wednesday only, Saturday prompt), CLAUDE.md Jobs updated. No model change.
