@@ -78,6 +78,7 @@ class Rule:
                                       # before an FOMC decision (Mueller, Tahbaz-Salehi, Vedolin 2017: USD falls on FOMC days)
     vix_size: bool = False            # size factor 17 / VIX of the decision day, 0.5-1.5 (Moreira, Muir 2017)
     tp_parts: tuple = ()              # split the position into equal parts with these targets (ATR), e.g. (0.75, 1.0, 1.5)
+    rsi_exit: float = 0.0             # > 0: close at a NY close once RSI(2) recovered above this (shorts: below 100 - x)
     exit_before_us: bool = False      # USD pairs: close in profit at the NY close before a US NFP / CPI release
     cb_all: bool = False              # exit_before_cb also before SNB (CHF) and RBA (AUD) decisions
     exit_friday_profit: bool = False  # close in profit at a Friday NY close (weekend gap risk), not on the entry day
@@ -631,6 +632,11 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                                  or (rule.exit_before_cb == "fed_long_usd" and usd_long)):
                             reason = close_open(now_close, j, "CB")
                             break
+                        if rule.rsi_exit and j > first:          # the pullback has reverted: the edge is used up
+                            r2 = I["rsi2"][day_of[j]]
+                            if (side > 0 and r2 > rule.rsi_exit) or (side < 0 and r2 < 100 - rule.rsi_exit):
+                                reason = close_open(now_close, j, "RSI")
+                                break
                         if rule.cb_tight and j > first and cb_next[day_of[j]] and now_close <= 0:
                             stop = min(stop, -now_close + rule.cb_tight * atr)
                         if now_close > 0 and j > first and (

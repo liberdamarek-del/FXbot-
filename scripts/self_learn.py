@@ -299,7 +299,7 @@ def _with(cfg, **changes):
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
                  "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop", "cb_tight",
-                 "min_tp_price", "decide_h", "weekly", "rates_window", "skip_holidays"):
+                 "min_tp_price", "decide_h", "weekly", "rates_window", "skip_holidays", "rsi_exit"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -623,6 +623,16 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: [{**x, "confirm_src": "own"} for x in t])),
     ("r30_obe_meny_slabe", "slabsi stupne: kupovana mena sazbu nesnizuje a prodavana nezvysuje (rozdil roste z obou stran)",
      lambda c: _tiers(c, lambda t: t[:2] + [{**x, "confirm_src": "both"} for x in t[2:]])),
+    # round 31 (learning run 2026-10-06 morning): the pullback on a longer horizon and the end of the pullback.
+    # A week-long decline (position squaring over several days, e.g. a risk-off week) is missed by the daily RSI(2)
+    # when Friday itself is calm; a trade whose pullback has already reverted carries risk without the edge
+    ("r31_tyden_rsi2_silne", "silne stupne: vstup i po tydennim poklesu (tydenni RSI(2) < 10 v patek 16:00 New York)",
+     lambda c: _tiers(c, lambda t: [{**x, "signal": x.get("signal", c["base"]["signal"]) + "|W RSI2<10"} for x in t[:2]]
+                      + t[2:])),
+    ("r31_tyden_rsi2_vse", "vsechny stupne: vstup i po tydennim poklesu (tydenni RSI(2) < 10)",
+     lambda c: _tiers(c, lambda t: [{**x, "signal": x.get("signal", c["base"]["signal"]) + "|W RSI2<10"} for x in t])),
+    ("r31_vystup_rsi_70", "vystup pri zavreni dne, kdyz se pokles vratil (denni RSI(2) nad 70, u prodeje pod 30)",
+     lambda c: _with(c, rsi_exit=70.0)),
 ]
 
 

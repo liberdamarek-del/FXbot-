@@ -1878,3 +1878,39 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+57.2%** rocne, propad 21%, 2.1 ziskovych/mesic (marze 20% / 20% / 10% / 6%), po 2 letech +61% / +62%, vynos/propad 2.69; 2023-26: **+17.3%** rocne, propad 31%, 1.4 ziskovych/mesic (marze 15% / 15% / 10% / 6%), po 2 letech +9% / +35%, vynos/propad 0.56
 * sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
 
+### 2026-10-06 - [champion_12_mesicne] r31_tyden_rsi2_silne: zamitnuto
+
+* silne stupne: vstup i po tydennim poklesu (tydenni RSI(2) < 10 v patek 16:00 New York)
+* kandidat: 2019-22: **+28.6%** rocne, propad 19%, 3.6 ziskovych/mesic (marze 10% / 4% / 4% / 4%), po 2 letech +13% / +50%, vynos/propad 1.48; 2023-26: **+18.7%** rocne, propad 17%, 2.6 ziskovych/mesic (marze 12% / 3% / 2% / 2%), po 2 letech +27% / +12%, vynos/propad 1.08
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-06 - [champion_12_mesicne] r31_tyden_rsi2_vse: zamitnuto
+
+* vsechny stupne: vstup i po tydennim poklesu (tydenni RSI(2) < 10)
+* kandidat: 2019-22: **+26.5%** rocne, propad 16%, 4.5 ziskovych/mesic (marze 10% / 3% / 3% / 3%), po 2 letech +15% / +40%, vynos/propad 1.64; 2023-26: **+17.7%** rocne, propad 19%, 3.4 ziskovych/mesic (marze 12% / 2% / 2% / 2%), po 2 letech +25% / +10%, vynos/propad 0.95
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-06 - [champion_12_mesicne] r31_vystup_rsi_70: zamitnuto
+
+* vystup pri zavreni dne, kdyz se pokles vratil (denni RSI(2) nad 70, u prodeje pod 30)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-06 - [champion_12] r31_tyden_rsi2_silne: zamitnuto
+
+* silne stupne: vstup i po tydennim poklesu (tydenni RSI(2) < 10 v patek 16:00 New York)
+* kandidat: 2019-22: **+21.1%** rocne, propad 12%, 1.0 ziskovych/mesic (marze 10% / 0% / 0% / 0%), po 2 letech +12% / +68%, vynos/propad 1.75; 2023-26: **+14.5%** rocne, propad 15%, 2.7 ziskovych/mesic (marze 10% / 3% / 3% / 2%), po 2 letech +19% / +11%, vynos/propad 0.94
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-06 - [champion_12] r31_tyden_rsi2_vse: zamitnuto
+
+* vsechny stupne: vstup i po tydennim poklesu (tydenni RSI(2) < 10)
+* kandidat: 2019-22: **+21.1%** rocne, propad 12%, 1.0 ziskovych/mesic (marze 10% / 0% / 0% / 0%), po 2 letech +12% / +68%, vynos/propad 1.75; 2023-26: **+21.0%** rocne, propad 13%, 1.8 ziskovych/mesic (marze 10% / 5% / 0% / 0%), po 2 letech +25% / +19%, vynos/propad 1.58
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-06 - [champion_12] r31_vystup_rsi_70: zamitnuto
+
+* vystup pri zavreni dne, kdyz se pokles vratil (denni RSI(2) nad 70, u prodeje pod 30)
+* kandidat: 2019-22: **+26.0%** rocne, propad 21%, 0.8 ziskovych/mesic (marze 20% / 0% / 0% / 0%), po 2 letech +20% / +74%, vynos/propad 1.24; 2023-26: **+13.8%** rocne, propad 26%, 1.8 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +11% / +19%, vynos/propad 0.53
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+

@@ -622,3 +622,16 @@ Not in the live run (diagnostika.live_unsupported reports `stupen.confirm_src`) 
   max 2019-22 +51.8 % / +30.1 % (champion +62.8 %), 2023-26 +21.5 % / +20.3 % (champion +19.7 %) - too few trades.
 - both legs (bought not cutting, sold not hiking), weak tiers: monthly infeasible; max 2019-22 +57.2 % / dd 21 %
   (return per drawdown +3 %, needs +10 %), 2023-26 +17.3 % / dd 31 %. Rejected.
+
+## R-035 - 2026-10-06 learning run (morning): round 31 (all rejected)
+
+The pullback on a longer horizon and the end of the pullback, through gate v3. New rule option `rsi_exit` (close at a
+New York close once the daily RSI(2) recovered above x, shorts below 100 - x) in `profit_deep.simulate`; the weekly
+entry uses the existing `W RSI2<10` signal (weekly closes, the week ending at the Friday decision). Neither is in the
+live run (diagnostika.live_unsupported reports them) - only needed if one passes.
+- weekly RSI(2) < 10 as an extra entry, strong tiers / all tiers: many more, weaker trades; the margins fall to
+  10 % / 2-5 %. Monthly 2019-22 +28.6 % / +26.5 % (champion +53.0 %), 2023-26 +18.7 % / +17.7 % at dd 17-19 %; max
+  2019-22 +21.1 % (champion +62.8 %), 2023-26 all tiers +21.0 % at dd 13 % (return per drawdown 1.58 vs 0.70) - fails
+  the 2019-22 split and the 85 % return condition. Rejected.
+- exit once RSI(2) > 70: monthly infeasible (fewer winning trades a month), max 2019-22 +26.0 %, 2023-26 +13.8 % -
+  the 0.75 ATR target already takes the reversion; closing earlier cuts the winners. Rejected.
