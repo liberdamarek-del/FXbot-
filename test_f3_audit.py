@@ -211,6 +211,17 @@ stop = [{"pair": "EUR/USD", "side": 1, "day": date(2024, 3, 1), "t_in": T0, "t_o
 hit = PS.run_portfolio([stop], 0.02, (2024, 2024))                     # 2 % risk: the stop costs exactly 2 % of the account
 assert abs(hit["equity"] - 0.98) < 1e-12 and abs(hit["entry_frac"][0] - 0.025) < 1e-12
 
+# ---------------------------------------------------------------- round 32 options: exit when the rates turn, ATR rank
+rates = {"EUR": {(2026, m): 2.0 for m in range(1, 13)}, "USD": {(2026, m): 4.0 for m in range(1, 13)}}
+rates["USD"].update({(2026, 4): 4.5, (2026, 5): 4.5, (2026, 6): 4.5, (2026, 7): 4.0})   # lag 2 / lag 5 months
+assert not SLV.rates_turned("EUR/USD", date(2026, 9, 4), 1, rates)      # Jul (lag 2) 4.0 vs Apr (lag 5) 4.5: EUR gains
+mom = (2.0 - 4.0) - (2.0 - 4.5)                                           # +0.5 for the EUR side
+assert SLV.rates_turned("EUR/USD", date(2026, 9, 4), -1, rates) == (-1 * mom < 0)
+assert SLV.rates_turned("EUR/USD", date(2026, 9, 4), 1, rates) == (1 * mom < 0)
+assert SLV.rates_turned("EUR/USD", date(2026, 9, 4), 1, None) is False   # no rates: no exit
+import profit_deep as PDX  # noqa: E402
+assert PDX.Rule("x").max_atr_rank == 1.0 and PDX.Rule("x").exit_rates_flip is False   # defaults change nothing
+
 print("=" * 60)
 print("F3 AUDIT 2026-10-04 REGRESSIONS")
 print("=" * 60)
@@ -223,5 +234,6 @@ print("LIVE DAILY BARS: NO PHANTOM SATURDAY, FRIDAY UP TO 16:00 NEW YORK: PASS")
 print("BET SIZING (MARTINGALE / FIBONACCI / D'ALEMBERT / ANTI) IN THE ACCOUNT SIMULATION: PASS")
 print("OPEN-TRADE CAP AND PAUSE AFTER A STOP IN THE ACCOUNT SIMULATION: PASS")
 print("STOP-BASED SIZING: THE STOP COSTS THE CHOSEN SHARE OF THE ACCOUNT: PASS")
+print("ROUND 32: EXIT WHEN THE RATE CHANGE TURNS AGAINST THE TRADE (LIVE), DEFAULTS NEUTRAL: PASS")
 print("RESULT: PASS")
 print("=" * 60)

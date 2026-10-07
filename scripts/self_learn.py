@@ -299,7 +299,8 @@ def _with(cfg, **changes):
         if k in ("signal", "tp", "sl", "hold_days", "max_sl_margin", "min_tp_pct", "rates_lag", "limit_atr",
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
                  "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop", "cb_tight",
-                 "min_tp_price", "decide_h", "weekly", "rates_window", "skip_holidays", "rsi_exit"):
+                 "min_tp_price", "decide_h", "weekly", "rates_window", "skip_holidays", "rsi_exit",
+                 "max_atr_rank", "exit_rates_flip"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -633,6 +634,16 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: [{**x, "signal": x.get("signal", c["base"]["signal"]) + "|W RSI2<10"} for x in t])),
     ("r31_vystup_rsi_70", "vystup pri zavreni dne, kdyz se pokles vratil (denni RSI(2) nad 70, u prodeje pod 30)",
      lambda c: _with(c, rsi_exit=70.0)),
+    # round 32 (learning run 2026-10-07): the two premises of the trade. (1) a short pullback is noise that reverts -
+    # not in a volatility shock of the pair (crisis, intervention, surprise policy), where the move is repricing and
+    # the 4-ATR stop sits very far; (2) the rate divergence carries the trade - when the monthly rate change turns
+    # against the trade while it is open, the reason for holding it is gone
+    ("r32_vol_extrem_90", "zadny novy obchod, kdyz je volatilita paru (ATR14 / cena) nad 90 % poslednich 250 dni "
+     "(sok, krize: pokles je preceneni, ne sum)", lambda c: _with(c, max_atr_rank=0.9)),
+    ("r32_vol_extrem_80", "zadny novy obchod, kdyz je volatilita paru nad 80 % poslednich 250 dni",
+     lambda c: _with(c, max_atr_rank=0.8)),
+    ("r32_konec_teze_sazby", "vystup pri zavreni dne, kdyz se zmena rozdilu sazeb za 3 mesice otoci proti obchodu "
+     "(duvod obchodu zmizel)", lambda c: _with(c, exit_rates_flip=True)),
 ]
 
 

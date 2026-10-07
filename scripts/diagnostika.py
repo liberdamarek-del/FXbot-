@@ -132,7 +132,7 @@ def check_fundamentals_db(today: date) -> None:
 
 LIVE_CFG = {"name", "universe", "base", "tiers", "sizing", "max_ccy", "notional_parity"}
 LIVE_BASE = {"signal", "weekly", "tp", "sl", "hold_days", "exit_before_cb", "decide_h", "min_tp_price", "min_tp_pct",
-             "skip_holidays"}
+             "skip_holidays", "max_atr_rank", "exit_rates_flip"}
 LIVE_TIER = {"fund", "rates_thr", "signal"}
 
 

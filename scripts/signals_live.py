@@ -355,6 +355,14 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
         if base.get("skip_holidays") and ((day.month == 12 and day.day >= 15) or (day.month == 1 and day.day <= 5)):
             is_friday = False                            # the tested rule opens no trade at the year end
             out["podminka"] = "konec roku (15. 12. - 5. 1.): model nove obchody neotevira"
+        if base.get("max_atr_rank", 1.0) < 1.0:        # volatility shock of the pair (profit_deep.atr_rank)
+            pct = atr / c
+            rank = float(np.mean(pct[-250:] <= pct[-1])) if len(pct) >= 250 and not np.isnan(pct[-250:]).any() else np.nan
+            out["atr_poradi"] = None if np.isnan(rank) else round(rank * 100)
+            if not rank <= base["max_atr_rank"]:
+                is_friday = False
+                out["podminka"] = (f"volatilita paru je ted extremni (vyssi nez {base['max_atr_rank'] * 100:.0f} % "
+                                   "poslednich 250 dni) - model nove obchody neotevira")
         out["rozhodovaci_den"] = is_friday
         out["v_pasmu"] = bool(hit_rsi2 or hit_rsi3)
         min_tp = base.get("min_tp_pct", P.MIN_TP_PCT) * (lev if base.get("min_tp_price") else P.LEVERAGE)  # % margin
@@ -439,7 +447,19 @@ def rank_pairs(pairs: list) -> None:
 # model forward test
 # ----------------------------------------------------------------------
 
-def resolve_forward(trades: list, hourly_cache: dict) -> None:
+def rates_turned(pair: str, day: date, side: int, rates: dict | None) -> bool:
+    """The rate-difference change over 3 months (known at `day`, the model's lag) points against the trade
+    (profit_deep.Rule.exit_rates_flip). Missing rates: no exit (nothing is known to have changed)."""
+    if not rates:
+        return False
+    b, q = pair.split("/")
+    kb, kq, ob, oq = (P.rate_at(rates[x], day.year, day.month, lag) for lag in (2, 5) for x in (b, q))
+    if None in (kb, kq, ob, oq):
+        return False
+    return side * ((kb - kq) - (ob - oq)) < 0
+
+
+def resolve_forward(trades: list, hourly_cache: dict, rates: dict | None = None) -> None:
     """Close open model trades on the hourly path exactly as the backtest does (scripts/profit_deep.simulate):
     costs (half the spread + slippage on entry and exit), per hour the stop first, then the target, then at the
     New York close bar the exit in profit before a central bank decision, the time exit after the rule's
@@ -472,6 +492,8 @@ def resolve_forward(trades: list, hourly_cache: dict) -> None:
                 close_px = float(cc[j]) - side * half
                 if decisions and bar.hour == 16 and nxt in decisions and side * (close_px - entry) > 0:
                     exit_px, why = close_px, "pred rozhodnutim CB"
+                elif t.get("vystup_sazby") and bar.hour == 16 and j > 0 and rates_turned(t["par"], bar.date(), side, rates):
+                    exit_px, why = close_px, "sazby se otocily proti obchodu"
                 elif j >= n_bars - 1:
                     exit_px, why = close_px, "cas"
             if exit_px is not None:
@@ -534,10 +556,11 @@ def main() -> int:
                         "marze_proc_uctu": s["marze_proc_uctu"], "stav": "otevreny",
                         "riziko_vaha": p.get("riziko_vaha"), "ztrata_sl_proc_marze": s["ztrata_sl_proc_marze"],
                         "cb_vystup": cfg["base"].get("exit_before_cb") == "zisk", "drzeni_dni": cfg["base"]["hold_days"],
+                        **({"vystup_sazby": True} if cfg["base"].get("exit_rates_flip") else {}),
                         "swap_proc_rocne": round((1 if s["smer"] == "KOUPIT" else -1) * p["rozdil_sazeb_swap"] - P.FIN_MARKUP, 2),
                         **({"vyzkum_pro": s["vyzkum"]["pro"], "vyzkum_proti": s["vyzkum"]["proti"]}
                            if s.get("vyzkum") else {})})
-    resolve_forward(forward, cache)
+    resolve_forward(forward, cache, rates)
     FORWARD.write_text(json.dumps(forward, indent=1, ensure_ascii=False))
     closed = [t for t in forward if t["stav"] == "uzavreny"]
     # fundamentals per currency

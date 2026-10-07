@@ -94,6 +94,10 @@ class Rule:
     skip_holidays: bool = False       # no new trade from 15 December to 5 January (thin year-end market, wide spreads)
     tp_retrace: float = 0.0           # > 0: target = this share of the last 5 days' move against the trade
                                       # (0.5-1.5 ATR) instead of the fixed tp (a deeper fall, a bigger bounce)
+    max_atr_rank: float = 1.0         # < 1: no new trade when the pair's ATR14 / price ranks above this share of the
+                                      # last 250 days (a volatility shock: the pullback is repricing, not noise)
+    exit_rates_flip: bool = False     # close at a NY close once the rate-difference change turned against the trade
+                                      # (the trade's reason is gone)
 
 
 _cache: dict = {}
@@ -458,6 +462,25 @@ def scale_addon(base: list[dict], k_atr: float, tp_atr: float = 0.75, sl_atr: fl
     return out
 
 
+def atr_rank(symbol: str, s: dict, I: dict, rule: Rule, i: int) -> float:
+    """Share of the last 250 days (the decision day included) whose ATR14 / close is <= the decision day's: the
+    earlier days with their full closes, the decision day as the decision sees it (cut at decide_h) - exactly
+    what the live run computes from its daily bars."""
+    key = ("atrpct", symbol, rule.rates_lag, rule.rates_window, rule.rates_src)
+    if key not in _cache:
+        _, F = prepared(symbol, rule.rates_lag, rule.rates_window, 0, rule.rates_src)
+        _cache[key] = F["atr"] / s["dc"]
+    full = _cache[key]
+    if i < 249:
+        return np.nan
+    close = s["c"][s["last"][i] - rule.decide_h] if rule.decide_h else s["dc"][i]
+    today = I["atr"][i] / close
+    window = full[i - 249:i]
+    if np.isnan(today) or np.isnan(window).any():
+        return np.nan
+    return float((np.sum(window <= today) + 1) / 250)
+
+
 def simulate(rule: Rule, symbols=None) -> list[dict]:
     defs = P.signal_defs()
     trades = []
@@ -484,7 +507,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                            else "next_decision_all" if rule.cb_all else "next_decision")
         if rule.exit_before_us:
             us_next = news(symbol, s, I, "next_us")
-        if rule.exit_before_cb or rule.exit_before_us or rule.exit_friday_profit:
+        if rule.exit_before_cb or rule.exit_before_us or rule.exit_friday_profit or rule.rsi_exit or rule.exit_rates_flip:
             day_of = np.searchsorted(s["last"], np.arange(len(ts)))
         names = rule.signal.split("|")
         signal = {sd: np.logical_or.reduce([np.nan_to_num(defs[nm][0 if sd > 0 else 1](I)).astype(bool)
@@ -511,6 +534,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                 if rule.trend and I[rule.trend][i] != side:
                     continue
                 if I["vix"][i] > rule.max_vix or I["vix_rise"][i] > rule.max_vix_rise:
+                    continue
+                if rule.max_atr_rank < 1.0 and not atr_rank(symbol, s, I, rule, i) <= rule.max_atr_rank:
                     continue
                 if rule.confirm_src in ("own", "both"):     # the bought currency's rate not falling (both: and the
                     db, dq = extra(symbol, s, I, "rate_chg:base", rule), extra(symbol, s, I, "rate_chg:quote", rule)
@@ -637,6 +662,9 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                             if (side > 0 and r2 > rule.rsi_exit) or (side < 0 and r2 < 100 - rule.rsi_exit):
                                 reason = close_open(now_close, j, "RSI")
                                 break
+                        if rule.exit_rates_flip and j > first and side * I["rates_mom"][day_of[j]] < 0:
+                            reason = close_open(now_close, j, "SAZBY")
+                            break
                         if rule.cb_tight and j > first and cb_next[day_of[j]] and now_close <= 0:
                             stop = min(stop, -now_close + rule.cb_tight * atr)
                         if now_close > 0 and j > first and (
