@@ -664,3 +664,39 @@ cost up to 38 % of the account at entry, the worst trade 2019-2026 lost 19.6 % o
   one hour opened beyond the stop (USD/CAD 2016-01-08, 4.5 % of the stop distance) - negligible, documented.
 - Test: test_f3_audit.py (the stop costs exactly the chosen share of the account). The signals and the gate are
   unchanged. New memory file docs/STAV_PROJEKTU.md (module status, data flow, open items; user's request).
+
+## R-038 - 2026-10-07: heuristic model - a separate, self-testing information layer (user's request; docs/HEURISTIKY.md)
+
+The user asked for a heuristic prediction layer next to the main model that never assumes its conclusions are true,
+stores every rule measurably, keeps the statistical probability apart from a subjective heuristic estimate,
+evaluates every live prediction after its horizon and tests, degrades and retires rules on its own.
+- `scripts/heuristiky.py`: 57 template families (124 variants on 1D, 97 on 4H) (trend / structure, support / resistance, prior highs / lows,
+  volatility, RSI / MACD / MA / Bollinger / stochastic, momentum, candles, time, rates / carry / VIX, reactions to
+  central bank decisions and US NFP / CPI, currency strength from the 12 pairs, fundamental + technical, the user's
+  pre-registered combinations), each with its direction fixed in advance (continuation and reversal readings are
+  separate hypotheses), on New York aligned 1D (horizon 5 days) and 4H bars (24 h), per pair and for all pairs
+  together, plus 180 regime-restricted rules derived on 2012-18 only: 5,760 rules.
+- Evidence per rule: in-sample 2012-18 / out-of-sample 2019-26, non-overlapping predictions, net of the pair's
+  spread + slippage; n, successes, failures, win rate vs random entries, average return, EV (also pips), MFE, MAE,
+  profit factor, z-test vs random entries, Benjamini-Hochberg q over all rules, Monte Carlo permutation + bootstrap
+  interval for candidates, walk-forward by years, 4 time blocks, volatility / trend regimes, neighbouring parameters,
+  the other pairs. Statuses AKTIVNÍ / SLABÁ / NEOVĚŘENÁ / NEFUNKČNÍ / OVERFIT/NESTABILNÍ and credibility; live
+  results significantly worse than out-of-sample degrade a rule; status changes are logged (stavy_log.jsonl).
+- First result (data to 2026-09-25): AKTIVNÍ 0, SLABÁ 410, NEOVĚŘENÁ 1,350, NEFUNKČNÍ 3,142, OVERFIT 858. Of 4,738
+  judged rules 4.3 % had p <= 0.05 on 2019-26 (chance: 5 %); the 3 rules passing the false discovery rate work
+  only in 2019-26. Average success of all predictions 2019-26: 48.2 % after costs. Calibration: the statistical
+  probability (2012-18 win rate) scores Brier 0.2505, a coin 0.2500; the heuristic confluence estimate 0.2733 -
+  the more families agree, the slightly LOWER the success (47.6 % at 70-80 %). Agreement with the main model's
+  trades 2019-26 adds nothing (SHODA 90.9 % / PROTI 90.1 % success, p 0.30) - it does not raise confidence.
+- Live (every hourly update via aktualizace.py): predictions at freshly closed bars only (1D within 6 h, 4H within
+  2 h of the close, no back-dating), only from rules that are not retired (an unverified pair rule only when the
+  same template on all pairs is not retired), at most one open prediction per rule; append-only ledger with a hash
+  chain (learning/heuristiky/predikce|vyhodnoceni/<day>.jsonl), each evaluated once after its horizon (max, min,
+  close, result, deviation from the expected return, target / threshold touch, possible reasons such as events).
+  Self-evaluation over the last 20 / 50 / 100 / 500 / all, by pair, timeframe, type, regime, status and agreement
+  with the main model; false positives and missed large moves.
+- Dashboard: new tab "Heuristiky" (open predictions in the user's format, self-evaluation, calibration, main model
+  comparison, registry by type, weak rules, status changes). Diagnostics: registry age, ledger integrity.
+- Tests: test_f4_heuristics.py (NY bars incl. DST, no look-ahead in all 698 template masks, non-overlap, costs,
+  MFE / MAE, statuses, FDR, ledger edit / deletion / double evaluation detected, live end to end).
+- The main model, its signals and the gate are unchanged. A heuristic can reach the model only as a gate experiment.

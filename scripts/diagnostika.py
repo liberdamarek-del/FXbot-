@@ -235,6 +235,27 @@ def check_outputs(today: date, champion_name: str | None) -> None:
            "adresa webove stranky ulozena" if dash.exists() else "learning/dashboard.json chybi")
 
 
+def check_heuristics(today: date) -> None:
+    """Heuristic layer (R-038): the rule registry is recent and the prediction ledger is intact (hash chain, one
+    evaluation per prediction). Information layer only - its errors never block the main model's signals."""
+    import heuristiky as HX
+    if not HX.REGISTRY.exists():
+        report("heuristiky", WARN, "registr pravidel chybi - spust python scripts/heuristiky.py prepocet")
+        return
+    reg = HX.previous_registry()
+    made = datetime.fromisoformat(reg["vytvoreno"])
+    days = (datetime.now(UTC) - made).total_seconds() / 86400
+    counts = {s: sum(r["stav"] == s for r in reg["pravidla"]) for s in HX.STATUSES}
+    report("heuristiky", OK if days <= 9 else WARN,
+           f"registr {made:%Y-%m-%d} (data do {reg['data_do']}), {len(reg['pravidla'])} pravidel: "
+           + ", ".join(f"{k} {v}" for k, v in counts.items())
+           + ("" if days <= 9 else " - starsi nez 9 dni, spust heuristiky.py prepocet"))
+    v = HX.verify_ledger()
+    report("heuristiky", ERR if v["problemy"] else OK,
+           f"denik predikci: {v['predikci']} predikci, {v['vyhodnoceno']} vyhodnoceno"
+           + ("; " + "; ".join(v["problemy"][:3]) if v["problemy"] else ", retezec neporuseny"))
+
+
 def check_online() -> None:
     import signals_live as SLV
     try:
@@ -261,6 +282,10 @@ def run(online: bool = False) -> dict:
     check_fundamentals_db(today)
     name = check_state()
     check_outputs(today, name)
+    try:
+        check_heuristics(today)
+    except Exception as exc:
+        report("heuristiky", WARN, f"kontrola nejde provest: {type(exc).__name__}: {exc}")
     if online:
         check_online()
     counts = {s: sum(r["stav"] == s for r in results) for s in (OK, WARN, ERR)}

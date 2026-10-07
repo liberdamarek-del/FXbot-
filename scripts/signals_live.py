@@ -54,6 +54,7 @@ YAHOO = {"EUR/USD": "EURUSD=X", "USD/JPY": "JPY=X", "GBP/USD": "GBPUSD=X", "USD/
          "GBP/JPY": "GBPJPY=X", "EUR/GBP": "EURGBP=X", "EUR/CHF": "EURCHF=X", "AUD/JPY": "AUDJPY=X"}
 CZK = {"EUR": "EURCZK=X", "USD": "CZK=X", "GBP": "GBPCZK=X", "AUD": "AUDCZK=X", "NZD": "NZDCZK=X"}
 REF_SL_MARGIN = 84.0
+HOURLY_CACHE: dict = {}                         # the last run's hourly prices per pair (reused by scripts/heuristiky.py)
 TIER_NAMES = ("silny", "silny", "stredni", "slaby", "slaby", "slaby")
 CCY_CZ = {"USD": "americky dolar", "EUR": "euro", "JPY": "japonsky jen", "GBP": "britska libra",
           "CHF": "svycarsky frank", "AUD": "australsky dolar", "CAD": "kanadsky dolar", "NZD": "novozelandsky dolar"}
@@ -507,6 +508,8 @@ def main() -> int:
         except Exception as exc:
             pairs.append({"par": pair, "chyba": f"data nedostupna: {type(exc).__name__}"})
     rank_pairs(pairs)
+    HOURLY_CACHE.clear()
+    HOURLY_CACHE.update(cache)
     czk = {}
     for ccy, sym in CZK.items():
         try:

@@ -96,6 +96,18 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 ul.plain { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
 ol.steps { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 70ch; }
 details summary { cursor: pointer; font-weight: 600; }
+.tabs { display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid var(--line); }
+.tabs button { background: transparent; color: var(--muted); border: 0; border-bottom: 3px solid transparent; border-radius: 0; padding: 8px 14px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.panel { display: grid; gap: 22px; min-width: 0; }
+.panel[hidden] { display: none; }
+.hcards { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.hcard { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; border-left-width: 4px; font-size: 0.93rem; min-width: 0; }
+.hcard.buy { border-left-color: var(--buy); } .hcard.sell { border-left-color: var(--sell); }
+.hcard .lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.hcard .stat { font-family: var(--f-num); font-weight: 600; }
+.hcard .subj { border-top: 1px dashed var(--line); padding-top: 6px; }
+.chip.ok { background: var(--buy-bg); color: var(--buy); }
 @media (prefers-reduced-motion: no-preference) { button { transition: filter .15s } button:hover { filter: brightness(1.08) } }
 </style>
 
@@ -103,10 +115,17 @@ details summary { cursor: pointer; font-weight: 600; }
   <header class="top">
     <div>
       <h1>FXBOT přehled</h1>
-      <p class="muted">Páteční signály pro 12 měnových párů, fundamenty a tvůj obchodní deník.</p>
+      <p class="muted">Páteční signály pro 12 měnových párů, fundamenty, tvůj obchodní deník a heuristický model.</p>
     </div>
     <div class="status" id="status"><span>Načítám data modelu…</span></div>
   </header>
+
+  <nav class="tabs" role="tablist" aria-label="Části přehledu">
+    <button type="button" role="tab" id="tab-btn-model" aria-selected="true" aria-controls="tab-model">Hlavní model</button>
+    <button type="button" role="tab" id="tab-btn-heur" aria-selected="false" aria-controls="tab-heur">Heuristiky</button>
+  </nav>
+
+  <div class="panel" id="tab-model" role="tabpanel" aria-labelledby="tab-btn-model">
 
   <section class="sheet" aria-labelledby="h-sig">
     <header><h2 id="h-sig">Signály k obchodu</h2><span class="small muted" id="sig-note">Ceny se obnovují každou hodinu; signál k obchodu vzniká v pátek ve 22:05 (náš čas).</span></header>
@@ -218,6 +237,80 @@ details summary { cursor: pointer; font-weight: 600; }
     </details>
     <p class="small muted">Výsledky modelu jsou zatím z historických dat (backtest). Skutečný důkaz je dopředný test v části Výsledky. Obchoduj jen peníze, jejichž ztrátu uneseš.</p>
   </section>
+  </div>
+
+  <div class="panel" id="tab-heur" role="tabpanel" aria-labelledby="tab-btn-heur" hidden>
+    <section class="sheet" aria-labelledby="h-hx">
+      <header><h2 id="h-hx">Heuristický model</h2><span class="small muted" id="hx-reg"></span></header>
+      <p class="small">Samostatná vrstva vedle hlavního modelu. Každá heuristika (trend, podpora a odpor, předchozí maxima a minima, volatilita, RSI/MACD/klouzavé průměry, momentum, svíčky, čas, sazby a VIX, reakce na zprávy, síla měn z ostatních párů a jejich kombinace) je jen <b>hypotéza</b>. Systém ji měří na historii 2012–2018, ověřuje na novějších letech 2019–2026, sleduje živě a sám ji povyšuje, zhoršuje nebo vyřazuje. Nikdy nepředpokládá, že má pravdu. <b>Hlavní model ani jeho signály nemění.</b></p>
+      <div class="stats" id="hx-stats"></div>
+      <div id="hx-verdict"></div>
+      <details class="small">
+        <summary>Dvě různé pravděpodobnosti – nikdy se nesčítají</summary>
+        <p><b>STATISTICKÁ PRAVDĚPODOBNOST</b> = jak často pravidlo vyšlo na novějších datech 2019–2026 (po nákladech), s intervalem. Porovnává se s náhodnými vstupy ve stejném směru. <b>HEURISTICKÝ ODHAD</b> = subjektivní pravidlo palce: 50 % + 5 bodů za každou rodinu heuristik, která souhlasí, minus 5 za každou, která je proti (30–80 %). Z historie nevychází. Obojí se průběžně porovnává se skutečností (kalibrace níže).</p>
+      </details>
+    </section>
+
+    <section class="sheet" aria-labelledby="h-hx-pred">
+      <header><h2 id="h-hx-pred">Otevřené predikce</h2><span class="small muted" id="hx-pred-note"></span></header>
+      <div class="row small">
+        <label for="hx-f-stav" class="muted">Stav pravidla</label>
+        <select id="hx-f-stav" style="max-width: 14em"><option value="">všechny</option><option>AKTIVNÍ</option><option>SLABÁ</option><option>NEOVĚŘENÁ</option></select>
+        <label for="hx-f-tf" class="muted">Časový rámec</label>
+        <select id="hx-f-tf" style="max-width: 10em"><option value="">oba</option><option value="1D">1D (5 dní)</option><option value="4H">4H (24 h)</option></select>
+        <label for="hx-f-par" class="muted">Pár</label>
+        <select id="hx-f-par" style="max-width: 10em"><option value="">všechny</option></select>
+      </div>
+      <div class="hcards" id="hx-preds"><div class="empty">Data se načítají…</div></div>
+    </section>
+
+    <section class="sheet" aria-labelledby="h-hx-self">
+      <header><h2 id="h-hx-self">Sebehodnocení živých predikcí</h2><span class="small muted">Každá predikce se po svém horizontu sama vyhodnotí. Záznamy se nedají zpětně měnit (řetězec otisků).</span></header>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Okno</th><th class="r">Predikcí</th><th class="r">Úspěšnost</th><th class="r">Profit faktor</th><th class="r">Průměr po nákladech</th><th class="r">Chyba předpovědi</th><th class="r">Falešně pozitivní</th><th class="r">MFE / MAE</th><th class="r">Brier stat. / heur.</th></tr></thead>
+        <tbody id="hx-windows"></tbody>
+      </table></div>
+      <p class="small muted" id="hx-fn"></p>
+      <details class="small"><summary>Rozpad podle páru, časového rámce, typu heuristiky, režimu a stavu</summary><div id="hx-split" class="cols"></div></details>
+      <h3>Poslední vyhodnocené</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Pár</th><th>TF</th><th>Směr</th><th>Pravidlo</th><th>Výsledek</th><th class="r">Po nákladech</th><th>Proč (možné souvislosti)</th></tr></thead>
+        <tbody id="hx-last"></tbody>
+      </table></div>
+    </section>
+
+    <div class="two">
+      <section class="sheet" aria-labelledby="h-hx-cal">
+        <header><h2 id="h-hx-cal">Sedí pravděpodobnosti?</h2></header>
+        <p class="small muted">Predikce 2019–2026: co čekala pravděpodobnost a jak to dopadlo. Brierovo skóre: nižší = lepší, hod mincí = 0,25.</p>
+        <div id="hx-cal"></div>
+      </section>
+      <section class="sheet" aria-labelledby="h-hx-main">
+        <header><h2 id="h-hx-main">Srovnání s hlavním modelem</h2></header>
+        <div id="hx-main"></div>
+      </section>
+    </div>
+
+    <section class="sheet" aria-labelledby="h-hx-reg">
+      <header><h2 id="h-hx-reg">Registr pravidel</h2><span class="small muted">Přepočítává se každou sobotu s novými daty.</span></header>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Typ heuristiky</th><th class="r">Pravidel</th><th class="r">Kladných 2019–26</th><th class="r">AKTIVNÍ</th><th class="r">SLABÁ</th><th class="r">NEOVĚŘENÁ</th><th class="r">NEFUNKČNÍ</th><th class="r">OVERFIT / NESTABILNÍ</th></tr></thead>
+        <tbody id="hx-types"></tbody>
+      </table></div>
+      <h3>Aktivní pravidla</h3>
+      <div id="hx-active"></div>
+      <h3>Nejlepší slabá pravidla (všechny páry dohromady)</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Podmínka</th><th>TF</th><th>Směr</th><th class="r">Win 2012–18</th><th class="r">Win 2019–26</th><th class="r">Náhodně</th><th class="r">Vzorek</th><th class="r">Průměr 2019–26</th><th class="r">q</th><th>Proč ne aktivní</th></tr></thead>
+        <tbody id="hx-weak"></tbody>
+      </table></div>
+      <details class="small"><summary>Co znamenají stavy</summary>
+        <p><b>AKTIVNÍ</b> – vydělává po nákladech na letech 2012–18 i 2019–26, je lepší než náhodné vstupy i po korekci na počet testovaných pravidel (falešné objevy ≤ 10 %), drží i při sousedních nastaveních, v čase (walk-forward, 4 období) a na části ostatních párů. <b>SLABÁ</b> – kladná, ale neprokázaná. <b>NEOVĚŘENÁ</b> – málo případů (pod 30 v některém období). <b>NEFUNKČNÍ</b> – na novějších datech prodělává nebo není lepší než náhoda; živé predikce nedává. <b>OVERFIT / NESTABILNÍ</b> – funguje jen v jednom období, jen při přesném nastavení nebo jen na části párů; živé predikce nedává. Živé výsledky výrazně horší než historie pravidlo zhorší.</p>
+      </details>
+      <h3>Změny stavů</h3>
+      <ul class="plain small" id="hx-changes"></ul>
+    </section>
+  </div>
 </div>
 
 <script>
@@ -533,7 +626,126 @@ details summary { cursor: pointer; font-weight: 600; }
       : `<tr><td colspan="8" class="muted">Dopředný test začíná prvním pátečním signálem.</td></tr>`;
   }
 
-  function renderAll() { renderStatus(); renderRisk(); renderSignals(); renderReady(); renderPairs(); renderNews(); renderResearch(); renderFund(); renderModel(); renderJournal(); }
+
+  // ---------------------------------------------------------------- tabs (per-viewer convenience)
+  function showTab(name) {
+    for (const t of ["model", "heur"]) {
+      $("tab-" + t).hidden = t !== name;
+      $("tab-btn-" + t).setAttribute("aria-selected", String(t === name));
+    }
+    try { localStorage.setItem("fx_tab", name); } catch (e) {}
+  }
+  $("tab-btn-model").addEventListener("click", () => showTab("model"));
+  $("tab-btn-heur").addEventListener("click", () => showTab("heur"));
+  try { if (localStorage.getItem("fx_tab") === "heur") showTab("heur"); } catch (e) {}
+
+  // ---------------------------------------------------------------- heuristic model (scripts/heuristiky.py)
+  const pct = (v, d = 1) => (v === null || v === undefined) ? "–" : fmt(v * 100, d) + " %";
+  const STAV_CHIP = { "AKTIVNÍ": "ok", "SLABÁ": "warn", "NEOVĚŘENÁ": "", "NEFUNKČNÍ": "sell", "OVERFIT/NESTABILNÍ": "sell" };
+  const stavChip = (s) => `<span class="chip ${STAV_CHIP[s] ?? ""}">${esc(s)}</span>`;
+  const unix = (t) => t ? praha(new Date(t * 1000).toISOString()) : "–";
+  $("hx-f-par").innerHTML = '<option value="">všechny</option>' + PAIRS.map((p) => `<option>${p}</option>`).join("");
+  for (const id of ["hx-f-stav", "hx-f-tf", "hx-f-par"]) $(id).addEventListener("change", () => renderHeur());
+
+  function hxCard(c) {
+    const d = dec(c.par), buy = c.smer === "LONG";
+    const neo = c.stav === "NEOVĚŘENÁ" || c.stat_pravdepodobnost === null || c.stat_pravdepodobnost === undefined;
+    const ci = c.win_ci ? ` (90% interval ${pct(c.win_ci[0], 0)}–${pct(c.win_ci[1], 0)})` : "";
+    const stat = neo ? `<b>NEOVĚŘENO – nedostatečný historický vzorek</b> <span class="muted">(${c.n_is} + ${c.n_oos} případů)</span>`
+      : `<span class="stat">${pct(c.stat_pravdepodobnost)}</span>${ci}<span class="muted">; náhodné vstupy ve stejném směru ${pct(c.base_win_oos)}</span>`;
+    const mm = c.hlavni_model === "SHODA" ? "hlavní model má obchod ve stejném směru" : c.hlavni_model === "PROTI" ? "hlavní model má obchod v opačném směru" : "hlavní model na páru obchod nemá";
+    return `<article class="hcard ${buy ? "buy" : "sell"}">
+      <div class="row" style="justify-content: space-between"><span class="lbl">Heuristika · ${esc(c.typ)}</span>${stavChip(c.stav)}</div>
+      <div><b>${esc(c.par)}</b> · ${esc(c.tf)} · <span class="chip ${buy ? "buy" : "sell"}">${esc(c.smer)}</span> · horizont ${esc(c.horizont)}</div>
+      <div>${esc(c.podminka)}</div>
+      <div class="small muted">Vstup <span class="num">${fmt(c.cena, d)}</span>, cíl <span class="num">${fmt(c.cil, d)}</span>, práh <span class="num">${fmt(c.prah, d)}</span> · vznik ${esc(unix(c.cas))}</div>
+      <div><span class="lbl">Statistická pravděpodobnost (z historie 2019–26)</span><br>${stat}</div>
+      ${neo ? "" : `<div class="small">Historický win rate 2012–18: <b class="num">${pct(c.win_hist)}</b> · OOS win rate 2019–26: <b class="num">${pct(c.win_oos)}</b> · Vzorek: <span class="num">${fmt(c.n_is, 0)} + ${fmt(c.n_oos, 0)}</span></div>`}
+      <div class="subj"><span class="lbl">Heuristický odhad – subjektivní, z historie nevychází</span><br><span class="stat">${c.heur_odhad} %</span></div>
+      <div class="small">Stav: <b>${esc(c.stav)}</b>${c.stav !== c.stav_pri_vzniku ? ` (při vzniku ${esc(c.stav_pri_vzniku)})` : ""} · Důvěryhodnost: <b>${esc(c.duveryhodnost)}</b></div>
+      <div class="small muted">${esc(c.duvod || "")}${c.vse_pary && c.vse_pary.stav ? ` · Stejné pravidlo na všech párech: ${esc(c.vse_pary.stav)}` : ""} · ${mm}.</div>
+    </article>`;
+  }
+
+  function wRow(label, w) {
+    if (!w || !w.n) return `<tr><td>${label}</td><td class="r num">0</td><td colspan="7" class="muted">zatím nic</td></tr>`;
+    return `<tr><td>${label}</td><td class="r num">${w.n}</td><td class="r num">${pct(w.uspesnost)}</td><td class="r num">${w.pf === null ? "–" : fmt(w.pf, 2)}</td>
+      <td class="r num ${w.ev >= 0 ? "pos" : "neg"}">${sgn(w.ev, 3)} %</td><td class="r num">${w.chyba === null ? "–" : fmt(w.chyba, 2) + " %"}</td>
+      <td class="r num">${w.falesne_pozitivni}</td><td class="r num">${fmt(w.mfe, 2)} / ${fmt(w.mae, 2)} %</td>
+      <td class="r num">${w.brier_stat === null ? "–" : fmt(w.brier_stat, 3)} / ${fmt(w.brier_heur, 3)}</td></tr>`;
+  }
+
+  function renderHeur() {
+    if (!state) return;
+    const H = state.heuristiky;
+    if (!H || H.chyba) {
+      $("hx-verdict").innerHTML = `<div class="notice">${esc(H && H.chyba ? H.chyba : "Heuristická vrstva zatím nemá data.")}</div>`;
+      $("hx-preds").innerHTML = '<div class="empty">Bez dat.</div>';
+      return;
+    }
+    const R = H.registr, cnt = {};
+    for (const v of Object.values(R.pocty)) for (const [k, n] of Object.entries(v)) cnt[k] = (cnt[k] || 0) + n;
+    $("hx-reg").textContent = `registr ${praha(R.vytvoreno)}, data do ${R.data_do}`;
+    $("hx-stats").innerHTML = [["Pravidel v registru", fmt(R.pravidel, 0)], ["AKTIVNÍ", cnt["AKTIVNÍ"] || 0], ["SLABÁ", cnt["SLABÁ"] || 0],
+      ["NEOVĚŘENÁ", cnt["NEOVĚŘENÁ"] || 0], ["Vyřazené (nefunkční, overfit)", (cnt["NEFUNKČNÍ"] || 0) + (cnt["OVERFIT/NESTABILNÍ"] || 0)],
+      ["Otevřené predikce", H.otevrene], ["Vyhodnocené živě", (H.sebehodnoceni.okna.vse || {}).n || 0]]
+      .map(([l, v]) => `<div class="stat"><span class="label">${l}</span><span class="v">${v}</span></div>`).join("");
+    const cal = H.kalibrace || {}, hb = (cal.heur || []);
+    const hi = hb.length ? hb[hb.length - 1] : null;
+    const nh = R.nahoda;
+    const chance = nh && nh.posouzeno ? ` Na letech 2019–2026 bylo „lépe než náhodné vstupy (p ≤ 0,05)“ ${pct(nh.p05 / nh.posouzeno)} z ${fmt(nh.posouzeno, 0)} posouzených pravidel – samotná náhoda by dala asi 5 %.` : "";
+    $("hx-verdict").innerHTML = (cnt["AKTIVNÍ"] ? `<div class="notice">Aktivních pravidel: ${cnt["AKTIVNÍ"]}. I ta jsou jen informace – hlavní model se mění jen přes testovací bránu.${chance}</div>`
+      : `<div class="notice">Zatím <b>žádná heuristika neprošla všemi testy</b>.${chance} Predikce níže jsou proto jen SLABÉ nebo NEOVĚŘENÉ – sledujeme je živě; neobchoduj podle nich.</div>`)
+      + (hi ? `<p class="small muted">Heuristický odhad historicky nesedí: když heuristiky souhlasily nejvíc (odhad ${fmt(hi.od * 100, 0)}–${fmt(Math.min(hi.do, 0.8) * 100, 0)} %), skutečná úspěšnost byla ${pct(hi.skutecnost)}.</p>` : "");
+    // open predictions
+    const fs = $("hx-f-stav").value, ft = $("hx-f-tf").value, fp = $("hx-f-par").value;
+    const list = (H.predikce || []).filter((c) => (!fs || c.stav === fs) && (!ft || c.tf === ft) && (!fp || c.par === fp));
+    const byS = H.otevrene_podle_stavu || {};
+    $("hx-pred-note").textContent = `${H.otevrene} otevřených (AKTIVNÍ ${byS["AKTIVNÍ"] || 0}, SLABÁ ${byS["SLABÁ"] || 0}, NEOVĚŘENÁ ${byS["NEOVĚŘENÁ"] || 0}); ukázáno nejvýš 60. Vyřazená pravidla, která teď platí: ${(H.plati_ted["NEFUNKČNÍ"] || 0) + (H.plati_ted["OVERFIT/NESTABILNÍ"] || 0)} (predikce nedávají).`;
+    $("hx-preds").innerHTML = list.length ? list.map(hxCard).join("") : '<div class="empty">Žádná otevřená predikce pro tento výběr. Nové vznikají po zavření 4h svíček (23, 3, 7, 11, 15, 19 h našeho času) a denní svíčky (23 h).</div>';
+    // self-evaluation
+    const S = H.sebehodnoceni, O = S.okna || {};
+    $("hx-windows").innerHTML = ["20", "50", "100", "500"].filter((k) => O[k]).map((k) => wRow(`posledních ${k}`, O[k])).join("") + wRow("všechny", O.vse);
+    const fn = S.falesne_negativni;
+    $("hx-fn").textContent = (S.od ? `Živě od ${unix(S.od)}. ` : "Zatím žádná živá predikce. ")
+      + (fn && fn.velkych_pohybu ? `Falešně negativní: z ${fn.velkych_pohybu} velkých pohybů (větších než typický pohyb za horizont) heuristiky nepředpověděly ${fn.nepredpovezeno} (${pct(fn.podil, 0)}).` : "")
+      + " Falešně pozitivní = predikce, které nevyšly. Chyba předpovědi = průměrný rozdíl mezi skutečným výsledkem a tím, co čekala historie.";
+    const splits = [["Pár", S.podle_paru], ["Časový rámec", S.podle_tf], ["Typ heuristiky", S.podle_typu], ["Volatilita", S.podle_volatility], ["Trend", S.podle_trendu], ["Stav pravidla", S.podle_stavu], ["Hlavní model", S.podle_hlavniho_modelu]];
+    $("hx-split").innerHTML = splits.map(([t, d]) => `<div><b>${t}</b>${Object.keys(d || {}).length ? `<table><tbody>${Object.entries(d).map(([k, w]) => `<tr><td>${esc(k)}</td><td class="r num">${w.n}</td><td class="r num">${pct(w.uspesnost)}</td><td class="r num">${sgn(w.ev, 3)} %</td></tr>`).join("")}</tbody></table>` : '<p class="muted">zatím nic</p>'}</div>`).join("");
+    $("hx-last").innerHTML = (H.posledni_vyhodnocene || []).length ? H.posledni_vyhodnocene.map((e) => `<tr><td>${esc(e.par)}</td><td>${esc(e.tf)}</td><td>${esc(e.smer)}</td>
+      <td class="small">${esc(e.pravidlo.split("|")[0])}<br><span class="muted">${esc(e.stav_pravidla)}</span></td>
+      <td>${e.vysledek === "ÚSPĚCH" ? '<span class="chip ok">ÚSPĚCH</span>' : '<span class="chip sell">NEÚSPĚCH</span>'}</td>
+      <td class="r num ${e.vynos_proc >= 0 ? "pos" : "neg"}">${sgn(e.vynos_proc, 2)} %</td><td class="small muted">${esc(e.duvod)}</td></tr>`).join("")
+      : '<tr><td colspan="7" class="muted">Zatím nic – první 4h predikce se vyhodnotí po 24 hodinách obchodování, denní po 5 dnech.</td></tr>';
+    // calibration
+    const bucket = (b) => `<tr><td class="num">${fmt(b.od * 100, 0)}–${fmt(Math.min(b.do, 1) * 100, 0)} %</td><td class="r num">${fmt(b.n, 0)}</td><td class="r num">${pct(b.ocekavano)}</td><td class="r num">${pct(b.skutecnost)}</td></tr>`;
+    $("hx-cal").innerHTML = cal.n ? `<p class="small">Úspěšnost všech predikcí po nákladech: <b>${pct(cal.uspesnost)}</b>. Brier: statistická <b class="num">${fmt(cal.brier_stat, 4)}</b>, heuristická <b class="num">${fmt(cal.brier_heur, 4)}</b>, hod mincí <span class="num">${fmt(cal.brier_mince, 4)}</span>.</p>
+      <div class="tablewrap"><table><thead><tr><th>Heuristický odhad</th><th class="r">Predikcí</th><th class="r">Čekal</th><th class="r">Skutečnost</th></tr></thead><tbody>${hb.map(bucket).join("")}</tbody></table></div>
+      <div class="tablewrap"><table><thead><tr><th>Statistická (2012–18)</th><th class="r">Predikcí</th><th class="r">Čekala</th><th class="r">Skutečnost 2019–26</th></tr></thead><tbody>${(cal.stat || []).map(bucket).join("")}</tbody></table></div>` : '<p class="muted">Bez dat.</p>';
+    // main model
+    const M = H.hlavni_model || {}, hist = M.historie || {};
+    const g = hist.skupiny || {};
+    $("hx-main").innerHTML = (hist.chyba ? `<p class="muted">${esc(hist.chyba)}</p>` : `<p class="small">Obchody hlavního modelu 2019–2026 podle toho, co v tu chvíli říkaly heuristiky dobré na letech 2012–18:</p>
+      <div class="tablewrap"><table><thead><tr><th>Heuristiky</th><th class="r">Obchodů</th><th class="r">Úspěšnost</th><th class="r">Průměr % marže</th></tr></thead><tbody>
+      ${Object.entries(g).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="r num">${v.n}</td><td class="r num">${pct(v.uspesnost)}</td><td class="r num">${sgn(v.prumer_marze, 1)}</td></tr>`).join("")}</tbody></table></div>
+      <p class="small"><b>${esc(hist.zaver || "")}</b>${hist.p !== null && hist.p !== undefined ? ` <span class="muted">(p = ${fmt(hist.p, 2)})</span>` : ""}</p>`)
+      + ((M.signaly || []).length ? `<p class="small">Teď u signálů: ${M.signaly.map((x) => `${esc(x.par)} ${esc(x.smer)}: pro ${x.pro}, proti ${x.proti}`).join("; ")}. ${hist.pridava_hodnotu ? "" : "Důvěru v signál to nemění."}</p>` : "")
+      + `<p class="small muted">Živě: hlavní model ${M.zive_model.uzavrenych} uzavřených obchodů (${M.zive_model.ziskovych} ziskových); heuristiky ${(M.zive_heuristiky || {}).n || 0} vyhodnocených predikcí${(M.zive_heuristiky || {}).n ? `, úspěšnost ${pct(M.zive_heuristiky.uspesnost)}` : ""}.</p>`;
+    // registry
+    $("hx-types").innerHTML = Object.entries(H.typy || {}).map(([t, v]) => `<tr><td>${esc(t)}</td><td class="r num">${v.pravidel}</td><td class="r num">${pct(v.kladnych_oos, 0)}</td>
+      <td class="r num">${v["AKTIVNÍ"]}</td><td class="r num">${v["SLABÁ"]}</td><td class="r num">${v["NEOVĚŘENÁ"]}</td><td class="r num">${v["NEFUNKČNÍ"]}</td><td class="r num">${v["OVERFIT/NESTABILNÍ"]}</td></tr>`).join("");
+    const rrow = (r) => `<tr><td>${esc(r.podminka)}${r.par !== "VŠE" ? ` <span class="muted">(${esc(r.par)})</span>` : ""}</td><td>${esc(r.tf)}</td><td>${esc(r.smer)}</td>
+      <td class="r num">${pct(r.win_is)}</td><td class="r num">${pct(r.win_oos)}</td><td class="r num">${pct(r.base_win_oos)}</td><td class="r num">${fmt(r.n_is, 0)} + ${fmt(r.n_oos, 0)}</td>
+      <td class="r num ${r.ev_oos >= 0 ? "pos" : "neg"}">${sgn(r.ev_oos, 3)} %</td><td class="r num">${r.q === null || r.q === undefined ? "–" : fmt(r.q, 2)}</td><td class="small muted">${esc(r.duvod)}</td></tr>`;
+    $("hx-active").innerHTML = (H.aktivni || []).length ? `<div class="tablewrap"><table><thead><tr><th>Podmínka</th><th>TF</th><th>Směr</th><th class="r">Win 2012–18</th><th class="r">Win 2019–26</th><th class="r">Náhodně</th><th class="r">Vzorek</th><th class="r">Průměr 2019–26</th><th class="r">q</th><th>Důvod</th></tr></thead><tbody>${H.aktivni.map(rrow).join("")}</tbody></table></div>`
+      : '<p class="empty">Žádné pravidlo teď není aktivní (neprošlo všemi testy).</p>';
+    $("hx-weak").innerHTML = (H.slabe_vse || []).map(rrow).join("") || '<tr><td colspan="10" class="muted">Žádné.</td></tr>';
+    $("hx-changes").innerHTML = (H.zmeny_stavu || []).length ? H.zmeny_stavu.map((c) => `<li>${esc(c.den)}: ${esc(c.id)} – ${esc(c.z || "nové")} → <b>${esc(c.na)}</b> <span class="muted">(${esc(c.duvod)})</span></li>`).join("")
+      : '<li class="muted">Zatím žádné (registr vznikl 7. 10. 2026; stavy se mění při sobotním přepočtu a podle živých výsledků).</li>';
+    if ((H.kontrola_deniku || {}).problemy && H.kontrola_deniku.problemy.length) $("hx-verdict").innerHTML += `<div class="notice">⚠ Deník predikcí: ${esc(H.kontrola_deniku.problemy.join("; "))}</div>`;
+  }
+
+  function renderAll() { renderStatus(); renderRisk(); renderSignals(); renderReady(); renderPairs(); renderNews(); renderResearch(); renderFund(); renderModel(); renderJournal(); renderHeur(); }
 
   $("entry").addEventListener("submit", async (ev) => {
     ev.preventDefault();

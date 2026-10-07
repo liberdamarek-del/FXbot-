@@ -66,6 +66,7 @@ TESTS = [
     "test_f1_live_model.py",
     "test_f2_weekly_research.py",
     "test_f3_audit.py",
+    "test_f4_heuristics.py",
     "test_m39.py",
     "test_m310.py",
     "test_m311.py",

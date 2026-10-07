@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-10-07 (R-037).
+Poslední revize: 2026-10-07 (R-038).
 
 ## 1. Účel
 
@@ -27,6 +27,8 @@ obchoduje sám. Projekt nikdy neposílá příkazy brokerovi a u brokera nic nem
                                └──── forward test modelu (forward_trades.json) ◄┤
                                      deník uživatele (přehled → denik_uzivatele)◄┘
  týdenní výzkum (tydenni_analyza) ─► most do modelu (vyzkum_most) ─► pokusy přes bránu
+ heuristiky (heuristiky.py): registr pravidel (sobota) ─► živé predikce každou hodinu ─► deník + sebehodnocení
+                             (jen informace, hlavní model nemění; srovnání s ním je součástí vrstvy)
 ```
 
 Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděných letech (brána) a teprve pak jde do
@@ -46,6 +48,7 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 | Forward test | skutečné obchody modelu od 2. 10. 2026 | ROZPRACOVÁNO | 2 obchody, závěr až po 4+ týdnech |
 | Týdenní výzkum | popis a vysvětlení týdne, kandidáti na pokusy | HOTOVO/OVĚŘENO | archiv learning/tydenni |
 | Velikost podle rizika | stop stojí nejvýš zvolené % účtu (výchozí 5 %) | HOTOVO/OVĚŘENO (R-037) | test naslepo 2019–22, 2023–26; test_f3_audit; přehled v prohlížeči |
+| Heuristický model | 5 760 měřitelných pravidel, stavy, živé predikce, deník s řetězcem otisků, sebehodnocení | HOTOVO/OVĚŘENO jako systém (R-038); žádné pravidlo AKTIVNÍ | test_f4_heuristics (bez pohledu do budoucna, deník), záložka v prohlížeči; docs/HEURISTIKY.md |
 
 ## 4. Co se už zkoušelo (aby se to neopakovalo)
 
@@ -65,8 +68,10 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | Intradenní strategie | BLOKOVÁNO | jen s ECN účtem (< 0,3 pipu) a automatickým zadáváním |
 | Mezera přes víkend za stopem | OVĚŘENO (zanedbatelné v historii) | 1 z 31 stopů, o 4,5 % vzdálenosti stopu; budoucí krize NEOVĚŘENO |
 | Forward test s velikostí podle rizika | ROZPRACOVÁNO | nové záznamy mají váhu stupně; vyhodnotit po 4+ týdnech |
+| Heuristiky: živý deník | ROZPRACOVÁNO | od 7. 10. 2026; skutečný test heuristik (historie 2019–26 nebyla pro nápady úplně neviděná); první závěry po stovkách vyhodnocených predikcí |
+| Heuristiky: kalibrace odhadu | OVĚŘENO (negativní) | subjektivní odhad konfluence je opačně kalibrovaný (víc souhlasu = o něco nižší úspěšnost); zobrazuje se jen jako srovnání |
 | `scripts/pivot_lab.py` řádek 147: nedefinovaná proměnná `row_wk` | CHYBA (neaktivní výzkumný skript) | živý systém ho nepoužívá; rodina pivotů je uzavřená (R-014), oprava jen při jejím dalším použití |
-| Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, 52 testů prošlo |
+| Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, testy prošly (python fxbot.py test) |
 
 ## 6. Postup práce (pravidlo)
 

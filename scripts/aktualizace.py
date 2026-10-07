@@ -1,5 +1,6 @@
 """Hourly update of the dashboard data (weekdays, routine): diagnostics, live
-signals and plans, this week's economic calendar, the user's journal.
+signals and plans, this week's economic calendar, the user's journal, the heuristic
+layer (scripts/heuristiky.py: new live predictions, evaluation of finished ones).
 
     python scripts/aktualizace.py                  # -> data/live/stav.json (+ forward test)
     python scripts/aktualizace.py --denik DIR      # only the journal: JSON files exported from the
@@ -249,6 +250,12 @@ def main(argv: list[str]) -> int:
         state["vyzkum_tyden"] = weekly_research_summary()
     except Exception as exc:
         print(f"tydenni vyzkum nedostupny: {type(exc).__name__}: {exc}", file=sys.stderr)
+    try:                                                  # heuristic layer: information only, never blocks
+        import heuristiky as HX
+        state["heuristiky"] = HX.live(state, SL.HOURLY_CACHE)
+    except Exception as exc:
+        print(f"heuristiky nedostupne: {type(exc).__name__}: {exc}", file=sys.stderr)
+        state["heuristiky"] = {"chyba": f"heuristická vrstva selhala: {type(exc).__name__}: {exc}"}
     state["diagnostika"] = {"souhrn": diag["souhrn"],
                             "problemy": [f"{r['oblast']}: {r['zprava']}" for r in diag["kontroly"] if r["stav"] != DG.OK]}
     if JOURNAL.exists():                                  # last known journal with today's prices
@@ -256,8 +263,10 @@ def main(argv: list[str]) -> int:
         state["denik_uzivatele"] = journal_summary(rows, {p["par"]: p["cena"] for p in state["pary"] if "cena" in p})
     STAV.write_text(json.dumps(state, indent=1, ensure_ascii=False, default=str))
     high = [e for e in events if e["dopad"] == "vysoký" and not e["probehlo"]]
+    hx = state.get("heuristiky") or {}
     print(f"aktualizace {now:%Y-%m-%d %H:%M} UTC | signalu {len(state['signaly'])} | udalosti (vysoky dopad) "
-          f"do 7 dni: {len(high)} | diagnostika {diag['souhrn']}")
+          f"do 7 dni: {len(high)} | diagnostika {diag['souhrn']} | heuristiky: nove {hx.get('nove', '-')}, "
+          f"vyhodnoceno {hx.get('vyhodnocene_ted', '-')}, otevreno {hx.get('otevrene', '-')}")
     return 0
 
 

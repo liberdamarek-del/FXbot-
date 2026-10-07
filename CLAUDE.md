@@ -20,6 +20,15 @@ stop loss - the stop costs at most the user's chosen share of the account (defau
 weights in `learning/riziko.json` from `python scripts/riziko_lab.py --stupne`, chosen walk-forward). The
 signals themselves (entry, targets, stop) are the gate-tested champion's.
 
+Heuristic model (user's request 2026-10-07, R-038, docs/HEURISTIKY.md): `scripts/heuristiky.py` is a separate
+information layer - 5,760 measurable rules (57 template families x params x 12 pairs x 1D / 4H, per pair and all pairs)
+with statuses AKTIVNÍ / SLABÁ / NEOVĚŘENÁ / NEFUNKČNÍ / OVERFIT/NESTABILNÍ, an append-only live prediction ledger
+(learning/heuristiky/predikce|vyhodnoceni/<day>.jsonl, hash chain - never edit or delete lines) and self-evaluation.
+Keep STATISTICKÁ PRAVDĚPODOBNOST (out-of-sample win rate) and HEURISTICKÝ ODHAD (subjective confluence) apart; agreement
+with the main model never raises confidence unless the history shows it adds value. It never changes the main model's
+signals; a heuristic reaches the model only as a gate experiment. A heuristics CHYBA in the diagnostics (ledger chain)
+does not block the main signals but must be reported.
+
 ## Jobs (routines fire into this session; user's decision 2026-10-02: hourly updates; 2026-10-06: learning 2x a week)
 Reports to the user (user's decision 2026-10-06): short and plain - signals, the user's trades, the model's trades
 and real improvements of the model. Rejected experiments at most one sentence, no gate details unless asked.
@@ -28,8 +37,10 @@ and real improvements of the model. Rejected experiments at most one sentence, n
   Then ArtifactData: `list denik` with out_dir -> `python scripts/aktualizace.py --denik <out_dir>` (the user's
   journal from the dashboard; snapshot in data/live, NOT in git - personal data), then get `stav/aktualni` for
   its version and set it with `file_path` data/live/stav.json and `if_version` (URL in learning/dashboard.json).
-  Commit + push only when learning/forward_trades.json changed. Reply to the user with one short line, in detail
-  only for a new signal, a diagnostics CHYBA, or a journal trade whose price is beyond its SL / TP.
+  aktualizace.py also runs the heuristic layer (new predictions at fresh closes, evaluations, stav `heuristiky`).
+  Commit + push when learning/forward_trades.json or learning/heuristiky/ changed (the ledger must survive the
+  container). Reply to the user with one short line, in detail only for a new signal, a diagnostics CHYBA, or a
+  journal trade whose price is beyond its SL / TP (heuristic predictions: counts only, they are information).
 - Friday signals (16:05 New York): same as Update (the decision is valid only from 16:00 New York,
   `signals_live.decision_ready`), then a Czech summary of the signals for the user (size by risk: margin and loss
   at the stop in % of the account at the default risk, stav signaly[].riziko). The decision uses the Friday
@@ -38,7 +49,9 @@ and real improvements of the model. Rejected experiments at most one sentence, n
   and the champions' `decide_h` equal (diagnostics: CHYBA otherwise).
 - Learning (Wednesday 17:40 and Saturday 08:57 Prague - user's decision 2026-10-06, was 3x every weekday;
   Saturday also downloads data first:
-  `python scripts/fxcm_universe.py download && python scripts/fxcm_universe.py build`, `python scripts/fundamenty.py download`).
+  `python scripts/fxcm_universe.py download && python scripts/fxcm_universe.py build`, `python scripts/fundamenty.py download`,
+  then `python scripts/heuristiky.py prepocet` - the heuristic registry with the new data, statuses, docs/heuristiky_vysledky.md;
+  mention status changes of AKTIVNÍ rules in the report).
   FRED: `python -c "import sys; sys.path.insert(0,'scripts'); import signals_live; signals_live.refresh_rates()"`.
   Add 3-5 new, economically motivated experiments to `EXPERIMENTS` in `scripts/self_learn.py` (ideas queue
   below; never repeats of rejected ones in docs/UCENI_LOG.md; do not loosen the gate), run
