@@ -1914,3 +1914,39 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+26.0%** rocne, propad 21%, 0.8 ziskovych/mesic (marze 20% / 0% / 0% / 0%), po 2 letech +20% / +74%, vynos/propad 1.24; 2023-26: **+13.8%** rocne, propad 26%, 1.8 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +11% / +19%, vynos/propad 0.53
 * sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
 
+### 2026-10-07 - [champion_12_mesicne] r32_vol_extrem_90: zamitnuto
+
+* zadny novy obchod, kdyz je volatilita paru (ATR14 / cena) nad 90 % poslednich 250 dni (sok, krize: pokles je preceneni, ne sum)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-07 - [champion_12_mesicne] r32_vol_extrem_80: zamitnuto
+
+* zadny novy obchod, kdyz je volatilita paru nad 80 % poslednich 250 dni
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-07 - [champion_12_mesicne] r32_konec_teze_sazby: zamitnuto
+
+* vystup pri zavreni dne, kdyz se zmena rozdilu sazeb za 3 mesice otoci proti obchodu (duvod obchodu zmizel)
+* kandidat: 2019-22: **+61.5%** rocne, propad 21%, 3.1 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +55% / +77%, vynos/propad 2.95; 2023-26: **+26.4%** rocne, propad 25%, 2.0 ziskovych/mesic (marze 20% / 20% / 6% / 5%), po 2 letech +15% / +45%, vynos/propad 1.04
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.2%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-07 - [champion_12] r32_vol_extrem_90: zamitnuto
+
+* zadny novy obchod, kdyz je volatilita paru (ATR14 / cena) nad 90 % poslednich 250 dni (sok, krize: pokles je preceneni, ne sum)
+* kandidat: 2019-22: **+34.1%** rocne, propad 21%, 0.8 ziskovych/mesic (marze 20% / 20% / 0% / 0%), po 2 letech +50% / +55%, vynos/propad 1.63; 2023-26: **+10.8%** rocne, propad 41%, 1.7 ziskovych/mesic (marze 15% / 15% / 10% / 4%), po 2 letech +4% / +20%, vynos/propad 0.26
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-07 - [champion_12] r32_vol_extrem_80: zamitnuto
+
+* zadny novy obchod, kdyz je volatilita paru nad 80 % poslednich 250 dni
+* kandidat: 2019-22: **+49.1%** rocne, propad 18%, 2.2 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +63% / +43%, vynos/propad 2.68; 2023-26: **+21.4%** rocne, propad 27%, 1.5 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +19% / +28%, vynos/propad 0.78
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+
+### 2026-10-07 - [champion_12] r32_konec_teze_sazby: zamitnuto
+
+* vystup pri zavreni dne, kdyz se zmena rozdilu sazeb za 3 mesice otoci proti obchodu (duvod obchodu zmizel)
+* kandidat: 2019-22: **+70.2%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +81% / +71%, vynos/propad 2.94; 2023-26: **+17.4%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +10% / +29%, vynos/propad 0.62
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
+

@@ -143,6 +143,9 @@ re-downloaded by the scripts.
 - (done 2026-10-06 morning, R-035) round 31: weekly RSI(2) < 10 as an extra entry (strong / all tiers), exit once
   RSI(2) > 70 - all rejected (more but weaker trades; the target already takes the reversion). The weekly entry
   was strong in max 2023-26 only (return per drawdown 1.58 vs 0.70) - not a reason to retest it before 2027-04.
+- (done 2026-10-07, R-039) round 32: no new trade in a volatility shock of the pair (ATR rank > 90 % / 80 % of 250
+  days), exit when the 3-month rate change turns against the trade - all rejected (the rate-turn exit helped
+  2019-22 and hurt 2023-26; do not retest before 2027-04 re-validation).
 - Next (new families only): BoE announcement days 2015-05/06/07 (stored = vote day? R-033, NEOVĚŘENO); BoC dates (history not on the site; try archived press releases), RBNZ (403);
   BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (Friday intraday path) only
   with an economic reason first; forward test review after 4+ weeks of live trades.

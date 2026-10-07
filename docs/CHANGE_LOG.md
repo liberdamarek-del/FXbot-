@@ -700,3 +700,15 @@ evaluates every live prediction after its horizon and tests, degrades and retire
 - Tests: test_f4_heuristics.py (NY bars incl. DST, no look-ahead in all 698 template masks, non-overlap, costs,
   MFE / MAE, statuses, FDR, ledger edit / deletion / double evaluation detected, live end to end).
 - The main model, its signals and the gate are unchanged. A heuristic can reach the model only as a gate experiment.
+
+## R-039 - 2026-10-07 learning run (Wednesday): round 32 (all rejected)
+
+New options `Rule.max_atr_rank` (no new trade when the pair's ATR14 / price ranks above the share of the last 250 days;
+the decision day as the decision sees it, earlier days full - parity with the live run checked on EUR/USD Fridays) and
+`Rule.exit_rates_flip` (exit at a NY close once the 3-month rate-difference change turned against the trade), both also
+in signals_live (entry block, forward-test exit `rates_turned`) and diagnostika.LIVE_BASE; test in test_f3_audit.
+- r32_vol_extrem_90 / _80 (volatility shock of the pair): monthly profile - no margins reach 2 wins a month on the
+  selection years; max profile - 2023-26 return per drawdown 0.26 / 0.78 vs the champion's 0.70 with fewer wins.
+- r32_konec_teze_sazby (exit when the rates turn): better in 2019-22 (return per drawdown 2.95 vs 1.85 monthly,
+  2.94 vs 2.63 max), worse in 2023-26 (1.04 vs 1.17 monthly, 0.62 vs 0.70 max) - rejected by the gate.
+Champions unchanged.
