@@ -53,6 +53,7 @@ header.top { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baselin
 .kv dd { margin: 0; text-align: right; font-family: var(--f-num); font-variant-numeric: tabular-nums; }
 .plan { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
 .plan th, .plan td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); text-align: right; }
+.plan td.num { white-space: nowrap; }
 .plan th { letter-spacing: 0; text-transform: none; font-size: 0.78rem; white-space: normal; }
 .chip { max-width: 100%; white-space: normal; }
 .plan th:first-child, .plan td:first-child { text-align: left; }
@@ -112,7 +113,17 @@ details summary { cursor: pointer; font-weight: 600; }
     <div class="row small">
       <label for="ucet" class="muted">Velikost mého účtu (Kč), jen pro přepočet:</label>
       <input id="ucet" class="num" inputmode="decimal" style="max-width: 11em" placeholder="např. 100000">
+      <label for="riziko" class="muted">Nejvyšší ztráta jednoho obchodu (% účtu):</label>
+      <input id="riziko" class="num" inputmode="decimal" style="max-width: 5em" placeholder="5">
     </div>
+    <details class="small" id="risk-box" hidden>
+      <summary>Co čekat při zvolené nejvyšší ztrátě jednoho obchodu</summary>
+      <p class="muted">Velikost obchodu se počítá ze vzdálenosti stop lossu: když cena dojde na stop, ztratíš nejvýš zvolené procento účtu (silné signály celé, slabší 30 %). Čísla jsou z let, které model při výběru nastavení neviděl. Menší ztráta jednoho obchodu = menší roční výnos; poměr zisku a propadu zůstává podobný.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th class="r">Nejvyšší ztráta obchodu</th><th class="r">2019–2022 ročně</th><th class="r">největší propad</th><th class="r">2023–2026 ročně</th><th class="r">největší propad</th><th class="r">nejhorší obchod</th></tr></thead>
+        <tbody id="risk-table"></tbody>
+      </table></div>
+    </details>
     <div class="signals" id="signals"><div class="empty">Zatím tu nejsou žádné signály. Objeví se v pátek večer, pokud se splní podmínky pravidla.</div></div>
   </section>
 
@@ -196,7 +207,7 @@ details summary { cursor: pointer; font-weight: 600; }
     <header><h2 id="h-how">Jak s tím pracovat</h2></header>
     <ol class="steps">
       <li>V pátek po 22:05 otevři tuto stránku. V části <b>Signály k obchodu</b> uvidíš páry, které model doporučuje.</li>
-      <li>Hned, nejpozději do 23:00 (zavření týdne v New Yorku), zadej u brokera obchod přesně podle karty: směr, vstup za aktuální cenu, pozici rozděl na 3 části s cíli <b>TP1, TP2, TP3</b> a stejným <b>stop lossem</b>. Velikost: marže uvedená v % účtu.</li>
+      <li>Hned, nejpozději do 23:00 (zavření týdne v New Yorku), zadej u brokera obchod přesně podle karty: směr, vstup za aktuální cenu, pozici rozděl na 3 části s cíli <b>TP1, TP2, TP3</b> a stejným <b>stop lossem</b>. Velikost: marže uvedená na kartě – spočítá se tak, aby při stop lossu ztráta nepřesáhla tvou zvolenou nejvyšší ztrátu jednoho obchodu (pole nahoře, výchozí 5 % účtu).</li>
       <li>Hned obchod zapiš do <b>Mého deníku</b> (tlačítko „Zapsat podle signálu“ vyplní formulář za tebe).</li>
       <li>Obchod nech běžet. Uzavře ho broker sám na TP nebo SL; pokud nedojde ani na jedno, zavři ho nejpozději v uvedený den.</li>
       <li>Po uzavření klikni u obchodu na <b>Vystoupil jsem</b> a zadej výstupní cenu. Výsledek se spočítá a porovná s modelem.</li>
@@ -231,6 +242,36 @@ details summary { cursor: pointer; font-weight: 600; }
   // account size (per-viewer convenience)
   try { const v = localStorage.getItem("fx_ucet_kc"); if (v) $("ucet").value = v; } catch (e) {}
   $("ucet").addEventListener("input", () => { try { localStorage.setItem("fx_ucet_kc", $("ucet").value); } catch (e) {} renderSignals(); renderReady(); });
+  // the largest loss of one trade in % of the account (per-viewer choice; stop-based sizing, docs/RIZIKO.md)
+  try { const v = localStorage.getItem("fx_riziko_proc"); if (v) $("riziko").value = v; } catch (e) {}
+  $("riziko").addEventListener("input", () => { try { localStorage.setItem("fx_riziko_proc", $("riziko").value); } catch (e) {} renderSignals(); renderReady(); renderRisk(); });
+  function riskPct() {
+    const v = parseNum($("riziko").value);
+    if (v !== null && v > 0 && v <= 20) return v;
+    return state && state.riziko ? state.riziko.vychozi_riziko * 100 : null;
+  }
+  // margin (% of the account) so that the stop costs riskPct x tier weight of the account; null = no risk table
+  function riskSizing(s, plan) {
+    const R = riskPct(), w = s.riziko_vaha !== undefined ? s.riziko_vaha : (s.riziko ? s.riziko.vaha : undefined);
+    const slm = plan && plan.sl ? plan.sl.proc_marze : null;
+    if (!state || !state.riziko || R === null || w === undefined || w === null || !slm) return null;
+    const marze = R * w / (slm / 100);
+    return {R, w, marze, ztrata: R * w};
+  }
+  function renderRisk() {
+    if (!state || !state.riziko) return;
+    $("risk-box").hidden = false;
+    const R = riskPct(), rk = state.riziko, o = rk.puvodni || {};
+    const near = rk.tabulka.reduce((a, b) => Math.abs(b.riziko * 100 - R) < Math.abs(a.riziko * 100 - R) ? b : a, rk.tabulka[0]);
+    $("risk-table").innerHTML = rk.tabulka.map((t) => `<tr${t === near ? ' style="font-weight:600"' : ""}><td class="r num">${fmt(t.riziko * 100, 0)} %</td>
+      <td class="r num pos">${sgn(t.test_2019_22.rocne, 1)} %</td><td class="r num">${fmt(t.test_2019_22.propad, 0)} %</td>
+      <td class="r num pos">${sgn(t.test_2023_26.rocne, 1)} %</td><td class="r num">${fmt(t.test_2023_26.propad, 0)} %</td>
+      <td class="r num neg">${fmt(Math.min(t.test_2019_22.nejhorsi_obchod, t.test_2023_26.nejhorsi_obchod), 1)} %</td></tr>`).join("")
+      + (o.test_2019_22 ? `<tr class="muted"><td class="r">původní model (marže ${fmt((o.marze || [0])[0] * 100, 0)} %)</td>
+      <td class="r num">${sgn(o.test_2019_22.rocne, 1)} %</td><td class="r num">${fmt(o.test_2019_22.propad, 0)} %</td>
+      <td class="r num">${sgn(o.test_2023_26.rocne, 1)} %</td><td class="r num">${fmt(o.test_2023_26.propad, 0)} %</td>
+      <td class="r num neg">${fmt(Math.min(o.test_2019_22.nejhorsi_obchod, o.test_2023_26.nejhorsi_obchod), 1)} %</td></tr>` : "");
+  }
 
   $("f-par").innerHTML = PAIRS.map((p) => `<option>${p}</option>`).join("");
 
@@ -242,12 +283,14 @@ details summary { cursor: pointer; font-weight: 600; }
       + ((state.diagnostika && state.diagnostika.souhrn && state.diagnostika.souhrn.CHYBA) ? `<div class="notice" style="flex-basis: 100%">⚠ Kontrola dat našla chybu: ${esc((state.diagnostika.problemy || []).join("; "))}</div>` : "");
   }
 
-  function planTable(par, plan, side) {
+  function planTable(par, plan, side, rs) {
     const d = dec(par);
+    const acc = (v) => rs ? `<td class="num ${v >= 0 ? "pos" : "neg"}">${sgn(v, 2)} %</td>` : "";
     const rows = (plan.tp || []).map((t) => `<tr><td>TP${t.cislo}</td><td class="num pos">${fmt(t.cena, d)}</td>
-      <td class="num pos">+${fmt(t.proc_marze, 0)} %</td><td class="num">${t.pravdepodobnost !== undefined ? fmt(t.pravdepodobnost, 0) + " %" : "–"}</td></tr>`).join("");
-    return `<table class="plan"><thead><tr><th>Cíl</th><th>Cena</th><th>Zisk z marže</th><th>Pravděpodobnost</th></tr></thead>
-      <tbody>${rows}<tr class="slrow"><td>Stop loss</td><td class="num neg">${fmt(plan.sl.cena, d)}</td><td class="num neg">−${fmt(plan.sl.proc_marze, 0)} %</td><td class="small muted">pro všechny části</td></tr></tbody></table>`;
+      <td class="num pos">+${fmt(t.proc_marze, 0)} %</td>${acc(rs ? rs.marze * t.proc_marze / 100 : 0)}<td class="num">${t.pravdepodobnost !== undefined ? fmt(t.pravdepodobnost, 0) + " %" : "–"}</td></tr>`).join("");
+    return `<table class="plan"><thead><tr><th>Cíl</th><th>Cena</th><th>Z marže</th>${rs ? "<th>Z účtu</th>" : ""}<th>Pravděpodobnost</th></tr></thead>
+      <tbody>${rows}<tr class="slrow"><td>Stop loss</td><td class="num neg">${fmt(plan.sl.cena, d)}</td><td class="num neg">−${fmt(plan.sl.proc_marze, 0)} %</td>${acc(rs ? -rs.ztrata : 0)}<td class="small muted">pro všechny části</td></tr></tbody></table>
+      ${rs ? '<p class="small muted">„Z účtu“ = celá pozice, kdyby se celá zavřela na dané ceně.</p>' : ""}`;
   }
   function planCard(s, plan, kind, i) {
     const cls = s.smer === "KOUPIT" ? "buy" : "sell";
@@ -255,13 +298,16 @@ details summary { cursor: pointer; font-weight: 600; }
     const acc = parseNum($("ucet").value);
     const base = s.par.split("/")[0];
     const czk = state.czk && state.czk[base];
-    const marze = s.marze_proc_uctu !== undefined ? s.marze_proc_uctu : (s.marze_zaklad || 0) * 100;
+    const rs = riskSizing(s, plan);
+    const orig = s.marze_proc_uctu !== undefined ? s.marze_proc_uctu : (s.marze_zaklad || 0) * 100;
+    const marze = rs ? rs.marze : orig;
     let money = "";
     if (acc && marze) {
       const m = acc * marze / 100;
       const lev = s.paka || paka(s.par);
       const lots = czk ? (m * lev / czk / 100000) : null;
-      money = ` = <b class="num">${fmt(m, 0)} Kč</b>, objem ${fmt(m * lev, 0)} Kč (páka 1:${lev})${lots ? " ≈ " + fmt(lots, 2) + " lotu" : ""} (každá třetina ${fmt(m / 3, 0)} Kč${lots ? " ≈ " + fmt(lots / 3, 2) + " lotu" : ""})`;
+      money = ` = <b class="num">${fmt(m, 0)} Kč</b>, objem ${fmt(m * lev, 0)} Kč (páka 1:${lev})${lots ? " ≈ " + fmt(lots, 2) + " lotu" : ""} (každá třetina ${fmt(m / 3, 0)} Kč${lots ? " ≈ " + fmt(lots / 3, 2) + " lotu" : ""})`
+        + (lots && lots / 3 < 0.01 ? `. <span class="neg">Třetina je pod nejmenší velikostí u brokera (0,01 lotu)${lots >= 0.01 ? " – zadej jednu pozici s cílem TP1" : " – i celá pozice je pod 0,01 lotu, na tento obchod je účet malý"}</span>` : "");
     }
     const prob = plan.pravdepodobnost_uspechu;
     const instr = kind === "trh"
@@ -272,8 +318,9 @@ details summary { cursor: pointer; font-weight: 600; }
       <div class="head"><h3>${esc(s.par)}</h3><div class="row">${sideChip(s.smer)}${tierChip(s.stupen)}</div></div>
       <div class="prob"><span class="big">${prob !== undefined && prob !== null ? fmt(prob, 0) + " %" : "–"}</span><span class="small muted">pravděpodobnost úspěchu (dosažení TP1 před stop lossem v historii)</span></div>
       <div class="instr">${instr}</div>
-      ${planTable(s.par, plan, s.smer)}
-      <p class="small">Velikost: marže <b>${fmt(marze, 1)} % účtu</b>${money}. Rozděl pozici na <b>3 stejné části</b> s cíli TP1, TP2 a TP3, stop loss stejný pro všechny${plan.prumer_rozdeleni_3 !== undefined ? ` (historický průměr takového rozdělení ${sgn(plan.prumer_rozdeleni_3, 1)} % marže na obchod)` : ""}. Zavřít nejpozději za 4 týdny${s.zavrit_nejpozdeji ? ", tj. " + esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ")) : ""}.</p>
+      ${planTable(s.par, plan, s.smer, rs)}
+      <p class="small">Velikost: marže <b>${fmt(marze, 1)} % účtu</b>${money}.${rs ? ` Při stop lossu ztratíš nejvýš <b class="neg">${fmt(rs.ztrata, 1)} % účtu</b>${acc ? ` (${fmt(acc * rs.ztrata / 100, 0)} Kč)` : ""} – podle tvé volby ${fmt(rs.R, 1)} %${rs.w < 1 ? `, slabší signál ${fmt(rs.w * 100, 0)} % z toho` : ""}.` : ""} Rozděl pozici na <b>3 stejné části</b> s cíli TP1, TP2 a TP3, stop loss stejný pro všechny${plan.prumer_rozdeleni_3 !== undefined ? ` (historický průměr takového rozdělení ${sgn(plan.prumer_rozdeleni_3, 1)} % marže na obchod)` : ""}. Zavřít nejpozději za 4 týdny${s.zavrit_nejpozdeji ? ", tj. " + esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ")) : ""}.</p>
+      ${rs && orig ? `<p class="small muted">Původní velikost modelu by byla marže ${fmt(orig, 1)} % účtu, tj. ztráta při stopu ${fmt(orig * plan.sl.proc_marze / 100, 1)} % účtu.</p>` : ""}
       ${s.duvod ? `<p class="small muted">${esc(s.duvod)}</p>` : ""}
       ${s.varovani ? `<div class="notice">⚠ ${esc(s.varovani)}</div>` : ""}
       ${plan.pred_rozhodnutim ? `<p class="small"><b>Před rozhodnutím centrální banky:</b> ${esc(plan.pred_rozhodnutim.pravidlo)} <span class="muted">${esc(plan.pred_rozhodnutim.text)}</span></p>` : ""}
@@ -304,7 +351,8 @@ details summary { cursor: pointer; font-weight: 600; }
       $("f-par").value = s.par; $("f-smer").value = s.smer;
       $("f-vstup").value = s.vstup; $("f-sl").value = s.sl; $("f-tp").value = (s.plan && s.plan.tp && s.plan.tp[0]) ? s.plan.tp[0].cena : s.tp;
       const accv = parseNum($("ucet").value);
-      if (accv) $("f-marze").value = Math.round(accv * s.marze_proc_uctu / 100);
+      const rsv = riskSizing(s, s.plan || {sl: {proc_marze: s.ztrata_sl_proc_marze}});
+      if (accv) $("f-marze").value = Math.round(accv * (rsv ? rsv.marze : s.marze_proc_uctu) / 100);
       $("f-pozn").value = `signál modelu ${state.den_dat} (${CZ[s.stupen] || s.stupen})`;
       $("entry").scrollIntoView({behavior: "smooth", block: "start"});
       $("f-vstup").focus();
@@ -485,7 +533,7 @@ details summary { cursor: pointer; font-weight: 600; }
       : `<tr><td colspan="8" class="muted">Dopředný test začíná prvním pátečním signálem.</td></tr>`;
   }
 
-  function renderAll() { renderStatus(); renderSignals(); renderReady(); renderPairs(); renderNews(); renderResearch(); renderFund(); renderModel(); renderJournal(); }
+  function renderAll() { renderStatus(); renderRisk(); renderSignals(); renderReady(); renderPairs(); renderNews(); renderResearch(); renderFund(); renderModel(); renderJournal(); }
 
   $("entry").addEventListener("submit", async (ev) => {
     ev.preventDefault();

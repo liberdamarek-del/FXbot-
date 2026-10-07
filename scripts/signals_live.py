@@ -47,6 +47,7 @@ DECIDE_H = 1                                   # the Friday decision 1 h before 
 LEARNING = PROJECT_ROOT / "learning"
 CHAMPION = LEARNING / "champion_12_mesicne.json"
 FORWARD = LEARNING / "forward_trades.json"
+RISK_FILE = LEARNING / "riziko.json"        # stop-based sizing: tier weights + test table (scripts/riziko_lab.py --stupne)
 OUT = PROJECT_ROOT / "data" / "live" / "stav.json"
 YAHOO = {"EUR/USD": "EURUSD=X", "USD/JPY": "JPY=X", "GBP/USD": "GBPUSD=X", "USD/CHF": "CHF=X",
          "AUD/USD": "AUDUSD=X", "USD/CAD": "CAD=X", "NZD/USD": "NZDUSD=X", "EUR/JPY": "EURJPY=X",
@@ -180,6 +181,31 @@ def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, ki
                    "proc_marze": round(base["sl"] * atr / entry * 100 * lev, 1)}}
 
 
+def sizing_table(champion_name: str) -> dict | None:
+    """learning/riziko.json when it belongs to the live champion (else None: diagnostika warns, the dashboard falls
+    back to the champion's own margins)."""
+    if not RISK_FILE.exists():
+        return None
+    table = json.loads(RISK_FILE.read_text())
+    return table if table.get("sampion") == champion_name else None
+
+
+def risk_margin(risk: float, weight: float, sl_margin_pct: float) -> float:
+    """Margin in % of the account so that the stop costs risk x weight of the account (sl_margin_pct = the stop in %
+    of the margin). Stop-based sizing, docs/RIZIKO.md."""
+    return risk * weight * 100.0 / (sl_margin_pct / 100.0)
+
+
+def risk_view(sizing: dict | None, k: int, sl_margin: float, tp_margin: float) -> dict | None:
+    """The trade at the dashboard's default risk: margin, loss at the stop and gain at the target in % of the account."""
+    if not sizing or k >= len(sizing["vahy"]):
+        return None
+    w, r = sizing["vahy"][k], sizing["vychozi_riziko"]
+    m = risk_margin(r, w, sl_margin)
+    return {"vaha": w, "riziko_proc": round(r * 100, 1), "marze_proc_uctu": round(m, 1),
+            "ztrata_sl_proc_uctu": round(m * sl_margin / 100, 2), "zisk_tp_proc_uctu": round(m * tp_margin / 100, 2)}
+
+
 def decision_ready(day: date, last_bar_open: int, now: float | None = None) -> bool:
     """True when `day` is a Friday whose decision moment is reached: the hourly bars go
     to 15:00 New York or later (the close is 17:00) and the clock is past
@@ -245,6 +271,7 @@ def research_view(pair: str, D: dict, lock: dict | None) -> dict | None:
 def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, lock: dict | None = None,
                   hourly: dict | None = None) -> dict:
     inst = get_instrument(pair)
+    sizing = sizing_table(cfg["name"])
     hb = yahoo_hourly(YAHOO[pair], "2y")                 # 2 years: the research conditions need 250+ daily bars
     if hourly is not None:
         hourly[pair] = hb                                # reused by the forward test (no second download)
@@ -305,6 +332,8 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
         out["stupen"] = TIER_NAMES[k] if k < len(TIER_NAMES) else "slaby"
         out["marze_zaklad"] = shares[k]
         out["stupen_index"] = k
+        if sizing and k < len(sizing["vahy"]):
+            out["riziko_vaha"] = sizing["vahy"][k]
         prev = c[:-1]                                     # Wilder state up to the day before the decision bar
         parts = signal_parts(sig)
         trig = [rsi_trigger(prev, n, x, side) for n, x in parts]
@@ -344,6 +373,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
                     "tp": round(tp, inst.decimals), "sl": round(sl, inst.decimals),
                     "marze_proc_uctu": round(shares[k] * mult * 100, 1),
                     "zisk_tp_proc_marze": round(tp_margin, 1), "ztrata_sl_proc_marze": round(sl_margin, 1),
+                    "riziko": risk_view(sizing, k, sl_margin, tp_margin),
                     "zavrit_nejpozdeji": (day + timedelta(days=28)).isoformat(),
                     "vyzkum": research_votes(out["vyzkum"], side),
                     "paka": lev, "cas_rozhodnuti": decision_cut(day),
@@ -499,6 +529,7 @@ def main() -> int:
         forward.append({"id": key, "par": p["par"], "smer": s["smer"], "stupen": s["stupen"], "den": p["den"],
                         "cas_vstupu": s.get("cas_rozhodnuti", now), "vstup": s["vstup"], "tp": s["tp"], "sl": s["sl"],
                         "marze_proc_uctu": s["marze_proc_uctu"], "stav": "otevreny",
+                        "riziko_vaha": p.get("riziko_vaha"), "ztrata_sl_proc_marze": s["ztrata_sl_proc_marze"],
                         "cb_vystup": cfg["base"].get("exit_before_cb") == "zisk", "drzeni_dni": cfg["base"]["hold_days"],
                         "swap_proc_rocne": round((1 if s["smer"] == "KOUPIT" else -1) * p["rozdil_sazeb_swap"] - P.FIN_MARKUP, 2),
                         **({"vyzkum_pro": s["vyzkum"]["pro"], "vyzkum_proti": s["vyzkum"]["proti"]}
@@ -541,6 +572,7 @@ def main() -> int:
                          varovani=p.get("varovani"), **p["signal"])
                     for p in pairs if p.get("signal")],
         "razeni": "signal, pak pripravene ke vstupu, pak ostatni povolene, nakonec bez smeru; uvnitr podle odhadu uspesnosti",
+        "riziko": sizing_table(cfg["name"]),
         "fundamenty": fund,
         "varovani": [f"Sazba {CCY_CZ[c]} ({c}) z OECD ma posledni udaj za {m}; zmenu sazeb u paru s {c} nelze "
                      "spocitat, proto je model u tech paru nevyhodnocuje (chybejici udaj se nedoplnuje odhadem)."
@@ -561,7 +593,10 @@ def main() -> int:
         print(f"  {p['par']:8} {p.get('smer', '-'):7} {p.get('stupen', '-'):8} RSI2 {p.get('rsi2', '-')} "
               f"{p.get('podminka', p.get('chyba', ''))}")
     for s in sig:
-        print(f"  SIGNAL {s['par']} {s['smer']} vstup {s['vstup']} TP {s['tp']} SL {s['sl']} marze {s['marze_proc_uctu']} %")
+        rv = s.get("riziko") or {}
+        print(f"  SIGNAL {s['par']} {s['smer']} vstup {s['vstup']} TP {s['tp']} SL {s['sl']} marze {s['marze_proc_uctu']} % "
+              f"(podle rizika {rv.get('riziko_proc', '-')} %: marze {rv.get('marze_proc_uctu', '-')} %, "
+              f"ztrata pri SL {rv.get('ztrata_sl_proc_uctu', '-')} % uctu)")
     return 0
 
 

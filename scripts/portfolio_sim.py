@@ -148,7 +148,7 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
     busy = set()
     taken, monthly, wins_m = [], defaultdict(float), defaultdict(int)
     max_used, max_open = 0.0, 0
-    margins = []
+    margins, entry_frac = [], []                      # margin and margin / equity of each taken trade
     start_equity_month = {}
 
     def close_until(moment):
@@ -204,6 +204,7 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
         taken_keys.add((tr["pair"], tr["t_in"]))
         taken.append(tr)
         margins.append(margin)
+        entry_frac.append(margin / equity)
     close_until(10 ** 12)
     dd_realized, max_dd = max_dd, mtm_drawdown(taken, margins)
     first = min(t["t_in"] for t in taken) if taken else 0
@@ -225,6 +226,7 @@ def run_portfolio(trade_lists: list[list[dict]], share, years=(2012, 2026), max_
             "months_2wins": np.mean([wins_m[m] >= 2 for m in months]) if months else 0,
             "months_pos": np.mean([monthly[m] > 0 for m in months]) if months else 0,
             "max_used": max_used, "max_open": max_open, "monthly": dict(monthly), "months": months,
+            "entry_frac": entry_frac,
             "wins_by_month": dict(wins_m),
             "month_returns": [monthly[m] / start_equity_month[m] if m in start_equity_month else 0.0 for m in months]}
 

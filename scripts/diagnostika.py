@@ -180,6 +180,16 @@ def check_state() -> str | None:
             report("cas rozhodnuti", OK if dh == SLV.DECIDE_H else ERR,
                    f"model testovan s rozhodnutim {dh} h pred zavrenim, zive {SLV.DECIDE_H} h"
                    + ("" if dh == SLV.DECIDE_H else " - vysledky z historie neplati pro zivy postup"))
+    risk = LEARNING / "riziko.json"                      # stop-based sizing of the dashboard (docs/RIZIKO.md)
+    if name:
+        if not risk.exists():
+            report("riziko", WARN, "learning/riziko.json chybi - velikost podle rizika se neukaze; spust riziko_lab.py --stupne")
+        else:
+            rk = json.loads(risk.read_text())
+            ok = rk.get("sampion") == name
+            report("riziko", OK if ok else WARN,
+                   f"vahy stupnu {rk.get('vahy')}, vychozi riziko {rk.get('vychozi_riziko', 0) * 100:.0f} % uctu na obchod"
+                   if ok else f"riziko.json je pro '{rk.get('sampion')}', sampion je '{name}' - spust riziko_lab.py --stupne")
     stats = LEARNING / "pair_stats.json"
     if stats.exists() and name:
         rule = json.loads(stats.read_text())["pravidlo"]

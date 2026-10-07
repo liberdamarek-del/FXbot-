@@ -643,3 +643,24 @@ runs on Wednesday 17:40 and Saturday 08:57 Prague (was 3x every weekday + Saturd
 also lower the chance of a lucky pass, about 5 % per tested noise idea). Reports: short and plain, focused on signals,
 the user's trades, the model's forward trades and real improvements; rejected experiments at most one sentence.
 Routines updated (weekday learning -> Wednesday only, Saturday prompt), CLAUDE.md Jobs updated. No model change.
+
+## R-037 - 2026-10-07: position size by the stop loss (user's request; docs/RIZIKO.md)
+
+The user objected that a target of 12-15 % of the margin faces a stop of 60-80 % of the margin and that one trade
+could cost ~20 % of the account. Measured: with the champion's margins (20 / 20 / 4 / 4 %) a strong signal's stop
+cost up to 38 % of the account at entry, the worst trade 2019-2026 lost 19.6 % of the account.
+- Research (`scripts/riziko_lab.py`): equal risk per trade (1-2 %) with 108 exit variants of the current entry and
+  two trend families (20-day / 13-week breakout in the direction of the rate divergence, target > stop),
+  walk-forward like the gate - nothing better than the current exits; the trend families lost in 2023-26.
+- Stop-based sizing with tier weights (`--stupne`, weights chosen on the selection years only): 5 % maximum loss
+  per trade -> 2019-22 +9.6 % a year / dd 6 %, 2023-26 +7.7 % / dd 6 % (return per drawdown 1.6 / 1.3 vs the
+  original 1.85 / 1.17); 10 % -> +20.0 % / 11 % and +15.7 % / 12 %. Live weights (1, 1, 0.3, 0.3) chosen on 2012-2022.
+- Live: `learning/riziko.json`; signals_live adds the tier weight per pair and per signal the margin, loss at the
+  stop and gain at the target in % of the account at the default risk (stav `riziko`, signaly[].riziko); the
+  forward test stores the tier weight and the stop in % of the margin; diagnostics check the table belongs to the
+  live champion; dashboard: "largest loss of one trade" input (default 5 %, per viewer), card in % of the account
+  and CZK, "what to expect" table, min-lot warning; `portfolio_sim.run_portfolio` returns `entry_frac`.
+- Verified limitation: the simulator fills stops at the stop price; of the champion's 31 stop exits 2012-2026 only
+  one hour opened beyond the stop (USD/CAD 2016-01-08, 4.5 % of the stop distance) - negligible, documented.
+- Test: test_f3_audit.py (the stop costs exactly the chosen share of the account). The signals and the gate are
+  unchanged. New memory file docs/STAV_PROJEKTU.md (module status, data flow, open items; user's request).

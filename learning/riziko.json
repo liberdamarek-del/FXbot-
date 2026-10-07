@@ -1,0 +1,137 @@
+{
+ "sampion": "CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk",
+ "vytvoreno": "2026-10-07",
+ "vychozi_riziko": 0.05,
+ "vahy": [
+  1.0,
+  1.0,
+  0.3,
+  0.3
+ ],
+ "vybrano_na": "2012-2022",
+ "tabulka": [
+  {
+   "riziko": 0.02,
+   "test_2019_22": {
+    "rocne": 4.9,
+    "propad": 2.3,
+    "nejhorsi_obchod": -2.0,
+    "uspesnost": 90,
+    "ziskovych_mesicne": 3.1,
+    "obchodu_rocne": 43,
+    "marze_max": 13
+   },
+   "test_2023_26": {
+    "rocne": 3.0,
+    "propad": 2.3,
+    "nejhorsi_obchod": -1.5,
+    "uspesnost": 86,
+    "ziskovych_mesicne": 2.0,
+    "obchodu_rocne": 29,
+    "marze_max": 11
+   }
+  },
+  {
+   "riziko": 0.03,
+   "test_2019_22": {
+    "rocne": 7.1,
+    "propad": 3.3,
+    "nejhorsi_obchod": -3.0,
+    "uspesnost": 90,
+    "ziskovych_mesicne": 3.1,
+    "obchodu_rocne": 43,
+    "marze_max": 19
+   },
+   "test_2023_26": {
+    "rocne": 4.6,
+    "propad": 3.5,
+    "nejhorsi_obchod": -2.3,
+    "uspesnost": 86,
+    "ziskovych_mesicne": 2.0,
+    "obchodu_rocne": 29,
+    "marze_max": 16
+   }
+  },
+  {
+   "riziko": 0.05,
+   "test_2019_22": {
+    "rocne": 9.6,
+    "propad": 5.5,
+    "nejhorsi_obchod": -5.0,
+    "uspesnost": 90,
+    "ziskovych_mesicne": 3.1,
+    "obchodu_rocne": 43,
+    "marze_max": 18
+   },
+   "test_2023_26": {
+    "rocne": 7.7,
+    "propad": 5.8,
+    "nejhorsi_obchod": -3.8,
+    "uspesnost": 86,
+    "ziskovych_mesicne": 2.0,
+    "obchodu_rocne": 29,
+    "marze_max": 27
+   }
+  },
+  {
+   "riziko": 0.08,
+   "test_2019_22": {
+    "rocne": 15.8,
+    "propad": 8.8,
+    "nejhorsi_obchod": -8.0,
+    "uspesnost": 90,
+    "ziskovych_mesicne": 3.1,
+    "obchodu_rocne": 43,
+    "marze_max": 29
+   },
+   "test_2023_26": {
+    "rocne": 12.4,
+    "propad": 9.3,
+    "nejhorsi_obchod": -6.1,
+    "uspesnost": 86,
+    "ziskovych_mesicne": 2.0,
+    "obchodu_rocne": 29,
+    "marze_max": 43
+   }
+  },
+  {
+   "riziko": 0.1,
+   "test_2019_22": {
+    "rocne": 20.0,
+    "propad": 11.1,
+    "nejhorsi_obchod": -10.0,
+    "uspesnost": 90,
+    "ziskovych_mesicne": 3.1,
+    "obchodu_rocne": 43,
+    "marze_max": 36
+   },
+   "test_2023_26": {
+    "rocne": 15.7,
+    "propad": 11.6,
+    "nejhorsi_obchod": -7.7,
+    "uspesnost": 86,
+    "ziskovych_mesicne": 2.0,
+    "obchodu_rocne": 29,
+    "marze_max": 54
+   }
+  }
+ ],
+ "puvodni": {
+  "marze": [
+   0.2,
+   0.2,
+   0.04,
+   0.04
+  ],
+  "test_2019_22": {
+   "rocne": 53.0,
+   "propad": 28.6,
+   "nejhorsi_obchod": -17.3
+  },
+  "test_2023_26": {
+   "rocne": 28.2,
+   "propad": 24.1,
+   "nejhorsi_obchod": -19.6
+  }
+ }
+}

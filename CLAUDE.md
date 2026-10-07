@@ -8,6 +8,18 @@ promotion of model changes without the walk-forward gate (`scripts/self_learn.py
 Scope (user's decision 2026-10-01): only the 12 live pairs (src/instruments.DEFAULT_ACTIVE). Do not
 add markets.
 
+System memory (user's request 2026-10-07): read `docs/STAV_PROJEKTU.md` first - data flow, module status
+(HOTOVO/OVĚŘENO, ROZPRACOVÁNO, BLOKOVÁNO, NEOVĚŘENO, CHYBA), open items - and update it after every significant
+change. Work as a system architect: observe -> understand -> connect information -> analyse -> design ->
+implement -> test -> evaluate; before a change list the affected parts (simulator, account, gate, live signals,
+dashboard, forward test, diagnostics) and verify all of them afterwards. Never repeat a computation or test
+without a reason; never fill missing data (NEOVĚŘENO).
+
+Position size (user's decision 2026-10-07, R-037, docs/RIZIKO.md): the live dashboard sizes every trade by its
+stop loss - the stop costs at most the user's chosen share of the account (default 5 %, weak tiers 30 % of it;
+weights in `learning/riziko.json` from `python scripts/riziko_lab.py --stupne`, chosen walk-forward). The
+signals themselves (entry, targets, stop) are the gate-tested champion's.
+
 ## Jobs (routines fire into this session; user's decision 2026-10-02: hourly updates; 2026-10-06: learning 2x a week)
 Reports to the user (user's decision 2026-10-06): short and plain - signals, the user's trades, the model's trades
 and real improvements of the model. Rejected experiments at most one sentence, no gate details unless asked.
@@ -19,7 +31,8 @@ and real improvements of the model. Rejected experiments at most one sentence, n
   Commit + push only when learning/forward_trades.json changed. Reply to the user with one short line, in detail
   only for a new signal, a diagnostics CHYBA, or a journal trade whose price is beyond its SL / TP.
 - Friday signals (16:05 New York): same as Update (the decision is valid only from 16:00 New York,
-  `signals_live.decision_ready`), then a Czech summary of the signals for the user. The decision uses the Friday
+  `signals_live.decision_ready`), then a Czech summary of the signals for the user (size by risk: margin and loss
+  at the stop in % of the account at the default risk, stav signaly[].riziko). The decision uses the Friday
   up to 16:00 New York (`decision_cut`), exactly as the backtest and the learning (`Rule.decide_h=1`, audit
   2026-10-04); a run after 16:00 (also the 23:07 Prague update) decides the same. Keep `signals_live.DECIDE_H`
   and the champions' `decide_h` equal (diagnostics: CHYBA otherwise).
@@ -30,7 +43,8 @@ and real improvements of the model. Rejected experiments at most one sentence, n
   Add 3-5 new, economically motivated experiments to `EXPERIMENTS` in `scripts/self_learn.py` (ideas queue
   below; never repeats of rejected ones in docs/UCENI_LOG.md; do not loosen the gate), run
   `python scripts/self_learn.py --profile mesicne` and `python scripts/self_learn.py`. If a champion changed:
-  `python scripts/champion_report.py --profile mesicne`, `python scripts/pair_stats.py`, then the Update steps.
+  `python scripts/champion_report.py --profile mesicne`, `python scripts/pair_stats.py`,
+  `python scripts/riziko_lab.py --stupne` (risk weights + table; diagnostics warn otherwise), then the Update steps.
   Note in docs/CHANGE_LOG.md, commit and push. Tell the user briefly what was tried and what passed.
   The gate v3 (user's decision 2026-10-02 evening): return per drawdown (CAGR / max dd, open trades at daily
   closes) better by >= 10 % in both tests, >= 85 % of the champion's return, dd <= 30 %, >= 3 of 4 two-year

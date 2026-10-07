@@ -198,6 +198,19 @@ same = [{"pair": p, "side": 1, "day": date(2024, 3, 1), "t_in": T0, "t_out": T0 
 capped = PS.run_portfolio([same[:1], same[1:]], [0.1, 0.05], (2024, 2024), max_trades=2)
 assert [t["pair"] for t in capped["trades"]] == ["EUR/USD", "GBP/USD"] and capped["max_open"] == 2   # stronger list first
 
+# ---------------------------------------------------------------- stop-based sizing (R-037, docs/RIZIKO.md)
+import signals_live as SLV  # noqa: E402
+
+assert abs(SLV.risk_margin(0.05, 1.0, 64.0) - 7.8125) < 1e-9          # margin 7.8 % x stop 64 % of the margin = 5 %
+assert abs(SLV.risk_margin(0.05, 0.3, 64.0) * 64.0 / 100 - 1.5) < 1e-9  # a weak tier: 30 % of the risk
+rv = SLV.risk_view({"vahy": [1.0, 0.3], "vychozi_riziko": 0.05}, 1, 50.0, 10.0)
+assert rv["ztrata_sl_proc_uctu"] == 1.5 and rv["marze_proc_uctu"] == 3.0 and rv["zisk_tp_proc_uctu"] == 0.3
+assert SLV.risk_view(None, 0, 50.0, 10.0) is None and SLV.risk_view({"vahy": [1.0], "vychozi_riziko": 0.05}, 3, 50.0, 10.0) is None
+stop = [{"pair": "EUR/USD", "side": 1, "day": date(2024, 3, 1), "t_in": T0, "t_out": T0 + 3 * D1, "margin_pct": -80.0,
+         "sl_pct": 80.0, "size_factor": 100.0 / 80.0, "reason": "SL"}]
+hit = PS.run_portfolio([stop], 0.02, (2024, 2024))                     # 2 % risk: the stop costs exactly 2 % of the account
+assert abs(hit["equity"] - 0.98) < 1e-12 and abs(hit["entry_frac"][0] - 0.025) < 1e-12
+
 print("=" * 60)
 print("F3 AUDIT 2026-10-04 REGRESSIONS")
 print("=" * 60)
@@ -209,5 +222,6 @@ print("FORWARD TEST: COSTS, STOP BEFORE TARGET, LEVERAGE, TIME EXIT: PASS")
 print("LIVE DAILY BARS: NO PHANTOM SATURDAY, FRIDAY UP TO 16:00 NEW YORK: PASS")
 print("BET SIZING (MARTINGALE / FIBONACCI / D'ALEMBERT / ANTI) IN THE ACCOUNT SIMULATION: PASS")
 print("OPEN-TRADE CAP AND PAUSE AFTER A STOP IN THE ACCOUNT SIMULATION: PASS")
+print("STOP-BASED SIZING: THE STOP COSTS THE CHOSEN SHARE OF THE ACCOUNT: PASS")
 print("RESULT: PASS")
 print("=" * 60)
