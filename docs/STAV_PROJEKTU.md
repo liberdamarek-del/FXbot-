@@ -69,6 +69,7 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | Mezera přes víkend za stopem | OVĚŘENO (zanedbatelné v historii) | 1 z 31 stopů, o 4,5 % vzdálenosti stopu; budoucí krize NEOVĚŘENO |
 | Forward test s velikostí podle rizika | ROZPRACOVÁNO | nové záznamy mají váhu stupně; vyhodnotit po 4+ týdnech |
 | Heuristiky: živý deník | ROZPRACOVÁNO | od 7. 10. 2026; skutečný test heuristik (historie 2019–26 nebyla pro nápady úplně neviděná); první závěry po stovkách vyhodnocených predikcí |
+| Živé ceny Yahoo: hodinové svíčky občas zpětně chybí (7. 10. 2026 středa 15–18 h New York) | OVĚŘENO (ošetřeno R-040) | heuristiky počítají horizont podle kalendáře a nečekají na chybějící hodiny déle než 2 h; páteční rozhodnutí hlavního modelu bez svíčky 15–16 h New York se nevyhodnotí (chyba páru, signals_live) |
 | Heuristiky: kalibrace odhadu | OVĚŘENO (negativní) | subjektivní odhad konfluence je opačně kalibrovaný (víc souhlasu = o něco nižší úspěšnost); zobrazuje se jen jako srovnání |
 | `scripts/pivot_lab.py` řádek 147: nedefinovaná proměnná `row_wk` | CHYBA (neaktivní výzkumný skript) | živý systém ho nepoužívá; rodina pivotů je uzavřená (R-014), oprava jen při jejím dalším použití |
 | Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, testy prošly (python fxbot.py test) |

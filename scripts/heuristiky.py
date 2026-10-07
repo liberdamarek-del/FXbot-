@@ -76,6 +76,8 @@ FDR_Q = 0.10
 PERM_DRAWS = 2000
 LIVE_MIN_N = 20                 # live predictions before live results may degrade a rule
 LIVE_BARS = {"1D": 1100, "4H": 3200}   # bars kept for the live masks (indicator warm-up included)
+DATA_WAIT = 2 * 3600            # live: how long a closed bar waits for its last hourly bar (source gaps: Yahoo
+                                # sometimes drops hours afterwards) before it counts with the hours it has
 STATUSES = ("AKTIVNÍ", "SLABÁ", "NEOVĚŘENÁ", "NEFUNKČNÍ", "OVERFIT/NESTABILNÍ")
 ISSUING = ("AKTIVNÍ", "SLABÁ", "NEOVĚŘENÁ")         # retired rules (NEFUNKČNÍ, OVERFIT) issue no live predictions
 TYP_CZ = {"trend": "trend a struktura", "podpora_odpor": "podpora a odpor", "max_min": "předchozí maxima a minima",
@@ -136,8 +138,9 @@ def bars_tf(hb: dict, tf: str, now: int | None = None) -> dict:
     if now is not None:
         keep &= out["end_ts"] <= now
         last = np.flatnonzero(keep)
-        if len(last) and out["last_ts"][last[-1]] + 3600 < out["end_ts"][last[-1]]:
-            keep[last[-1]] = False                              # its last hour is not in the data yet
+        if len(last) and out["last_ts"][last[-1]] + 3600 < out["end_ts"][last[-1]] \
+                and now - out["end_ts"][last[-1]] < DATA_WAIT:
+            keep[last[-1]] = False                              # its last hour may still arrive
     return {k: ([x for x, m in zip(v, keep) if m] if isinstance(v, list) else v[keep]) for k, v in out.items()}
 
 
@@ -1666,6 +1669,22 @@ def live_hourly(cache: dict | None = None) -> dict:
     return out
 
 
+def horizon_end(bar_close: int, tf: str, H: int) -> int:
+    """Scheduled end of the H-th bar after the bar that closed at bar_close (weekdays, New York aligned): the
+    horizon does not stretch when the price source misses bars."""
+    d = datetime.fromtimestamp(bar_close, tz=NY).date() - timedelta(days=1)
+    ends = []
+    while len(ends) < H:
+        d += timedelta(days=1)
+        if d.weekday() >= 5:
+            continue
+        for b in ([0] if tf == "1D" else range(6)):
+            e = bar_end(d, tf, b)
+            if e > bar_close:
+                ends.append(e)
+    return sorted(ends)[H - 1]
+
+
 def _reason(side: int, net: float, ath: float, first: str | None, events: list[str], exp: float | None) -> str:
     parts = [f"cena šla {'podle předpovědi' if net > 0 else 'proti předpovědi'} ({net:+.2f} % po nákladech)"]
     if abs(net) > 2 * TARGET_K * ath:
@@ -1750,7 +1769,7 @@ def live(state: dict | None = None, cache: dict | None = None, now: int | None =
             k = x.n - 1
             end = int(x.bars["end_ts"][k])
             key = f"{p}|{tf}"
-            fresh = st["posledni_svicka"].get(key) != end
+            fresh = end > st["posledni_svicka"].get(key, 0)          # only a newer bar (never backwards)
             on_time = now - end <= TFS[tf]["delay"]
             if fresh and not on_time and key in st["posledni_svicka"]:
                 st["zmeskano"] = st.get("zmeskano", 0) + 1          # an update was missed: no back-dating
@@ -1796,22 +1815,20 @@ def live(state: dict | None = None, cache: dict | None = None, now: int | None =
     # evaluation of predictions whose horizon has ended
     for pr in open_:
         x = bars_by.get((pr["par"], pr["tf"]))
-        if x is None:
+        if x is None or pr["par"] not in hourly:
             continue
-        ends = x.bars["end_ts"]
-        after = np.flatnonzero(ends > pr["cas_svicky"])
-        if len(after) < pr["horizont_baru"]:
+        end_h = horizon_end(pr["cas_svicky"], pr["tf"], pr["horizont_baru"])
+        hb = hourly[pr["par"]]
+        if now < end_h or (hb["ts"][-1] + 3600 < end_h and now - end_h < DATA_WAIT):
             if now - pr["cas"] > 40 * 86400:
                 evals.append({"id": pr["id"], "vyhodnoceno": datetime.fromtimestamp(now, tz=UTC).isoformat(timespec="minutes"),
                               "vysledek": "NEOVĚŘENO", "duvod": "chybí ceny pro celý horizont"})
             continue
-        j = after[pr["horizont_baru"] - 1]
-        hb = hourly[pr["par"]]
-        win = (hb["ts"] >= pr["cas"] // 3600 * 3600) & (hb["ts"] + 3600 <= ends[j])
+        win = (hb["ts"] >= pr["cas"] // 3600 * 3600) & (hb["ts"] + 3600 <= end_h)
         if not win.any():
             continue
         side = 1 if pr["smer"] == "LONG" else -1
-        exit_px = float(x.c[j])
+        exit_px = float(hb["c"][win][-1])                         # the last close up to the horizon end
         hh, ll = float(hb["h"][win].max()), float(hb["l"][win].min())
         gross = side * (exit_px / pr["cena"] - 1) * 100
         net = gross - float(cost_pct(pr["par"], np.array([pr["cena"]]))[0])
@@ -1831,10 +1848,10 @@ def live(state: dict | None = None, cache: dict | None = None, now: int | None =
                     first = "CÍL" if t_ else "PRÁH"
                     break
         d0 = datetime.fromtimestamp(pr["cas"], tz=NY).date()
-        d1 = x.day[j]
+        d1 = datetime.fromtimestamp(end_h - 1, tz=NY).date()
         exp = pr.get("ocekavany_vynos_proc")
         evals.append({"id": pr["id"], "vyhodnoceno": datetime.fromtimestamp(now, tz=UTC).isoformat(timespec="minutes"),
-                      "konec": int(ends[j]), "cena_konec": round(exit_px, 6), "max": round(hh, 6), "min": round(ll, 6),
+                      "konec": int(end_h), "cena_konec": round(exit_px, 6), "max": round(hh, 6), "min": round(ll, 6),
                       "hruby_proc": round(gross, 4), "vynos_proc": round(net, 4), "mfe_proc": round(mfe, 4),
                       "mae_proc": round(mae, 4), "vysledek": "ÚSPĚCH" if net > 0 else "NEÚSPĚCH",
                       "cil_zasazen": bool(hit_t), "prah_zasazen": bool(hit_s), "prvni": first,

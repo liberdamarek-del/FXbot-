@@ -197,6 +197,25 @@ assert out["sebehodnoceni"]["okna"]["vse"]["n"] == 1 and HX.verify_ledger()["pro
 HX.live(None, now=end5 + 3000, hourly={p: cut(h, end5 + 3000) for p, h in ALL.items()})
 assert len([e for e in HX._read_chain(HX.EVAL_DIR) if e["id"] == p0["id"]]) == 1      # evaluated once
 
+# ---------------------------------------------------------------- source gaps (Yahoo drops hours afterwards)
+fri = date(2024, 3, 1)
+fri_close = int(datetime(2024, 3, 1, 17, tzinfo=NY).timestamp())
+assert HX.horizon_end(fri_close, "1D", 5) == int(datetime(2024, 3, 8, 17, tzinfo=NY).timestamp())   # skips the weekend
+assert HX.horizon_end(fri_close, "4H", 6) == int(datetime(2024, 3, 4, 17, tzinfo=NY).timestamp())   # 24 trading hours
+days3 = trading_days(date(2024, 2, 26), 5)
+hb3 = hourly_for(days3, 1.1)
+gap = hb3["ts"] < int(datetime(2024, 3, 1, 14, tzinfo=NY).timestamp())                            # Friday 14-17 h missing
+hb_gap = {k: v[gap] for k, v in hb3.items()}
+assert HX.bars_tf(hb_gap, "1D", fri_close + 1800)["day"][-1] == date(2024, 2, 29)                  # waits for the hours
+assert HX.bars_tf(hb_gap, "1D", fri_close + 3 * 3600)["day"][-1] == fri                           # then counts with a gap
+st_before = json.loads(HX.LIVE_STATE.read_text())
+late2 = end5 + 3 * 3600
+lost = {p: {k: v[(h["ts"] < end5 - 4 * 3600) | (h["ts"] >= end5)] for k, v in h.items()} for p, h in ALL.items()}
+HX.live(None, now=end5 + 1800, hourly={p: cut(h, end5 + 1800) for p, h in lost.items()})          # the last bar lost its hours
+st_after = json.loads(HX.LIVE_STATE.read_text())
+assert st_after["zmeskano"] == st_before["zmeskano"]                                               # no false "missed" bars
+assert all(st_after["posledni_svicka"][k] >= v for k, v in st_before["posledni_svicka"].items())   # never backwards
+
 print("=" * 60)
 print("F4 HEURISTIC MODEL")
 print("=" * 60)
@@ -206,5 +225,6 @@ print("NON-OVERLAPPING PREDICTIONS, NET RETURN AFTER COSTS, MFE / MAE: PASS")
 print("STATUSES, FALSE DISCOVERY RATE, HEURISTIC ESTIMATE, NEIGHBOURS: PASS")
 print("LEDGER HASH CHAIN: EDIT, DELETION AND SECOND EVALUATION DETECTED: PASS")
 print("LIVE: PREDICTION AT A FRESH CLOSE, NO BACK-DATING, ONE EVALUATION AFTER THE HORIZON: PASS")
+print("SOURCE GAPS: SCHEDULED HORIZON END, LAST BAR NEVER BACKWARDS, NO FALSE MISSED BARS: PASS")
 print("RESULT: PASS")
 print("=" * 60)

@@ -712,3 +712,14 @@ in signals_live (entry block, forward-test exit `rates_turned`) and diagnostika.
 - r32_konec_teze_sazby (exit when the rates turn): better in 2019-22 (return per drawdown 2.95 vs 1.85 monthly,
   2.94 vs 2.63 max), worse in 2023-26 (1.04 vs 1.17 monthly, 0.62 vs 0.70 max) - rejected by the gate.
 Champions unchanged.
+
+## R-040 - 2026-10-07 23:10 UTC: heuristic live step robust to price-source gaps (fix)
+
+Observed: Yahoo's hourly series dropped Wednesday 15:00-18:00 New York after it had delivered them; the live step then
+treated the Wednesday 1D bar as unfinished, took Tuesday as the last closed bar and counted 24 "missed" bars (no
+prediction or evaluation was written wrongly; the ledger chain stayed intact; zive.json restored from git).
+Fix in scripts/heuristiky.py: a bar is processed only when it is NEWER than the last processed one (never backwards);
+a closed bar waits for its last hourly bar at most 2 h (DATA_WAIT), then counts with the hours it has; the horizon
+end of a live prediction is the scheduled end of the H-th bar (`horizon_end`, weekdays, New York aligned), so a gap in
+the source does not stretch the horizon; the exit price is the last hourly close up to that end. Tests: test_f4
+(scheduled horizon end over a weekend, a bar with missing hours, no false missed bars, never backwards).
