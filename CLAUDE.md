@@ -29,18 +29,22 @@ with the main model never raises confidence unless the history shows it adds val
 signals; a heuristic reaches the model only as a gate experiment. A heuristics CHYBA in the diagnostics (ledger chain)
 does not block the main signals but must be reported.
 
-## Jobs (routines fire into this session; user's decision 2026-10-02: hourly updates; 2026-10-06: learning 2x a week)
+## Jobs (routines fire into this session; user's decision 2026-10-08: one update a day (was hourly, the weekly usage
+limit); 2026-10-06: learning 2x a week)
 Reports to the user (user's decision 2026-10-06): short and plain - signals, the user's trades, the model's trades
 and real improvements of the model. Rejected experiments at most one sentence, no gate details unless asked.
-- Update (weekdays every hour, the platform minimum): `git pull origin main`, `python scripts/aktualizace.py`
+- Update (weekdays once a day at 17:07 New York, right after the daily close; R-041): `git pull origin main`, `python scripts/aktualizace.py`
   (diagnostics + live signals/plans + this week's calendar + next central bank decisions -> data/live/stav.json).
   Then ArtifactData: `list denik` with out_dir -> `python scripts/aktualizace.py --denik <out_dir>` (the user's
   journal from the dashboard; snapshot in data/live, NOT in git - personal data), then get `stav/aktualni` for
   its version and set it with `file_path` data/live/stav.json and `if_version` (URL in learning/dashboard.json).
   aktualizace.py also runs the heuristic layer (new predictions at fresh closes, evaluations, stav `heuristiky`).
   Commit + push when learning/forward_trades.json or learning/heuristiky/ changed (the ledger must survive the
-  container). Reply to the user with one short line, in detail only for a new signal, a diagnostics CHYBA, or a
-  journal trade whose price is beyond its SL / TP (heuristic predictions: counts only, they are information).
+  container). Reply to the user with one short line, in detail only for a new signal, a diagnostics CHYBA, a
+  journal trade whose price is beyond its SL / TP, or a journal central bank warning (it comes two trading days
+  ahead, because the run is after the close; heuristic predictions: counts only, they are information).
+  Heuristics with one run a day: every 1D bar, of the 4H bars only the one closing 17:00 New York (by design, not a
+  missed update). Do not add more runs without the user's consent (usage limit).
 - Friday signals (16:05 New York): same as Update (the decision is valid only from 16:00 New York,
   `signals_live.decision_ready`), then a Czech summary of the signals for the user (size by risk: margin and loss
   at the stop in % of the account at the default risk, stav signaly[].riziko). The decision uses the Friday

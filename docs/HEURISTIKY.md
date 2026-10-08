@@ -8,7 +8,7 @@ výsledky: `docs/heuristiky_vysledky.md` (generuje se každou sobotu), přehled:
 
 1. **Systém běží.** Knihovna má 57 typů heuristik ve 221 nastaveních. Každá platí pro 12 párů, pro denní svíčky
    (horizont 5 dní) a 4hodinové svíčky (horizont 24 h), zvlášť pro každý pár i pro všechny páry dohromady.
-   Celkem je to 5 760 měřitelných pravidel. Každou hodinu z nich vznikají živé predikce. Každá predikce se po svém
+   Celkem je to 5 760 měřitelných pravidel. Jednou denně (po zavření denní svíčky) z nich vznikají živé predikce. Každá predikce se po svém
    horizontu sama vyhodnotí a nedá se zpětně změnit.
 2. **První výsledek je poctivě negativní.** Žádné pravidlo neprošlo všemi testy (AKTIVNÍ 0). Na letech 2019–2026
    bylo „lepších než náhodné vstupy (p ≤ 0,05)“ 4,3 % pravidel, čistá náhoda by dala asi 5 %. Tři pravidla prošla
@@ -86,12 +86,16 @@ v letech 2012–18 fungovalo jen v jednom režimu, vznikne odvozené pravidlo �
 
 * Predikce vzniká jen při čerstvě zavřené svíčce: denní do 6 h, 4h do 2 h po zavření. Vstupní cena je cena
   v okamžiku zápisu. Zmeškaná svíčka se zpětně nedopisuje.
+* Od 8. 10. 2026 (R-041, kvůli limitu uživatele) běží aktualizace jen jednou denně, po–pá v 17:07 New York
+  (obvykle 23:07 našeho času). Denní svíčky se tak berou všechny, ze šesti 4h svíček denně jen ta, která končí
+  v 17:00 New York. Živý vzorek 4h pravidel proto roste asi 6× pomaleji a popisuje jen tuto svíčku. Vyhodnocení
+  se nemění: počítá se z hodinových cen do konce horizontu, ne z času běhu, jen se zapíše až při další obnově.
 * Zápis obsahuje čas, cenu, směr, cíl a práh (±0,5 × ATR14 × √horizont), stav pravidla, obě pravděpodobnosti,
   režim trhu a shodu s hlavním modelem. Zapisuje se do `learning/heuristiky/predikce/<den>.jsonl`.
 * Po horizontu se jednou vyhodnotí do `vyhodnoceni/<den>.jsonl`: cena na konci, maximum, minimum, výsledek po
   nákladech, odchylka od očekávání, zda padl cíl nebo práh (a co dřív) a možné souvislosti (rozhodnutí CB, NFP, CPI
   během horizontu, neobvykle velký pohyb).
-* Oba soubory tvoří řetězec otisků (SHA-256). Diagnostika každou hodinu ověří, že nikdo nic nezměnil ani nesmazal
+* Oba soubory tvoří řetězec otisků (SHA-256). Diagnostika při každé aktualizaci ověří, že nikdo nic nezměnil ani nesmazal
   a že žádná predikce není vyhodnocená dvakrát.
 * Sebehodnocení: posledních 20 / 50 / 100 / 500 / všechny predikce. Sleduje úspěšnost, profit faktor, EV, chybu
   předpovědi, falešně pozitivní, nepředpovězené velké pohyby, MFE / MAE a Brierovo skóre obou pravděpodobností.
@@ -111,6 +115,6 @@ v letech 2012–18 fungovalo jen v jednom režimu, vznikne odvozené pravidlo �
 
 | Kdy | Co |
 |---|---|
-| každou hodinu (aktualizace) | nové predikce, vyhodnocení skončených, sebehodnocení → stav `heuristiky` → přehled |
+| jednou denně po–pá 17:07 New York (aktualizace) | nové predikce, vyhodnocení skončených, sebehodnocení → stav `heuristiky` → přehled |
 | sobota (po stažení dat) | `python scripts/heuristiky.py prepocet` – registr s novými daty, stavy, změny, `docs/heuristiky_vysledky.md` |
 | kdykoli | `python scripts/heuristiky.py overeni` (deník), `python scripts/heuristiky.py pravidlo <ID>` (karta pravidla) |

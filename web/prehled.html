@@ -128,7 +128,7 @@ details summary { cursor: pointer; font-weight: 600; }
   <div class="panel" id="tab-model" role="tabpanel" aria-labelledby="tab-btn-model">
 
   <section class="sheet" aria-labelledby="h-sig">
-    <header><h2 id="h-sig">Signály k obchodu</h2><span class="small muted" id="sig-note">Ceny se obnovují každou hodinu; signál k obchodu vzniká v pátek ve 22:05 (náš čas).</span></header>
+    <header><h2 id="h-sig">Signály k obchodu</h2><span class="small muted" id="sig-note">Ceny se obnovují jednou denně ve všední dny ve 23:07 (náš čas); signál k obchodu vzniká v pátek ve 22:05.</span></header>
     <div class="row small">
       <label for="ucet" class="muted">Velikost mého účtu (Kč), jen pro přepočet:</label>
       <input id="ucet" class="num" inputmode="decimal" style="max-width: 11em" placeholder="např. 100000">
@@ -160,7 +160,7 @@ details summary { cursor: pointer; font-weight: 600; }
   </section>
 
   <section class="sheet" aria-labelledby="h-news">
-    <header><h2 id="h-news">Zprávy a centrální banky</h2><span class="small muted">Kalendář na 7 dní (střední a vysoký dopad), časy jsou naše. Obnovuje se každou hodinu ve všední dny.</span></header>
+    <header><h2 id="h-news">Zprávy a centrální banky</h2><span class="small muted">Kalendář na 7 dní (střední a vysoký dopad), časy jsou naše. Obnovuje se jednou denně ve všední dny (23:07).</span></header>
     <div class="stats" id="banks"></div>
     <div class="tablewrap"><table>
       <thead><tr><th>Kdy</th><th>Měna</th><th>Zpráva</th><th>Dopad</th><th class="r">Odhad</th><th class="r">Minule</th></tr></thead>
@@ -371,7 +371,7 @@ details summary { cursor: pointer; font-weight: 600; }
   function renderStatus() {
     if (!state) return;
     $("status").innerHTML = `<span>Aktualizováno <b class="num">${esc(praha(state.aktualizovano))}</b></span><span>Ceny do <span class="num">${esc(state.den_dat)}</span></span>`
-      + `<span>Obnova každou hodinu ve všední dny</span>`
+      + `<span>Obnova jednou denně ve všední dny ve 23:07 (náš čas)</span>`
       + (state.varovani || []).map((v) => `<div class="notice" style="flex-basis: 100%">⚠ ${esc(v)}</div>`).join("")
       + ((state.diagnostika && state.diagnostika.souhrn && state.diagnostika.souhrn.CHYBA) ? `<div class="notice" style="flex-basis: 100%">⚠ Kontrola dat našla chybu: ${esc((state.diagnostika.problemy || []).join("; "))}</div>` : "");
   }
@@ -433,7 +433,7 @@ details summary { cursor: pointer; font-weight: 600; }
     const acc = parseNum($("ucet").value);
     const list = (state.signaly || []).slice().sort((a, b) => (b.pravdepodobnost_uspechu || b.odhad_uspesnosti || 0) - (a.pravdepodobnost_uspechu || a.odhad_uspesnosti || 0));
     $("sig-note").textContent = state.trh_zavren ? "Signály z pátku – trh je zavřený, nový obchod už nezadávej (platí jen pro ty, kdo vstoupili v pátek)."
-      : state.je_patek ? "Páteční vyhodnocení – zadej do 23:00 (náš čas)." : "Ceny se obnovují každou hodinu; signál k obchodu vzniká v pátek ve 22:05 (náš čas).";
+      : state.je_patek ? "Páteční vyhodnocení – zadej do 23:00 (náš čas)." : "Ceny se obnovují jednou denně ve všední dny ve 23:07 (náš čas); signál k obchodu vzniká v pátek ve 22:05.";
     if (!list.length) {
       $("signals").innerHTML = `<div class="empty">${state.je_patek ? "Tento pátek žádný pár nesplnil podmínky. Žádný obchod – i to je rozhodnutí." : "Teď není pátek, takže nový signál není. Podívej se do Sledovaných párů, které páry jsou blízko."}</div>`;
       return;
@@ -702,7 +702,7 @@ details summary { cursor: pointer; font-weight: 600; }
     const list = (H.predikce || []).filter((c) => (!fs || c.stav === fs) && (!ft || c.tf === ft) && (!fp || c.par === fp));
     const byS = H.otevrene_podle_stavu || {};
     $("hx-pred-note").textContent = `${H.otevrene} otevřených (AKTIVNÍ ${byS["AKTIVNÍ"] || 0}, SLABÁ ${byS["SLABÁ"] || 0}, NEOVĚŘENÁ ${byS["NEOVĚŘENÁ"] || 0}); ukázáno nejvýš 60. Vyřazená pravidla, která teď platí: ${(H.plati_ted["NEFUNKČNÍ"] || 0) + (H.plati_ted["OVERFIT/NESTABILNÍ"] || 0)} (predikce nedávají).`;
-    $("hx-preds").innerHTML = list.length ? list.map(hxCard).join("") : '<div class="empty">Žádná otevřená predikce pro tento výběr. Nové vznikají po zavření 4h svíček (23, 3, 7, 11, 15, 19 h našeho času) a denní svíčky (23 h).</div>';
+    $("hx-preds").innerHTML = list.length ? list.map(hxCard).join("") : '<div class="empty">Žádná otevřená predikce pro tento výběr. Nové vznikají jednou denně ve 23:07 po zavření denní svíčky a 4h svíčky, která končí ve 23 h (ostatní 4h svíčky se kvůli limitu neberou).</div>';
     // self-evaluation
     const S = H.sebehodnoceni, O = S.okna || {};
     $("hx-windows").innerHTML = ["20", "50", "100", "500"].filter((k) => O[k]).map((k) => wRow(`posledních ${k}`, O[k])).join("") + wRow("všechny", O.vse);
@@ -716,7 +716,7 @@ details summary { cursor: pointer; font-weight: 600; }
       <td class="small">${esc(e.pravidlo.split("|")[0])}<br><span class="muted">${esc(e.stav_pravidla)}</span></td>
       <td>${e.vysledek === "ÚSPĚCH" ? '<span class="chip ok">ÚSPĚCH</span>' : '<span class="chip sell">NEÚSPĚCH</span>'}</td>
       <td class="r num ${e.vynos_proc >= 0 ? "pos" : "neg"}">${sgn(e.vynos_proc, 2)} %</td><td class="small muted">${esc(e.duvod)}</td></tr>`).join("")
-      : '<tr><td colspan="7" class="muted">Zatím nic – první 4h predikce se vyhodnotí po 24 hodinách obchodování, denní po 5 dnech.</td></tr>';
+      : '<tr><td colspan="7" class="muted">Zatím nic – 4h predikce se vyhodnotí po 24 hodinách obchodování, denní po 5 dnech (při nejbližší denní obnově).</td></tr>';
     // calibration
     const bucket = (b) => `<tr><td class="num">${fmt(b.od * 100, 0)}–${fmt(Math.min(b.do, 1) * 100, 0)} %</td><td class="r num">${fmt(b.n, 0)}</td><td class="r num">${pct(b.ocekavano)}</td><td class="r num">${pct(b.skutecnost)}</td></tr>`;
     $("hx-cal").innerHTML = cal.n ? `<p class="small">Úspěšnost všech predikcí po nákladech: <b>${pct(cal.uspesnost)}</b>. Brier: statistická <b class="num">${fmt(cal.brier_stat, 4)}</b>, heuristická <b class="num">${fmt(cal.brier_heur, 4)}</b>, hod mincí <span class="num">${fmt(cal.brier_mince, 4)}</span>.</p>

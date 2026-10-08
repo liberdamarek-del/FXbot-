@@ -222,6 +222,25 @@ assert SLV.rates_turned("EUR/USD", date(2026, 9, 4), 1, None) is False   # no ra
 import profit_deep as PDX  # noqa: E402
 assert PDX.Rule("x").max_atr_rank == 1.0 and PDX.Rule("x").exit_rates_flip is False   # defaults change nothing
 
+# ---------------------------------------------------------------- R-041: daily update after the close, CB warning 2 trading days ahead
+import aktualizace as AK  # noqa: E402
+assert AK.trading_days_ahead(date(2026, 10, 8), 2) == [date(2026, 10, 9), date(2026, 10, 12)]   # Thursday -> Fri, Mon
+assert AK.trading_days_ahead(date(2026, 10, 9), 2) == [date(2026, 10, 12), date(2026, 10, 13)]  # Friday -> Mon, Tue
+assert [AK.day_word(date(2026, 10, 7), d) for d in (date(2026, 10, 8), date(2026, 10, 9), date(2026, 10, 12))] \
+    == ["Zítra", "Pozítří", "V pondělí"]
+_today = datetime.now(AK.PRAGUE).date()
+_d1, _d2 = AK.trading_days_ahead(_today, 2)
+_row = {"id": "t", "par": "EUR/USD", "smer": "KOUPIT", "vstup": 1.10, "stav": "otevreny"}
+_cbd = AK.SL.cb_decisions
+try:
+    AK.SL.cb_decisions = lambda p, s, n: [(_d2, "ECB")]                    # two trading days ahead: always told
+    assert AK.journal_summary([_row], {"EUR/USD": 1.09})["otevrene"][0]["upozorneni"].startswith(AK.day_word(_today, _d2))
+    AK.SL.cb_decisions = lambda p, s, n: [(_d1, "ECB")]                    # next trading day: only a trade in profit
+    assert AK.journal_summary([_row], {"EUR/USD": 1.09})["otevrene"][0]["upozorneni"] is None
+    assert "uzavřel" in AK.journal_summary([_row], {"EUR/USD": 1.11})["otevrene"][0]["upozorneni"]
+finally:
+    AK.SL.cb_decisions = _cbd
+
 print("=" * 60)
 print("F3 AUDIT 2026-10-04 REGRESSIONS")
 print("=" * 60)
@@ -235,5 +254,6 @@ print("BET SIZING (MARTINGALE / FIBONACCI / D'ALEMBERT / ANTI) IN THE ACCOUNT SI
 print("OPEN-TRADE CAP AND PAUSE AFTER A STOP IN THE ACCOUNT SIMULATION: PASS")
 print("STOP-BASED SIZING: THE STOP COSTS THE CHOSEN SHARE OF THE ACCOUNT: PASS")
 print("ROUND 32: EXIT WHEN THE RATE CHANGE TURNS AGAINST THE TRADE (LIVE), DEFAULTS NEUTRAL: PASS")
+print("CENTRAL BANK WARNING IN THE JOURNAL: TWO TRADING DAYS AHEAD (DAILY UPDATE): PASS")
 print("RESULT: PASS")
 print("=" * 60)

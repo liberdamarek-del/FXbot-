@@ -27,7 +27,7 @@ obchoduje sám. Projekt nikdy neposílá příkazy brokerovi a u brokera nic nem
                                └──── forward test modelu (forward_trades.json) ◄┤
                                      deník uživatele (přehled → denik_uzivatele)◄┘
  týdenní výzkum (tydenni_analyza) ─► most do modelu (vyzkum_most) ─► pokusy přes bránu
- heuristiky (heuristiky.py): registr pravidel (sobota) ─► živé predikce každou hodinu ─► deník + sebehodnocení
+ heuristiky (heuristiky.py): registr pravidel (sobota) ─► živé predikce jednou denně ─► deník + sebehodnocení
                              (jen informace, hlavní model nemění; srovnání s ním je součástí vrstvy)
 ```
 
@@ -44,7 +44,7 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 | Brána učení v3 | změna jen při zlepšení na neviděných letech | HOTOVO/OVĚŘENO | audit R-029 (asi 5 % náhodných změn projde) |
 | Šampioni (měsíční, max) | živá pravidla | HOTOVO/OVĚŘENO | test naslepo 2019–22 a 2023–26 |
 | Živé signály | totéž co historie, pátek 16:00 NY | HOTOVO/OVĚŘENO | forward test = backtest (R-029) |
-| Přehled + deník | signály, plán, deník uživatele | HOTOVO/OVĚŘENO | hodinové aktualizace |
+| Přehled + deník | signály, plán, deník uživatele | HOTOVO/OVĚŘENO | aktualizace jednou denně po–pá 17:07 New York (R-041) |
 | Forward test | skutečné obchody modelu od 2. 10. 2026 | ROZPRACOVÁNO | 2 obchody, závěr až po 4+ týdnech |
 | Týdenní výzkum | popis a vysvětlení týdne, kandidáti na pokusy | HOTOVO/OVĚŘENO | archiv learning/tydenni |
 | Velikost podle rizika | stop stojí nejvýš zvolené % účtu (výchozí 5 %) | HOTOVO/OVĚŘENO (R-037) | test naslepo 2019–22, 2023–26; test_f3_audit; přehled v prohlížeči |

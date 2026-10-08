@@ -16,7 +16,7 @@ so the event history grows from 2026-09-30 on. Read-only towards brokers.
 
 import json
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -177,6 +177,24 @@ def read_journal(folder: Path) -> list[dict]:
     return sorted(rows, key=lambda r: r.get("cas_vstupu") or "")
 
 
+def trading_days_ahead(today: date, n: int) -> list[date]:
+    """The next `n` weekdays after `today`."""
+    out, d = [], today
+    while len(out) < n:
+        d += timedelta(days=1)
+        if d.weekday() < 5:
+            out.append(d)
+    return out
+
+
+def day_word(today: date, d: date) -> str:
+    """'Zítra', 'Pozítří' or 'V pondělí' … for a day shortly after `today`."""
+    gap = (d - today).days
+    if gap in (1, 2):
+        return ("Zítra", "Pozítří")[gap - 1]
+    return ("V pondělí", "V úterý", "Ve středu", "Ve čtvrtek", "V pátek")[d.weekday()]
+
+
 def journal_summary(rows: list[dict], prices: dict) -> dict:
     """Closed results in % of the margin (the pair's leverage, ESMA) and open trades with the
     current price; flags open trades whose price is beyond their SL or TP."""
@@ -197,11 +215,16 @@ def journal_summary(rows: list[dict], prices: dict) -> dict:
             hit = "TP"
         upozorneni = None                                 # model rule R-021: exit in profit before a decision
         today = datetime.now(PRAGUE).date()
-        nxt = today + timedelta(days=3 if today.weekday() == 4 else 1)
-        banks = [b for d, b in SL.cb_decisions(r["par"], today, 3) if d == nxt]
-        if banks and pct(r, price) > 0:
-            upozorneni = (f"Zítra rozhoduje {', '.join(banks)}. Obchod je v zisku – model by ho dnes při zavření trhu "
-                          "(23:00 našeho času) uzavřel.")
+        d1, d2 = trading_days_ahead(today, 2)           # the update runs once a day after the close (R-041):
+        dec = SL.cb_decisions(r["par"], today, (d2 - today).days)            # warn two trading days ahead
+        banks1, banks2 = [b for d, b in dec if d == d1], [b for d, b in dec if d == d2]
+        if banks1 and pct(r, price) > 0:
+            upozorneni = (f"{day_word(today, d1)} rozhoduje {', '.join(banks1)}. Obchod je v zisku – model by ho dnes "
+                          "při zavření trhu (23:00 našeho času) uzavřel.")
+        elif banks2:
+            upozorneni = (f"{day_word(today, d2)} rozhoduje {', '.join(banks2)}. Když bude obchod {day_word(today, d1).lower()} "
+                          "při zavření trhu (23:00 našeho času) v zisku, model ho uzavře"
+                          + (" (teď je v zisku)." if pct(r, price) > 0 else " (teď je ve ztrátě)."))
         open_.append({"id": r["id"], "par": r["par"], "smer": r["smer"], "vstup": r["vstup"], "cena": price,
                       "proc_marze": round(pct(r, price), 1), "zasah": hit, "upozorneni": upozorneni})
     return {"uzavrenych": len(closed), "ziskovych": sum(x > 0 for x in results),

@@ -723,3 +723,20 @@ a closed bar waits for its last hourly bar at most 2 h (DATA_WAIT), then counts 
 end of a live prediction is the scheduled end of the H-th bar (`horizon_end`, weekdays, New York aligned), so a gap in
 the source does not stretch the horizon; the exit price is the last hourly close up to that end. Tests: test_f4
 (scheduled horizon end over a weekend, a bar with missing hours, no false missed bars, never backwards).
+
+## R-041 - 2026-10-08 10:40 UTC: one update a day instead of every hour (user's decision, usage limit)
+
+The user's request: the hourly runs use too much of the weekly usage limit; compute the effect of 1-2 runs a day and
+switch. Runs a week: 120 hourly updates + 1 Friday signal run + 2 learning runs = 123 -> 5 + 1 + 2 = 8 (2 a day: 13).
+The update routine now fires Monday-Friday at 17:07 New York (usually 23:07 Prague), right after the daily close.
+Effect (computed, nothing tuned):
+- Main model: signals unchanged (the Friday 16:05 New York run decides, as before); the forward test is identical -
+  `resolve_forward` follows the hourly price path, not the time of the run - its results only appear up to a day later.
+- Central bank exit (R-021): the journal warning now comes two trading days ahead (`aktualizace.trading_days_ahead`,
+  `day_word`), because the daily run is just after the close at which the model exits; the next-day warning stays.
+- Dashboard: prices, the user's journal SL / TP flags and the calendar refresh once a day (the broker executes SL / TP).
+- Heuristics: every 1D bar is kept (all 28 1D predictions so far were written 8 min after the close, so 17:07 is
+  enough for Yahoo); of the six 4H bars a day only the one closing 17:00 New York -> about 1/6 of the 4H predictions,
+  the live 4H sample grows ~6x slower and describes that bar only. Evaluations are unchanged (path-based, scheduled
+  horizon end). `zmeskano` needs no change: only the last bar is checked and at 17:07 it is on time.
+Tests: test_f3_audit (warning two trading days ahead, weekend). Dashboard texts updated.
