@@ -788,3 +788,9 @@ session cannot attach one with push access (4 test runs: none pushed; Run-now te
 created with the repository attached (create_session source_url) did the whole daily run in 70 s and pushed (commit
 6e9a0ae, heartbeat). So the four new routines are created but switched OFF; the user attaches the repository in the
 claude.ai routines UI and switches them on (docs/RUTINY.md); the old four keep running until then.
+Addendum (16:40 UTC): the user could not attach a repository to a routine in the phone UI. Solution: a dispatcher
+session (create_session, Sonnet, append_system_prompt) that the four new routines wake (persistent_session_id); it
+calls create_session with the repository and the task text between PROMPT_START / PROMPT_END. Test: routine fired ->
+dispatcher (~3k tokens, $0.05) -> worker "FXBOT denní aktualizace 2026-10-11" with the repository (Sonnet, $0.18) ->
+push df4f47b in 70 s. The old four routines (into the main session) are switched off, the four repository-less ones
+deleted. docs/RUTINY.md rewritten.

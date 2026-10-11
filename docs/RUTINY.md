@@ -1,38 +1,41 @@
 # Rutiny (R-044, 11. 10. 2026)
 
-Každá rutina spouští **nové krátké sezení** s připojeným repozitářem `liberdamarek-del/FXbot-`. Dřív se všechny
-spouštěly v jednom dlouhém rozhovoru. Ten měl přes 300 000 tokenů paměti, které se četly v každém kroku, a to
-spotřebovávalo týdenní limit.
+Každá rutina končí v **novém krátkém sezení** s připojeným repozitářem `liberdamarek-del/FXbot-` a modelem Sonnet.
+Dřív se všechny spouštěly v jednom dlouhém rozhovoru. Ten měl přes 300 000 tokenů paměti, které se četly v každém
+kroku, a to spotřebovávalo týdenní limit.
+
+## Jak to funguje (dispečer)
+
+1. Rutina v naplánovaný čas probudí malé sezení **„FXBOT dispečer rutin“** (session_01YNGCbnnfv62WR65DLXU9Ku, Sonnet).
+2. Dispečer jen zavolá `create_session`: založí nové sezení s repozitářem a předá mu text úlohy (mezi
+   `PROMPT_START` a `PROMPT_END` v rutině). Pak skončí. Za jedno probuzení přibude jen asi 3 000 tokenů.
+3. Nové pracovní sezení udělá práci, uloží ji do gitu a pošle uživateli krátké shrnutí, také jako push notifikaci.
+
+Proč přes dispečera:
+* Rutina založená nástrojem nemá připojený repozitář, takže nemůže ukládat do gitu.
+* Na telefonu se repozitář k rutině připojit nedá.
+* Sezení založené přes `create_session` repozitář mít může.
+
+Ověřeno 11. 10. 2026: denní aktualizace celá za 70 s, push v pořádku. Stála asi 0,05 USD za dispečera a 0,18 USD
+za pracovní sezení, zhruba 7× méně než dřív.
 
 ## Rutiny
 
-| Rutina | Kdy | Co dělá |
+| Rutina | Kdy | Co dělá pracovní sezení |
 |---|---|---|
-| FXBOT denní aktualizace (nové sezení, 23:07) | po–pá 17:07 New York | `rutina.py denni`, deník, přehled, commit |
-| FXBOT páteční signály (nové sezení, 22:05) | pá 16:05 New York | totéž a k tomu signály pro uživatele |
-| FXBOT učení – středa (nové sezení, 17:40) | st 17:40 Praha | `rutina.py uceni`, pokusy, průzkum, přehled |
-| FXBOT učení – sobota (nové sezení, 8:57) | so 8:57 Praha | navíc heuristiky, týdenní výzkum a souhrn týdne |
+| FXBOT denní aktualizace (23:07, přes dispečera) | po–pá 17:07 New York | `rutina.py denni`, deník, přehled, commit |
+| FXBOT páteční signály (22:05, přes dispečera) | pá 16:05 New York | totéž a k tomu signály pro uživatele |
+| FXBOT učení – středa (17:40, přes dispečera) | st 17:40 Praha | `rutina.py uceni`, pokusy, průzkum, přehled |
+| FXBOT učení – sobota (8:57, přes dispečera) | so 8:57 Praha | navíc heuristiky, týdenní výzkum a souhrn týdne |
 
-## Proč musí uživatel jednou kliknout
+Staré rutiny, které chodily do hlavního rozhovoru, jsou vypnuté, ne smazané: „FXBOT aktualizace jednou denně
+(23:07)“, „FXBOT páteční signály“, „FXBOT učení ve středu …“ a „FXBOT sobotní učení …“. V nouzi je jde znovu
+zapnout.
 
-Rutiny jsem založil nástrojem a ten neumí připojit repozitář. Sezení bez repozitáře sice spustí aktualizaci, ale
-nemůže uložit deník predikcí a forward test do gitu. Vyzkoušeno 11. 10. 2026: čtyři zkušební běhy bez repozitáře
-nic neuložily. Běh s repozitářem připojeným od začátku prošel celý za 70 s.
+## Kontrola a údržba
 
-Ve webu se repozitář doplní takto:
-
-1. Otevři [claude.ai/code/routines](https://claude.ai/code/routines).
-2. U každé ze čtyř rutin „FXBOT … (nové sezení …)“: otevři ji, v menu u názvu zvol **Edit**, v části
-   **Repositories** přidej `liberdamarek-del/FXbot-` a ulož. Model může zůstat Sonnet, je levnější a na rutiny
-   stačí.
-3. Zapni ji přepínačem nahoře.
-4. Vypni čtyři staré rutiny: „FXBOT aktualizace jednou denně (23:07)“, „FXBOT páteční signály“,
-   „FXBOT učení ve středu (spolu se sobotou 2× týdně)“ a „FXBOT sobotní učení (s novými daty)“. Nebo napiš
-   v hlavním rozhovoru „hotovo“ a vypnu je já.
-
-Dokud se to nestane, běží staré rutiny jako dosud, takže se nic neztratí.
-
-## Kontrola
-
-Každý běh zapíše `learning/provoz/posledni_beh.json`: čas, typ rutiny a výsledek diagnostiky. Když tento soubor
-v gitu dlouho nepřibývá, rutina neběží.
+* Každý běh zapíše `learning/provoz/posledni_beh.json`: čas, typ rutiny a výsledek diagnostiky. Když tento soubor
+  v gitu dlouho nepřibývá, rutina neběží.
+* Dispečer roste asi o 25 000 tokenů týdně. Až přesáhne asi 300 000 (za několik měsíců), založí se nový dispečer
+  se stejným `append_system_prompt` a rutiny se na něj přepojí. To se dělá vytvořením nových rutin, protože
+  `persistent_session_id` nejde změnit.
