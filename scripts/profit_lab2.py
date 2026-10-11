@@ -113,6 +113,31 @@ def monthly_rates() -> dict:
     return out
 
 
+# OECD long-term government bond yields (monthly averages) for the relative yield curve (round 34,
+# scripts/vyzkum_krivka.py, Chen & Tsang 2013); EUR = Germany (the euro area series lags by months)
+LONG_IDS = {"USD": "IRLTLT01USM156N", "EUR": "IRLTLT01DEM156N", "JPY": "IRLTLT01JPM156N", "GBP": "IRLTLT01GBM156N",
+            "CHF": "IRLTLT01CHM156N", "AUD": "IRLTLT01AUM156N", "CAD": "IRLTLT01CAM156N", "NZD": "IRLTLT01NZM156N"}
+
+
+def monthly_long_rates() -> dict:
+    return {c: ({(d.year, d.month): v for d, v in RF._csv(sid)} if (RF.FRED_DIR / f"{sid}.csv").exists() else {})
+            for c, sid in LONG_IDS.items()}
+
+
+def curve_mom(rates: dict, long_: dict, base: str, quote: str, year: int, month: int, lag: int, window: int):
+    """Change over `window` months of the relative yield-curve slope (10y yield minus the 3-month rate, base minus
+    quote) known `lag` months after; > 0 = the base currency's curve steepened relative to the quote's (its long
+    end rose more than its short end: a risk / term premium rather than policy). None when data are missing."""
+    def slope(lg):
+        v = [(rate_at(rates.get(c, {}), year, month, lg), rate_at(long_.get(c, {}), year, month, lg)) for c in (base, quote)]
+        if any(x is None for pair in v for x in pair):
+            return None
+        (sb, lb), (sq, lq) = v
+        return (lb - sb) - (lq - sq)
+    now, old = slope(lag), slope(lag + window)
+    return None if now is None or old is None else now - old
+
+
 def rate_at(series: dict, year: int, month: int, lag: int):
     index = year * 12 + month - 1 - lag
     for k in range(index, index - 12, -1):                 # forward fill at most 12 months

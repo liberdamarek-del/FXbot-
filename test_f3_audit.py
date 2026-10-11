@@ -11,6 +11,7 @@ import os
 import sys
 import tempfile
 from datetime import date, datetime, timedelta, timezone
+from dataclasses import replace
 from pathlib import Path
 
 os.environ["DATA_DIR"] = tempfile.mkdtemp(prefix="fxbot_f3_")
@@ -241,6 +242,25 @@ try:
 finally:
     AK.SL.cb_decisions = _cbd
 
+# ---------------------------------------------------------------- round 34: relative yield curve veto (sim = live function)
+import profit_lab2 as PL2  # noqa: E402
+_r = {"AUD": {(2026, m): 4.0 for m in range(1, 13)}, "USD": {(2026, m): 4.0 for m in range(1, 13)}}
+_l = {"AUD": {(2026, m): 4.5 for m in range(1, 13)}, "USD": {(2026, m): 4.5 for m in range(1, 13)}}
+assert PL2.curve_mom(_r, _l, "AUD", "USD", 2026, 9, 2, 3) == 0.0                     # nothing moved
+_l["AUD"].update({(2026, 6): 5.0, (2026, 7): 5.0})                                  # AUD long end up (lag 2 -> July)
+assert PL2.curve_mom(_r, _l, "AUD", "USD", 2026, 9, 2, 3) > 0                       # AUD curve steepened: veto a BUY
+assert PL2.curve_mom(_r, {"USD": _l["USD"]}, "AUD", "USD", 2026, 9, 2, 3) is None    # missing data -> None (veto)
+import diagnostika as DGX  # noqa: E402
+_cv = {"name": "x", "universe": "12", "base": {"signal": "D RSI2<5", "weekly": True, "curve_veto": True},
+       "tiers": [{"fund": "rates_up", "rates_thr": 0.1, "curve_veto": True}], "sizing": "vol"}
+assert DGX.live_unsupported(_cv) == []                                               # the live run supports it
+_rule = PDX.Rule("cv", fund="rates_up", rates_thr=0.0)
+_all = PDX.simulate(_rule, ["AUD/USD"])
+_vet = PDX.simulate(replace(_rule, curve_veto=True), ["AUD/USD"])
+_s, _I = PDX.prepared("AUD/USD", _rule.rates_lag, _rule.rates_window)
+_ix = {d: i for i, d in enumerate(_s["days"])}
+assert 0 < len(_vet) < len(_all) and all(_I["curve_mom"][_ix[t["day"]]] * t["side"] <= 0 for t in _vet)
+
 print("=" * 60)
 print("F3 AUDIT 2026-10-04 REGRESSIONS")
 print("=" * 60)
@@ -255,5 +275,6 @@ print("OPEN-TRADE CAP AND PAUSE AFTER A STOP IN THE ACCOUNT SIMULATION: PASS")
 print("STOP-BASED SIZING: THE STOP COSTS THE CHOSEN SHARE OF THE ACCOUNT: PASS")
 print("ROUND 32: EXIT WHEN THE RATE CHANGE TURNS AGAINST THE TRADE (LIVE), DEFAULTS NEUTRAL: PASS")
 print("CENTRAL BANK WARNING IN THE JOURNAL: TWO TRADING DAYS AHEAD (DAILY UPDATE): PASS")
+print("ROUND 34: RELATIVE YIELD CURVE VETO, ONE FUNCTION FOR THE BACKTEST AND THE LIVE RUN: PASS")
 print("RESULT: PASS")
 print("=" * 60)

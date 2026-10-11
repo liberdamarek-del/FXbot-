@@ -300,7 +300,7 @@ def _with(cfg, **changes):
                  "be_atr", "stall_days", "exit_before_cb", "vix_size", "tp_parts", "knife_days",
                  "exit_before_us", "exit_friday_profit", "cb_all", "confirm_up", "tp_retrace", "decay_days", "decay_tp", "close_stop", "cb_tight",
                  "min_tp_price", "decide_h", "weekly", "rates_window", "skip_holidays", "rsi_exit",
-                 "max_atr_rank", "exit_rates_flip"):
+                 "max_atr_rank", "exit_rates_flip", "curve_veto"):
             new["base"][k] = v
         else:
             new[k] = v
@@ -653,6 +653,16 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: t[:2] + [{**x, "signal": "D RSI2<3"} for x in t[2:]])),
     ("r33_nejslabsi_hlubsi_pokles", "jen nejslabsi stupen (rozdil sazeb 0) po hlubsim poklesu: RSI(2) < 3",
      lambda c: _tiers(c, lambda t: t[:3] + [{**x, "signal": "D RSI2<3"} for x in t[3:]])),
+    # round 34 (autonomous research 2026-10-11, docs/VYZKUM_KRIVKA.md; Chen & Tsang 2013): a rate divergence that comes
+    # from the short end (policy, the curve flattens) supports the currency; one that comes from the long end (the
+    # bought currency's curve steepens: term / risk premium, fiscal or inflation worry) does not. Fixed in advance:
+    # 10y minus 3-month rate, the model's window (3 months) and lag (2 months), threshold 0, no tuning. The idea was
+    # formed after looking at 2019-26 trade results too (weak there, p ~ 0.2) - a pass is not clean evidence
+    ("r34_krivka_slabe", "slabsi stupne: zadny obchod, kdyz se krivka kupovane meny za 3 mesice relativne "
+     "zestrmila (rozdil sazeb tahne dlouhy konec = rizikova prirazka, ne politika centralni banky)",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "curve_veto": True} for x in t[2:]])),
+    ("r34_krivka_vse", "vsechny stupne: zadny obchod, kdyz se krivka kupovane meny relativne zestrmila",
+     lambda c: _with(c, curve_veto=True)),
 ]
 
 

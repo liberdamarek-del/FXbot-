@@ -98,6 +98,9 @@ class Rule:
                                       # last 250 days (a volatility shock: the pullback is repricing, not noise)
     exit_rates_flip: bool = False     # close at a NY close once the rate-difference change turned against the trade
                                       # (the trade's reason is gone)
+    curve_veto: bool = False          # no new trade when the bought currency's yield curve steepened relative to the
+                                      # other's over the rate window (divergence from the long end = risk premium, not
+                                      # policy; round 34, P.curve_mom; missing data also skips)
 
 
 _cache: dict = {}
@@ -365,6 +368,12 @@ def prepared(symbol: str, lag: int, window: int, early: int = 0, src: str = "oec
             old.append(np.nan if ob is None or oq is None else ob - oq)
         I["carry"] = np.array(known)
         I["rates_mom"] = np.array(known) - np.array(old)
+        long_ = _cache.setdefault("long_rates", P.monthly_long_rates())
+        cm = {}
+        for d in s["days"]:
+            if (d.year, d.month) not in cm:
+                cm[(d.year, d.month)] = P.curve_mom(rates, long_, inst.base, inst.quote, d.year, d.month, lag, window)
+        I["curve_mom"] = np.array([np.nan if cm[(d.year, d.month)] is None else cm[(d.year, d.month)] for d in s["days"]])
         I["vix"], I["vix_rise"] = vix_on(s["days"])
         if src == "y2":
             I["carry"], I["rates_mom"] = y2_rates(symbol, s["close_ts"], window)
@@ -577,6 +586,8 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     continue
                 if rule.fund == "rates_up+carry" and not (side * I["rates_mom"][i] >= rule.rates_thr
                                                           and np.sign(I["carry"][i]) == side):
+                    continue
+                if rule.curve_veto and not (side * I["curve_mom"][i] <= 0):              # NaN also skips
                     continue
                 k0 = s["last"][i] - rule.decide_h + rule.delay_h
                 if rule.confirm_up:

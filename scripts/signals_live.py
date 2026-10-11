@@ -100,7 +100,8 @@ def daily(hb: dict) -> dict:
 
 def refresh_rates() -> None:
     RF.FRED_DIR.mkdir(parents=True, exist_ok=True)
-    ids = [i for ids in P.RATE_IDS.values() for i in ids] + list(P.EXTEND_IDS.values()) + ["VIXCLS"]
+    ids = [i for ids in P.RATE_IDS.values() for i in ids] + list(P.EXTEND_IDS.values()) + list(P.LONG_IDS.values()) \
+        + ["VIXCLS"]
     for sid in sorted(set(ids)):
         try:
             _, content, _ = fetch(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}", retries=3)
@@ -113,6 +114,16 @@ def refresh_rates() -> None:
 # ----------------------------------------------------------------------
 # rule
 # ----------------------------------------------------------------------
+
+_LONG: dict = {}
+
+
+def _long_rates() -> dict:
+    """OECD long-term yields (cached per run) for the round-34 relative curve option."""
+    if not _LONG:
+        _LONG.update(P.monthly_long_rates())
+    return _LONG
+
 
 def champion() -> dict:
     state = json.loads(CHAMPION.read_text())
@@ -315,6 +326,8 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
         out.update(smer="NIC", stupen="-", podminka="nedostatek dat: zastarala sazba, signal se nevyhodnocuje")
         return out
     # which direction and tier the fundamentals allow
+    cmom = P.curve_mom(rates, _long_rates(), inst.base, inst.quote, day.year, day.month, 2, 3)
+    out["zmena_krivky_3m"] = None if cmom is None else round(cmom, 2)
     allowed = []
     for side in (1, -1):
         for k, tier in enumerate(cfg["tiers"]):
@@ -323,6 +336,8 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
             ok = side * mom >= tier["rates_thr"] - 1e-9
             if tier["fund"] == "rates_up+carry":
                 ok = ok and np.sign(carry) == side
+            if tier.get("curve_veto", base.get("curve_veto", False)):     # round 34 option, as profit_deep
+                ok = ok and cmom is not None and side * cmom <= 0
             if ok:
                 allowed.append((side, k, tier))
                 break
