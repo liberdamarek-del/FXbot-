@@ -644,6 +644,15 @@ EXPERIMENTS = [
      lambda c: _with(c, max_atr_rank=0.8)),
     ("r32_konec_teze_sazby", "vystup pri zavreni dne, kdyz se zmena rozdilu sazeb za 3 mesice otoci proti obchodu "
      "(duvod obchodu zmizel)", lambda c: _with(c, exit_rates_flip=True)),
+    # round 33 (learning run 2026-10-11): how much pullback the fundamental support has to be paid with. The weakest
+    # tier trades with a rate divergence of 0 (no rate reason at all); with weak rate support a bigger dislocation
+    # should be needed to compensate for the missing fundamental push (only options the live run supports)
+    ("r33_bez_nejslabsiho_stupne", "bez nejslabsiho stupne (rozdil sazeb 0 = obchod nema fundamentalni duvod)",
+     lambda c: _tiers(c, lambda t: t[:3])),
+    ("r33_slabe_hlubsi_pokles", "slabsi stupne (rozdil sazeb 0.10 a 0) jen po hlubsim poklesu: RSI(2) < 3 misto 5",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "signal": "D RSI2<3"} for x in t[2:]])),
+    ("r33_nejslabsi_hlubsi_pokles", "jen nejslabsi stupen (rozdil sazeb 0) po hlubsim poklesu: RSI(2) < 3",
+     lambda c: _tiers(c, lambda t: t[:3] + [{**x, "signal": "D RSI2<3"} for x in t[3:]])),
 ]
 
 

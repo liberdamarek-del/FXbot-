@@ -1771,8 +1771,9 @@ def live(state: dict | None = None, cache: dict | None = None, now: int | None =
             key = f"{p}|{tf}"
             fresh = end > st["posledni_svicka"].get(key, 0)          # only a newer bar (never backwards)
             on_time = now - end <= TFS[tf]["delay"]
-            if fresh and not on_time and key in st["posledni_svicka"]:
+            if fresh and not on_time and key in st["posledni_svicka"] and tf == "1D":
                 st["zmeskano"] = st.get("zmeskano", 0) + 1          # an update was missed: no back-dating
+                # (1D only: with one run a day (R-041) and the Friday 16:05 New York run, late 4H bars are by design)
             if fresh:
                 st["posledni_svicka"][key] = end
             o = outcomes(x)
