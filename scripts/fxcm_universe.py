@@ -6,6 +6,7 @@ GBP/AUD). One source for the whole period - no stitching.
     python scripts/fxcm_universe.py fill_m1      # weeks missing in H1: FXCM 1-minute files where published
     python scripts/fxcm_universe.py build        # -> data/research/fxcm_h1/<PAIR>.npz
     python scripts/fxcm_universe.py status
+    ... --jen-12                                  # only the 12 live pairs (fresh routine sessions, R-044)
 
 Raw files are kept unchanged (data/research/fxcm_h1/raw/<PAIR>/<year>_<week>.csv.gz,
 sha256 in manifest.tsv). Each week file is decoded with the production
@@ -38,12 +39,17 @@ RAW_M1 = ROOT / "raw_m1"
 CURRENCIES = ("EUR", "GBP", "AUD", "NZD", "USD", "CAD", "CHF", "JPY")   # market quoting priority
 UNAVAILABLE = {"CHF/JPY", "EUR/CAD", "GBP/AUD"}                          # 404 on the CDN (2008-2026 probed)
 FIRST_YEAR, LAST_YEAR = 2012, 2026
+ONLY_LIVE = "--jen-12" in sys.argv     # download / build only the 12 live pairs (about 9,500 requests instead of 20,000)
 FIELDS = ("bo", "bh", "bl", "bc", "ao", "ah", "al", "ac")
 
 
 def universe() -> list[str]:
     pairs = [f"{a}/{b}" for i, a in enumerate(CURRENCIES) for b in CURRENCIES[i + 1:]]
-    return [p for p in pairs if p not in UNAVAILABLE]
+    pairs = [p for p in pairs if p not in UNAVAILABLE]
+    if ONLY_LIVE:                       # a fresh routine session (R-044): only the 12 live pairs the learning uses
+        from src.instruments import DEFAULT_ACTIVE
+        pairs = [p for p in pairs if p in DEFAULT_ACTIVE]
+    return pairs
 
 
 def raw_path(symbol: str, year: int, week: int) -> Path:

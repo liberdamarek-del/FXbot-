@@ -10,6 +10,7 @@ the model state and never touches the production database.
 """
 
 import json
+import os
 import pickle
 import sys
 from datetime import date, datetime, timezone
@@ -48,10 +49,17 @@ def months_between(a: date, b: date) -> int:
 # data
 # ----------------------------------------------------------------------
 
+LEAN = os.environ.get("FXBOT_LEHKY") == "1"   # a daily run in a fresh routine session (R-044, scripts/rutina.py):
+                                              # no price history there - only the learning runs download it
+
+
 def check_prices(today: date) -> None:
     for pair in DEFAULT_ACTIVE:
         name = pair.replace("/", "")
         path = U.ROOT / f"{name}.npz"
+        if not path.exists() and LEAN:
+            report("ceny", OK, f"{pair}: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni")
+            continue
         if not path.exists():
             report("ceny", ERR, f"{pair}: chybi hodinova data {path.relative_to(PROJECT_ROOT)} (spust fxcm_universe.py build)")
             continue
@@ -210,7 +218,8 @@ def check_state() -> str | None:
 def check_outputs(today: date, champion_name: str | None) -> None:
     path = LIVE / "stav.json"
     if not path.exists():
-        report("prehled", ERR, "data/live/stav.json chybi - spust signals_live.py")
+        report("prehled", WARN if LEAN else ERR, "data/live/stav.json chybi - spust signals_live.py"
+               + (" (nove sezeni: vznikne v tomto behu)" if LEAN else ""))
     else:
         st = json.loads(path.read_text())
         made = datetime.fromisoformat(st["aktualizovano"])

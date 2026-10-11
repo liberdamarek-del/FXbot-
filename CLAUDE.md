@@ -29,8 +29,17 @@ with the main model never raises confidence unless the history shows it adds val
 signals; a heuristic reaches the model only as a gate experiment. A heuristics CHYBA in the diagnostics (ledger chain)
 does not block the main signals but must be reported.
 
-## Jobs (routines fire into this session; user's decision 2026-10-08: one update a day (was hourly, the weekly usage
-limit); 2026-10-06: learning 2x a week)
+## Jobs (user's decision 2026-10-11, R-044: every routine starts a FRESH session - firing into the long main
+conversation cost ~300k tokens per step; 2026-10-08: one update a day (was hourly, the weekly usage limit);
+2026-10-06: learning 2x a week)
+A fresh session has the repository (if not: add_repo liberdamarek-del/FXbot- with push access, clone, register_repo_root)
+but no data/. `python scripts/rutina.py denni` (daily update / Friday signals: FRED rates + aktualizace; without price
+history it runs lean, FXBOT_LEHKY=1 - the diagnostics accept the missing FXCM history, the research lock is the tracked
+learning/vyzkum_zamek.json) or `python scripts/rutina.py uceni` (learning: FXCM history of the 12 pairs `--jen-12`,
+~1.5 min, bit-identical to the full data; fundamentals; rates). `rutina.py denik <dir>` imports the journal,
+`rutina.py souhrn` prints the short summary. Each run writes learning/provoz/posledni_beh.json - commit it with the
+rest of learning/ and docs/ (never data/), git identity Claude <noreply@anthropic.com>. Exploration (user's request
+2026-10-11): at the end of each learning run at most one bounded step from docs/VYZKUM_FRONTA.md (rules there).
 Reports to the user (user's decision 2026-10-06): short and plain - signals, the user's trades, the model's trades
 and real improvements of the model. Rejected experiments at most one sentence, no gate details unless asked.
 - Update (weekdays once a day at 17:07 New York, right after the daily close; R-041): `git pull origin main`, `python scripts/aktualizace.py`

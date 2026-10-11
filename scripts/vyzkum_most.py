@@ -231,15 +231,21 @@ def event_addon(pairs: list[str], k: int) -> list[dict]:
 # live: the research view at a decision (selection on everything known before it), cached per data day
 # ----------------------------------------------------------------------
 
-LIVE_LOCK = PROJECT_ROOT / "data" / "research" / "tydenni" / "vyzkum_zamek.json"
+LIVE_LOCK = PROJECT_ROOT / "learning" / "vyzkum_zamek.json"     # tracked (R-044): a fresh daily session has no history
 
 
 def live_lock(pairs: list[str]) -> dict:
     """{pair: [(Cond, direction, t)], "_pravidla": event rules} selected on all price history the model has
     (FXCM, up to its last day); recomputed only when that history gets a new day."""
     import json
-    marks = {p: P.series(p)["days"][-1].isoformat() for p in pairs}
     state = json.loads(LIVE_LOCK.read_text()) if LIVE_LOCK.exists() else {}
+    try:
+        marks = {p: P.series(p)["days"][-1].isoformat() for p in pairs}
+    except FileNotFoundError:           # a daily run without price history: the lock the learning run stored
+        if not state:
+            raise
+        return {**{p: [(K.Cond(k, tuple(par), tf), d, t) for k, par, tf, d, t in state[p]["podminky"]]
+                   for p in pairs if p in state}, "_pravidla": state.get("_pravidla")}
     changed = False
     out = {}
     for p in pairs:

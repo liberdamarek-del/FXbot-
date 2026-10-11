@@ -1,0 +1,38 @@
+# Fronta průzkumu (autonomní režim, rozhodnutí uživatele 11. 10. 2026)
+
+Uživatel chce, aby systém sám zkoumal, hledal nové souvislosti a zkoušel nápady. Kvůli týdennímu limitu se průzkum
+nedělá v samostatných bězích, ale **jako jeden ohraničený krok na konci každého učení** (středa a sobota).
+
+## Pravidla
+
+1. **Za jedno učení nejvýš jeden krok.** Krok je jedna položka níže nebo její část. Má nejvýš asi 15 volání nástrojů
+   a nejvýš 10 minut výpočtu. Pokud se nevejde, rozdělí se a pokračuje se příště.
+2. **Fakta, hypotézy a možnosti se nemíchají.**
+   * Každé tvrzení z webu má zdroj.
+   * Chybějící data jsou NEOVĚŘENO a nic se nedoplňuje.
+   * Do modelu se nápad dostane jen jako pokus přes bránu. Bránu nepovolovat a parametry neladit podle výsledku.
+3. **Web se jen čte.**
+   * Na veřejná fóra ani do chatů se nic nepíše.
+   * Nic se nezakládá a nikdo se nevydává za člověka.
+   * Žádný hromadný provoz: stahují se jen data, která projekt potřebuje, ze zdrojů určených ke stažení.
+4. **Každý krok se zapíše do části „Deník“ níže.** Zápis obsahuje datum, co se dělalo, výsledek a co dál. Neúspěch se
+   zapisuje stejně jako úspěch. V souhrnu pro uživatele stačí jedna věta.
+5. **Pořadí určuje očekávaný přínos pro model a cena.** Fronta se smí přeuspořádat a doplnit, ale s důvodem.
+
+## Fronta (od nejvyšší priority)
+
+| # | Co | Proč | Stav |
+|---|---|---|---|
+| 1 | Rozdíl cen Yahoo (živě) a FXCM (historie) v páteční 16:00 New York u 12 párů | Model se testuje na FXCM a živě rozhoduje podle Yahoo. Rozdíl blízko hranice RSI může změnit signál. | čeká |
+| 2 | Přehled živého testu modelu (od 2. 11. 2026, po 4+ týdnech) | Obchody modelu proti očekávání z historie: úspěšnost, průměr a doba držení. Jde o jediná opravdu nová data. | čeká na datum |
+| 3 | Ekonomická překvapení (skutečnost proti očekávání), nejdřív zjistit, zda existuje zdarma ověřitelný historický zdroj | Literatura: překvapení vysvětlují velkou část čtvrtletních pohybů měn (Stavrakeva & Tang 2020). Kalendář projektu má forecast/actual jen od 10/2026. | čeká |
+| 4 | Sledování literatury jednou za čtvrtletí (nové práce o předvídatelnosti měn, o slábnutí anomálií) | Hutchinson a kol. 2022: zveřejněné anomálie po zveřejnění slábnou. | příště 2027-01 |
+| 5 | Relativní výnosová křivka znovu, jen na datech po 10/2026 (R-043) | Ve 2023–26 snížila propad, ve 2019–22 škodila. Možná nový režim, nebo náhoda. | 2027-04 |
+
+## Deník
+
+* **2026-10-11 (R-043):**
+  * Literatura: Hutchinson a kol. 2022 (anomálie po zveřejnění slábnou), Chen & Tsang 2013 (výnosová křivka).
+  * Test relativní výnosové křivky (docs/VYZKUM_KRIVKA.md) a kolo 34. Brána ho zamítla.
+  * Zjištění: obchody, u kterých rozdíl sazeb táhne krátký konec křivky, vycházely lépe v letech 2012–18 a 2023–26,
+    v letech 2019–22 stejně.
