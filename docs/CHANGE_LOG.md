@@ -783,3 +783,8 @@ the daily update in 16 s with 0 errors. docs/VYZKUM_FRONTA.md: the exploration q
 learning run, web read-only, nothing posted publicly). Old routines (firing into the main session) disabled, not
 deleted. A `.claude/settings.json` allow-list for unattended runs was blocked by the safety check (self-modification of
 permissions) - left to the user if a fresh session ever waits for an approval.
+Addendum (14:58 UTC): routines created with the create_trigger tool get no repository (sources []), and the fired
+session cannot attach one with push access (4 test runs: none pushed; Run-now text is treated as inert data). A session
+created with the repository attached (create_session source_url) did the whole daily run in 70 s and pushed (commit
+6e9a0ae, heartbeat). So the four new routines are created but switched OFF; the user attaches the repository in the
+claude.ai routines UI and switches them on (docs/RUTINY.md); the old four keep running until then.

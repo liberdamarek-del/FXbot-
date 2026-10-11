@@ -32,8 +32,10 @@ does not block the main signals but must be reported.
 ## Jobs (user's decision 2026-10-11, R-044: every routine starts a FRESH session - firing into the long main
 conversation cost ~300k tokens per step; 2026-10-08: one update a day (was hourly, the weekly usage limit);
 2026-10-06: learning 2x a week)
-A fresh session has the repository (if not: add_repo liberdamarek-del/FXbot- with push access, clone, register_repo_root)
-but no data/. `python scripts/rutina.py denni` (daily update / Friday signals: FRED rates + aktualizace; without price
+The four "(nové sezení)" routines (docs/RUTINY.md) need the repository attached in the claude.ai routines UI - a
+routine created by the create_trigger tool has none and cannot push (tested 2026-10-11); until the user attaches it and
+switches them on, the old routines keep firing into the main session (then switch the old four off). A fresh session
+has the repository but no data/. `python scripts/rutina.py denni` (daily update / Friday signals: FRED rates + aktualizace; without price
 history it runs lean, FXBOT_LEHKY=1 - the diagnostics accept the missing FXCM history, the research lock is the tracked
 learning/vyzkum_zamek.json) or `python scripts/rutina.py uceni` (learning: FXCM history of the 12 pairs `--jen-12`,
 ~1.5 min, bit-identical to the full data; fundamentals; rates). `rutina.py denik <dir>` imports the journal,
