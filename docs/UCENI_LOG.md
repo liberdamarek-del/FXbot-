@@ -1950,3 +1950,47 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+70.2%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +81% / +71%, vynos/propad 2.94; 2023-26: **+17.4%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +10% / +29%, vynos/propad 0.62
 * sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
 
+## 2026-10-11 - profil mesicne: sampion CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk na datech do 2026-10-02 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4
+
+2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.3%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-11 - [champion_12_mesicne] r33_bez_nejslabsiho_stupne: zamitnuto
+
+* bez nejslabsiho stupne (rozdil sazeb 0 = obchod nema fundamentalni duvod)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.3%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-11 - [champion_12_mesicne] r33_slabe_hlubsi_pokles: zamitnuto
+
+* slabsi stupne (rozdil sazeb 0.10 a 0) jen po hlubsim poklesu: RSI(2) < 3 misto 5
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.3%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-11 - [champion_12_mesicne] r33_nejslabsi_hlubsi_pokles: zamitnuto
+
+* jen nejslabsi stupen (rozdil sazeb 0) po hlubsim poklesu: RSI(2) < 3
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.3%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+## 2026-10-11 - profil max: sampion CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk na datech do 2026-10-02 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4
+
+2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+20.3%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +31%, vynos/propad 0.72
+
+### 2026-10-11 - [champion_12] r33_bez_nejslabsiho_stupne: zamitnuto
+
+* bez nejslabsiho stupne (rozdil sazeb 0 = obchod nema fundamentalni duvod)
+* kandidat: 2019-22: **+46.0%** rocne, propad 21%, 1.1 ziskovych/mesic (marze 20% / 20% / 0%), po 2 letech +56% / +98%, vynos/propad 2.20; 2023-26: **+15.3%** rocne, propad 28%, 1.6 ziskovych/mesic (marze 15% / 15% / 6%), po 2 letech +10% / +23%, vynos/propad 0.54
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+20.3%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +31%, vynos/propad 0.72
+
+### 2026-10-11 - [champion_12] r33_slabe_hlubsi_pokles: zamitnuto
+
+* slabsi stupne (rozdil sazeb 0.10 a 0) jen po hlubsim poklesu: RSI(2) < 3 misto 5
+* kandidat: 2019-22: **+46.0%** rocne, propad 21%, 1.1 ziskovych/mesic (marze 20% / 20% / 0% / 0%), po 2 letech +56% / +98%, vynos/propad 2.20; 2023-26: **+26.1%** rocne, propad 22%, 1.7 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +25% / +32%, vynos/propad 1.21
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+20.3%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +31%, vynos/propad 0.72
+
+### 2026-10-11 - [champion_12] r33_nejslabsi_hlubsi_pokles: zamitnuto
+
+* jen nejslabsi stupen (rozdil sazeb 0) po hlubsim poklesu: RSI(2) < 3
+* kandidat: 2019-22: **+46.0%** rocne, propad 21%, 1.1 ziskovych/mesic (marze 20% / 20% / 0% / 0%), po 2 letech +56% / +98%, vynos/propad 2.20; 2023-26: **+18.5%** rocne, propad 28%, 1.9 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +12% / +29%, vynos/propad 0.65
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+20.3%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +31%, vynos/propad 0.72
+

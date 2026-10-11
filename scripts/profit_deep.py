@@ -483,6 +483,7 @@ def atr_rank(symbol: str, s: dict, I: dict, rule: Rule, i: int) -> float:
 
 def simulate(rule: Rule, symbols=None) -> list[dict]:
     defs = P.signal_defs()
+    defs["D RSI2<3"] = (lambda I: I["rsi2"] < 3, lambda I: I["rsi2"] > 97)    # round 33 (not in the lab2 grid)
     trades = []
     if rule.decide_h and (rule.early_h or rule.limit_atr or rule.knife_days or rule.confirm_up or rule.tp_retrace):
         raise NotImplementedError("decide_h: these options use the decision day's full close")

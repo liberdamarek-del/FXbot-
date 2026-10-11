@@ -740,3 +740,16 @@ Effect (computed, nothing tuned):
   the live 4H sample grows ~6x slower and describes that bar only. Evaluations are unchanged (path-based, scheduled
   horizon end). `zmeskano` needs no change: only the last bar is checked and at 17:07 it is on time.
 Tests: test_f3_audit (warning two trading days ahead, weekend). Dashboard texts updated.
+
+## R-042 - 2026-10-11 04:00 UTC: Saturday learning (delivered late), round 33, heuristics count missed 1D bars only
+
+Delivery: the Friday 23:07 Prague update and the Saturday learning were delivered by the platform only on Sunday
+2026-10-11 03:22 UTC (30 h / 20 h late). Signals were not affected (the Friday 16:05 New York run came on time), the
+forward test is path-based; the heuristics lost the Friday 9 Oct 1D bars of the 12 pairs (no back-dating).
+Heuristics fix (scripts/heuristiky.py): `zmeskano` counts only daily bars - with one run a day (R-041) and the
+Friday 16:05 New York run, a late 4H bar is by design (the Friday run counted 12 false 4H misses); learning/heuristiky/
+zive.json recounted to 12 (the Friday 1D bars). Data: FXCM to 2026-10-02, fundamentals and FRED refreshed; heuristic
+registry recomputed (AKTIVNÍ 0, 45 status changes, learning/heuristiky/stavy_log.jsonl); weekly research 2026-W41.
+Round 33 (both profiles; scripts/self_learn.py, signal "D RSI2<3" added in profit_deep.simulate only): without the
+weakest tier (rate divergence 0), weak tiers only after a deeper pullback RSI(2) < 3, only the weakest tier after
+RSI(2) < 3 - all rejected; champions unchanged (re-evaluated with the new week: max 2023-26 +20.3 % a year).

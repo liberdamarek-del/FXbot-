@@ -70,6 +70,7 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | Forward test s velikostí podle rizika | ROZPRACOVÁNO | nové záznamy mají váhu stupně; vyhodnotit po 4+ týdnech |
 | Heuristiky: živý deník | ROZPRACOVÁNO | od 7. 10. 2026; skutečný test heuristik (historie 2019–26 nebyla pro nápady úplně neviděná); první závěry po stovkách vyhodnocených predikcí |
 | Živé ceny Yahoo: hodinové svíčky občas zpětně chybí (7. 10. 2026 středa 15–18 h New York) | OVĚŘENO (ošetřeno R-040) | heuristiky počítají horizont podle kalendáře a nečekají na chybějící hodiny déle než 2 h; páteční rozhodnutí hlavního modelu bez svíčky 15–16 h New York se nevyhodnotí (chyba páru, signals_live) |
+| Doručení naplánovaných úloh platformou | OVĚŘENO (mimo projekt) | 9.–11. 10. 2026: páteční aktualizace 23:07 a sobotní učení doručeny až v neděli 05:22 našeho času; signály a forward test tím nic neztratí (páteční signál proběhl včas, forward test počítá z cen), heuristiky ztratily denní svíčky pátku 9. 10. (12, zpětně se nedopisují, zmeskano) |
 | Heuristiky: kalibrace odhadu | OVĚŘENO (negativní) | subjektivní odhad konfluence je opačně kalibrovaný (víc souhlasu = o něco nižší úspěšnost); zobrazuje se jen jako srovnání |
 | `scripts/pivot_lab.py` řádek 147: nedefinovaná proměnná `row_wk` | CHYBA (neaktivní výzkumný skript) | živý systém ho nepoužívá; rodina pivotů je uzavřená (R-014), oprava jen při jejím dalším použití |
 | Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, testy prošly (python fxbot.py test) |
