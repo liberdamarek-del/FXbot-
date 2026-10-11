@@ -794,3 +794,13 @@ calls create_session with the repository and the task text between PROMPT_START 
 dispatcher (~3k tokens, $0.05) -> worker "FXBOT denní aktualizace 2026-10-11" with the repository (Sonnet, $0.18) ->
 push df4f47b in 70 s. The old four routines (into the main session) are switched off, the four repository-less ones
 deleted. docs/RUTINY.md rewritten.
+
+## R-045 - 2026-10-11 17:00 UTC: simpler dashboard (user's request)
+
+The user: the "Sledované páry" table was cluttered (research, conditions in long text, misaligned "Kdy bude signál");
+wanted only the pairs ranked from the best with the computed entry. web/prehled.html: the table now has # / pair and
+direction (strength below) / entry (the model's trigger price, "pod / nad touto cenou") / current price / gap to the
+entry in % ("v pásmu", "signál", note when the target is too small) / probability; rates, RSI, news, central banks and
+research moved into a collapsible "Podrobnosti k párům". Collapsed by default: news and central banks, weekly research,
+rates and the model rule, "Jak s tím pracovat". "Připravené ke vstupu" shows only when a pair is in the band. No change
+to the model, signals or data.

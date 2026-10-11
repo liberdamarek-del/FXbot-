@@ -63,6 +63,17 @@ header.top { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baselin
 .instr { background: var(--chip); border-radius: 6px; padding: 8px 10px; font-size: 0.95rem; }
 .empty { border: 1px dashed var(--line); border-radius: 8px; padding: 16px; color: var(--muted); }
 .tablewrap { overflow-x: auto; }
+.watch td { vertical-align: middle; }
+.watch td.num, .watch th.r { white-space: nowrap; }
+.watch .pair { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.watch .pair b { min-width: 4.6em; }
+.watch .sub { display: block; font-size: 0.78rem; color: var(--muted); }
+details.sheet > summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+details.sheet > summary::-webkit-details-marker { display: none; }
+details.sheet > summary h2::before { content: "▸"; display: inline-block; width: 1.1em; color: var(--muted); transition: transform .15s; }
+details.sheet[open] > summary h2::before { transform: rotate(90deg); }
+details.sheet:not([open]) { gap: 0; }
+@media (prefers-reduced-motion: reduce) { details.sheet > summary h2::before { transition: none; } }
 table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
 th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { font-weight: 600; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -146,34 +157,44 @@ details summary { cursor: pointer; font-weight: 600; }
     <div class="signals" id="signals"><div class="empty">Zatím tu nejsou žádné signály. Objeví se v pátek večer, pokud se splní podmínky pravidla.</div></div>
   </section>
 
-  <section class="sheet" aria-labelledby="h-ready">
+  <section class="sheet" aria-labelledby="h-ready" id="ready-sec" hidden>
     <header><h2 id="h-ready">Připravené ke vstupu – plán na pátek</h2><span class="small muted">Páry, kde je cena už teď v pásmu signálu. Obchod platí, jen když podmínka platí v pátek v 16:00 New York (obvykle 22:00 našeho času).</span></header>
     <div class="signals" id="ready"><div class="empty">Teď není žádný pár v pásmu signálu.</div></div>
   </section>
 
   <section class="sheet" aria-labelledby="h-watch">
-    <header><h2 id="h-watch">Sledované páry</h2><span class="small muted">Seřazeno od nejvíc doporučeného: nahoře signály, pak páry připravené ke vstupu, pak ostatní. Uvnitř podle pravděpodobnosti úspěchu.</span></header>
-    <div class="tablewrap"><table>
-      <thead><tr><th class="r">#</th><th>Pár</th><th>Stav</th><th class="r">Pravděpodobnost úspěchu</th><th>Směr podle sazeb</th><th>Síla</th><th class="r">Cena</th><th class="r">RSI(2)</th><th>Kdy bude signál</th></tr></thead>
-      <tbody id="pairs"><tr><td colspan="9" class="muted">Data se načítají…</td></tr></tbody>
+    <header><h2 id="h-watch">Sledované páry</h2><span class="small muted">Od nejlepšího. <b>Vstup</b> = cena, při které model v pátek ve 22:00 (náš čas) otevře obchod. <b>Chybí</b> = o kolik se cena musí ještě pohnout.</span></header>
+    <div class="tablewrap"><table class="watch">
+      <thead><tr><th class="r">#</th><th>Pár a směr</th><th class="r">Vstup</th><th class="r">Teď</th><th class="r">Chybí</th><th class="r">Šance</th></tr></thead>
+      <tbody id="pairs"><tr><td colspan="6" class="muted">Data se načítají…</td></tr></tbody>
     </table></div>
+    <details class="small">
+      <summary>Podrobnosti k párům (sazby, RSI, zprávy, výzkum)</summary>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Pár</th><th>Sazby</th><th>Síla</th><th class="r">RSI(2)</th><th>Upozornění</th></tr></thead>
+        <tbody id="pairs-detail"></tbody>
+      </table></div>
+    </details>
   </section>
 
-  <section class="sheet" aria-labelledby="h-news">
-    <header><h2 id="h-news">Zprávy a centrální banky</h2><span class="small muted">Kalendář na 7 dní (střední a vysoký dopad), časy jsou naše. Obnovuje se jednou denně ve všední dny (23:07).</span></header>
+  <details class="sheet" aria-labelledby="h-news">
+    <summary><h2 id="h-news">Zprávy a centrální banky</h2><span class="small muted">Kalendář na 7 dní, časy jsou naše.</span></summary>
     <div class="stats" id="banks"></div>
     <div class="tablewrap"><table>
       <thead><tr><th>Kdy</th><th>Měna</th><th>Zpráva</th><th>Dopad</th><th class="r">Odhad</th><th class="r">Minule</th></tr></thead>
       <tbody id="news"><tr><td colspan="6" class="muted">Data se načítají…</td></tr></tbody>
     </table></div>
     <p class="small muted" id="news-note">Jak model se zprávami pracuje: rozhodnutí centrálních bank (Fed, ECB, BoJ, BoE) a americká data (NFP, CPI) od roku 2012 testuje na historii. Obchody otevřené do 7 dní před rozhodnutím centrální banky vydělávaly méně. Jejich vynechání ale snížilo roční výnos (méně obchodů) a poloviční pozice zatím také neprošla testem, proto to pravidlo zatím nedělá. U párů ukazujeme, kdy se zpráva blíží – ber to jako upozornění na vyšší riziko.</p>
-  </section>
+  </details>
 
-  <section class="sheet" aria-labelledby="h-research">
-    <header><h2 id="h-research">Týdenní výzkum trhu</h2><span class="small muted" id="research-week">Každou sobotu rozbor právě skončeného týdne.</span></header>
+  <details class="sheet" aria-labelledby="h-research">
+    <summary><h2 id="h-research">Týdenní výzkum trhu</h2><span class="small muted">Jen informace, model z něj neobchoduje.</span></summary>
+    <p class="small muted" id="research-week">Každou sobotu rozbor právě skončeného týdne.</p>
     <div id="research"><div class="empty">Výzkum se načítá s daty modelu.</div></div>
-  </section>
+  </details>
 
+  <details class="sheet" aria-labelledby="h-more">
+    <summary><h2 id="h-more">Sazby a pravidlo modelu</h2></summary>
   <div class="two">
     <section class="sheet" aria-labelledby="h-fund">
       <header><h2 id="h-fund">Fundamenty</h2><span class="small muted" id="vix"></span></header>
@@ -189,6 +210,7 @@ details summary { cursor: pointer; font-weight: 600; }
       <div id="rule" class="small"><p class="muted">Načítám…</p></div>
     </section>
   </div>
+  </details>
 
   <section class="sheet" aria-labelledby="h-journal">
     <header><h2 id="h-journal">Můj deník</h2><span class="small muted">Zapiš vstup a pak výstup. Výsledek se spočítá sám.</span></header>
@@ -222,8 +244,8 @@ details summary { cursor: pointer; font-weight: 600; }
     </table></div>
   </section>
 
-  <section class="sheet" aria-labelledby="h-how">
-    <header><h2 id="h-how">Jak s tím pracovat</h2></header>
+  <details class="sheet" aria-labelledby="h-how">
+    <summary><h2 id="h-how">Jak s tím pracovat</h2></summary>
     <ol class="steps">
       <li>V pátek po 22:05 otevři tuto stránku. V části <b>Signály k obchodu</b> uvidíš páry, které model doporučuje.</li>
       <li>Hned, nejpozději do 23:00 (zavření týdne v New Yorku), zadej u brokera obchod přesně podle karty: směr, vstup za aktuální cenu, pozici rozděl na 3 části s cíli <b>TP1, TP2, TP3</b> a stejným <b>stop lossem</b>. Velikost: marže uvedená na kartě – spočítá se tak, aby při stop lossu ztráta nepřesáhla tvou zvolenou nejvyšší ztrátu jednoho obchodu (pole nahoře, výchozí 5 % účtu).</li>
@@ -236,7 +258,7 @@ details summary { cursor: pointer; font-weight: 600; }
       <p><b>Pravděpodobnost úspěchu</b> – jak často v letech 2012–2026 cena u stejného páru a stejné síly signálu došla na TP1 dřív než na stop loss (u párů s málo obchody opatrně přitaženo k průměru). U TP2 a TP3 je pravděpodobnost nižší, zisk vyšší. Není to záruka. <b>TP1, TP2, TP3</b> – tři cíle; pozici rozděl na tři stejné části, každá se zavře na svém cíli. <b>Připraven</b> – cena je už teď v pásmu signálu; pokud tam bude i v pátek v 16:00 New York (obvykle 22:00 našeho času), bude obchod. <b>KOUPIT / PRODAT</b> – sázka na růst / pokles prvního měnového kódu v páru (u EUR/USD na euro). <b>Take profit (TP)</b> – cena, kde se obchod uzavře se ziskem. <b>Stop loss (SL)</b> – cena, kde se obchod uzavře se ztrátou. <b>Marže</b> – část účtu, kterou broker na obchod zablokuje; při páce 1:30 je pozice 30× větší než marže (u párů s AUD a NZD platí v EU páka 1:20, pozice je 20× větší). <b>Síla</b> – jak moc fundamenty (sazby) podporují obchod; silné signály mají větší pozici. <b>RSI(2)</b> – ukazatel krátkého propadu (pod 5) nebo růstu (nad 95).</p>
     </details>
     <p class="small muted">Výsledky modelu jsou zatím z historických dat (backtest). Skutečný důkaz je dopředný test v části Výsledky. Obchoduj jen peníze, jejichž ztrátu uneseš.</p>
-  </section>
+  </details>
   </div>
 
   <div class="panel" id="tab-heur" role="tabpanel" aria-labelledby="tab-btn-heur" hidden>
@@ -424,8 +446,8 @@ details summary { cursor: pointer; font-weight: 600; }
   function renderReady() {
     if (!state) return;
     const list = ranked(state.pary || []).filter((p) => p.skupina === "pripraven" && p.plan);
-    $("ready").innerHTML = list.length ? list.map((p, i) => planCard(p, p.plan, "podminka", i)).join("")
-      : `<div class="empty">Teď není žádný pár v pásmu signálu. Které páry se blíží, uvidíš ve Sledovaných párech.</div>`;
+    $("ready-sec").hidden = !list.length;
+    $("ready").innerHTML = list.length ? list.map((p, i) => planCard(p, p.plan, "podminka", i)).join("") : "";
   }
 
   function renderSignals() {
@@ -467,18 +489,51 @@ details summary { cursor: pointer; font-weight: 600; }
     const hist = p.n_hist ? `<div class="small muted">historie ${fmt(Math.round(p.n_hist * (p.uspesnost_hist || 0) / 100), 0)} z ${p.n_hist} ziskových</div>` : `<div class="small muted">bez historie</div>`;
     return `<b>${fmt(v, 0)} %</b>${hist}`;
   }
+  function entryGap(p) {
+    // how far the price still has to move to the model's entry (BUY: down to the level, SELL: up to it)
+    if (p.smer !== "KOUPIT" && p.smer !== "PRODAT" || p.spoustec == null || p.cena == null) return null;
+    return (p.spoustec / p.cena - 1) * 100;
+  }
+  function gapCell(p) {
+    if (p.skupina === "signal") return '<span class="chip strong">signál</span>';
+    const g = entryGap(p);
+    if (g === null) return '<span class="muted">–</span>';
+    const inBand = p.smer === "KOUPIT" ? g >= 0 : g <= 0;
+    const small = p.cil_ok === false ? '<span class="sub">cíl je teď moc malý</span>' : "";
+    if (inBand || p.skupina === "pripraven") return `<span class="chip warn">v pásmu</span>${small}`;
+    return `<span class="num">${sgn(g, 2)} %</span>${small}`;
+  }
   function renderPairs() {
     if (!state) return;
-    $("pairs").innerHTML = ranked(state.pary || []).map((p, i) => {
-      if (p.chyba) return `<tr><td class="r num">${i + 1}</td><td>${esc(p.par)}</td><td colspan="7" class="muted">${esc(p.chyba)}</td></tr>`;
+    const list = ranked(state.pary || []);
+    $("pairs").innerHTML = list.map((p, i) => {
+      if (p.chyba) return `<tr><td class="r num">${i + 1}</td><td><b>${esc(p.par)}</b></td><td colspan="4" class="small muted">${esc(p.chyba)}</td></tr>`;
+      const dir = p.smer === "KOUPIT" || p.smer === "PRODAT";
+      const prob = p.pravdepodobnost_uspechu != null ? p.pravdepodobnost_uspechu : p.odhad_uspesnosti;
+      const entry = dir && p.spoustec != null ? `<span class="num">${fmt(p.spoustec, p.desetinna_mista)}</span><span class="sub">${p.smer === "KOUPIT" ? "pod touto cenou" : "nad touto cenou"}</span>` : '<span class="muted small">bez směru</span>';
+      const tier = dir ? `<span class="sub">síla ${CZ[p.stupen] || esc(p.stupen || "–")}</span>` : "";
+      const warn = p.varovani ? `<span class="sub">⚠ chybí data, model u páru nerozhoduje</span>` : "";
+      return `<tr><td class="r num">${i + 1}</td>
+        <td><span class="pair"><b>${esc(p.par)}</b>${dir ? sideChip(p.smer) : '<span class="chip">bez směru</span>'}</span>${tier}${warn}</td>
+        <td class="r">${entry}</td>
+        <td class="r num">${fmt(p.cena, p.desetinna_mista)}</td>
+        <td class="r">${gapCell(p)}</td>
+        <td class="r num">${dir && prob != null ? `<b>${fmt(prob, 0)} %</b>` : "–"}</td></tr>`;
+    }).join("");
+    $("pairs-detail").innerHTML = list.map((p) => {
+      if (p.chyba) return `<tr><td><b>${esc(p.par)}</b></td><td colspan="4" class="muted">${esc(p.chyba)}</td></tr>`;
       const rsiCls = p.rsi2 < 5 || p.rsi2 > 95 ? "chip warn" : "";
-      const goal = (p.smer !== "NIC" && p.cil_ok === false) ? `<div class="small muted">teď by cíl nedosáhl 10 % marže (malý pohyb ceny), proto se neobchoduje</div>` : "";
-      return `<tr><td class="r num">${i + 1}</td><td><b>${esc(p.par)}</b></td><td>${(GROUP[p.skupina] || GROUP.nic)[1]}</td>
-        <td class="r num">${successCell(p)}</td>
-        <td>${sideChip(p.smer)}<div class="small muted">sazby ${sgn(p.zmena_sazeb_3m, 2)} p.b., rozdíl ${sgn(p.rozdil_sazeb, 2)} %</div></td>
-        <td>${tierChip(p.stupen)}</td><td class="r num">${fmt(p.cena, p.desetinna_mista)}</td>
+      const notes = [
+        p.varovani ? `<div><span class="chip warn">⚠ ${esc(p.varovani)}</span></div>` : "",
+        (p.udalosti_24h || []).length ? `<div><span class="chip warn">zprávy do 24 h: ${esc(p.udalosti_24h.join(", "))}</span></div>` : "",
+        (p.banka_7_dni || []).length ? `<div><span class="chip warn">centrální banka do 7 dní: ${esc(p.banka_7_dni.join(", "))}</span></div>` : "",
+        researchChip(p),
+        (p.vyzkum_udalosti || []).map((t) => `<div class="muted">Výzkum: ${esc(t)}</div>`).join("")].join("");
+      return `<tr><td><b>${esc(p.par)}</b></td>
+        <td class="num">změna ${sgn(p.zmena_sazeb_3m, 2)} p.b.<br>rozdíl ${sgn(p.rozdil_sazeb, 2)} %</td>
+        <td>${tierChip(p.stupen)}</td>
         <td class="r num"><span class="${rsiCls}">${fmt(p.rsi2, 0)}</span></td>
-        <td class="small">${esc(p.podminka || "")}${goal}${p.varovani ? `<div class="small"><span class="chip warn">⚠ ${esc(p.varovani)}</span></div>` : ""}${(p.udalosti_24h || []).length ? `<div class="small"><span class="chip warn">zprávy do 24 h: ${esc(p.udalosti_24h.join(", "))}</span></div>` : ""}${(p.banka_7_dni || []).length ? `<div class="small"><span class="chip warn">centrální banka do 7 dní: ${esc(p.banka_7_dni.join(", "))}</span></div>` : ""}${researchChip(p)}${(p.vyzkum_udalosti || []).map((t) => `<div class="small muted">Výzkum: ${esc(t)}</div>`).join("")}</td></tr>`;
+        <td>${notes || '<span class="muted">–</span>'}</td></tr>`;
     }).join("");
   }
 
