@@ -1994,3 +1994,27 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 * kandidat: 2019-22: **+46.0%** rocne, propad 21%, 1.1 ziskovych/mesic (marze 20% / 20% / 0% / 0%), po 2 letech +56% / +98%, vynos/propad 2.20; 2023-26: **+18.5%** rocne, propad 28%, 1.9 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +12% / +29%, vynos/propad 0.65
 * sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+20.3%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +31%, vynos/propad 0.72
 
+### 2026-10-11 - [champion_12_mesicne] r34_krivka_slabe: zamitnuto
+
+* slabsi stupne: zadny obchod, kdyz se krivka kupovane meny za 3 mesice relativne zestrmila (rozdil sazeb tahne dlouhy konec = rizikova prirazka, ne politika centralni banky)
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.3%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-11 - [champion_12_mesicne] r34_krivka_vse: zamitnuto
+
+* vsechny stupne: zadny obchod, kdyz se krivka kupovane meny relativne zestrmila
+* kandidat: 2019-22: -; 2023-26: -
+* sampion:  2019-22: **+53.0%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +42% / +73%, vynos/propad 1.85; 2023-26: **+28.3%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +44%, vynos/propad 1.17
+
+### 2026-10-11 - [champion_12] r34_krivka_slabe: zamitnuto
+
+* slabsi stupne: zadny obchod, kdyz se krivka kupovane meny za 3 mesice relativne zestrmila (rozdil sazeb tahne dlouhy konec = rizikova prirazka, ne politika centralni banky)
+* kandidat: 2019-22: **+53.0%** rocne, propad 27%, 2.2 ziskovych/mesic (marze 20% / 20% / 10% / 8%), po 2 letech +65% / +50%, vynos/propad 1.94; 2023-26: **+21.8%** rocne, propad 19%, 1.5 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +18% / +29%, vynos/propad 1.12
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+20.3%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +31%, vynos/propad 0.72
+
+### 2026-10-11 - [champion_12] r34_krivka_vse: zamitnuto
+
+* vsechny stupne: zadny obchod, kdyz se krivka kupovane meny relativne zestrmila
+* kandidat: 2019-22: **+50.8%** rocne, propad 27%, 2.1 ziskovych/mesic (marze 20% / 20% / 10% / 8%), po 2 letech +74% / +37%, vynos/propad 1.86; 2023-26: **+21.7%** rocne, propad 19%, 1.4 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +23% / +23%, vynos/propad 1.12
+* sampion:  2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+20.3%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +31%, vynos/propad 0.72
+

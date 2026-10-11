@@ -753,3 +753,19 @@ registry recomputed (AKTIVNÍ 0, 45 status changes, learning/heuristiky/stavy_lo
 Round 33 (both profiles; scripts/self_learn.py, signal "D RSI2<3" added in profit_deep.simulate only): without the
 weakest tier (rate divergence 0), weak tiers only after a deeper pullback RSI(2) < 3, only the weakest tier after
 RSI(2) < 3 - all rejected; champions unchanged (re-evaluated with the new week: max 2023-26 +20.3 % a year).
+
+## R-043 - 2026-10-11 05:00 UTC: relative yield curve research + round 34 (autonomous run; rejected)
+
+The user's request 2026-10-11: work autonomously, explore, experiment. Literature scan (web): Hutchinson et al. (2022,
+IRFA) - published FX carry / momentum / value lost their out-of-sample Sharpe after publication (+0.39 -> -0.32), a
+reminder that the model's history may overstate its future; Chen & Tsang (2013, REStat) - the relative yield curve
+predicts exchange rates 1-24 months ahead. New: scripts/vyzkum_krivka.py, docs/VYZKUM_KRIVKA.md (OECD 10y yields,
+FRED IRLTLT01, EUR = Germany; the model's 3-month rates; lag 2 months). Findings: the relative slope level correlated
+with the next 1-3 months in 2012-18 (rank corr. +0.07 / +0.11, t 2.5 beyond the model's rate change) but not in
+2019-26 (+0.02 / +0.06, t 0.9); among the champions' trades, those whose rate divergence came from the short end
+(the bought currency's curve flattened) earned more in 2012-18 and 2023-26, equally in 2019-22 (permutation p 0.05-0.12
+per period, 2019-26 together p 0.2-0.27). Round 34 (option `curve_veto`, simulator and live through one function
+profit_lab2.curve_mom, LIVE_BASE / LIVE_TIER, test_f3_audit): veto when the bought currency's curve steepened, weak
+tiers / all tiers - rejected in both profiles (max: 2023-26 return per drawdown 0.72 -> 1.12, drawdown 28 % -> 19 %,
+but 2019-22 2.63 -> 1.94; monthly: fewer wins a month). Champions unchanged. Possibly a post-2022 regime (term
+premium); re-check only with data after 2026-10 (re-validation 2027-04), not before.

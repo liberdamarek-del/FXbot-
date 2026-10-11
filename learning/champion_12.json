@@ -231,7 +231,9 @@
   "r32_konec_teze_sazby",
   "r33_bez_nejslabsiho_stupne",
   "r33_slabe_hlubsi_pokles",
-  "r33_nejslabsi_hlubsi_pokles"
+  "r33_nejslabsi_hlubsi_pokles",
+  "r34_krivka_slabe",
+  "r34_krivka_vse"
  ],
  "data_do": "2026-10-02 | AUD2026-08,CAD2026-08,CHF2026-08,CZK2026-08,EUR2026-08,GBP2026-08,HUF2026-08,JPY2026-08,MXN2026-08,NOK2026-08,NZD2026-08,PLN2026-07,SEK2026-08,USD2026-08,ZAR2026-08 | v4"
 }
