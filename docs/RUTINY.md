@@ -27,6 +27,7 @@ za pracovní sezení, zhruba 7× méně než dřív.
 | FXBOT páteční signály (22:05, přes dispečera) | pá 16:05 New York | totéž a k tomu signály pro uživatele |
 | FXBOT učení – středa (17:40, přes dispečera) | st 17:40 Praha | `rutina.py uceni`, pokusy, průzkum, přehled |
 | FXBOT učení – sobota (8:57, přes dispečera) | so 8:57 Praha | navíc heuristiky, týdenní výzkum a souhrn týdne |
+| FXBOT výzkum agenta (07:23, přes dispečera; R-045) | út, čt, ne 07:23 Praha | webový průzkum zlepšení řídicí vrstvy, zápis do `research/agent/` (viz tamní README.md), 1 věta uživateli |
 
 Staré rutiny, které chodily do hlavního rozhovoru, jsou vypnuté, ne smazané: „FXBOT aktualizace jednou denně
 (23:07)“, „FXBOT páteční signály“, „FXBOT učení ve středu …“ a „FXBOT sobotní učení …“. V nouzi je jde znovu

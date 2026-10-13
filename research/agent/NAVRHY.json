@@ -1,0 +1,21 @@
+{
+ "navrhy": [
+  {
+   "id": "N-001",
+   "vytvoreno": "2026-10-13",
+   "smer": "nastroje-robustnost",
+   "problem": "Nelze objektivně srovnávat verze rutin: posledni_beh.json eviduje jen čas, typ a diagnostiku; spotřeba tokenů, doba a počet volání nástrojů NEOVĚŘENO.",
+   "reseni": "Doplnit do rutina.py heartbeat měřitelné provozní údaje, které jsou skutečně dostupné z kódu (doba běhu skriptu, výsledek kroků); údaje, které kód nezná, nevymýšlet.",
+   "naklad": "malý (jedna úprava skriptu, test)",
+   "rizika": "zápis do posledni_beh.json nesmí rozbít stávající souhrn ani diagnostiku",
+   "zavislosti": "scripts/rutina.py, python fxbot.py test",
+   "metrika": "po 14 dnech jsou k dispozici údaje u >= 90 % běhů",
+   "zaklad_pro_srovnani": "současný posledni_beh.json",
+   "minimalni_vzorek": "10 běhů",
+   "zkreslujici_vlivy": "doba běhu závisí na síti a velikosti stahovaných dat",
+   "stav": "novy",
+   "duvod": "předpoklad pro všechna další srovnání",
+   "zdroje": []
+  }
+ ]
+}

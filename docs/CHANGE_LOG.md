@@ -804,3 +804,7 @@ entry in % ("v pásmu", "signál", note when the target is too small) / probabil
 research moved into a collapsible "Podrobnosti k párům". Collapsed by default: news and central banks, weekly research,
 rates and the model rule, "Jak s tím pracovat". "Připravené ke vstupu" shows only when a pair is in the band. No change
 to the model, signals or data.
+
+## R-045 - průběžný výzkum zlepšení agenta (provozní, ne změna modelu)
+
+Datum 2026-10-13. Nová složka `research/agent/` (zdroje, návrhy, experimenty, směry, deník) a rutina 3× týdně přes dispečera. Model, brána a signály beze změny; případné návrhy se do modelu dostanou jen přes bránu nebo měřený experiment.
