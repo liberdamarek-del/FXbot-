@@ -1,12 +1,75 @@
 {
  "poznamka": "priorita 1 (nízká) - 5 (vysoká); pravidlo přesměrování v README.md",
  "smery": [
-  {"id": "pamet-stav", "nazev": "Paměť a stav mezi krátkými sezeními (rutina bez historie)", "priorita": 5, "behu": 0, "prazdnych_za_sebou": 0, "nalezu": 0, "posledni_beh": null, "proc": "Každá rutina startuje bez paměti; dispečer roste o ~25 000 tokenů týdně (docs/RUTINY.md)."},
-  {"id": "sebehodnoceni-kalibrace", "nazev": "Sebehodnocení a kalibrace predikcí (heuristický deník, forward test)", "priorita": 5, "behu": 0, "prazdnych_za_sebou": 0, "nalezu": 0, "posledni_beh": null, "proc": "Systém rozlišuje statistickou pravděpodobnost a heuristický odhad; chybí měřená kalibrace."},
-  {"id": "experimentovani-falesne-objevy", "nazev": "Experimentování a ochrana proti falešným objevům (brána, vícenásobné testy)", "priorita": 4, "behu": 0, "prazdnych_za_sebou": 0, "nalezu": 0, "posledni_beh": null, "proc": "Audit R-029: asi 5 % čistě šumových změn projde bránou v3; re-validace plánovaná na 2027-04."},
-  {"id": "nastroje-robustnost", "nazev": "Používání nástrojů a robustnost běhů (idempotence, opakování, detekce tichého selhání)", "priorita": 3, "behu": 0, "prazdnych_za_sebou": 0, "nalezu": 0, "posledni_beh": null, "proc": "Rutiny závisí na síti, ArtifactData a gitu; selhání se pozná jen podle chybějícího commitu."},
-  {"id": "planovani-rozpocet", "nazev": "Plánování úloh a rozpočet tokenů / limitu", "priorita": 3, "behu": 0, "prazdnych_za_sebou": 0, "nalezu": 0, "posledni_beh": null, "proc": "Týdenní limit byl důvodem změny architektury rutin (R-044)."},
-  {"id": "uceni-ze-zpetne-vazby", "nazev": "Učení ze zpětné vazby (adaptace, detekce změny režimu) bez přeučení", "priorita": 2, "behu": 0, "prazdnych_za_sebou": 0, "nalezu": 0, "posledni_beh": null, "proc": "Mnoho adaptivních pokusů už bylo zamítnuto (docs/ADAPTIVNI.md, UCENI_LOG.md); hledat jen opravdu nové rodiny."},
-  {"id": "pruzkum-neobvykle", "nazev": "Průzkumný: neobvyklé kombinace technologií a postupů", "priorita": 2, "behu": 0, "prazdnych_za_sebou": 0, "nalezu": 0, "posledni_beh": null, "proc": "Zadání uživatele: nehledat jen běžně známé postupy."}
+  {
+   "id": "pamet-stav",
+   "nazev": "Paměť a stav mezi krátkými sezeními (rutina bez historie)",
+   "priorita": 5,
+   "behu": 1,
+   "prazdnych_za_sebou": 0,
+   "nalezu": 1,
+   "posledni_beh": "2026-10-13",
+   "proc": "Každá rutina startuje bez paměti; dispečer roste o ~25 000 tokenů týdně (docs/RUTINY.md)."
+  },
+  {
+   "id": "sebehodnoceni-kalibrace",
+   "nazev": "Sebehodnocení a kalibrace predikcí (heuristický deník, forward test)",
+   "priorita": 5,
+   "behu": 1,
+   "prazdnych_za_sebou": 0,
+   "nalezu": 1,
+   "posledni_beh": "2026-10-13",
+   "proc": "Systém rozlišuje statistickou pravděpodobnost a heuristický odhad; chybí měřená kalibrace."
+  },
+  {
+   "id": "experimentovani-falesne-objevy",
+   "nazev": "Experimentování a ochrana proti falešným objevům (brána, vícenásobné testy)",
+   "priorita": 4,
+   "behu": 1,
+   "prazdnych_za_sebou": 0,
+   "nalezu": 1,
+   "posledni_beh": "2026-10-13",
+   "proc": "Audit R-029: asi 5 % čistě šumových změn projde bránou v3; re-validace plánovaná na 2027-04."
+  },
+  {
+   "id": "nastroje-robustnost",
+   "nazev": "Používání nástrojů a robustnost běhů (idempotence, opakování, detekce tichého selhání)",
+   "priorita": 3,
+   "behu": 0,
+   "prazdnych_za_sebou": 0,
+   "nalezu": 0,
+   "posledni_beh": null,
+   "proc": "Rutiny závisí na síti, ArtifactData a gitu; selhání se pozná jen podle chybějícího commitu."
+  },
+  {
+   "id": "planovani-rozpocet",
+   "nazev": "Plánování úloh a rozpočet tokenů / limitu",
+   "priorita": 3,
+   "behu": 0,
+   "prazdnych_za_sebou": 0,
+   "nalezu": 0,
+   "posledni_beh": null,
+   "proc": "Týdenní limit byl důvodem změny architektury rutin (R-044)."
+  },
+  {
+   "id": "uceni-ze-zpetne-vazby",
+   "nazev": "Učení ze zpětné vazby (adaptace, detekce změny režimu) bez přeučení",
+   "priorita": 2,
+   "behu": 0,
+   "prazdnych_za_sebou": 0,
+   "nalezu": 0,
+   "posledni_beh": null,
+   "proc": "Mnoho adaptivních pokusů už bylo zamítnuto (docs/ADAPTIVNI.md, UCENI_LOG.md); hledat jen opravdu nové rodiny."
+  },
+  {
+   "id": "pruzkum-neobvykle",
+   "nazev": "Průzkumný: neobvyklé kombinace technologií a postupů",
+   "priorita": 2,
+   "behu": 0,
+   "prazdnych_za_sebou": 0,
+   "nalezu": 0,
+   "posledni_beh": null,
+   "proc": "Zadání uživatele: nehledat jen běžně známé postupy."
+  }
  ]
 }

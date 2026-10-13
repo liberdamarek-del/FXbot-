@@ -16,6 +16,63 @@
    "stav": "novy",
    "duvod": "předpoklad pro všechna další srovnání",
    "zdroje": []
+  },
+  {
+   "id": "N-002",
+   "vytvoreno": "2026-10-13",
+   "smer": "pamet-stav",
+   "problem": "Dispečer roste ~25 000 tokenů týdně (docs/RUTINY.md) a docs/STAV_PROJEKTU.md je ruční paměť, kterou udržuje model; nic nehlídá, že zastarává nebo nabobtnává.",
+   "reseni": "Deterministický (bez LLM) kontrolní skript: velikost a stáří STAV_PROJEKTU.md a CLAUDE.md, počet řádků se stavem NEOVĚŘENO starších než N dní, odkazy na neexistující soubory. Jen hlášení v diagnostice, žádné automatické přepisování paměti.",
+   "naklad": "malý",
+   "rizika": "falešná poplašení; zdroj je jen abstrakt B-třídy, závěr 'organizace eroduje' je pro náš malý textový soubor nejistý",
+   "zavislosti": "scripts/aktualizace.py (diagnostika)",
+   "metrika": "počet zastaralých/rozbitých odkazů a tokenů přečtených na start sezení (tokeny z kódu NEOVĚŘENO, proxy = bajty souborů)",
+   "zaklad_pro_srovnani": "stav souborů k 2026-10-13",
+   "minimalni_vzorek": "4 týdny běhů",
+   "zkreslujici_vlivy": "velikost souborů roste i legitimně s funkcemi",
+   "stav": "novy",
+   "duvod": "",
+   "zdroje": [
+    "https://arxiv.org/abs/2607.26637"
+   ]
+  },
+  {
+   "id": "N-003",
+   "vytvoreno": "2026-10-13",
+   "smer": "sebehodnoceni-kalibrace",
+   "problem": "Heuristický deník je od 7. 10. 2026 živý; kalibrace subjektivního odhadu vyšla opačně, ale chybí pravidelná zpráva Brierova skóre a spolehlivosti (reliability) pro statistické pravděpodobnosti pravidel.",
+   "reseni": "Do heuristiky.py (jen čtení deníku, nic nezapisovat do predikce/vyhodnoceni) přidat report: Brierovo skóre, rozklad na spolehlivost/rozlišení a tabulku binů předpověď vs. skutečnost; zvážit beta-binomické zhlazení úspěšnosti pravidla s malým n. Jen informace.",
+   "naklad": "střední",
+   "rizika": "málo vyhodnocených predikcí = šum; zdroje jsou jen abstrakty B",
+   "zavislosti": "learning/heuristiky/ (jen čtení)",
+   "metrika": "Brier vs. základní verze 'vždy průměrná úspěšnost'; rozdíl spolehlivosti",
+   "zaklad_pro_srovnani": "konstantní předpověď = celkový průměr úspěšnosti",
+   "minimalni_vzorek": "300 vyhodnocených predikcí (CLAUDE.md: první závěry po stovkách)",
+   "zkreslujici_vlivy": "překrývající se horizonty, korelace párů, historie 2019-26 nebyla pro nápady zcela neviděná",
+   "stav": "novy",
+   "duvod": "",
+   "zdroje": [
+    "https://arxiv.org/abs/2605.27668"
+   ]
+  },
+  {
+   "id": "N-004",
+   "vytvoreno": "2026-10-13",
+   "smer": "experimentovani-falesne-objevy",
+   "problem": "Brána v3 propouští asi 5 % šumu (audit R-029); nikde se nepočítá, kolik pokusů celkem proběhlo.",
+   "reseni": "Informační diagnostika: počet pokusů z docs/UCENI_LOG.md a odhad šancí na náhodný průchod. Brána se nemění. Před experimentem je nutné přečíst primární zdroj (Bailey & López de Prado, deflated Sharpe); v tomto běhu nepřečten, pouze zmínky ve výsledcích vyhledávání (NEOVĚŘENO).",
+   "naklad": "malý",
+   "rizika": "nesprávný počet nezávislých pokusů; metodu jsem nečetl z primárního zdroje",
+   "zavislosti": "docs/UCENI_LOG.md",
+   "metrika": "odhad očekávaného počtu falešných průchodů vs. skutečný počet přijatých změn",
+   "zaklad_pro_srovnani": "5 % z auditu R-029",
+   "minimalni_vzorek": "všechny dosavadní pokusy (stovky; přesný počet NEOVĚŘENO)",
+   "zkreslujici_vlivy": "pokusy nejsou nezávislé",
+   "stav": "novy",
+   "duvod": "čeká na přečtení primárního zdroje",
+   "zdroje": [
+    "https://arxiv.org/abs/2609.07065"
+   ]
   }
  ]
 }
