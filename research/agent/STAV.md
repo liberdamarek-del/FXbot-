@@ -5,3 +5,5 @@
 3. První průzkum: směry pamet-stav a sebehodnoceni-kalibrace (nejvyšší priorita).
 4. N-002/N-003/N-004: žádný není experiment; N-003 čeká na 300 vyhodnocených predikcí, N-004 na přečtení primárního zdroje.
 5. Příště: nastroje-robustnost a planovani-rozpocet (0 běhů); plné texty 2607.26637 a 2605.27668.
+6. N-005 (kontrola spojů/čerstvosti dat) je návrh, ne experiment; závisí na N-001. Zjistit, proč FXCM končí 25. 9. (STAV_PROJEKTU).
+7. Příště: uceni-ze-zpetne-vazby nebo pamet-stav (plné texty 2607.26637, 2605.27668); planovani-rozpocet má 1 prázdný běh.
