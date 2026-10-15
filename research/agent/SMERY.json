@@ -35,20 +35,20 @@
    "id": "nastroje-robustnost",
    "nazev": "Používání nástrojů a robustnost běhů (idempotence, opakování, detekce tichého selhání)",
    "priorita": 3,
-   "behu": 0,
+   "behu": 1,
    "prazdnych_za_sebou": 0,
-   "nalezu": 0,
-   "posledni_beh": null,
+   "nalezu": 2,
+   "posledni_beh": "2026-10-15",
    "proc": "Rutiny závisí na síti, ArtifactData a gitu; selhání se pozná jen podle chybějícího commitu."
   },
   {
    "id": "planovani-rozpocet",
    "nazev": "Plánování úloh a rozpočet tokenů / limitu",
    "priorita": 3,
-   "behu": 0,
-   "prazdnych_za_sebou": 0,
+   "behu": 1,
+   "prazdnych_za_sebou": 1,
    "nalezu": 0,
-   "posledni_beh": null,
+   "posledni_beh": "2026-10-15",
    "proc": "Týdenní limit byl důvodem změny architektury rutin (R-044)."
   },
   {

@@ -73,6 +73,26 @@
    "zdroje": [
     "https://arxiv.org/abs/2609.07065"
    ]
+  },
+  {
+   "id": "N-005",
+   "vytvoreno": "2026-10-15",
+   "smer": "nastroje-robustnost",
+   "problem": "Tiché selhání: historie FXCM končí 25. 9. 2026 (12 dní) a příčina je NEOVĚŘENO (STAV_PROJEKTU); rutina běží v lehkém režimu a chybějící data toleruje, selhání se jinak pozná jen podle chybějícího commitu.",
+   "reseni": "Deterministická kontrola 'spojů' na konci rutiny (bez LLM): čerstvost vstupů (FRED, FXCM, Yahoo, stav.json, kalendář) proti očekávanému datu, existence a stáří výstupů, shoda posledního commitu s posledni_beh.json. Výsledek jako VAROVÁNÍ/CHYBA v diagnostice; nic neopravuje ani nedoplňuje. Doplňuje N-001.",
+   "naklad": "malý až střední (jeden modul, testy přes python fxbot.py test)",
+   "rizika": "falešná varování ve svátky a o víkendu; zdroje jsou jen abstrakty B z cizích systémů",
+   "zavislosti": "scripts/rutina.py, scripts/aktualizace.py (diagnostika), N-001",
+   "metrika": "počet dnů mezi vznikem zastaralých dat a jejich nahlášením (cíl <= 1 běh); počet falešných varování za týden",
+   "zaklad_pro_srovnani": "současné zpoždění zjištění FXCM mezery (od 25. 9. dosud neobjasněno)",
+   "minimalni_vzorek": "4 týdny denních běhů",
+   "zkreslujici_vlivy": "svátky, výpadky zdrojů mimo naši kontrolu, málo událostí",
+   "stav": "novy",
+   "duvod": "",
+   "zdroje": [
+    "https://arxiv.org/abs/2606.14589",
+    "https://neurips.cc/virtual/2026/173038"
+   ]
   }
  ]
 }
