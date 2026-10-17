@@ -663,6 +663,12 @@ EXPERIMENTS = [
      lambda c: _tiers(c, lambda t: t[:2] + [{**x, "curve_veto": True} for x in t[2:]])),
     ("r34_krivka_vse", "vsechny stupne: zadny obchod, kdyz se krivka kupovane meny relativne zestrmila",
      lambda c: _with(c, curve_veto=True)),
+    # round 35 (learning run 2026-10-17): the window of the rate-divergence change. 2 months (r28) and 6 months were
+    # tested; 4 months fills the gap (fixed in advance, no tuning). Both profiles run it; only existing options
+    ("r35_okno_sazby_4m_slabe", "slabsi stupne: rozdil sazeb se meri za 4 mesice misto 3 (mezi zamitnutymi 2 a 6)",
+     lambda c: _tiers(c, lambda t: t[:2] + [{**x, "rates_window": 4} for x in t[2:]])),
+    ("r35_okno_sazby_4m_vse", "vsechny stupne: rozdil sazeb se meri za 4 mesice",
+     lambda c: _with(c, rates_window=4)),
 ]
 
 
