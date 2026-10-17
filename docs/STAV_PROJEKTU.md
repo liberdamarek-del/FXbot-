@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-10-07 (R-038).
+Poslední revize: 2026-10-17 (R-046).
 
 ## 1. Účel
 
@@ -77,6 +77,7 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | Repozitář liberdamarek-del/FXbot- je VEŘEJNÝ | OVĚŘENO (informace) | kdokoli vidí kód, model, forward test a heuristiky; deník uživatele v gitu není; data FXCM se proto do gitu nedávají |
 | Heuristiky: kalibrace odhadu | OVĚŘENO (negativní) | subjektivní odhad konfluence je opačně kalibrovaný (víc souhlasu = o něco nižší úspěšnost); zobrazuje se jen jako srovnání |
 | `scripts/pivot_lab.py` řádek 147: nedefinovaná proměnná `row_wk` | CHYBA (neaktivní výzkumný skript) | živý systém ho nepoužívá; rodina pivotů je uzavřená (R-014), oprava jen při jejím dalším použití |
+| Yahoo vs FXCM úroveň cen (R-046) | OVĚŘENO (úroveň), dopad na signál NEOVĚŘENO | EUR/USD, AUD/USD, NZD/USD: Yahoo stabilně o ca 0,03 % výš; ostatní páry < 0,01 %; zbývá změřit obrácení signálu (VYZKUM_FRONTA) |
 | Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, testy prošly (python fxbot.py test) |
 
 ## 6. Postup práce (pravidlo)

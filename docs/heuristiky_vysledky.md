@@ -1,14 +1,14 @@
-# Heuristický model – registr pravidel (2026-10-11)
+# Heuristický model – registr pravidel (2026-10-17)
 
-_Generuje `python scripts/heuristiky.py prepocet`. Data do 2026-10-02. Metodika: docs/HEURISTIKY.md. Výnosy jsou v % ceny po nákladech (spread + skluz), na jednu predikci._
+_Generuje `python scripts/heuristiky.py prepocet`. Data do 2026-10-09. Metodika: docs/HEURISTIKY.md. Výnosy jsou v % ceny po nákladech (spread + skluz), na jednu predikci._
 
 ## Stavy pravidel
 
 | Časový rámec | Rozsah | AKTIVNÍ | SLABÁ | NEOVĚŘENÁ | NEFUNKČNÍ | OVERFIT/NESTABILNÍ |
 |---|---|---|---|---|---|---|
-| 1D | jednotlivé páry | 0 | 183 | 1282 | 1025 | 345 |
+| 1D | jednotlivé páry | 0 | 183 | 1281 | 1029 | 342 |
 | 1D | všechny páry dohromady | 0 | 30 | 5 | 154 | 51 |
-| 4H | jednotlivé páry | 0 | 199 | 59 | 1773 | 460 |
+| 4H | jednotlivé páry | 0 | 201 | 59 | 1772 | 459 |
 | 4H | všechny páry dohromady | 0 | 2 | 0 | 178 | 14 |
 
 ## Aktivní pravidla (0)
@@ -19,19 +19,19 @@ _Generuje `python scripts/heuristiky.py prepocet`. Data do 2026-10-02. Metodika:
 
 | Typ | Pravidel | Kladných 2019–26 | AKTIVNÍ | SLABÁ | NEFUNKČNÍ | OVERFIT/NESTABILNÍ | NEOVĚŘENÁ |
 |---|---|---|---|---|---|---|---|
-| trend a struktura | 768 | 23 % | 0 | 16 | 548 | 92 | 112 |
+| trend a struktura | 768 | 23 % | 0 | 16 | 549 | 91 | 112 |
 | podpora a odpor | 144 | 44 % | 0 | 21 | 70 | 27 | 26 |
-| předchozí maxima a minima | 384 | 34 % | 0 | 30 | 258 | 69 | 27 |
-| volatilita (ATR) | 672 | 38 % | 0 | 40 | 258 | 98 | 276 |
-| oscilátory (RSI, MACD, Bollinger, stochastic) | 1152 | 40 % | 0 | 116 | 624 | 236 | 176 |
-| momentum | 480 | 29 % | 0 | 26 | 329 | 81 | 44 |
-| price action (svíčky) | 240 | 38 % | 0 | 28 | 132 | 45 | 35 |
+| předchozí maxima a minima | 384 | 34 % | 0 | 29 | 259 | 70 | 26 |
+| volatilita (ATR) | 672 | 37 % | 0 | 39 | 260 | 97 | 276 |
+| oscilátory (RSI, MACD, Bollinger, stochastic) | 1152 | 40 % | 0 | 117 | 624 | 235 | 176 |
+| momentum | 480 | 29 % | 0 | 27 | 329 | 80 | 44 |
+| price action (svíčky) | 240 | 38 % | 0 | 30 | 131 | 44 | 35 |
 | čas | 240 | 43 % | 0 | 21 | 118 | 55 | 46 |
 | fundamenty | 200 | 37 % | 0 | 1 | 54 | 12 | 133 |
 | reakce na události | 114 | 59 % | 0 | 11 | 20 | 12 | 71 |
-| korelace mezi páry | 288 | 36 % | 0 | 12 | 95 | 38 | 143 |
+| korelace mezi páry | 288 | 36 % | 0 | 11 | 95 | 39 | 143 |
 | fundament + technika | 176 | 46 % | 0 | 2 | 13 | 2 | 159 |
-| kombinace (tvoje příklady) | 288 | 22 % | 0 | 7 | 167 | 25 | 89 |
+| kombinace (tvoje příklady) | 288 | 21 % | 0 | 7 | 168 | 24 | 89 |
 
 ## Kalibrace pravděpodobností (predikce 2019–26)
 
@@ -39,14 +39,14 @@ _Generuje `python scripts/heuristiky.py prepocet`. Data do 2026-10-02. Metodika:
 
 | Heuristický odhad | Predikcí | Čekal | Skutečnost |
 |---|---|---|---|
-| 30–40 % | 131644 | 32,4 % | 49,8 % |
-| 40–45 % | 92974 | 40,0 % | 49,2 % |
-| 45–50 % | 98267 | 45,0 % | 49,2 % |
-| 50–55 % | 105100 | 50,0 % | 48,2 % |
-| 55–60 % | 120678 | 55,0 % | 47,6 % |
-| 60–65 % | 139215 | 60,0 % | 47,8 % |
-| 65–70 % | 129748 | 65,0 % | 47,1 % |
-| 70–80 % | 186959 | 72,6 % | 47,7 % |
+| 30–40 % | 131894 | 32,4 % | 49,8 % |
+| 40–45 % | 93250 | 40,0 % | 49,3 % |
+| 45–50 % | 98492 | 45,0 % | 49,2 % |
+| 50–55 % | 105356 | 50,0 % | 48,2 % |
+| 55–60 % | 120945 | 55,0 % | 47,6 % |
+| 60–65 % | 139674 | 60,0 % | 47,7 % |
+| 65–70 % | 130075 | 65,0 % | 47,1 % |
+| 70–80 % | 187363 | 72,6 % | 47,7 % |
 
 ## Shoda s hlavním modelem (obchody 2019–26)
 
@@ -58,50 +58,31 @@ _Generuje `python scripts/heuristiky.py prepocet`. Data do 2026-10-02. Metodika:
 
 Shoda heuristik s hlavním modelem historicky NEPŘIDÁVALA hodnotu – důvěru v signál nezvyšuje. (p = 0.2819)
 
-## Změny stavů (45)
+## Změny stavů (26)
 
-- osc_rsi_mom-60-L|EURUSD|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- mom_ts-60-S|EURUSD|1D: NEFUNKČNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,359, po korekci na počet pravidel q 1,00))
-- vol_klid_pruraz-10-L|USDCHF|1D: NEOVĚŘENÁ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- tr_ma-200-L|AUDUSD|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,011 %))
-- mom_ts-10-S|AUDUSD|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (walk-forward: kladných jen 5 z 11 let)
-- mm_falesny-20-S|USDCAD|1D: SLABÁ → OVERFIT/NESTABILNÍ (kladná jen ve 2 ze 4 období)
-- mm_predchozi-L|USDCAD|1D: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,309, po korekci na počet pravidel q 1,00))
-- osc_rsi_mom-60-L|USDCAD|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- osc_stoch-9-S|USDCAD|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,008 %))
-- mom_ts-60-L|USDCAD|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- komb-1-L|USDCAD|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (kladná jen ve 2 ze 4 období)
-- tr_struktura-5-S|NZDUSD|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- sr_odraz-50-L|NZDUSD|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,012 %))
-- sr_odraz-100-L|NZDUSD|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,017 %))
-- osc_rsi_obrat-14-30-L|NZDUSD|1D: NEOVĚŘENÁ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- osc_rsi_mom-70-S|NZDUSD|1D: NEOVĚŘENÁ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,074 %))
-- komb-2-L|NZDUSD|1D: NEOVĚŘENÁ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- mm_falesny-10-L|EURJPY|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- mom_ts-20-L|AUDJPY|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- osc_macd_x-19-39-9-S|EURUSD|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- vol_squeeze-15-L|USDJPY|4H: NEFUNKČNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,499, po korekci na počet pravidel q 1,00))
-- osc_rsi_obrat-14-35-L|GBPUSD|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- osc_stoch-14-S|GBPUSD|4H: NEFUNKČNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,225, po korekci na počet pravidel q 1,00))
-- osc_rsi_obrat-2-5-L|AUDUSD|4H: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,001 %))
-- osc_rsi_obrat-2-10-L|AUDUSD|4H: SLABÁ → OVERFIT/NESTABILNÍ (funguje jen při přesném nastavení (sousední nastavení drží 0 z 2))
-- mm_predchozi_falesny-S|USDCAD|4H: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,000 %))
-- vol_svicka_pokr-1-L|EURJPY|4H: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru)
-- vol_svicka_obrat-1.5-S|EURJPY|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (walk-forward: kladných jen 2 z 6 let)
-- pa_kladivo-L|EURJPY|4H: SLABÁ → OVERFIT/NESTABILNÍ (walk-forward: kladných jen 5 z 11 let)
-- cas_asie_pokr-1-L|EURJPY|4H: SLABÁ → OVERFIT/NESTABILNÍ (walk-forward: kladných jen 4 z 9 let)
-- sr_odraz-50-L|GBPJPY|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- komb-3-L|GBPJPY|4H: SLABÁ → NEFUNKČNÍ (na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru)
-- osc_rsi_obrat-14-25-L|EURGBP|4H: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,003 %))
-- sr_odraz-20-S|EURCHF|4H: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,118, po korekci na počet pravidel q 1,00))
-- vol_squeeze-15-S|EURCHF|4H: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,171, po korekci na počet pravidel q 1,00))
-- vol_squeeze-20-S|EURCHF|4H: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,146, po korekci na počet pravidel q 1,00))
-- osc_bb_pokr-2.5-S|EURCHF|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (kladná jen ve 2 ze 4 období)
-- komb-4-S|EURCHF|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- tr_struktura-10-L|AUDJPY|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- osc_macd_x-19-39-9-S|AUDJPY|4H: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,000 %))
-- osc_bb_pokr-2.5-L|AUDJPY|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- f_sazby-0.25-L|VSE|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
-- vol_prehnani-1.5-S|VSE|4H: NEFUNKČNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,017, po korekci na počet pravidel q 1,00))
-- tr_ma-100-L+trend=trend|USDJPY|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (walk-forward: kladných jen 5 z 11 let)
-- osc_rsi_obrat-2-5-L+vol=vysoká|EURJPY|4H: NEFUNKČNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,480, po korekci na počet pravidel q 1,00))
+- tr_ma-50-L|GBPUSD|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
+- mm_pruraz-55-L|USDCAD|1D: NEOVĚŘENÁ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
+- tr_struktura-5-S|NZDUSD|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru)
+- osc_rsi_obrat-14-30-L|NZDUSD|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,008 %))
+- komb-2-L|NZDUSD|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,008 %))
+- mm_predchozi_falesny-L|EURJPY|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru)
+- mom_rada_obrat-4-L|EURJPY|1D: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,456, po korekci na počet pravidel q 1,00))
+- osc_rsi_obrat-2-15-L|EURGBP|1D: SLABÁ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,003 %))
+- pa_vnitrni-S|EURGBP|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
+- mm_predchozi-L|EURCHF|1D: SLABÁ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,012 %))
+- osc_stoch-21-S|EURCHF|1D: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,213, po korekci na počet pravidel q 1,00))
+- osc_rsi_obrat-14-25-L|EURUSD|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
+- vol_squeeze-15-L|USDJPY|4H: SLABÁ → NEFUNKČNÍ (na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru)
+- pa_vnitrni-S|GBPUSD|4H: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,168, po korekci na počet pravidel q 1,00))
+- kor_sila_pokr-6-S|GBPUSD|4H: SLABÁ → OVERFIT/NESTABILNÍ (kladná jen ve 2 ze 4 období)
+- osc_rsi_obrat-2-5-L|AUDUSD|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (walk-forward: kladných jen 4 z 9 let)
+- osc_rsi_obrat-2-10-L|AUDUSD|4H: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,063, po korekci na počet pravidel q 1,00))
+- mm_predchozi_falesny-S|NZDUSD|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (kladná jen ve 2 ze 4 období)
+- pa_kladivo-L|EURJPY|4H: OVERFIT/NESTABILNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,388, po korekci na počet pravidel q 1,00))
+- tr_struktura-5-L|GBPJPY|4H: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru)
+- vol_prehnani-2-L|EURCHF|4H: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,000 %))
+- vol_klid_pruraz-20-S|VSE|1D: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (funguje jen v letech 2019–26, v letech 2012–18 ne)
+- f_sazby-0.25-L|VSE|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru)
+- tr_ma-100-L+trend=trend|USDJPY|4H: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru)
+- tr_pullback-30-L+vol=vysoká|USDJPY|4H: NEFUNKČNÍ → SLABÁ (kladná, ale neprokázaná (p 2019–26 0,452, po korekci na počet pravidel q 1,00))
+- sr_odraz-20-S+trend=přechod|AUDJPY|4H: NEFUNKČNÍ → OVERFIT/NESTABILNÍ (walk-forward: kladných jen 5 z 11 let)

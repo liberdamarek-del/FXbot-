@@ -43,3 +43,29 @@
 {"den": "2026-10-11", "id": "vol_prehnani-1.5-S|VSE|4H", "z": "NEFUNKČNÍ", "na": "SLABÁ", "duvod": "kladná, ale neprokázaná (p 2019–26 0,017, po korekci na počet pravidel q 1,00)"}
 {"den": "2026-10-11", "id": "tr_ma-100-L+trend=trend|USDJPY|4H", "z": "NEFUNKČNÍ", "na": "OVERFIT/NESTABILNÍ", "duvod": "walk-forward: kladných jen 5 z 11 let"}
 {"den": "2026-10-11", "id": "osc_rsi_obrat-2-5-L+vol=vysoká|EURJPY|4H", "z": "NEFUNKČNÍ", "na": "SLABÁ", "duvod": "kladná, ale neprokázaná (p 2019–26 0,480, po korekci na počet pravidel q 1,00)"}
+{"den": "2026-10-17", "id": "tr_ma-50-L|GBPUSD|1D", "z": "NEFUNKČNÍ", "na": "OVERFIT/NESTABILNÍ", "duvod": "funguje jen v letech 2019–26, v letech 2012–18 ne"}
+{"den": "2026-10-17", "id": "mm_pruraz-55-L|USDCAD|1D", "z": "NEOVĚŘENÁ", "na": "OVERFIT/NESTABILNÍ", "duvod": "funguje jen v letech 2019–26, v letech 2012–18 ne"}
+{"den": "2026-10-17", "id": "tr_struktura-5-S|NZDUSD|1D", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru"}
+{"den": "2026-10-17", "id": "osc_rsi_obrat-14-30-L|NZDUSD|1D", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 po nákladech prodělává (průměr -0,008 %)"}
+{"den": "2026-10-17", "id": "komb-2-L|NZDUSD|1D", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 po nákladech prodělává (průměr -0,008 %)"}
+{"den": "2026-10-17", "id": "mm_predchozi_falesny-L|EURJPY|1D", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru"}
+{"den": "2026-10-17", "id": "mom_rada_obrat-4-L|EURJPY|1D", "z": "OVERFIT/NESTABILNÍ", "na": "SLABÁ", "duvod": "kladná, ale neprokázaná (p 2019–26 0,456, po korekci na počet pravidel q 1,00)"}
+{"den": "2026-10-17", "id": "osc_rsi_obrat-2-15-L|EURGBP|1D", "z": "SLABÁ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 po nákladech prodělává (průměr -0,003 %)"}
+{"den": "2026-10-17", "id": "pa_vnitrni-S|EURGBP|1D", "z": "NEFUNKČNÍ", "na": "OVERFIT/NESTABILNÍ", "duvod": "funguje jen v letech 2019–26, v letech 2012–18 ne"}
+{"den": "2026-10-17", "id": "mm_predchozi-L|EURCHF|1D", "z": "SLABÁ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 po nákladech prodělává (průměr -0,012 %)"}
+{"den": "2026-10-17", "id": "osc_stoch-21-S|EURCHF|1D", "z": "OVERFIT/NESTABILNÍ", "na": "SLABÁ", "duvod": "kladná, ale neprokázaná (p 2019–26 0,213, po korekci na počet pravidel q 1,00)"}
+{"den": "2026-10-17", "id": "osc_rsi_obrat-14-25-L|EURUSD|4H", "z": "NEFUNKČNÍ", "na": "OVERFIT/NESTABILNÍ", "duvod": "funguje jen v letech 2019–26, v letech 2012–18 ne"}
+{"den": "2026-10-17", "id": "vol_squeeze-15-L|USDJPY|4H", "z": "SLABÁ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru"}
+{"den": "2026-10-17", "id": "pa_vnitrni-S|GBPUSD|4H", "z": "OVERFIT/NESTABILNÍ", "na": "SLABÁ", "duvod": "kladná, ale neprokázaná (p 2019–26 0,168, po korekci na počet pravidel q 1,00)"}
+{"den": "2026-10-17", "id": "kor_sila_pokr-6-S|GBPUSD|4H", "z": "SLABÁ", "na": "OVERFIT/NESTABILNÍ", "duvod": "kladná jen ve 2 ze 4 období"}
+{"den": "2026-10-17", "id": "osc_rsi_obrat-2-5-L|AUDUSD|4H", "z": "NEFUNKČNÍ", "na": "OVERFIT/NESTABILNÍ", "duvod": "walk-forward: kladných jen 4 z 9 let"}
+{"den": "2026-10-17", "id": "osc_rsi_obrat-2-10-L|AUDUSD|4H", "z": "OVERFIT/NESTABILNÍ", "na": "SLABÁ", "duvod": "kladná, ale neprokázaná (p 2019–26 0,063, po korekci na počet pravidel q 1,00)"}
+{"den": "2026-10-17", "id": "mm_predchozi_falesny-S|NZDUSD|4H", "z": "NEFUNKČNÍ", "na": "OVERFIT/NESTABILNÍ", "duvod": "kladná jen ve 2 ze 4 období"}
+{"den": "2026-10-17", "id": "pa_kladivo-L|EURJPY|4H", "z": "OVERFIT/NESTABILNÍ", "na": "SLABÁ", "duvod": "kladná, ale neprokázaná (p 2019–26 0,388, po korekci na počet pravidel q 1,00)"}
+{"den": "2026-10-17", "id": "tr_struktura-5-L|GBPJPY|4H", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru"}
+{"den": "2026-10-17", "id": "vol_prehnani-2-L|EURCHF|4H", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 po nákladech prodělává (průměr -0,000 %)"}
+{"den": "2026-10-17", "id": "vol_klid_pruraz-20-S|VSE|1D", "z": "NEFUNKČNÍ", "na": "OVERFIT/NESTABILNÍ", "duvod": "funguje jen v letech 2019–26, v letech 2012–18 ne"}
+{"den": "2026-10-17", "id": "f_sazby-0.25-L|VSE|1D", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru"}
+{"den": "2026-10-17", "id": "tr_ma-100-L+trend=trend|USDJPY|4H", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru"}
+{"den": "2026-10-17", "id": "tr_pullback-30-L+vol=vysoká|USDJPY|4H", "z": "NEFUNKČNÍ", "na": "SLABÁ", "duvod": "kladná, ale neprokázaná (p 2019–26 0,452, po korekci na počet pravidel q 1,00)"}
+{"den": "2026-10-17", "id": "sr_odraz-20-S+trend=přechod|AUDJPY|4H", "z": "NEFUNKČNÍ", "na": "OVERFIT/NESTABILNÍ", "duvod": "walk-forward: kladných jen 5 z 11 let"}

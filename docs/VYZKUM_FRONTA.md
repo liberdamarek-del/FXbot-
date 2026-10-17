@@ -23,7 +23,7 @@ nedělá v samostatných bězích, ale **jako jeden ohraničený krok na konci k
 
 | # | Co | Proč | Stav |
 |---|---|---|---|
-| 1 | Rozdíl cen Yahoo (živě) a FXCM (historie) v páteční 16:00 New York u 12 párů | Model se testuje na FXCM a živě rozhoduje podle Yahoo. Rozdíl blízko hranice RSI může změnit signál. | čeká |
+| 1 | Rozdíl cen Yahoo (živě) a FXCM (historie) v páteční 16:00 New York u 12 párů | Model se testuje na FXCM a živě rozhoduje podle Yahoo. Rozdíl blízko hranice RSI může změnit signál. | ROZPRACOVÁNO – 1. krok hotov 2026-10-17 (úroveň cen), zbývá dopad na RSI(2) a signál |
 | 2 | Přehled živého testu modelu (od 2. 11. 2026, po 4+ týdnech) | Obchody modelu proti očekávání z historie: úspěšnost, průměr a doba držení. Jde o jediná opravdu nová data. | čeká na datum |
 | 3 | Ekonomická překvapení (skutečnost proti očekávání), nejdřív zjistit, zda existuje zdarma ověřitelný historický zdroj | Literatura: překvapení vysvětlují velkou část čtvrtletních pohybů měn (Stavrakeva & Tang 2020). Kalendář projektu má forecast/actual jen od 10/2026. | čeká |
 | 4 | Sledování literatury jednou za čtvrtletí (nové práce o předvídatelnosti měn, o slábnutí anomálií) | Hutchinson a kol. 2022: zveřejněné anomálie po zveřejnění slábnou. | příště 2027-01 |
@@ -36,3 +36,6 @@ nedělá v samostatných bězích, ale **jako jeden ohraničený krok na konci k
   * Test relativní výnosové křivky (docs/VYZKUM_KRIVKA.md) a kolo 34. Brána ho zamítla.
   * Zjištění: obchody, u kterých rozdíl sazeb táhne krátký konec křivky, vycházely lépe v letech 2012–18 a 2023–26,
     v letech 2019–22 stejně.
+* **2026-10-17 (R-046):** položka 1, krok 1 – `scripts/yahoo_vs_fxcm.py`, hodinové zavření Yahoo proti FXCM (střed bid/ask), překryv asi 9 800 hodin (2 roky), 84 pátečních barů 15:00 New York na pár.
+  * Výsledek: většina párů se liší o méně než 0,01 % ceny (medián). EUR/USD, AUD/USD a NZD/USD mají stálý posun Yahoo nad FXCM o ca 0,03 % (v obou polovinách období stejný, tedy ne náhoda). GBP/USD, USD/CHF, JPY páry bez posunu. Nejhorší páteční odchylka 0,07 % (AUD/USD).
+  * Příčina posunu NEOVĚŘENO (jiný zdroj kotace Yahoo; dohadovat se nedá). Posun úrovně sám RSI(2) téměř nemění; zbývá změřit, kolikrát by rozdíl obrátil signál (srovnání RSI(2) z obou zdrojů v pátek 16:00 NY) – příští krok.

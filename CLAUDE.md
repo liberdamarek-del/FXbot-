@@ -166,6 +166,7 @@ re-downloaded by the scripts.
 - (done 2026-10-11, R-043, docs/VYZKUM_KRIVKA.md) round 34: relative yield curve veto (`curve_veto`: no trade when the
   bought currency's curve steepened, weak / all tiers) - rejected (helped 2023-26 drawdown 28 -> 19 %, hurt 2019-22);
   re-check only at the 2027-04 re-validation on data after 2026-10.
+- (done 2026-10-17, R-046) round 35: rate-divergence window 4 months (weak / all tiers) - rejected (do not retest rate windows 2/4/6).
 - Next (new families only): BoE announcement days 2015-05/06/07 (stored = vote day? R-033, NEOVĚŘENO); BoC dates (history not on the site; try archived press releases), RBNZ (403);
   BoE dates 8/2015-12/2016 missing; a different entry family with the same rate filter (Friday intraday path) only
   with an economic reason first; forward test review after 4+ weeks of live trades.

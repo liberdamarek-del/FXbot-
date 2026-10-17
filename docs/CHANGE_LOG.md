@@ -808,3 +808,7 @@ to the model, signals or data.
 ## R-045 - průběžný výzkum zlepšení agenta (provozní, ne změna modelu)
 
 Datum 2026-10-13. Nová složka `research/agent/` (zdroje, návrhy, experimenty, směry, deník) a rutina 3× týdně přes dispečera. Model, brána a signály beze změny; případné návrhy se do modelu dostanou jen přes bránu nebo měřený experiment.
+
+## R-046 - sobotní učení 2026-10-17 (kolo 35) a průzkum
+
+Datum 2026-10-17. Nová data FXCM (do 9. 10.), sazby, přepočet heuristik (5 760 pravidel, žádné AKTIVNÍ, 26 změn stavu), týdenní analýza 2026-W42. Kolo 35 (okno změny sazeb 4 měsíce, slabší stupně / všechny stupně, oba profily): vše zamítnuto, šampioni beze změny. Průzkum: `scripts/yahoo_vs_fxcm.py` (rozdíl cen Yahoo a FXCM, viz docs/VYZKUM_FRONTA.md). Testy 53/0. Model, brána a signály beze změny.
