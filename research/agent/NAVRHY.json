@@ -93,6 +93,25 @@
     "https://arxiv.org/abs/2606.14589",
     "https://neurips.cc/virtual/2026/173038"
    ]
+  },
+  {
+   "id": "N-006",
+   "vytvoreno": "2026-10-18",
+   "smer": "uceni-ze-zpetne-vazby",
+   "problem": "Forward test a heuristický deník nemají automatický signál, že se chování modelu oproti historii posunulo (drift); re-validace je plánovaná jen jednou, 2027-04.",
+   "reseni": "Informační skript (jen čtení forward_trades.json a deníku heuristik): sekvenční test výskytu výher/stopů proti očekávání z backtestu (CUSUM či konformní test martingale) s hlášením 'možný drift'. Nic nemění model ani signály.",
+   "naklad": "Malý (jeden skript, bez LLM, bez sítě); údržba nízká.",
+   "rizika": "Při malém počtu uzavřených obchodů falešné poplachy nebo nulová síla; riziko, že se hlášení bude číst jako důvod ke změně modelu (musí jít jen přes bránu).",
+   "zavislosti": "Dostatek uzavřených forward obchodů a vyhodnocených predikcí; N-003 (kalibrace).",
+   "metrika": "Počet poplachů vs. skutečné zhoršení (rozdíl realizované a očekávané výnosnosti) na zpětném přehrání historie.",
+   "zaklad_pro_srovnani": "Dnes žádná detekce driftu; jediná kontrola je re-validace 2027-04.",
+   "minimalni_vzorek": "Alespoň 30 uzavřených forward obchodů; do té doby jen zpětné přehrání na historii.",
+   "zkreslujici_vlivy": "Autokorelace obchodů, překryv párů (jedna měna ve více obchodech), změna režimu vs. náhoda, vícenásobné testování.",
+   "stav": "novy",
+   "duvod": "Zatím jen návrh; není experiment, vzorek chybí.",
+   "zdroje": [
+    "https://arxiv.org/abs/2602.16537"
+   ]
   }
  ]
 }

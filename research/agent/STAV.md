@@ -7,3 +7,5 @@
 5. Příště: nastroje-robustnost a planovani-rozpocet (0 běhů); plné texty 2607.26637 a 2605.27668.
 6. N-005 (kontrola spojů/čerstvosti dat) je návrh, ne experiment; závisí na N-001. Zjistit, proč FXCM končí 25. 9. (STAV_PROJEKTU).
 7. Příště: uceni-ze-zpetne-vazby nebo pamet-stav (plné texty 2607.26637, 2605.27668); planovani-rozpocet má 1 prázdný běh.
+8. N-006 (monitor driftu) čeká na >= 30 uzavřených forward obchodů; zatím jen návrh.
+9. Příště: sebehodnoceni-kalibrace nebo experimentovani-falesne-objevy; pamet-stav má 1 prázdný běh.
