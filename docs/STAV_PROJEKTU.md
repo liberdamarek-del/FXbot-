@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-10-17 (R-046).
+Poslední revize: 2026-10-20 (R-047, větev architektura-v2, fáze 0).
 
 ## 1. Účel
 
@@ -42,6 +42,7 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 | Sazby FRED, CB, makro | fundamenty bez pohledu do budoucna | HOTOVO/OVĚŘENO | audit R-029, testy |
 | Simulátor + účet | obchody a účet se složeným úročením, propad i z otevřených obchodů | HOTOVO/OVĚŘENO | 52 testů (`python fxbot.py test`) |
 | Brána učení v3 | změna jen při zlepšení na neviděných letech | HOTOVO/OVĚŘENO | audit R-029 (asi 5 % náhodných změn projde) |
+| Zmrazení nových pokusů (R-047) | do `EXPERIMENTS` se nic nepřidává; `self_learn.py` nový pokus odmítne | HOTOVO/OVĚŘENO (kód + test_g0_zmrazeni); platí pro rutiny po sloučení do `main` | testovací roky 2019–26 opotřebované: 332 pokusů v logu, 8 přijatých; learning/zmrazeni_pokusu.json |
 | Šampioni (měsíční, max) | živá pravidla | HOTOVO/OVĚŘENO | test naslepo 2019–22 a 2023–26 |
 | Živé signály | totéž co historie, pátek 16:00 NY | HOTOVO/OVĚŘENO | forward test = backtest (R-029) |
 | Přehled + deník | signály, plán, deník uživatele | HOTOVO/OVĚŘENO | aktualizace jednou denně po–pá 17:07 New York (R-041) |
@@ -78,6 +79,7 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | Heuristiky: kalibrace odhadu | OVĚŘENO (negativní) | subjektivní odhad konfluence je opačně kalibrovaný (víc souhlasu = o něco nižší úspěšnost); zobrazuje se jen jako srovnání |
 | `scripts/pivot_lab.py` řádek 147: nedefinovaná proměnná `row_wk` | CHYBA (neaktivní výzkumný skript) | živý systém ho nepoužívá; rodina pivotů je uzavřená (R-014), oprava jen při jejím dalším použití |
 | Yahoo vs FXCM úroveň cen (R-046) | OVĚŘENO (úroveň), dopad na signál NEOVĚŘENO | EUR/USD, AUD/USD, NZD/USD: Yahoo stabilně o ca 0,03 % výš; ostatní páry < 0,01 %; zbývá změřit obrácení signálu (VYZKUM_FRONTA) |
+| Skutečný počet pokusů | NEOVĚŘENO | log učení má 332 záznamů, ale pivoty (1 080 variant), intradenní a další rodiny z lab skriptů v něm nejsou; zpětně doplní registr pokusů (architektura-v2, fáze 2) |
 | Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, testy prošly (python fxbot.py test) |
 
 ## 6. Postup práce (pravidlo)

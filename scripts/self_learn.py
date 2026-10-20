@@ -47,6 +47,7 @@ import fxcm_universe as U  # noqa: E402
 import portfolio_sim as PS  # noqa: E402
 import profit_deep as D  # noqa: E402
 import profit_lab2 as P  # noqa: E402
+import zmrazeni as ZM  # noqa: E402
 from src.instruments import DEFAULT_ACTIVE  # noqa: E402
 
 # learning profiles: "max" = the largest annual return; "mesicne" = the same, but only configurations that
@@ -723,6 +724,10 @@ def main(argv: list[str]) -> int:
         print(json.dumps(state["config"], indent=1, ensure_ascii=False))
         print(LOG.read_text() if LOG.exists() else "(zatim zadny pokus)")
         return 0
+    nove = ZM.nove_pokusy([e for e, _, _ in EXPERIMENTS])      # freeze of new trials (R-047, learning/zmrazeni_pokusu.json)
+    if nove:
+        print(ZM.zprava_poruseni(nove), file=sys.stderr)
+        return 3
     started = time.monotonic()
     mark = data_mark(state["config"])
     if state["eval"] is None or state.get("data_do") != mark:
@@ -733,6 +738,9 @@ def main(argv: list[str]) -> int:
         CHAMPION.write_text(json.dumps(state, indent=1, ensure_ascii=False, default=list))
     for exp, text, make in EXPERIMENTS:
         if exp in state["tried"]:
+            continue
+        if ZM.aktivni():
+            print(f"{exp}: preskoceno - pokusy jsou zmrazene (R-047)", flush=True)
             continue
         champ_eval = {int(k): v for k, v in state["eval"].items()}
         cand = make(state["config"])

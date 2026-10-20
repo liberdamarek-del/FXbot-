@@ -205,9 +205,17 @@ def check_state() -> str | None:
                "odpovidaji sampionovi" if rule == name else f"jsou pro '{rule}', sampion je '{name}' - spust pair_stats.py")
     try:
         import self_learn as SL
+        import zmrazeni as ZM
+        zmrazeno = ZM.aktivni()
+        nove = ZM.nove_pokusy([e for e, _, _ in SL.EXPERIMENTS])
+        if nove:                                         # a trial added during the freeze (R-047): report, do not block signals
+            report("uceni", WARN, f"zmrazeni pokusu porusuji nove pokusy {', '.join(nove)} - self_learn.py odmitne bezet")
         for prof, cfg in SL.PROFILES.items():
             tried = set(json.loads(cfg["state"].read_text())["tried"]) if cfg["state"].exists() else set()
             todo = [e for e, _, _ in SL.EXPERIMENTS if e not in tried]
+            if zmrazeno:
+                report("uceni", OK, f"profil {prof}: nove pokusy zmrazeny od {ZM.nacti()['od']} (R-047), vyzkouseno {len(tried)}")
+                continue
             report("uceni", OK if todo else WARN,
                    f"profil {prof}: {len(todo)} novych pokusu ve fronte" + ("" if todo else " - sobotni uceni musi pridat nove"))
     except Exception as exc:
