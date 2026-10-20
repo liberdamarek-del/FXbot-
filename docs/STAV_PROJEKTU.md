@@ -79,7 +79,7 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | Výzkum zlepšení agenta (R-045, research/agent/) | ROZPRACOVÁNO | složka a protokol založeny 13. 10. 2026, rutina 3× týdně (út, čt, ne 07:23 Praha) přes dispečera; zatím žádný běh, žádný zdroj; metriky provozu NEOVĚŘENO (N-001) |
 | Repozitář liberdamarek-del/FXbot- je VEŘEJNÝ | OVĚŘENO (informace) | kdokoli vidí kód, model, forward test a heuristiky; deník uživatele v gitu není; data FXCM se proto do gitu nedávají |
 | Heuristiky: kalibrace odhadu | OVĚŘENO (negativní) | subjektivní odhad konfluence je opačně kalibrovaný (víc souhlasu = o něco nižší úspěšnost); zobrazuje se jen jako srovnání |
-| `scripts/pivot_lab.py` řádek 147: nedefinovaná proměnná `row_wk` | CHYBA (neaktivní výzkumný skript) | živý systém ho nepoužívá; rodina pivotů je uzavřená (R-014), oprava jen při jejím dalším použití |
+| `scripts/pivot_lab.py` řádek 147: „nedefinovaná“ proměnná `row_wk` | OVĚŘENO: falešný poplach statické analýzy (R-048) | proměnná se čte až od druhé iterace, první ji nastaví; skript navíc nedosáhne žádná rutina |
 | Yahoo vs FXCM úroveň cen (R-046) | OVĚŘENO (úroveň), dopad na signál NEOVĚŘENO | EUR/USD, AUD/USD, NZD/USD: Yahoo stabilně o ca 0,03 % výš; ostatní páry < 0,01 %; zbývá změřit obrácení signálu (VYZKUM_FRONTA) |
 | Skutečný počet pokusů | NEOVĚŘENO | log učení má 332 záznamů, ale pivoty (1 080 variant), intradenní a další rodiny z lab skriptů v něm nejsou; zpětně doplní registr pokusů (architektura-v2, fáze 2) |
 | Archiv V7.8.0 a nevolaných labů (R-048) | HOTOVO/OVĚŘENO | 140 souborů v `archive/` (nic nesmazáno, tag `archiv-v7.8.0-pred-presunem`, tabulka v `archive/README.md`); `python fxbot.py` umí jen `test` |
