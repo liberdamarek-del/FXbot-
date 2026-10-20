@@ -82,7 +82,7 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | `scripts/pivot_lab.py` řádek 147: „nedefinovaná“ proměnná `row_wk` | OVĚŘENO: falešný poplach statické analýzy (R-048) | proměnná se čte až od druhé iterace, první ji nastaví; skript navíc nedosáhne žádná rutina |
 | Yahoo vs FXCM úroveň cen (R-046) | OVĚŘENO (úroveň), dopad na signál NEOVĚŘENO | EUR/USD, AUD/USD, NZD/USD: Yahoo stabilně o ca 0,03 % výš; ostatní páry < 0,01 %; zbývá změřit obrácení signálu (VYZKUM_FRONTA) |
 | Skutečný počet pokusů | NEOVĚŘENO | log učení má 332 záznamů, ale pivoty (1 080 variant), intradenní a další rodiny z lab skriptů v něm nejsou; zpětně doplní registr pokusů (architektura-v2, fáze 2) |
-| Archiv V7.8.0 a nevolaných labů (R-048) | HOTOVO/OVĚŘENO | 140 souborů v `archive/` (nic nesmazáno, tag `archiv-v7.8.0-pred-presunem`, tabulka v `archive/README.md`); `python fxbot.py` umí jen `test` |
+| Archiv V7.8.0 a nevolaných labů (R-048) | HOTOVO/OVĚŘENO | 140 souborů v `archive/` (nic nesmazáno, commit `5669c4e`, tabulka v `archive/README.md`); `python fxbot.py` umí jen `test` |
 | Telefonní cron `scripts/termux_schedule.sh` (staré příkazy V7.8.0) | NEOVĚŘENO | skript je v archivu; jestli na telefonu uživatele ještě běží, nevím; po stažení této větve by `fxbot.py run` už nic neudělal |
 | Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, testy prošly (python fxbot.py test) |
 

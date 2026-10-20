@@ -876,5 +876,5 @@ mají uložené hladiny a vyhodnocují se podle nich dál. `test_h2_levels.py`: 
 
 **4. Archiv.** 140 souborů přesunuto (`git mv`) do `archive/`: 57 modulů `src/` V7.8.0, 20 skriptů V7.8.0, 15 nevolaných labů, 43
 testů V7.8.0, starý `fxbot.py` (nový umí jen `test`), `termux_schedule.sh`, seed testovací databáze. Nic nesmazáno; tag
-`archiv-v7.8.0-pred-presunem`, tabulka v `archive/README.md`. Zůstává `src/broker/*` (fáze 4). Nový stručný `README.md`.
+`5669c4e`, tabulka v `archive/README.md`. Zůstává `src/broker/*` (fáze 4). Nový stručný `README.md`.
 

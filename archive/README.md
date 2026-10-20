@@ -1,7 +1,7 @@
 # Archiv (R-048, architektura-v2, fáze 1)
 
 Nic z toho se nemazalo: soubory se **přesunuly** (`git mv`, historie zůstala) a stav těsně před přesunem je označený
-tagem `archiv-v7.8.0-pred-presunem`. Archivovaný kód se nespouští (jeho importy míří na staré cesty); slouží jako záznam.
+commitem `5669c4e`. Archivovaný kód se nespouští (jeho importy míří na staré cesty); slouží jako záznam.
 
 ## Proč
 
@@ -19,7 +19,7 @@ tagem `archiv-v7.8.0-pred-presunem`. Archivovaný kód se nespouští (jeho impo
 ## Jak obnovit
 
 * Jeden soubor: `git mv archive/<cesta> <původní cesta>` (původní cesta je v tabulce níž).
-* Celý původní strom: `git checkout archiv-v7.8.0-pred-presunem` (jen k prohlížení).
+* Celý původní strom: `git checkout 5669c4e` (jen k prohlížení).
 * `python fxbot.py <příkaz>` z V7.8.0: `python archive/v7.8.0/fxbot.py ...` nefunguje bez obnovení `src/` a `scripts/`.
 
 ## Co se přesunulo
