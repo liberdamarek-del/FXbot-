@@ -202,9 +202,13 @@ variants["duplikat"] = dict(variants["v1"])                                     
 variants["nelze"] = {"chyba": "KeyError: x"}
 variants["nikdy_neobchoduje"] = {"klic": "n", "rada": {"vynosy": [0.0] * 93}}
 variants["kratka_rada"] = {"klic": "kr", "rada": {"vynosy": list(rng.normal(0.0, 0.05, 45))}}      # a window without a margin fit
+variants["totozny_se_sampionem"] = {"klic": "ts", "rada": {"vynosy": list(good)}}     # already part of the champion / no effect
+variants["kopie_jinym_klicem"] = {"klic": "kk", "rada": {"vynosy": list(variants["v2"]["rada"]["vynosy"])}}   # same series, other config
 res = FA.pbo_for(champ, variants, blocks=(8,))
 assert res["strategii"] == 31 and res["mesicu"] == 93 and 0.0 <= res["pbo"]["8"]["pbo"] <= 1.0
-assert res["vynechano_variant"] == 4                                                     # error, duplicate, never trades, short
+assert res["vynechano_variant"] == 6          # error, duplicate, never trades, short, same as the champion, copy of another variant
+assert FA.klasifikace(champ, variants) == {"celkem": 36, "porovnano": 30, "chyba": 1, "kratka_rada": 1, "totozne_se_sampionem": 1,
+                                           "kopie": 2, "bez_obchodu": 1}
 bs = FA.bootstrap_pbo(champ, variants, s=8, n=5)                                       # must not choke on the short series
 assert 0.0 <= bs["p05"] <= bs["median"] <= bs["p95"] <= 1.0
 assert res["pocet_lepsich_nez_sampion"] == 0 and res["sr_mesicni_sampion"] > res["sr_mesicni_nejlepsi_varianta"]

@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-10-20 (R-048, větev architektura-v2, fáze 1).
+Poslední revize: 2026-10-20 (R-049, větev architektura-v2-faze2, fáze 2).
 
 ## 1. Účel
 
@@ -43,6 +43,7 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 | Simulátor + účet | obchody a účet se složeným úročením, propad i z otevřených obchodů | HOTOVO/OVĚŘENO | 12 testových souborů (`python fxbot.py test`, i na čistém klonu bez `data/`); výsledky bit po bitu stejné před a po přesunu do `src/core` (R-048) |
 | Živé jádro `src/core` (R-048) | ceny, sazby, indikátory, signály a vzorec vstupu / cíle / stopu; živé skripty neimportují výzkumné laby | HOTOVO/OVĚŘENO | `test_h1_core.py` (hranice importů + 702 uložených obchodů syntetického scénáře); reálná data do 2026-10-16: 660 polí, signály, obchody obou šampionů a hodnocení brány shodné |
 | Cíl a stop: živý plán = backtest = forward test (R-048) | živý plán měří od ceny vstupu včetně půl spreadu a skluzu jako backtest | HOTOVO/OVĚŘENO | `test_h2_levels.py` (67 obchodů, obě strany, TP / SL / čas); dřív se při měření od střední ceny lišilo 43 z 67 obchodů |
+| Registr pokusů + trezor + DSR / PBO (R-049) | append-only registr (332 pokusů, řetězec otisků); data od 2026-10-01 zamčená; DSR / PSR / PBO; kontrola šampiona na 16 párech HistData | HOTOVO/OVĚŘENO jako nástroj; VÝSLEDEK: šampion po korekci NEPROŠEL (DSR 0,87 / 0,86 < 0,95) | `test_i1_hygiena.py`; `docs/FAZE2_VYSLEDEK.md`, `docs/FAZE2_TABULKY.md`, `docs/KONTROLA_HISTDATA.md`; trezor zavřený |
 | Brána učení v3 | změna jen při zlepšení na neviděných letech | HOTOVO/OVĚŘENO | audit R-029 (asi 5 % náhodných změn projde) |
 | Zmrazení nových pokusů (R-047) | do `EXPERIMENTS` se nic nepřidává; `self_learn.py` nový pokus odmítne | HOTOVO/OVĚŘENO (kód + test_g0_zmrazeni); platí pro rutiny po sloučení do `main` | testovací roky 2019–26 opotřebované: 332 pokusů v logu, 8 přijatých; learning/zmrazeni_pokusu.json |
 | Šampioni (měsíční, max) | živá pravidla | HOTOVO/OVĚŘENO | test naslepo 2019–22 a 2023–26 |
@@ -81,7 +82,10 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | Heuristiky: kalibrace odhadu | OVĚŘENO (negativní) | subjektivní odhad konfluence je opačně kalibrovaný (víc souhlasu = o něco nižší úspěšnost); zobrazuje se jen jako srovnání |
 | `scripts/pivot_lab.py` řádek 147: „nedefinovaná“ proměnná `row_wk` | OVĚŘENO: falešný poplach statické analýzy (R-048) | proměnná se čte až od druhé iterace, první ji nastaví; skript navíc nedosáhne žádná rutina |
 | Yahoo vs FXCM úroveň cen (R-046) | OVĚŘENO (úroveň), dopad na signál NEOVĚŘENO | EUR/USD, AUD/USD, NZD/USD: Yahoo stabilně o ca 0,03 % výš; ostatní páry < 0,01 %; zbývá změřit obrácení signálu (VYZKUM_FRONTA) |
-| Skutečný počet pokusů | NEOVĚŘENO | log učení má 332 záznamů, ale pivoty (1 080 variant), intradenní a další rodiny z lab skriptů v něm nejsou; zpětně doplní registr pokusů (architektura-v2, fáze 2) |
+| Skutečný počet pokusů | NEOVĚŘENO | registr (R-049) má 332 záznamů z logu učení; pivoty (1 080 variant), intradenní studie (300) a `profit_lab2` (213 840 systémů) v něm nejsou, takže je počet vyšší; DSR šampiona závisí na něm: 0,87 / 0,86 při 332, 0,90 / 0,95 i v nejmírnějším čtení při 213 840 |
+| Kritérium zastavení po fázi 2 (DSR < 0,95) | SPLNĚNO (R-049) | šampion po korekci neprošel; čeká na rozhodnutí uživatele, zda pokračovat (doporučení: fáze 3 ano, fáze 4 jen se souhlasem, fáze 5 odložit, reálné peníze ne) |
+| Šampion na 16 jiných párech (HistData) | OVĚŘENO (negativní report) | úspěšnost 77–81 %, ale průměr obchodu kolem nuly a roční výnos −11,5 … −1,5 % (spready předpoklad, jen BID); není kritériem výběru |
+| Trezor dat od 2026-10-01 | HOTOVO/OVĚŘENO, ZAVŘENÝ | výzkum vidí data do 2026-09; otevřít jen jednou a jen se souhlasem uživatele (`scripts/trezor.py otevri`) |
 | Archiv V7.8.0 a nevolaných labů (R-048) | HOTOVO/OVĚŘENO | 140 souborů v `archive/` (nic nesmazáno, commit `5669c4e`, tabulka v `archive/README.md`); `python fxbot.py` umí jen `test` |
 | Telefonní cron `scripts/termux_schedule.sh` (staré příkazy V7.8.0) | NEOVĚŘENO | skript je v archivu; jestli na telefonu uživatele ještě běží, nevím; po stažení této větve by `fxbot.py run` už nic neudělal |
 | Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, testy prošly (python fxbot.py test) |
