@@ -36,6 +36,16 @@ bit for bit equal to `tests/fixtures/jadro_zlaty.json`. Entry, target and stop o
 `src/core/levels.py` (backtest = live plan = forward test, from the fill price incl. half the spread; `test_h2_levels.py`).
 V7.8.0 code and uncalled labs are in `archive/` (table in `archive/README.md`); `python fxbot.py` only has `test`.
 
+RESEARCH HYGIENE (user's request 2026-10-20, R-049, architektura-v2 phase 2): (1) every trial is registered BEFORE it runs in
+`learning/registr_pokusu/registr.jsonl` (append-only hash chain; `python scripts/registr_pokusu.py registruj ...`: hypothesis,
+ECONOMIC REASON, parameters, data / test are mandatory); `self_learn.py` does not run an unregistered trial and records every
+result; a trial without a record does not count. 332 logged trials were imported. (2) DSR / PBO (`src/core/statistika.py`,
+`scripts/faze2_analyza.py`) are computed from the number of trials in the registry. (3) VAULT: trading days from 2026-10-01 on
+are locked (`learning/trezor.json`, docs/TREZOR.md): `market.series()` cuts them off, research must not read them; open only
+once and only with the user's explicit consent (`scripts/trezor.py otevri --souhlas ...`). (4) `python scripts/kontrola_histdata.py`
+(16 HistData pairs, report only, NOT a selection criterion) after every change of the champion. Registry / vault CHYBA in the
+diagnostics does not block the main signals but must be reported.
+
 FREEZE OF NEW TRIALS (user's decision 2026-10-20, R-047, branch architektura-v2 phase 0; docs/CHANGE_LOG.md): the test
 years 2019-26 are worn out (332 logged trials, 8 accepted). Do NOT add experiments to `EXPERIMENTS` in
 scripts/self_learn.py and do not run new gate trials from any lab script until the user lifts the freeze
@@ -83,7 +93,7 @@ and real improvements of the model. Rejected experiments at most one sentence, n
   then `python scripts/heuristiky.py prepocet` - the heuristic registry with the new data, statuses, docs/heuristiky_vysledky.md;
   mention status changes of AKTIVNÍ rules in the report).
   FRED: `python -c "import sys; sys.path.insert(0,'scripts'); import signals_live; signals_live.refresh_rates()"`.
-  PAUSED since 2026-10-20 (R-047, see FREEZE OF NEW TRIALS above) - skip the experiment steps; `python scripts/self_learn.py`
+  PAUSED since 2026-10-20 (R-047, see FREEZE OF NEW TRIALS above) - skip the experiment steps; the HistData control `python scripts/kontrola_histdata.py` only when the champion changed; `python scripts/self_learn.py`
   (both profiles) only re-evaluates the champion on the new data. Originally: add 3-5 new, economically motivated experiments to `EXPERIMENTS` in `scripts/self_learn.py` (ideas queue
   below; never repeats of rejected ones in docs/UCENI_LOG.md; do not loosen the gate), run
   `python scripts/self_learn.py --profile mesicne` and `python scripts/self_learn.py`. If a champion changed:
@@ -95,7 +105,8 @@ and real improvements of the model. Rejected experiments at most one sentence, n
   blocks at least as good; the monthly profile keeps >= 2 wins a month (margins fitted with >= 2.0 on the
   selection years, the test tolerates 1.8). The user allowed changing the rules. A new rule option must also
   be implemented in signals_live (diagnostika.live_unsupported lists what the live run supports).
-- Weekly research (user's specification 2026-10-04; part of the Saturday job, after the data download and
+- Weekly research (PAUSED while the vault is closed, R-049: it reads prices only through `market.series()`, so it could only
+  repeat weeks before 2026-10-01; skip `tydenni_analyza.py` until the user opens the vault) (user's specification 2026-10-04; part of the Saturday job, after the data download and
   before self_learn): `python scripts/tydenni_analyza.py` (the last completed FX week, the 12 pairs; `--pary` for
   any other list, `--rychle` without the walk-forward of combinations) -> docs/tydenni/<YYYY-Www>.md (Czech
   report: 0 data quality, 1 what happened, 2 each pair by day / UTC session with events and reactions, 3-8

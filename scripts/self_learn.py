@@ -47,6 +47,7 @@ import fxcm_universe as U  # noqa: E402
 import portfolio_sim as PS  # noqa: E402
 import profit_deep as D  # noqa: E402
 from src.core import market as P  # noqa: E402
+import registr_pokusu as RP  # noqa: E402
 import zmrazeni as ZM  # noqa: E402
 from src.instruments import DEFAULT_ACTIVE  # noqa: E402
 
@@ -93,6 +94,8 @@ _trades_cache: dict = {}
 
 
 def symbols_of(cfg: dict) -> list[str]:
+    if cfg.get("pary"):                                   # an explicit list: the HistData control (scripts/kontrola_histdata.py)
+        return list(cfg["pary"])
     universe = cfg.get("universe", "12")
     if universe == "all":
         return U.universe_all()
@@ -742,6 +745,9 @@ def main(argv: list[str]) -> int:
         if ZM.aktivni():
             print(f"{exp}: preskoceno - pokusy jsou zmrazene (R-047)", flush=True)
             continue
+        if not RP.is_registered(exp):                      # a trial without a record does not count and does not run (R-049)
+            print(f"{exp}: neni v registru pokusu - nespusteno (R-049, scripts/registr_pokusu.py registruj)", flush=True)
+            continue
         champ_eval = {int(k): v for k, v in state["eval"].items()}
         cand = make(state["config"])
         cand["name"] = f"{state['config']['name']} + {exp}"
@@ -751,6 +757,8 @@ def main(argv: list[str]) -> int:
              f"* kandidat: {_fmt(ev)}", f"* sampion:  {_fmt(champ_eval)}", ""])
         print(f"{exp}: {'PRIJATO' if ok else 'zamitnuto'} | {_fmt(ev)} | {time.monotonic() - started:.0f} s", flush=True)
         state["tried"].append(exp)
+        RP.record_result(exp, PROFILE["state"].stem, "PRIJATO" if ok else "zamitnuto",
+                         json.loads(json.dumps({"kandidat": ev, "sampion": champ_eval}, default=float)))
         if ok:
             state["config"], state["eval"] = cand, {str(k): v for k, v in ev.items()}
         CHAMPION.write_text(json.dumps(state, indent=1, ensure_ascii=False, default=list))
