@@ -34,9 +34,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import fundamenty as F  # noqa: E402
-import profit_lab2 as P  # noqa: E402
+from src.core import market as P  # noqa: E402
 import research_factors as RF  # noqa: E402
-import strategy_mining as SM  # noqa: E402
+from src.core import ta as SM  # noqa: E402
+from src.core import levels as LV  # noqa: E402
 from src.instruments import DEFAULT_ACTIVE, get_instrument  # noqa: E402
 from src.path_archive import trading_date  # noqa: E402
 from src.sources.http import fetch  # noqa: E402
@@ -182,15 +183,21 @@ def cb_exit_note(pair: str, start: date, base: dict) -> dict | None:
             "text": f"Rozhodnutí v příštích 4 týdnech: {when}" if dates else "V příštích 4 týdnech žádné rozhodnutí."}
 
 
-def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, kind: str, lev: int) -> dict:
-    """Entry, three targets and the stop for one trade (prices and % of the margin at the pair's leverage)."""
+def make_plan(side: int, entry: float, atr: float, base: dict, decimals: int, kind: str, lev: int,
+              half: float = 0.0) -> dict:
+    """Entry, three targets and the stop for one trade (prices and % of the margin at the pair's leverage).
+    `entry` is the mid price of the decision; the targets and the stop are measured from the assumed fill price
+    (mid +/- `half`: half the spread and the slippage), exactly as the backtest does (src/core/levels.py, R-048).
+    With half = 0 they are measured from the mid price (the plan before R-048)."""
     stats_path = LEARNING / "pair_stats.json"
     levels = json.loads(stats_path.read_text()).get("tp_atr", TP_LEVELS) if stats_path.exists() else TP_LEVELS
-    tps = [{"cislo": i + 1, "atr": L, "cena": round(entry + side * L * atr, decimals),
-            "proc_marze": round(L * atr / entry * 100 * lev, 1)} for i, L in enumerate(levels)]
-    return {"typ": kind, "vstup": round(entry, decimals), "tp": tps, "paka": lev,
-            "sl": {"atr": base["sl"], "cena": round(entry - side * base["sl"] * atr, decimals),
-                   "proc_marze": round(base["sl"] * atr / entry * 100 * lev, 1)}}
+    fill = LV.execution_price(entry, side, half)
+    tps = [{"cislo": i + 1, "atr": L, "cena": round(fill + side * L * atr, decimals),
+            "proc_marze": round(L * atr / fill * 100 * lev, 1)} for i, L in enumerate(levels)]
+    return {"typ": kind, "vstup": round(entry, decimals), "vstup_exekucni": round(fill, decimals), "tp": tps,
+            "paka": lev,
+            "sl": {"atr": base["sl"], "cena": round(fill - side * base["sl"] * atr, decimals),
+                   "proc_marze": round(base["sl"] * atr / fill * 100 * lev, 1)}}
 
 
 def sizing_table(champion_name: str) -> dict | None:
@@ -310,6 +317,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
     carry_fin = (nb - nq) if nb is not None and nq is not None else carry   # the swap uses the newer month, as the backtest
     base = cfg["base"]
     lev = P.leverage(pair)
+    half = P.half_spread(pair)                          # one side of the trade costs this (backtest = live)
     out = {"par": pair, "cena": round(latest, inst.decimals), "den": day.isoformat(), "paka": lev,
            "rsi2": round(float(rsi2[-1]), 1), "rsi3": round(float(rsi3[-1]), 1),
            "atr": round(float(atr[-1]), inst.decimals), "atr_proc": round(float(atr[-1] / c[-1] * 100), 3),
@@ -355,7 +363,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
         trig = [rsi_trigger(prev, n, x, side) for n, x in parts]
         level = max(trig) if side > 0 else min(trig)     # the easier of the two signals
         out["spoustec"] = round(level, inst.decimals)
-        out["plan"] = make_plan(side, level, float(atr[-1]), base, inst.decimals, "podminka", lev)
+        out["plan"] = make_plan(side, level, float(atr[-1]), base, inst.decimals, "podminka", lev, half)
         note = cb_exit_note(pair, day, base)
         if note:
             out["plan"]["pred_rozhodnutim"] = note
@@ -381,19 +389,19 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
         out["rozhodovaci_den"] = is_friday
         out["v_pasmu"] = bool(hit_rsi2 or hit_rsi3)
         min_tp = base.get("min_tp_pct", P.MIN_TP_PCT) * (lev if base.get("min_tp_price") else P.LEVERAGE)  # % margin
-        out["cil_ok"] = bool(base["tp"] * atr[-1] / c[-1] * 100 * lev >= min_tp - 1e-9)
+        lv = LV.plan_levels(side, float(c[-1]), float(atr[-1]), base["tp"], base["sl"], half, lev)   # the backtest's arithmetic
+        out["cil_ok"] = bool(lv["tp_margin"] >= min_tp - 1e-9)
         if is_friday and (hit_rsi2 or hit_rsi3):
-            entry = float(c[-1])
-            tp = entry + side * base["tp"] * atr[-1]
-            sl = entry - side * base["sl"] * atr[-1]
-            sl_margin = base["sl"] * atr[-1] / entry * 100 * lev
-            tp_margin = base["tp"] * atr[-1] / entry * 100 * lev
+            entry = float(c[-1])                         # the 16:00 mid price; the fill is assumed at lv["entry"]
+            tp, sl = lv["tp"], lv["sl"]                  # measured from the fill price incl. half the spread, as the backtest
+            sl_margin, tp_margin = lv["sl_margin"], lv["tp_margin"]
             mult = float(np.clip(REF_SL_MARGIN / sl_margin, 0.5, 2.0)) if cfg.get("sizing") == "vol" else 1.0
             if cfg.get("notional_parity"):
                 mult *= P.LEVERAGE / lev                 # the same position volume as a 1:30 pair (self_learn)
             if tp_margin >= min_tp - 1e-9:
                 out["signal"] = {
                     "smer": out["smer"], "stupen": out["stupen"], "vstup": round(entry, inst.decimals),
+                    "vstup_exekucni": round(lv["entry"], inst.decimals),
                     "tp": round(tp, inst.decimals), "sl": round(sl, inst.decimals),
                     "marze_proc_uctu": round(shares[k] * mult * 100, 1),
                     "zisk_tp_proc_marze": round(tp_margin, 1), "ztrata_sl_proc_marze": round(sl_margin, 1),
@@ -401,7 +409,7 @@ def evaluate_pair(pair: str, cfg: dict, shares: list, rates: dict, today: date, 
                     "zavrit_nejpozdeji": (day + timedelta(days=28)).isoformat(),
                     "vyzkum": research_votes(out["vyzkum"], side),
                     "paka": lev, "cas_rozhodnuti": decision_cut(day),
-                    "plan": {**make_plan(side, entry, float(atr[-1]), base, inst.decimals, "trh", lev),
+                    "plan": {**make_plan(side, entry, float(atr[-1]), base, inst.decimals, "trh", lev, half),
                              **({"pred_rozhodnutim": cb_exit_note(pair, day, base)} if cb_exit_note(pair, day, base) else {})},
                     "duvod": (f"RSI(2) {rsi2[-1]:.0f}{', RSI(3) %.0f' % rsi3[-1] if 'RSI3' in sig else ''} = prudky "
                               f"{'propad' if side > 0 else 'rust'}; rozdil sazeb {inst.base}-{inst.quote} se za 3 mesice "
@@ -486,10 +494,9 @@ def resolve_forward(trades: list, hourly_cache: dict, rates: dict | None = None)
         hb = hourly_cache.get(t["par"])
         if hb is None:
             continue
-        inst = get_instrument(t["par"])
-        half = (P.SPREAD_PIPS[t["par"]] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip
+        half = P.half_spread(t["par"])
         side = 1 if t["smer"] == "KOUPIT" else -1
-        entry = t["vstup"] + side * half                  # bought at the ask / sold at the bid
+        entry = LV.execution_price(t["vstup"], side, half)   # bought at the ask / sold at the bid
         after = hb["ts"] >= t["cas_vstupu"]               # from the first hour after the entry moment
         ts, hh, ll, cc = hb["ts"][after], hb["h"][after], hb["l"][after], hb["c"][after]
         decisions = {d for d, _ in cb_decisions(t["par"], date.fromisoformat(t["den"]), 40)} if t.get("cb_vystup") else set()

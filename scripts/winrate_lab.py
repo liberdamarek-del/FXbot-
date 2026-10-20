@@ -41,6 +41,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 import pivot_lab as PL  # noqa: E402  (loads .env first)
 import strategy_mining as SM  # noqa: E402
 from research_signals import RISK_BETA, SIGNALS_FILE  # noqa: E402
+from src.core.ta import indicators  # noqa: E402,F401  (moved to src/core/ta.py, R-048)
 from src.instruments import get_instrument, parse_symbols  # noqa: E402
 
 UTC = timezone.utc
@@ -100,44 +101,6 @@ def entries_for_pair(symbol: str, fund_rows: dict) -> dict:
     fund = fundamental_agree(symbol, [dates[i] for i in idx], fund_rows)
     return {"symbol": symbol, "dates": [dates[i] for i in idx], "close": c[idx],
             "ind": {k: v[idx] for k, v in ind.items()}, "fund": fund, "sides": out}
-
-
-def indicators(o, h, l, c, atr) -> dict:
-    out = {"atr_pct": np.array([np.nan] * len(c))}
-    from numpy.lib.stride_tricks import sliding_window_view
-    pct = np.full(len(c), np.nan)
-    if len(c) >= 250:                                    # shorter history: no percentile yet
-        w = sliding_window_view(atr, 250)
-        pct[249:] = (w <= w[:, -1:]).mean(axis=1)
-    out["atr_pct"] = pct
-    for n in (2, 3, 4):
-        out[f"rsi{n}"] = SM.rsi(c, n)
-    for n in (5, 9, 14):
-        hh, ll = SM.rolling_max(h, n), SM.rolling_min(l, n)
-        out[f"wr{n}"] = 100 * (c - ll) / np.where(hh - ll == 0, np.nan, hh - ll)       # 0 = lowest, 100 = highest
-    for n in (5, 14):
-        k = out.get(f"wr{n}", None)
-        out[f"stoch{n}"] = SM.sma(np.nan_to_num(k if k is not None else
-                                                100 * (c - SM.rolling_min(l, n)) /
-                                                np.where(SM.rolling_max(h, n) - SM.rolling_min(l, n) == 0, np.nan,
-                                                         SM.rolling_max(h, n) - SM.rolling_min(l, n)), nan=50), 3)
-    for n, k in ((20, 2.0), (20, 1.5), (10, 2.0)):
-        m = SM.sma(c, n)
-        sd = np.full(len(c), np.nan)
-        if len(c) >= n:                                  # per window: E[c^2] - E[c]^2 on running sums cancels
-            sd[n - 1:] = sliding_window_view(c, n).std(axis=1)   # digits and depends on where the series starts
-        out[f"bb{n}_{k}"] = (c - (m - k * sd)) / np.where(sd == 0, np.nan, 2 * k * sd)
-    out["ibs"] = (c - l) / np.where(h - l == 0, np.nan, h - l)
-    down = np.concatenate([[0], (np.diff(c) < 0).astype(int)])
-    up = np.concatenate([[0], (np.diff(c) > 0).astype(int)])
-    for k in (2, 3, 4):
-        out[f"down{k}"] = np.array([down[max(0, i - k + 1):i + 1].sum() == k for i in range(len(c))])
-        out[f"up{k}"] = np.array([up[max(0, i - k + 1):i + 1].sum() == k for i in range(len(c))])
-    out["dist_sma5"] = (c - SM.sma(c, 5)) / atr
-    out["kelt"] = (c - SM.ema(c, 20)) / atr
-    for n in (50, 100, 200):
-        out[f"sma{n}"] = np.sign(c - SM.sma(c, n))
-    return out
 
 
 def fundamental_agree(symbol: str, dates: list, fund_rows: dict) -> dict:

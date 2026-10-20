@@ -45,6 +45,8 @@ sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 from research_signals import SIGNALS_FILE, SLIPPAGE_PIPS, SPREAD_PIPS, FINANCING_MARKUP, stitched_daily  # noqa: E402
+from src.core.ta import (ema, rolling_max, rolling_min, rsi, shift, sma, true_range,  # noqa: E402,F401
+                         wilder)  # moved to src/core/ta.py (R-048)
 from src.instruments import get_instrument, parse_symbols  # noqa: E402
 from src.path_archive import trading_date  # noqa: E402
 
@@ -58,75 +60,6 @@ MAX_GAP_DAYS = 9
 # ----------------------------------------------------------------------
 # indicator helpers (numpy, causal: value at i uses bars <= i)
 # ----------------------------------------------------------------------
-
-def sma(x, n):
-    """Simple moving average; NaN where the window has a gap."""
-    valid = ~np.isnan(x)
-    c = np.cumsum(np.insert(np.where(valid, x, 0.0), 0, 0.0))
-    k = np.cumsum(np.insert(valid.astype(float), 0, 0.0))
-    out = np.full(len(x), np.nan)
-    full = (k[n:] - k[:-n]) == n
-    out[n - 1:] = np.where(full, (c[n:] - c[:-n]) / n, np.nan)
-    return out
-
-
-def ema(x, n):
-    out = np.full(len(x), np.nan)
-    a = 2.0 / (n + 1)
-    v = x[0]
-    for i in range(len(x)):
-        v = a * x[i] + (1 - a) * v
-        out[i] = v
-    out[:n - 1] = np.nan
-    return out
-
-
-def wilder(x, n):
-    out = np.full(len(x), np.nan)
-    if len(x) <= n:
-        return out
-    v = np.nanmean(x[1:n + 1])
-    out[n] = v
-    for i in range(n + 1, len(x)):
-        v = (v * (n - 1) + x[i]) / n
-        out[i] = v
-    return out
-
-
-def rolling_max(x, n):
-    from numpy.lib.stride_tricks import sliding_window_view
-    out = np.full(len(x), np.nan)
-    out[n - 1:] = sliding_window_view(x, n).max(axis=1)
-    return out
-
-
-def rolling_min(x, n):
-    from numpy.lib.stride_tricks import sliding_window_view
-    out = np.full(len(x), np.nan)
-    out[n - 1:] = sliding_window_view(x, n).min(axis=1)
-    return out
-
-
-def shift(x, k=1):
-    out = np.full(len(x), np.nan)
-    out[k:] = x[:-k]
-    return out
-
-
-def true_range(h, l, c):
-    pc = shift(c)
-    return np.nanmax(np.vstack([h - l, np.abs(h - pc), np.abs(l - pc)]), axis=0)
-
-
-def rsi(c, n):
-    """Wilder RSI. No movement at all over the window (up = down = 0, e.g. a stuck price feed) is 50 (neutral),
-    not 0: a flat price is neither oversold nor overbought (audit 2026-10-04: 0 gave a false BUY signal)."""
-    d = np.diff(c, prepend=c[0])
-    up, dn = wilder(np.clip(d, 0, None), n), wilder(np.clip(-d, 0, None), n)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        r = 100 - 100 / (1 + up / np.where(dn == 0, 1e-12, dn))
-    return np.where((up == 0) & (dn == 0), 50.0, r)
-
 
 def sign_of(x):
     s = np.sign(x)

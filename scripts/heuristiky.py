@@ -832,7 +832,7 @@ def describe(fam: Family, params: tuple, side: int) -> dict:
 def load_fund() -> dict:
     """Point-in-time inputs shared by all pairs: monthly rates, VIX by day, event days."""
     import fundamenty as F
-    import profit_lab2 as P
+    from src.core import market as P
     import research_factors as RF
     out = {"rates": None, "vix": ([], []), "events": {}}
     try:
@@ -865,7 +865,7 @@ def _next_weekday(d: date) -> date:
 
 def pair_aux(pair: str, bars: dict, fund: dict) -> dict:
     import fundamenty as F
-    import profit_lab2 as P
+    from src.core import market as P
     n = len(bars["c"])
     b, q = pair.split("/")
     carry, mom = np.full(n, np.nan), np.full(n, np.nan)
@@ -943,7 +943,7 @@ def add_strength(all_bars: dict, auxes: dict, tf: str) -> None:
 
 def cost_pct(pair: str, price: np.ndarray) -> np.ndarray:
     """Round trip: the spread plus slippage of the pair (as the backtest and the forward test)."""
-    import profit_lab2 as P
+    from src.core import market as P
     pip = get_instrument(pair).pip
     return (P.SPREAD_PIPS[pair] + P.SLIPPAGE_PIPS) * pip / price * 100
 
@@ -1160,7 +1160,7 @@ def compact(r: dict) -> dict:
 
 
 def load_history_hourly(pair: str) -> dict:
-    import profit_lab2 as P
+    from src.core import market as P
     s = P.series(pair)
     return {"ts": np.asarray(s["ts"], np.int64), "o": s["o"], "h": s["h"], "l": s["l"], "c": s["c"]}
 

@@ -23,11 +23,11 @@ sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import numpy as np  # noqa: E402
 
-import fxcm_universe as U  # noqa: E402
 import portfolio_sim as PS  # noqa: E402
 import profit_deep as D  # noqa: E402
-import profit_lab2 as P  # noqa: E402
 import signals_live as SL  # noqa: E402
+from src.core import market as P  # noqa: E402
+from src.core import paths  # noqa: E402
 
 UTC = timezone.utc
 H = 3600
@@ -62,14 +62,14 @@ assert warn == {"GBP": "2026-01"}, warn                             # one month 
 
 # ---------------------------------------------------------------- price cache
 tmp = Path(tempfile.mkdtemp(prefix="fxbot_f1_cache_"))
-U.ROOT, U.HISTDATA, P.OUT = tmp / "h1", tmp / "hd", tmp / "out"
-U.ROOT.mkdir()
+paths.FXCM_H1, paths.HISTDATA_H1, P.OUT = tmp / "h1", tmp / "hd", tmp / "out"     # src/core reads the paths at call time
+paths.FXCM_H1.mkdir()
 
 
 def write_npz(days: int, price: float) -> None:
     ts = np.arange(utc("2026-09-07T21:00"), utc("2026-09-07T21:00") + days * 24 * H, H)
-    fields = {k: np.full(len(ts), price + (0.0001 if k.startswith("a") else 0.0)) for k in U.FIELDS}
-    np.savez(U.ROOT / "EURUSD.npz", ts=ts, **fields)
+    fields = {k: np.full(len(ts), price + (0.0001 if k.startswith("a") else 0.0)) for k in P.FIELDS}
+    np.savez(paths.FXCM_H1 / "EURUSD.npz", ts=ts, **fields)
 
 
 write_npz(3, 1.10)
@@ -78,7 +78,7 @@ assert len(first["days"]) == 3 and abs(first["dc"][-1] - 1.10005) < 1e-9
 assert P.series("EUR/USD")["days"] == first["days"]                 # cached
 time.sleep(0.05)
 write_npz(4, 1.20)                                                   # the weekly download
-os.utime(U.ROOT / "EURUSD.npz", (time.time() + 5, time.time() + 5))
+os.utime(paths.FXCM_H1 / "EURUSD.npz", (time.time() + 5, time.time() + 5))
 second = P.series("EUR/USD")
 assert len(second["days"]) == 4 and abs(second["dc"][-1] - 1.20005) < 1e-9, "cache must be rebuilt after new data"
 

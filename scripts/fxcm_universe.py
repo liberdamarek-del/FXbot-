@@ -28,19 +28,21 @@ import numpy as np
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.core.market import FIELDS  # noqa: E402,F401  (single source, R-048)
+from src.core.market import load_hourly as load  # noqa: E402,F401  (moved to src/core/market.py)
+from src.core.paths import FXCM_H1, HISTDATA_H1  # noqa: E402
 from src.sources.fxcm import (BASE_URL, HOURLY_URL, decode_week, trading_monday, week_candidates,  # noqa: E402
                               week_endpoint)
 from src.sources.http import FetchError, fetch  # noqa: E402
 
 UTC = timezone.utc
-ROOT = PROJECT_ROOT / "data" / "research" / "fxcm_h1"
+ROOT = FXCM_H1                                                   # single source: src/core/paths.py (R-048)
 RAW = ROOT / "raw"
 RAW_M1 = ROOT / "raw_m1"
 CURRENCIES = ("EUR", "GBP", "AUD", "NZD", "USD", "CAD", "CHF", "JPY")   # market quoting priority
 UNAVAILABLE = {"CHF/JPY", "EUR/CAD", "GBP/AUD"}                          # 404 on the CDN (2008-2026 probed)
 FIRST_YEAR, LAST_YEAR = 2012, 2026
 ONLY_LIVE = "--jen-12" in sys.argv     # download / build only the 12 live pairs (about 9,500 requests instead of 20,000)
-FIELDS = ("bo", "bh", "bl", "bc", "ao", "ah", "al", "ac")
 
 
 def universe() -> list[str]:
@@ -221,7 +223,7 @@ def _missing_weeks(ts: np.ndarray) -> list[date]:
     return out
 
 
-HISTDATA = PROJECT_ROOT / "data" / "research" / "histdata_h1"     # scripts/histdata_universe.py
+HISTDATA = HISTDATA_H1                                           # scripts/histdata_universe.py
 
 
 def universe_all() -> list[str]:
@@ -229,16 +231,6 @@ def universe_all() -> list[str]:
     from histdata_universe import PAIRS
 
     return universe() + [p for p in PAIRS if (HISTDATA / f"{p.replace('/', '')}.npz").exists()]
-
-
-def load(symbol: str) -> dict:
-    """Hourly arrays of one pair: ts (bar open, UTC) and BID/ASK OHLC
-    (FXCM; for the pairs FXCM does not publish the HistData BID series)."""
-    path = ROOT / f"{symbol.replace('/', '')}.npz"
-    if not path.exists():
-        path = HISTDATA / f"{symbol.replace('/', '')}.npz"
-    data = np.load(path)
-    return {k: data[k] for k in ("ts",) + FIELDS}
 
 
 def status() -> int:

@@ -176,7 +176,7 @@ def window(b: dict, t0: int, t1: int) -> dict:
 def history_1h(pair: str, recent: dict) -> tuple[dict, int]:
     """FXCM hourly history (2012 ->) followed by Yahoo hourly bars after its last bar; returns the series and
     the first timestamp taken from Yahoo (the source join)."""
-    import profit_lab2 as P
+    from src.core import market as P
     try:
         s = P.series(pair)
         ts, o, h, l, c = (np.asarray(s[k]) for k in ("ts", "o", "h", "l", "c"))
@@ -203,7 +203,7 @@ def pip(pair: str) -> float:
 
 
 def spread_pips(pair: str) -> float | None:
-    import profit_lab2 as P
+    from src.core import market as P
     return P.SPREAD_PIPS.get(pair)
 
 

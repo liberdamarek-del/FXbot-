@@ -33,226 +33,40 @@ sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import fxcm_universe as U  # noqa: E402
-import research_factors as RF  # noqa: E402
-import research_signals as RS  # noqa: E402
 import strategy_mining as SM  # noqa: E402
-import winrate_lab as W1  # noqa: E402
-from profit_lab import weekly_aligned  # noqa: E402
+from src.core import market as core  # noqa: E402
+# Since R-048 (architektura-v2, phase 1) the live core does not import this lab: prices, costs, rates, signals and
+# the daily indicators live in src/core (market.py, rates.py, ta.py). This lab takes them from there.
+from src.core.market import (ESMA_MAJORS, FIN_MARKUP, HOLD_BARS, LEVERAGE, MIN_HOURS, MIN_TP_PCT, PERIODS,  # noqa: E402,F401
+                             SLIPPAGE_PIPS, SPREAD_PIPS, indicators, leverage, series, signal_defs)
+from src.core.market import (EXTEND_IDS, EXTENDED, LONG_IDS, RATE_IDS, curve_mom, monthly_long_rates,  # noqa: E402,F401
+                             monthly_rates, rate_at)
 from src.instruments import get_instrument  # noqa: E402
-from src.path_archive import trading_date  # noqa: E402
 
 UTC = timezone.utc
-OUT = PROJECT_ROOT / "data" / "research" / "profit2"
-LEVERAGE = 30                                       # major pairs (the research labs use it for every pair)
-MIN_TP_PCT = 10.0 / LEVERAGE                         # 10 % of the margin at 1:30, in % of the price
-ESMA_MAJORS = {"USD", "EUR", "JPY", "GBP", "CAD", "CHF"}
 
 
-def leverage(pair: str) -> int:
-    """Retail leverage of an EU broker (ESMA): 1:30 for pairs of two major currencies (USD, EUR, JPY, GBP, CAD,
-    CHF), 1:20 for the other pairs (e.g. AUD/USD, NZD/USD, AUD/JPY). The margin of a position is notional /
-    leverage, so % of the margin = % price move x leverage (audit 2026-10-04: 1:30 was used for all pairs)."""
-    base, quote = pair.split("/")
-    return 30 if base in ESMA_MAJORS and quote in ESMA_MAJORS else 20
-HOLD_BARS = {5: 120, 10: 240, 20: 480}            # 120 hourly bars = one trading week
+def __getattr__(name):                      # PEP 562: the lab scripts read profit_lab2.OUT; the one source is core.OUT
+    if name == "OUT":
+        return core.OUT
+    raise AttributeError(name)
+
+
 MAX_BARS = max(HOLD_BARS.values())
 EXITS = ([("ATR", tp, sl, hd) for tp in (0.75, 1.0, 1.5, 2.0, 3.0, 4.0) for sl in (1.0, 1.5, 2.0, 3.0, 4.0)
           for hd in HOLD_BARS]
          + [("PCT", tp, sl, hd) for tp in (1 / 3, 0.5, 0.75, 1.0, 1.5) for sl in (0.5, 0.75, 1.0, 1.5, 2.0)
             for hd in HOLD_BARS])
 ENTRIES = (("MARKET", 0.0), ("LIMIT 0.5", 0.5), ("LIMIT 1.0", 1.0))
-PERIODS = {"A": (date(2012, 1, 1), date(2018, 12, 31)), "B": (date(2019, 1, 1), date(2022, 12, 31)),
-           "TEST": (date(2023, 1, 1), date(2026, 9, 30))}
-MIN_HOURS = 20                                     # a trading day needs >= 20 valid hourly bars
-SPREAD_PIPS = {**RS.SPREAD_PIPS,                   # the 12 live pairs: one table (research_signals)
-               "CAD/JPY": 2.0, "NZD/JPY": 2.2, "GBP/CHF": 2.6, "AUD/CAD": 2.0, "AUD/CHF": 2.0, "AUD/NZD": 2.5,
-               "CAD/CHF": 2.2, "EUR/AUD": 2.2, "EUR/NZD": 3.5, "GBP/CAD": 3.2, "GBP/NZD": 4.5, "NZD/CAD": 2.6,
-               "NZD/CHF": 2.6,
-               # HistData pairs (BID only): typical retail spreads in pips of the instrument
-               "USD/NOK": 40, "EUR/NOK": 40, "USD/SEK": 40, "EUR/SEK": 40, "USD/MXN": 60, "USD/ZAR": 100,
-               "ZAR/JPY": 3.0, "USD/PLN": 30, "EUR/PLN": 25, "USD/HUF": 30, "EUR/HUF": 30, "USD/CZK": 20,
-               "EUR/CZK": 15, "CHF/JPY": 2.5, "EUR/CAD": 2.5, "GBP/AUD": 3.0}
-SLIPPAGE_PIPS = RS.SLIPPAGE_PIPS
-FIN_MARKUP = RS.FINANCING_MARKUP
-
-
-# ----------------------------------------------------------------------
-# rates (monthly OECD 3m interbank, known with a two-month lag)
-# ----------------------------------------------------------------------
-
-RATE_IDS = {"USD": [RF.US_RATE], **{c: v[2] for c, v in RF.CURRENCIES.items() if c in
-                                    ("EUR", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "NOK", "SEK", "MXN", "ZAR")},
-            "PLN": ["IR3TIB01PLM156N"], "HUF": ["IR3TIB01HUM156N"], "CZK": ["IR3TIB01CZM156N"]}
-
-
-# OECD monthly immediate (overnight) rates - for GBP the SONIA monthly average - that continue a
-# 3-month series whose source stopped or lags (the OECD GBP 3-month rate ends 2026-01): after the
-# last 3-month value the rate moves by the change of this series. GBP 2012-2026: 3-month changes
-# correlate 0.88 with the 3-month series, same sign in 90 % of the moves >= 0.1 (audit 2026-10-02).
-EXTEND_IDS = {c: f"IRSTCI01{cc}M156N" for c, cc in (("USD", "US"), ("JPY", "JP"), ("GBP", "GB"), ("AUD", "AU"),
-                                                    ("CAD", "CA"))}
-EXTENDED: dict = {}                                       # currency -> first month taken from the extension
-
-
-def monthly_rates() -> dict:
-    out = {}
-    for ccy, ids in RATE_IDS.items():
-        series = {}
-        for sid in ids:                                     # later series override older ones
-            for d, v in RF._csv(sid):
-                series[(d.year, d.month)] = v
-        ext_id = EXTEND_IDS.get(ccy)
-        if ext_id and series and (RF.FRED_DIR / f"{ext_id}.csv").exists():
-            ext = {(d.year, d.month): v for d, v in RF._csv(ext_id)}
-            last = max(series)
-            if last in ext:
-                for k in sorted(k for k in ext if k > last):
-                    series[k] = series[last] + ext[k] - ext[last]
-                    EXTENDED.setdefault(ccy, k)
-        out[ccy] = series
-    return out
-
-
-# OECD long-term government bond yields (monthly averages) for the relative yield curve (round 34,
-# scripts/vyzkum_krivka.py, Chen & Tsang 2013); EUR = Germany (the euro area series lags by months)
-LONG_IDS = {"USD": "IRLTLT01USM156N", "EUR": "IRLTLT01DEM156N", "JPY": "IRLTLT01JPM156N", "GBP": "IRLTLT01GBM156N",
-            "CHF": "IRLTLT01CHM156N", "AUD": "IRLTLT01AUM156N", "CAD": "IRLTLT01CAM156N", "NZD": "IRLTLT01NZM156N"}
-
-
-def monthly_long_rates() -> dict:
-    return {c: ({(d.year, d.month): v for d, v in RF._csv(sid)} if (RF.FRED_DIR / f"{sid}.csv").exists() else {})
-            for c, sid in LONG_IDS.items()}
-
-
-def curve_mom(rates: dict, long_: dict, base: str, quote: str, year: int, month: int, lag: int, window: int):
-    """Change over `window` months of the relative yield-curve slope (10y yield minus the 3-month rate, base minus
-    quote) known `lag` months after; > 0 = the base currency's curve steepened relative to the quote's (its long
-    end rose more than its short end: a risk / term premium rather than policy). None when data are missing."""
-    def slope(lg):
-        v = [(rate_at(rates.get(c, {}), year, month, lg), rate_at(long_.get(c, {}), year, month, lg)) for c in (base, quote)]
-        if any(x is None for pair in v for x in pair):
-            return None
-        (sb, lb), (sq, lq) = v
-        return (lb - sb) - (lq - sq)
-    now, old = slope(lag), slope(lag + window)
-    return None if now is None or old is None else now - old
-
-
-def rate_at(series: dict, year: int, month: int, lag: int):
-    index = year * 12 + month - 1 - lag
-    for k in range(index, index - 12, -1):                 # forward fill at most 12 months
-        v = series.get((k // 12, k % 12 + 1))
-        if v is not None:
-            return v
-    return None
-
-
-# ----------------------------------------------------------------------
-# prices
-# ----------------------------------------------------------------------
-
-def series(symbol: str) -> dict:
-    """Hourly mid bars + the daily bars (New York close) built from them."""
-    name = symbol.replace("/", "")
-    cache = OUT / f"series_{name}.pkl"
-    source = U.ROOT / f"{name}.npz"
-    if not source.exists():
-        source = U.HISTDATA / f"{name}.npz"
-    # rebuilt when the hourly data are newer (the weekly download), else the learning would not see new weeks
-    if cache.exists() and (not source.exists() or cache.stat().st_mtime >= source.stat().st_mtime):
-        return pickle.loads(cache.read_bytes())
-    H = U.load(symbol)
-    ts = H["ts"]
-    ho, hh, hl, hc = ((H["b" + k] + H["a" + k]) / 2 for k in "ohlc")
-    hours = np.unique(ts // 3600 * 3600)
-    td = {int(t): trading_date(int(t)) for t in hours}
-    tdate = np.array([td[int(t)] for t in ts])
-    days, first = np.unique(tdate, return_index=True)
-    last = np.append(first[1:], len(ts)) - 1
-    count = last - first + 1
-    good = count >= MIN_HOURS
-    days, first, last = days[good], first[good], last[good]
-    o = ho[first]
-    c = hc[last]
-    h = np.array([hh[a:b + 1].max() for a, b in zip(first, last)])
-    l_ = np.array([hl[a:b + 1].min() for a, b in zip(first, last)])
-    out = {"ts": ts, "o": ho, "h": hh, "l": hl, "c": hc, "days": list(days), "first": first, "last": last,
-           "do": o, "dh": h, "dl": l_, "dc": c, "close_ts": ts[last] + 3600}
-    OUT.mkdir(parents=True, exist_ok=True)
-    cache.write_bytes(pickle.dumps(out))
-    return out
 
 
 # ----------------------------------------------------------------------
 # signals
 # ----------------------------------------------------------------------
 
-def signal_defs() -> dict:
-    d = {}
-    for n, x in ((2, 5), (2, 10), (3, 15)):
-        d[f"D RSI{n}<{x}"] = (lambda I, n=n, x=x: I[f"rsi{n}"] < x, lambda I, n=n, x=x: I[f"rsi{n}"] > 100 - x)
-    d["D %R14<10"] = (lambda I: I["wr14"] < 10, lambda I: I["wr14"] > 90)
-    d["D 3 dny dolu"] = (lambda I: I["down3"], lambda I: I["up3"])
-    d["D pod SMA5 o 1.5 ATR"] = (lambda I: I["dist_sma5"] < -1.5, lambda I: I["dist_sma5"] > 1.5)
-    d["D pod BB20(2)"] = (lambda I: I["bb20_2.0"] < 0, lambda I: I["bb20_2.0"] > 1)
-    d["D Donchian20 pruraz"] = (lambda I: I["brk20"] > 0, lambda I: I["brk20"] < 0)
-    d["D EMA20 x EMA50 cerstve"] = (lambda I: I["cross"] > 0, lambda I: I["cross"] < 0)
-    for n, x in ((2, 10), (2, 20), (3, 30)):
-        d[f"W RSI{n}<{x}"] = (lambda I, n=n, x=x: I[f"w_rsi{n}"] < x, lambda I, n=n, x=x: I[f"w_rsi{n}"] > 100 - x)
-    d["W %R4<10"] = (lambda I: I["w_wr4"] < 10, lambda I: I["w_wr4"] > 90)
-    d["W %R4<20"] = (lambda I: I["w_wr4"] < 20, lambda I: I["w_wr4"] > 80)
-    d["W 52-tydenni maximum"] = (lambda I: I["w_close"] >= I["w_hi52"], lambda I: I["w_close"] <= I["w_lo52"])
-    d["W 13-tydenni pruraz"] = (lambda I: I["w_brk13"] > 0, lambda I: I["w_brk13"] < 0)
-    d["W trend SMA10>SMA40"] = (lambda I: (I["w_close"] > I["w_sma10"]) & (I["w_sma10"] > I["w_sma40v"]),
-                                lambda I: (I["w_close"] < I["w_sma10"]) & (I["w_sma10"] < I["w_sma40v"]))
-    d["W kazdy tyden"] = (lambda I: I["week_end"], lambda I: I["week_end"])
-    return d
-
-
 TRENDS = (None, "sma50", "sma200", "w_sma40")
 FUNDS = (None, "carry", "carry2", "rates_up")
 RHYTHM = ("DEN", "TYDEN")
-
-
-def indicators(s: dict, rates: dict, symbol: str) -> dict:
-    o, h, l, c = s["do"], s["dh"], s["dl"], s["dc"]
-    atr = SM.wilder(SM.true_range(h, l, c), 14)
-    I = W1.indicators(o, h, l, c, atr)
-    I["atr"] = atr
-    wk = weekly_aligned(s["days"], o, h, l, c)
-    I["w_sma40v"] = wk["w_sma40"].copy()
-    I.update(wk)
-    I["w_sma40"] = np.sign(c - wk["w_sma40"])
-    prev_hi, prev_lo = SM.shift(SM.rolling_max(h, 20)), SM.shift(SM.rolling_min(l, 20))
-    I["brk20"] = np.where(c > prev_hi, 1, np.where(c < prev_lo, -1, 0))
-    e20, e50 = SM.ema(c, 20), SM.ema(c, 50)
-    diff = np.sign(e20 - e50)
-    I["cross"] = np.where(diff != SM.shift(diff), diff, 0)
-    # weekly 13-week breakout on completed weeks (high/low of the 13 weeks before the current one)
-    keys = [tuple(d.isocalendar()[:2]) for d in s["days"]]
-    whi, wlo, order = {}, {}, []
-    for k, hi, lo in zip(keys, h, l):
-        if k not in whi:
-            order.append(k)
-            whi[k], wlo[k] = hi, lo
-        whi[k], wlo[k] = max(whi[k], hi), min(wlo[k], lo)
-    Hh, Ll = np.array([whi[k] for k in order]), np.array([wlo[k] for k in order])
-    ph, pl = SM.shift(SM.rolling_max(Hh, 13)), SM.shift(SM.rolling_min(Ll, 13))
-    pos = {k: i for i, k in enumerate(order)}
-    I["w_brk13"] = np.array([1 if c[j] > ph[pos[k]] else -1 if c[j] < pl[pos[k]] else 0 for j, k in enumerate(keys)])
-    inst = get_instrument(symbol)
-    known, now, known_3m = [], [], []
-    for d in s["days"]:
-        rb, rq = rate_at(rates[inst.base], d.year, d.month, 2), rate_at(rates[inst.quote], d.year, d.month, 2)
-        known.append(np.nan if rb is None or rq is None else rb - rq)
-        rb3, rq3 = rate_at(rates[inst.base], d.year, d.month, 5), rate_at(rates[inst.quote], d.year, d.month, 5)
-        known_3m.append(np.nan if rb3 is None or rq3 is None else rb3 - rq3)
-        nb, nq = rate_at(rates[inst.base], d.year, d.month, 1), rate_at(rates[inst.quote], d.year, d.month, 1)
-        now.append(np.nan if nb is None or nq is None else nb - nq)
-    I["carry"] = np.array(known)
-    I["carry_fin"] = np.nan_to_num(np.array(now))
-    I["rates_mom"] = np.array(known) - np.array(known_3m)
-    return I
 
 
 def fund_ok(I: dict, f: str | None, side: int) -> np.ndarray:
@@ -380,13 +194,13 @@ def build() -> int:
                 b["pairs"].extend([symbol] * len(idx))
                 b["sides"].extend([side] * len(idx))
         print(f"{symbol}: {len(base)} dni, {time.monotonic() - t0:.0f} s", flush=True)
-    OUT.mkdir(parents=True, exist_ok=True)
+    core.OUT.mkdir(parents=True, exist_ok=True)
     for en, _ in ENTRIES:
         b = blocks[en]
-        np.savez(OUT / f"block_{en.replace(' ', '_')}.npz", O=np.vstack(b["O"]), V=np.vstack(b["V"]),
+        np.savez(core.OUT / f"block_{en.replace(' ', '_')}.npz", O=np.vstack(b["O"]), V=np.vstack(b["V"]),
                  M=np.hstack(b["M"]), dates=np.array([d.toordinal() for d in b["dates"]]), pairs=np.array(b["pairs"]),
                  sides=np.array(b["sides"]))
-    (OUT / "meta.pkl").write_bytes(pickle.dumps({"meta": meta, "exits": EXITS, "entries": ENTRIES}))
+    (core.OUT / "meta.pkl").write_bytes(pickle.dumps({"meta": meta, "exits": EXITS, "entries": ENTRIES}))
     print(f"build {time.monotonic() - started:.0f} s")
     return 0
 
@@ -396,7 +210,7 @@ def build() -> int:
 # ----------------------------------------------------------------------
 
 def load_block(en: str) -> dict:
-    z = np.load(OUT / f"block_{en.replace(' ', '_')}.npz")
+    z = np.load(core.OUT / f"block_{en.replace(' ', '_')}.npz")
     return {k: z[k] for k in z.files}
 
 
@@ -435,7 +249,7 @@ def describe(meta, m: int, ex: int, en: str) -> str:
 
 def report() -> int:
     started = time.monotonic()
-    info = pickle.loads((OUT / "meta.pkl").read_bytes())
+    info = pickle.loads((core.OUT / "meta.pkl").read_bytes())
     meta = info["meta"]
     rows_all = []
     summary = []
@@ -458,7 +272,7 @@ def report() -> int:
                 summary.append((en, int(mask.sum()), float(np.nanmean(np.where(mask, te["e"], np.nan))),
                                 float(np.nanmean(np.where(mask & (te["n"] > 0), te["e"] > 0, np.nan)))))
         print(f"{en}: {time.monotonic() - started:.0f} s", flush=True)
-    pickle.dump(rows_all, open(OUT / "report_rows.pkl", "wb"))
+    pickle.dump(rows_all, open(core.OUT / "report_rows.pkl", "wb"))
     f = SM._f
 
     def table(label: str, title: str, k: int = 20) -> list[str]:

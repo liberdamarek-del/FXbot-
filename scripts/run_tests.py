@@ -68,6 +68,8 @@ TESTS = [
     "test_f3_audit.py",
     "test_f4_heuristics.py",
     "test_g0_zmrazeni.py",
+    "test_h1_core.py",
+    "test_h2_levels.py",
     "test_m39.py",
     "test_m310.py",
     "test_m311.py",

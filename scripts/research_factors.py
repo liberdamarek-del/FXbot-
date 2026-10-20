@@ -42,10 +42,11 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.core.paths import FRED_DIR  # noqa: E402,F401  (single source, R-048)
+from src.core.rates import read_fred as _csv  # noqa: E402,F401  (moved to src/core/rates.py)
 from src.sources.http import fetch  # noqa: E402
 
 UTC = timezone.utc
-FRED_DIR = PROJECT_ROOT / "data" / "research" / "fred"
 CANDIDATES = PROJECT_ROOT / "data" / "research" / "candidates_r3.json"
 # currency: (FRED daily series, True = quoted as USD per unit, rate series list oldest first)
 CURRENCIES = {
@@ -81,18 +82,6 @@ def fetch_all() -> None:
         _, content, _ = fetch(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}", retries=3)
         (FRED_DIR / f"{series_id}.csv").write_bytes(content)
         print(f"{series_id}: {len(content)} B sha256={hashlib.sha256(content).hexdigest()[:12]}")
-
-
-def _csv(series_id: str) -> list[tuple[date, float]]:
-    out = []
-
-    for line in (FRED_DIR / f"{series_id}.csv").read_text().strip().splitlines()[1:]:
-        day, value = line.split(",")[:2]
-
-        if value not in (".", ""):
-            out.append((date.fromisoformat(day), float(value)))
-
-    return out
 
 
 def _month(d: date) -> tuple[int, int]:

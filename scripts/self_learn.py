@@ -46,7 +46,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 import fxcm_universe as U  # noqa: E402
 import portfolio_sim as PS  # noqa: E402
 import profit_deep as D  # noqa: E402
-import profit_lab2 as P  # noqa: E402
+from src.core import market as P  # noqa: E402
 import zmrazeni as ZM  # noqa: E402
 from src.instruments import DEFAULT_ACTIVE  # noqa: E402
 

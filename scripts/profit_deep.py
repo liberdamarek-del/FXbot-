@@ -24,7 +24,8 @@ sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import fxcm_universe as U  # noqa: E402
-import profit_lab2 as P  # noqa: E402
+from src.core import market as P  # noqa: E402
+from src.core import levels as LV  # noqa: E402
 from src.instruments import get_instrument  # noqa: E402
 
 UTC = timezone.utc
@@ -33,7 +34,7 @@ UTC = timezone.utc
 @dataclass(frozen=True)
 class Rule:
     name: str
-    signal: str = "D RSI2<5"          # key of profit_lab2.signal_defs()
+    signal: str = "D RSI2<5"          # key of src/core/market.signal_defs()
     weekly: bool = True               # decide only at the week close
     weekday: int = -1                 # 0-4 = decide only on this weekday's close (overrides weekly)
     weekdays: tuple = ()              # decide only on these weekdays' closes (overrides weekday and weekly)
@@ -146,8 +147,7 @@ def _live_rows(symbol: str, s: dict, cut: int, weekdays: tuple) -> dict:
     """{indicator: (decision-day rows, values)} of the price-based indicators at `cut` hours before the close;
     cached on disk, valid for the same price data and the same indicator code (hash of its source files)."""
     path = P.OUT / f"live_{symbol.replace('/', '')}_{cut}_{''.join(map(str, weekdays))}.pkl"
-    code = b"".join((PROJECT_ROOT / "scripts" / f).read_bytes()
-                    for f in ("profit_lab2.py", "profit_lab.py", "winrate_lab.py", "strategy_mining.py"))
+    code = b"".join((PROJECT_ROOT / "src" / "core" / f).read_bytes() for f in ("market.py", "rates.py", "ta.py"))
     stamp = (hashlib.sha256(code).hexdigest(), LIVE_WINDOW, SIM_START, len(s["ts"]), int(s["ts"][-1]),
              float(s["c"][-1]), len(s["days"]))
     if path.exists():
@@ -398,7 +398,7 @@ def fomc_addon(symbols) -> list[dict]:
             continue
         s = P.series(symbol)
         side = -1 if inst.base == "USD" else 1
-        half = (P.SPREAD_PIPS[symbol] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip
+        half = P.half_spread(symbol)
         for i in range(1, len(s["days"])):
             if s["days"][i] not in fed:
                 continue
@@ -423,8 +423,7 @@ def scale_addon(base: list[dict], k_atr: float, tp_atr: float = 0.75, sl_atr: fl
     for t in base:
         pair, side = t["pair"], t["side"]
         s, I = prepared(pair, 2, 3)
-        inst = get_instrument(pair)
-        half = (P.SPREAD_PIPS[pair] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip
+        half = P.half_spread(pair)
         ts, hh, hl, hc = s["ts"], s["h"], s["l"], s["c"]
         i = s["days"].index(t["day"])
         atr = I["atr"][i]
@@ -504,7 +503,7 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
         else:
             s, I = prepared(symbol, rule.rates_lag, rule.rates_window, rule.early_h, rule.rates_src)
         inst = get_instrument(symbol)
-        half = (P.SPREAD_PIPS[symbol] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip * rule.cost_x
+        half = P.half_spread(symbol) * rule.cost_x
         lev = P.leverage(symbol)
         min_tp = rule.min_tp_pct * (1.0 if rule.min_tp_price else P.LEVERAGE / lev)   # same % of the margin by default
         ts, hh, hl, hc = s["ts"], s["h"], s["l"], s["c"]
@@ -611,11 +610,11 @@ def simulate(rule: Rule, symbols=None) -> list[dict]:
                     adv0 = (entry - (hl[fill] - half)) if side > 0 else ((hh[fill] + half) - entry)
                 else:
                     fill = k0
-                    entry, first, adv0 = hc[k0] + side * half, k0 + 1, 0.0
+                    entry, first, adv0 = LV.execution_price(hc[k0], side, half), k0 + 1, 0.0
                 if rule.exit_kind == "PCT":
                     TP, SL = rule.tp / 100 * entry, rule.sl / 100 * entry
                 else:
-                    TP, SL = rule.tp * atr, rule.sl * atr
+                    TP, SL = LV.atr_distances(rule.tp, rule.sl, atr)
                     if rule.tp_retrace and i >= 5:
                         TP = float(np.clip(rule.tp_retrace * side * (s["dc"][i - 5] - s["dc"][i]), 0.5 * atr, 1.5 * atr))
                 if TP / entry * 100 < min_tp - 1e-9 or SL / entry * 100 * lev > rule.max_sl_margin:

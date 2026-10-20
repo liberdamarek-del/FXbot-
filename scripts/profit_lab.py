@@ -33,6 +33,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 import research_signals as RS  # noqa: E402  (loads .env first)
 import strategy_mining as SM  # noqa: E402
 import winrate_lab as W1  # noqa: E402
+from src.core.ta import weekly_aligned  # noqa: E402,F401  (moved to src/core/ta.py, R-048)
 from src.instruments import get_instrument, parse_symbols  # noqa: E402
 from src.path_archive import trading_date  # noqa: E402
 
@@ -46,55 +47,6 @@ EXITS = [(tp, sl, hd) for tp in TPS for sl in SLS for hd in HOLDS]
 ENTRIES = (("MARKET", 0.0), ("LIMIT 0.5", 0.5), ("LIMIT 1.0", 1.0))
 PERIODS = {"A": (date(2014, 1, 1), date(2019, 12, 31)), "B": (date(2020, 1, 1), date(2022, 12, 31)),
            "TEST": (date(2023, 1, 1), date(2026, 9, 30))}
-
-
-def weekly_aligned(dates, o, h, l, c):
-    """Weekly indicators known at each day: completed weeks + the current week up to that day (its close so far,
-    its high / low so far). On the week's last day this equals the completed week. week_end = Friday (the live
-    model decides only at the Friday close). Audit 2026-10-04: before, every day of a week got the week's FINAL
-    close / high / low (look-ahead on Monday-Thursday) and week_end looked at the next day's date."""
-    keys = [tuple(d.isocalendar()[:2]) for d in dates]
-    n = len(keys)
-    order, wc, wh, wl = [], {}, {}, {}
-    for k, ci, hi, li in zip(keys, c, h, l):
-        if k not in wc:
-            order.append(k)
-            wh[k], wl[k] = hi, li
-        wc[k], wh[k], wl[k] = ci, max(wh[k], hi), min(wl[k], li)
-    C = np.array([wc[k] for k in order])                      # completed-week values (used only for earlier weeks)
-    Hh = np.array([wh[k] for k in order])
-    Ll = np.array([wl[k] for k in order])
-    pos = {k: i for i, k in enumerate(order)}
-    d = np.diff(C, prepend=C[0])
-    state = {m: (SM.wilder(np.clip(d, 0, None), m), SM.wilder(np.clip(-d, 0, None), m)) for m in (2, 3)}
-    out = {name: np.full(n, np.nan) for name in ("w_rsi2", "w_rsi3", "w_sma10", "w_sma20", "w_sma40", "w_hi52",
-                                                  "w_lo52", "w_wr4")}
-    run_h = run_l = None
-    for i, k in enumerate(keys):
-        p = pos[k]
-        if i == 0 or keys[i - 1] != k:
-            run_h, run_l = h[i], l[i]
-        run_h, run_l = max(run_h, h[i]), min(run_l, l[i])
-        ci = c[i]
-        if p >= 1:
-            for m in (2, 3):
-                ag, al = state[m][0][p - 1], state[m][1][p - 1]
-                if not (np.isnan(ag) or np.isnan(al)):
-                    delta = ci - C[p - 1]
-                    g, q = (ag * (m - 1) + max(delta, 0.0)) / m, (al * (m - 1) + max(-delta, 0.0)) / m
-                    out[f"w_rsi{m}"][i] = 50.0 if g == 0 and q == 0 else 100.0 if q == 0 else 100 - 100 / (1 + g / q)
-        for m in (10, 20, 40):
-            if p >= m - 1:
-                out[f"w_sma{m}"][i] = (C[p - m + 1:p].sum() + ci) / m
-        if p >= 51:
-            out["w_hi52"][i] = max(Hh[p - 51:p].max(), run_h)
-            out["w_lo52"][i] = min(Ll[p - 51:p].min(), run_l)
-        if p >= 3:
-            hh4, ll4 = max(Hh[p - 3:p].max(), run_h), min(Ll[p - 3:p].min(), run_l)
-            out["w_wr4"][i] = 100 * (ci - ll4) / (hh4 - ll4) if hh4 > ll4 else np.nan
-    out["week_end"] = np.array([dd.weekday() == 4 for dd in dates])
-    out["w_close"] = np.asarray(c, float).copy()
-    return out
 
 
 def signal_defs():
