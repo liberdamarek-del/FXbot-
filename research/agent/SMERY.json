@@ -25,10 +25,10 @@
    "id": "experimentovani-falesne-objevy",
    "nazev": "Experimentování a ochrana proti falešným objevům (brána, vícenásobné testy)",
    "priorita": 4,
-   "behu": 1,
+   "behu": 2,
    "prazdnych_za_sebou": 0,
-   "nalezu": 1,
-   "posledni_beh": "2026-10-13",
+   "nalezu": 2,
+   "posledni_beh": "2026-10-20",
    "proc": "Audit R-029: asi 5 % čistě šumových změn projde bránou v3; re-validace plánovaná na 2027-04."
   },
   {
@@ -65,10 +65,10 @@
    "id": "pruzkum-neobvykle",
    "nazev": "Průzkumný: neobvyklé kombinace technologií a postupů",
    "priorita": 2,
-   "behu": 0,
+   "behu": 1,
    "prazdnych_za_sebou": 0,
-   "nalezu": 0,
-   "posledni_beh": null,
+   "nalezu": 1,
+   "posledni_beh": "2026-10-20",
    "proc": "Zadání uživatele: nehledat jen běžně známé postupy."
   }
  ]

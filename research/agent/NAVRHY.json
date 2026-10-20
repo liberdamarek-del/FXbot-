@@ -69,9 +69,10 @@
    "minimalni_vzorek": "všechny dosavadní pokusy (stovky; přesný počet NEOVĚŘENO)",
    "zkreslujici_vlivy": "pokusy nejsou nezávislé",
    "stav": "novy",
-   "duvod": "čeká na přečtení primárního zdroje",
+   "duvod": "čeká na přečtení primárního zdroje; 2026-10-20: abstrakt 2608.27734 popisuje stejný princip (počítadlo pokusů + deflace), vzorce stále nepřečteny; primární zdroj Bailey & López de Prado stále ke čtení",
    "zdroje": [
-    "https://arxiv.org/abs/2609.07065"
+    "https://arxiv.org/abs/2609.07065",
+    "https://arxiv.org/abs/2608.27734"
    ]
   },
   {
@@ -111,6 +112,25 @@
    "duvod": "Zatím jen návrh; není experiment, vzorek chybí.",
    "zdroje": [
     "https://arxiv.org/abs/2602.16537"
+   ]
+  },
+  {
+   "id": "N-007",
+   "vytvoreno": "2026-10-20",
+   "smer": "pruzkum-neobvykle",
+   "problem": "Fronta nápadů v CLAUDE.md je dlouhá próza (desítky zamítnutých rodin), načítá se do každého sezení a roste; hrozí opakování zamítnutých rodin nebo zbytečná spotřeba kontextu. Skutečný výskyt opakování NEOVĚŘENO.",
+   "reseni": "Informační soubor learning/ nebo research/ (JSON: rodina, kód R-xxx, datum, výsledek, podmínka opětovného testu např. '2027-04'); skript jen vypíše shodu názvu nového experimentu s rodinami. Brána ani EXPERIMENTS se nemění; nejdřív zjistit, zda se opakování vůbec stalo (prohlídka UCENI_LOG).",
+   "naklad": "malý",
+   "rizika": "ruční údržba, rozchod s UCENI_LOG; shoda názvů je hrubá",
+   "zavislosti": "docs/UCENI_LOG.md, CLAUDE.md",
+   "metrika": "počet nově navržených experimentů shodných se zamítnutou rodinou (před/po); tokeny fronty v CLAUDE.md",
+   "zaklad_pro_srovnani": "zpětný audit UCENI_LOG: kolik opakování bylo dosud (NEOVĚŘENO)",
+   "minimalni_vzorek": "alespoň 5 učicích běhů po zavedení",
+   "zkreslujici_vlivy": "málo běhů; změna jiných rutin současně",
+   "stav": "novy",
+   "duvod": "zatím jen námět z abstraktu, bez ověřeného problému",
+   "zdroje": [
+    "https://arxiv.org/abs/2606.21024"
    ]
   }
  ]

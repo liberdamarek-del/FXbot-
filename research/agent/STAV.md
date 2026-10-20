@@ -9,3 +9,4 @@
 7. Příště: uceni-ze-zpetne-vazby nebo pamet-stav (plné texty 2607.26637, 2605.27668); planovani-rozpocet má 1 prázdný běh.
 8. N-006 (monitor driftu) čeká na >= 30 uzavřených forward obchodů; zatím jen návrh.
 9. Příště: sebehodnoceni-kalibrace nebo experimentovani-falesne-objevy; pamet-stav má 1 prázdný běh.
+10. N-004: číst Bailey & López de Prado (primární zdroj) a plný text 2608.27734; N-007 nejdřív zpětně ověřit, zda se zamítnuté rodiny opakovaly (UCENI_LOG). Příště: sebehodnoceni-kalibrace nebo planovani-rozpocet.
