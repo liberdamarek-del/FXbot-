@@ -29,6 +29,14 @@ with the main model never raises confidence unless the history shows it adds val
 signals; a heuristic reaches the model only as a gate experiment. A heuristics CHYBA in the diagnostics (ledger chain)
 does not block the main signals but must be reported.
 
+FREEZE OF NEW TRIALS (user's decision 2026-10-20, R-047, branch architektura-v2 phase 0; docs/CHANGE_LOG.md): the test
+years 2019-26 are worn out (332 logged trials, 8 accepted). Do NOT add experiments to `EXPERIMENTS` in
+scripts/self_learn.py and do not run new gate trials from any lab script until the user lifts the freeze
+(learning/zmrazeni_pokusu.json; `self_learn.py` refuses to run with a new name, diagnostics WARN, test_g0_zmrazeni).
+Learning runs still download data, refresh rates / fundamentals / heuristics / weekly research and re-evaluate the
+champion on the new data - but add no experiments. The ideas queue below is parked. The champion stays unchanged and
+is only watched in the forward test.
+
 ## Jobs (user's decision 2026-10-11, R-044: every routine starts a FRESH session - firing into the long main
 conversation cost ~300k tokens per step; 2026-10-08: one update a day (was hourly, the weekly usage limit);
 2026-10-06: learning 2x a week)
@@ -68,7 +76,8 @@ and real improvements of the model. Rejected experiments at most one sentence, n
   then `python scripts/heuristiky.py prepocet` - the heuristic registry with the new data, statuses, docs/heuristiky_vysledky.md;
   mention status changes of AKTIVNÍ rules in the report).
   FRED: `python -c "import sys; sys.path.insert(0,'scripts'); import signals_live; signals_live.refresh_rates()"`.
-  Add 3-5 new, economically motivated experiments to `EXPERIMENTS` in `scripts/self_learn.py` (ideas queue
+  PAUSED since 2026-10-20 (R-047, see FREEZE OF NEW TRIALS above) - skip the experiment steps; `python scripts/self_learn.py`
+  (both profiles) only re-evaluates the champion on the new data. Originally: add 3-5 new, economically motivated experiments to `EXPERIMENTS` in `scripts/self_learn.py` (ideas queue
   below; never repeats of rejected ones in docs/UCENI_LOG.md; do not loosen the gate), run
   `python scripts/self_learn.py --profile mesicne` and `python scripts/self_learn.py`. If a champion changed:
   `python scripts/champion_report.py --profile mesicne`, `python scripts/pair_stats.py`,
@@ -99,7 +108,7 @@ and real improvements of the model. Rejected experiments at most one sentence, n
 The learning state (champions) lives in `learning/` (tracked); market data in `data/` is not in git and is
 re-downloaded by the scripts.
 
-## Ideas queue for the learning runs
+## Ideas queue for the learning runs (PARKED while the freeze R-047 is active)
 - (done 2026-10-01, R-014) The user's pivot method (classic pivots day/week/month, fades at P/R1/R2 and
   S1/S2, limit or confirmation, SMA50 with/against, rates filter, 1,080 variants, `scripts/pivot_lab2.py`,
   docs/PIVOTY2.md): no robust edge on the 12 pairs 2012-2026 - do not re-test the same family.

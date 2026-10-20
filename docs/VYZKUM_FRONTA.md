@@ -11,6 +11,8 @@ nedělá v samostatných bězích, ale **jako jeden ohraničený krok na konci k
    * Každé tvrzení z webu má zdroj.
    * Chybějící data jsou NEOVĚŘENO a nic se nedoplňuje.
    * Do modelu se nápad dostane jen jako pokus přes bránu. Bránu nepovolovat a parametry neladit podle výsledku.
+   * **Od 20. 10. 2026 (R-047) je zmrazení nových pokusů:** nález se zapíše do deníku, ale pokus přes bránu se nezakládá,
+     dokud uživatel zmrazení nezruší.
 3. **Web se jen čte.**
    * Na veřejná fóra ani do chatů se nic nepíše.
    * Nic se nezakládá a nikdo se nevydává za člověka.

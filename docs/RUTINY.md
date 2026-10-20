@@ -25,7 +25,7 @@ za pracovní sezení, zhruba 7× méně než dřív.
 |---|---|---|
 | FXBOT denní aktualizace (23:07, přes dispečera) | po–pá 17:07 New York | `rutina.py denni`, deník, přehled, commit |
 | FXBOT páteční signály (22:05, přes dispečera) | pá 16:05 New York | totéž a k tomu signály pro uživatele |
-| FXBOT učení – středa (17:40, přes dispečera) | st 17:40 Praha | `rutina.py uceni`, pokusy, průzkum, přehled |
+| FXBOT učení – středa (17:40, přes dispečera) | st 17:40 Praha | `rutina.py uceni`, průzkum, přehled; **od 20. 10. 2026 bez nových pokusů** (R-047, viz níže) |
 | FXBOT učení – sobota (8:57, přes dispečera) | so 8:57 Praha | navíc heuristiky, týdenní výzkum a souhrn týdne |
 | FXBOT výzkum agenta (07:23, přes dispečera; R-045) | út, čt, ne 07:23 Praha | webový průzkum zlepšení řídicí vrstvy, zápis do `research/agent/` (viz tamní README.md), 1 věta uživateli |
 
@@ -40,3 +40,12 @@ zapnout.
 * Dispečer roste asi o 25 000 tokenů týdně. Až přesáhne asi 300 000 (za několik měsíců), založí se nový dispečer
   se stejným `append_system_prompt` a rutiny se na něj přepojí. To se dělá vytvořením nových rutin, protože
   `persistent_session_id` nejde změnit.
+
+## Zmrazení nových pokusů (R-047, od 20. 10. 2026)
+
+Testovací roky 2019–26 jsou opotřebované, proto učení **nepřidává nové pokusy** do `scripts/self_learn.py`
+(`EXPERIMENTS`). Učení dál stahuje data, obnovuje sazby, fundamenty, heuristiky a týdenní výzkum a přehodnotí
+šampiona na nových datech (`python scripts/self_learn.py`, oba profily; nic nového nespustí). Kdyby rutina nový
+pokus přesto přidala, `self_learn.py` skončí kódem 3 a diagnostika hlásí VAROVÁNÍ. Zrušit zmrazení smí jen
+uživatel (`learning/zmrazeni_pokusu.json`, `docs/CHANGE_LOG.md` R-047). Platí pro rutiny, až se větev
+`architektura-v2` sloučí do `main`.

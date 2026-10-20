@@ -812,3 +812,38 @@ Datum 2026-10-13. Nová složka `research/agent/` (zdroje, návrhy, experimenty,
 ## R-046 - sobotní učení 2026-10-17 (kolo 35) a průzkum
 
 Datum 2026-10-17. Nová data FXCM (do 9. 10.), sazby, přepočet heuristik (5 760 pravidel, žádné AKTIVNÍ, 26 změn stavu), týdenní analýza 2026-W42. Kolo 35 (okno změny sazeb 4 měsíce, slabší stupně / všechny stupně, oba profily): vše zamítnuto, šampioni beze změny. Průzkum: `scripts/yahoo_vs_fxcm.py` (rozdíl cen Yahoo a FXCM, viz docs/VYZKUM_FRONTA.md). Testy 53/0. Model, brána a signály beze změny.
+
+## R-047 - 2026-10-20: zmrazení nových pokusů učení (větev architektura-v2, fáze 0)
+
+Rozhodnutí uživatele (zadání „architektura-v2“, fáze 0): přestat přidávat nové pokusy do `EXPERIMENTS` ve
+`scripts/self_learn.py`. Šampioni, brána, živé signály, forward test a heuristiky se nemění.
+
+**Důvod.** Testovací roky 2019–26 jsou opotřebované: dva testy (2019–22 a 2023–26) rozhodly o všech pokusech.
+Čísla (OVĚŘENO spočtením řádků `###` v `docs/UCENI_LOG.md`): 332 záznamů pokusů, 8 přijatých, 324 zamítnutých
+(zadání uvádělo „~335“ a „9 přijatých“; log má 8, stejně jako audit R-029 ze 4. 10.: 8 přijatých z 258 pokusů).
+Míra „asi 5 %“ pochází z auditu R-029 (G4): z 60 placebo kandidátů bez informace prošli 2. To je odhad s velkou
+nejistotou: 95% interval (Clopper–Pearson) pro 2 ze 60 je 0,4–11,5 %.
+
+**Co z toho NEplyne (ODHAD / NEOVĚŘENO).** Kolik z 8 přijatých změn je štěstí, tohle nerozliší: pokusy nejsou
+nezávislé a 5 % je odhad na 60 kandidátech. Skutečný počet pokusů je navíc vyšší než 332: rodiny zkoušené v
+lab skriptech mimo `EXPERIMENTS` (např. pivoty 1 080 variant R-014, intradenní varianty R-030, signály R-018 –
+počty podle CLAUDE.md) v `UCENI_LOG.md` nejsou (hledání „pivot“ v logu: 0 výskytů). Přesný celkový počet je
+NEOVĚŘENO; zpětně ho doplní registr pokusů ve fázi 2, který spočítá i Deflated Sharpe Ratio a PBO.
+
+**Co se změnilo.**
+* `learning/zmrazeni_pokusu.json` (sledovaný v gitu): `aktivni`, datum, důvod, 144 názvů pokusů, které v
+  `EXPERIMENTS` jsou (všechny proběhly v obou profilech), a jejich otisk SHA-256.
+* `scripts/zmrazeni.py` (čistý modul bez dat), kontrola v `self_learn.main`: nový název v `EXPERIMENTS` →
+  skript skončí kódem 3 a nic nezapíše; při aktivním zmrazení se nespustí ani dosud nevyzkoušený pokus.
+  Šampion se na nových datech dál přehodnocuje (beze změny konfigurace).
+* `scripts/diagnostika.py`: „nové pokusy zmrazeny“ = OK (dřív VAROVÁNÍ „sobotní učení musí přidat nové“);
+  přidaný pokus = VAROVÁNÍ (signály neblokuje).
+* `test_g0_zmrazeni.py` (zařazen v `scripts/run_tests.py`): soubor je úplný a otisk sedí, v `EXPERIMENTS` není nový
+  název, kontrola funguje pro aktivní / neaktivní / chybějící soubor, `self_learn.main` nový pokus odmítne a
+  nezmění soubory.
+* `CLAUDE.md`, `docs/RUTINY.md`, `docs/VYZKUM_FRONTA.md`: učení už nepřidává 3–5 pokusů; fronta nápadů je odložená.
+
+**Zrušení.** Jen na výslovný pokyn uživatele (`aktivni=false` a záznam sem). Další pokusy pak jen v rámci rozpočtu
+schváleného v registru pokusů (fáze 2).
+
+**Pozor na nasazení.** Rutiny běží z větve `main`; zmrazení začne pro ně platit až po sloučení této větve.
