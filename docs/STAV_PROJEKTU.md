@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-10-20 (R-047, větev architektura-v2, fáze 0).
+Poslední revize: 2026-10-20 (R-048, větev architektura-v2, fáze 1).
 
 ## 1. Účel
 
@@ -40,7 +40,9 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 |---|---|---|---|
 | Data cen (FXCM) | historie pro učení | HOTOVO/OVĚŘENO, viz bod 5 (zpoždění) | diagnostika „ceny“ |
 | Sazby FRED, CB, makro | fundamenty bez pohledu do budoucna | HOTOVO/OVĚŘENO | audit R-029, testy |
-| Simulátor + účet | obchody a účet se složeným úročením, propad i z otevřených obchodů | HOTOVO/OVĚŘENO | 52 testů (`python fxbot.py test`) |
+| Simulátor + účet | obchody a účet se složeným úročením, propad i z otevřených obchodů | HOTOVO/OVĚŘENO | 12 testových souborů (`python fxbot.py test`, i na čistém klonu bez `data/`); výsledky bit po bitu stejné před a po přesunu do `src/core` (R-048) |
+| Živé jádro `src/core` (R-048) | ceny, sazby, indikátory, signály a vzorec vstupu / cíle / stopu; živé skripty neimportují výzkumné laby | HOTOVO/OVĚŘENO | `test_h1_core.py` (hranice importů + 702 uložených obchodů syntetického scénáře); reálná data do 2026-10-16: 660 polí, signály, obchody obou šampionů a hodnocení brány shodné |
+| Cíl a stop: živý plán = backtest = forward test (R-048) | živý plán měří od ceny vstupu včetně půl spreadu a skluzu jako backtest | HOTOVO/OVĚŘENO | `test_h2_levels.py` (67 obchodů, obě strany, TP / SL / čas); dřív se při měření od střední ceny lišilo 43 z 67 obchodů |
 | Brána učení v3 | změna jen při zlepšení na neviděných letech | HOTOVO/OVĚŘENO | audit R-029 (asi 5 % náhodných změn projde) |
 | Zmrazení nových pokusů (R-047) | do `EXPERIMENTS` se nic nepřidává; `self_learn.py` nový pokus odmítne | HOTOVO/OVĚŘENO (kód + test_g0_zmrazeni); platí pro rutiny po sloučení do `main` | testovací roky 2019–26 opotřebované: 332 pokusů v logu, 8 přijatých; learning/zmrazeni_pokusu.json |
 | Šampioni (měsíční, max) | živá pravidla | HOTOVO/OVĚŘENO | test naslepo 2019–22 a 2023–26 |
@@ -80,6 +82,8 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | `scripts/pivot_lab.py` řádek 147: nedefinovaná proměnná `row_wk` | CHYBA (neaktivní výzkumný skript) | živý systém ho nepoužívá; rodina pivotů je uzavřená (R-014), oprava jen při jejím dalším použití |
 | Yahoo vs FXCM úroveň cen (R-046) | OVĚŘENO (úroveň), dopad na signál NEOVĚŘENO | EUR/USD, AUD/USD, NZD/USD: Yahoo stabilně o ca 0,03 % výš; ostatní páry < 0,01 %; zbývá změřit obrácení signálu (VYZKUM_FRONTA) |
 | Skutečný počet pokusů | NEOVĚŘENO | log učení má 332 záznamů, ale pivoty (1 080 variant), intradenní a další rodiny z lab skriptů v něm nejsou; zpětně doplní registr pokusů (architektura-v2, fáze 2) |
+| Archiv V7.8.0 a nevolaných labů (R-048) | HOTOVO/OVĚŘENO | 140 souborů v `archive/` (nic nesmazáno, tag `archiv-v7.8.0-pred-presunem`, tabulka v `archive/README.md`); `python fxbot.py` umí jen `test` |
+| Telefonní cron `scripts/termux_schedule.sh` (staré příkazy V7.8.0) | NEOVĚŘENO | skript je v archivu; jestli na telefonu uživatele ještě běží, nevím; po stažení této větve by `fxbot.py run` už nic neudělal |
 | Chyby živého systému | žádná otevřená CHYBA | diagnostika 0 chyb, testy prošly (python fxbot.py test) |
 
 ## 6. Postup práce (pravidlo)

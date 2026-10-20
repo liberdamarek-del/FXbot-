@@ -29,6 +29,13 @@ with the main model never raises confidence unless the history shows it adds val
 signals; a heuristic reaches the model only as a gate experiment. A heuristics CHYBA in the diagnostics (ledger chain)
 does not block the main signals but must be reported.
 
+ARCHITECTURE (user's request 2026-10-20, R-048, architektura-v2 phase 1): the live core is `src/core` (ta, rates, market, paths,
+levels) + scripts/{signals_live, aktualizace, diagnostika, portfolio_sim, profit_deep}; it must NOT import the research
+labs (profit_lab, profit_lab2, winrate_lab, pivot_lab, strategy_mining) - `test_h1_core.py` checks it, and that results stay
+bit for bit equal to `tests/fixtures/jadro_zlaty.json`. Entry, target and stop of every trade are computed ONLY by
+`src/core/levels.py` (backtest = live plan = forward test, from the fill price incl. half the spread; `test_h2_levels.py`).
+V7.8.0 code and uncalled labs are in `archive/` (table in `archive/README.md`); `python fxbot.py` only has `test`.
+
 FREEZE OF NEW TRIALS (user's decision 2026-10-20, R-047, branch architektura-v2 phase 0; docs/CHANGE_LOG.md): the test
 years 2019-26 are worn out (332 logged trials, 8 accepted). Do NOT add experiments to `EXPERIMENTS` in
 scripts/self_learn.py and do not run new gate trials from any lab script until the user lifts the freeze

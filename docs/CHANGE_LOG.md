@@ -847,3 +847,34 @@ NEOVĚŘENO; zpětně ho doplní registr pokusů ve fázi 2, který spočítá i
 schváleného v registru pokusů (fáze 2).
 
 **Pozor na nasazení.** Rutiny běží z větve `main`; zmrazení začne pro ně platit až po sloučení této větve.
+
+## R-048 - 2026-10-20: architektura-v2, fáze 1 - úklid a spolehlivost
+
+Zadání uživatele (fáze 1). Šampioni, brána, zmrazení pokusů a rutiny beze změny.
+
+**1. Testy bez `data/`.** `test_f3_audit.py` a `test_f1_live_model.py` četly cesty a FRED soubory z `data/`; teď si ceny, sazby
+a VIX vyrábí `tests/jadro_scenar.py` (celočíselný generátor bez libm, stejný na každém stroji) v dočasné složce. Čistý klon:
+**12 testů, 0 selhání** (před změnou 53 testů, 1 selhání; zbylých 41 testů V7.8.0 je v archivu, viz bod 4).
+
+**2. Živé jádro bez labů.** Funkce, které živé jádro brala z `profit_lab2`, `strategy_mining`, `profit_lab`, `winrate_lab`, jsou
+v novém balíku `src/core` (`ta.py`, `rates.py`, `market.py`, `paths.py`); AST všech přesunutých funkcí je shodný s originálem
+(kromě náhrady aliasů). Laby je berou odtud, `portfolio_sim` ztratil report (nyní `scripts/portfolio_report.py`). Dosažitelnost
+z `signals_live`, `aktualizace`, `diagnostika`, `portfolio_sim`, `profit_deep` už labs neobsahuje (`test_h1_core.py`, statická
+analýza včetně importů uvnitř funkcí). **Bit po bitu**: (a) reálná data do 2026-10-16 (12 párů), starý a nový kód: 660 polí
+(série a indikátory), sazby, křivka, signály, obchody všech stupňů obou šampionů (86 / 114 / 240 / 478 a 86 / 114 / 240 / 477)
+a hodnocení brány `evaluate` - **0 rozdílů** (sha256); (b) syntetický scénář `tests/fixtures/jadro_zlaty.json` (spočítán starým
+kódem, 702 obchodů): shodný, v testu se hlídá. Kontrola citlivosti: změna nákladů o 0,01 pipu dá 770 rozdílů, posun RSI o 1e-12 dá 12.
+
+**3. Cíl a stop.** NÁLEZ: backtest měřil cíl a stop od ceny vstupu včetně půl spreadu a skluzu (nákup za ask), živý plán a
+forward test od střední ceny, takže publikovaný cíl byl o `half` blíž a stop o `half` dál než ty testované (EUR/USD 0,6 pipu,
+EUR/GBP 0,8 pipu). Na 67 simulovaných obchodech se při původním výpočtu lišilo **43** (výsledek až o 0,27 % marže nebo hodina /
+důvod výstupu). Oprava: jediný vzorec v `src/core/levels.py` (`execution_price`, `atr_distances`, `plan_levels`), `half_spread` v
+`market.py`; používá ho `profit_deep.simulate` (aritmeticky shodně), `signals_live.make_plan` / `evaluate_pair` a `resolve_forward`.
+**Dopad na živé signály: jen zobrazené ceny cíle a stopu (o půl spreadu) a nové pole `vstup_exekucni`; směr, stupeň a
+rozhodnutí se nemění** (kromě cíle přesně na hranici minimálního cíle, kde je to teď shodné s backtestem). Otevřené forward obchody
+mají uložené hladiny a vyhodnocují se podle nich dál. `test_h2_levels.py`: plán i forward test dávají obchody simulátoru.
+
+**4. Archiv.** 140 souborů přesunuto (`git mv`) do `archive/`: 57 modulů `src/` V7.8.0, 20 skriptů V7.8.0, 15 nevolaných labů, 43
+testů V7.8.0, starý `fxbot.py` (nový umí jen `test`), `termux_schedule.sh`, seed testovací databáze. Nic nesmazáno; tag
+`archiv-v7.8.0-pred-presunem`, tabulka v `archive/README.md`. Zůstává `src/broker/*` (fáze 4). Nový stručný `README.md`.
+
