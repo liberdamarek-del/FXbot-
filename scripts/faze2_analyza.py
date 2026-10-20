@@ -213,8 +213,24 @@ def verdicts(data: dict) -> dict:
             if isinstance(r, dict) and "sr0" in r:
                 r["po_korekci_rocne"] = (1 + max(r["sr"] - r["sr0"], 0.0) * sd) ** 12 - 1      # rough: excess Sharpe x volatility
         row["potrebne_sr_pro_dsr_095_pri_332"] = _needed_sr(t, x, 332)
+        sk, ku = ST.skew_kurt(x)
+        sr_defl = max(row["nominalne_332_sum"]["sr"] - row["nominalne_332_sum"]["sr0"], 0.0)
+        row["novych_mesicu_pro_95_procent"] = {
+            "kdyz_skutecny_sr_je_jako_namereny": _months_needed(row["nominalne_332_sum"]["sr"], sk, ku),
+            "kdyz_skutecny_sr_je_0_30": _months_needed(0.30, sk, ku),
+            "kdyz_skutecny_sr_je_po_korekci": _months_needed(sr_defl, sk, ku), "sr_po_korekci": sr_defl}
         out[profile] = row
     return out
+
+
+def _months_needed(sr: float, skew: float, kurt: float, target: float = 0.95) -> int | None:
+    """Months of NEW data after which a true monthly Sharpe `sr` (estimated exactly) would make PSR against 0 reach `target`."""
+    if sr <= 0:
+        return None
+    for t in range(2, 2001):
+        if ST.psr(sr, 0.0, t, skew, kurt) >= target:
+            return t
+    return None
 
 
 def _needed_sr(t: int, x, n: int, target: float = 0.95) -> float:
@@ -262,6 +278,11 @@ def render_tables(data: dict) -> str:
                 r = v[key]
                 var = "1/(T-1)" if "sum" in key else f"{e['rozptyl_sr_variant']:.4f}"
                 L.append(f"| {label} | {n} | {var} | {r['sr0']:.3f} | **{r['dsr']:.3f}** | {r['po_korekci_rocne']:+.1%} |")
+            m = v["novych_mesicu_pro_95_procent"]
+            L += ["", "Kolik NOVÝCH měsíců dat (mimo trezor, jeden předem daný test) by stačilo na 95% jistotu, že skutečný Sharpe je kladný: "
+                  f"{m['kdyz_skutecny_sr_je_jako_namereny']} měsíců, kdyby byl skutečný Sharpe jako naměřený ({d['sr_mesicni']:.2f}); "
+                  f"{m['kdyz_skutecny_sr_je_0_30']} měsíců, kdyby byl 0,30; {m['kdyz_skutecny_sr_je_po_korekci']} měsíců, kdyby byl jen "
+                  f"takový, jaký zbývá po korekci ({m['sr_po_korekci']:.2f}).", ""]
             L += ["", f"Aby DSR při N = 332 dosáhl 0,95, musel by měsíční Sharpe být aspoň {v['potrebne_sr_pro_dsr_095_pri_332']:.3f} "
                   f"(roční {v['potrebne_sr_pro_dsr_095_pri_332'] * 12 ** 0.5:.2f}); sampion má {d['sr_mesicni']:.3f}.", ""]
     for profile, vs in data.get("varianty", {}).items():
