@@ -201,8 +201,12 @@ variants = {f"v{k}": {"klic": f"k{k}", "rada": {"vynosy": list(rng.normal(0.0, 0
 variants["duplikat"] = dict(variants["v1"])                                           # same configuration: counted once
 variants["nelze"] = {"chyba": "KeyError: x"}
 variants["nikdy_neobchoduje"] = {"klic": "n", "rada": {"vynosy": [0.0] * 93}}
+variants["kratka_rada"] = {"klic": "kr", "rada": {"vynosy": list(rng.normal(0.0, 0.05, 45))}}      # a window without a margin fit
 res = FA.pbo_for(champ, variants, blocks=(8,))
 assert res["strategii"] == 31 and res["mesicu"] == 93 and 0.0 <= res["pbo"]["8"]["pbo"] <= 1.0
+assert res["vynechano_variant"] == 4                                                     # error, duplicate, never trades, short
+bs = FA.bootstrap_pbo(champ, variants, s=8, n=5)                                       # must not choke on the short series
+assert 0.0 <= bs["p05"] <= bs["median"] <= bs["p95"] <= 1.0
 assert res["pocet_lepsich_nez_sampion"] == 0 and res["sr_mesicni_sampion"] > res["sr_mesicni_nejlepsi_varianta"]
 eff = FA.effective_trials(champ, variants)
 assert eff["variant"] == 30 and 1.0 <= eff["efektivni_pocet_pokusu"] <= 30.0 and abs(eff["prumerna_korelace"]) < 0.5

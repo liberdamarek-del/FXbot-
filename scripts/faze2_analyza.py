@@ -136,17 +136,25 @@ def run_variants(cores: int) -> dict:
     return out
 
 
-def pbo_for(champion: dict, variants: dict, blocks=(8, 10, 12, 16)) -> dict:
-    cols, labels, seen = [champion["rada"]["vynosy"]], ["__sampion__"], set()
+def usable(champion: dict, variants: dict) -> list[tuple[str, dict]]:
+    """Variants that can enter the PBO / effective-trials computation: applicable to the champion, a series as long as the
+    champion's (a window without a valid margin fit has none), at least one trade, each configuration once."""
+    t = len(champion["rada"]["vynosy"])
+    out, seen = [], set()
     for name, v in sorted(variants.items()):
-        if "chyba" in v or v["klic"] in seen or not any(v["rada"]["vynosy"]):
-            continue                                           # not applicable, duplicate configuration, never trades
+        if "chyba" in v or len(v["rada"]["vynosy"]) != t or not any(v["rada"]["vynosy"]) or v["klic"] in seen:
+            continue
         seen.add(v["klic"])
-        cols.append(v["rada"]["vynosy"])
-        labels.append(name)
+        out.append((name, v))
+    return out
+
+
+def pbo_for(champion: dict, variants: dict, blocks=(8, 10, 12, 16)) -> dict:
+    use = usable(champion, variants)
+    cols, labels = [champion["rada"]["vynosy"]] + [v["rada"]["vynosy"] for _, v in use], ["__sampion__"] + [n for n, _ in use]
     n_months = min(len(c) for c in cols)
     m = np.array([c[:n_months] for c in cols], float).T          # (T x N)
-    res = {"strategii": len(labels), "mesicu": n_months,
+    res = {"strategii": len(labels), "mesicu": n_months, "vynechano_variant": len(variants) - len(use),
            "pbo": {str(s): ST.pbo_cscv(m, s) for s in blocks if n_months // s >= 4}}
     sr = [ST.sharpe(m[:, j]) for j in range(m.shape[1])]
     res["poradi_sampiona_podle_sr"] = int(1 + sum(1 for v in sr[1:] if v > sr[0]))
@@ -160,8 +168,7 @@ def pbo_for(champion: dict, variants: dict, blocks=(8, 10, 12, 16)) -> dict:
 
 def bootstrap_pbo(champion: dict, variants: dict, s=12, n=60, seed=11) -> dict:
     """Sampling variability of PBO: months are resampled with replacement within each block (the same for all strategies)."""
-    cols = [champion["rada"]["vynosy"]] + [v["rada"]["vynosy"] for v in variants.values()
-                                          if "chyba" not in v and any(v["rada"]["vynosy"])]
+    cols = [champion["rada"]["vynosy"]] + [v["rada"]["vynosy"] for _, v in usable(champion, variants)]
     m = np.array(cols, float).T
     size = m.shape[0] // s
     rng = np.random.default_rng(seed)
@@ -176,12 +183,7 @@ def effective_trials(champion: dict, variants: dict) -> dict:
     """How many INDEPENDENT trials the registry's trials are worth: Bailey, Lopez de Prado 2014 (A.3): N = rho + (1 - rho) * M
     with M trials of average pairwise correlation rho. The variants are the registry's experiments applied to the champion;
     their Sharpe ratios also give an empirical variance of the trials (instead of the pure-noise 1 / (T - 1))."""
-    cols, seen = [], set()
-    for name, v in sorted(variants.items()):
-        if "chyba" in v or v["klic"] in seen or not any(v["rada"]["vynosy"]):
-            continue
-        seen.add(v["klic"])
-        cols.append(v["rada"]["vynosy"])
+    cols = [v["rada"]["vynosy"] for _, v in usable(champion, variants)]
     m = np.array(cols, float)
     t = m.shape[1]
     corr = np.corrcoef(m)
@@ -331,6 +333,7 @@ def main(argv: list[str]) -> int:
         res = run_variants(cores)
         data = json.loads(OUT.read_text()) if OUT.exists() else {}
         champs = data.get("sampioni") or run_champions()
+        save({"sampioni": champs, "varianty": res})                # the long part first: a failure below must not lose it
         pbo = {p: pbo_for(champs[p], res[p]) for p in res}
         for p in pbo:
             pbo[p]["bootstrap_pbo_s12"] = bootstrap_pbo(champs[p], res[p])
