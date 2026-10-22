@@ -15,10 +15,10 @@
    "id": "sebehodnoceni-kalibrace",
    "nazev": "Sebehodnocení a kalibrace predikcí (heuristický deník, forward test)",
    "priorita": 5,
-   "behu": 1,
-   "prazdnych_za_sebou": 0,
-   "nalezu": 1,
-   "posledni_beh": "2026-10-13",
+   "behu": 2,
+   "prazdnych_za_sebou": 1,
+   "nalezu": 2,
+   "posledni_beh": "2026-10-22",
    "proc": "Systém rozlišuje statistickou pravděpodobnost a heuristický odhad; chybí měřená kalibrace."
   },
   {
@@ -45,10 +45,10 @@
    "id": "planovani-rozpocet",
    "nazev": "Plánování úloh a rozpočet tokenů / limitu",
    "priorita": 3,
-   "behu": 1,
-   "prazdnych_za_sebou": 1,
-   "nalezu": 0,
-   "posledni_beh": "2026-10-15",
+   "behu": 2,
+   "prazdnych_za_sebou": 2,
+   "nalezu": 1,
+   "posledni_beh": "2026-10-22",
    "proc": "Týdenní limit byl důvodem změny architektury rutin (R-044)."
   },
   {

@@ -10,3 +10,4 @@
 8. N-006 (monitor driftu) čeká na >= 30 uzavřených forward obchodů; zatím jen návrh.
 9. Příště: sebehodnoceni-kalibrace nebo experimentovani-falesne-objevy; pamet-stav má 1 prázdný běh.
 10. N-004: číst Bailey & López de Prado (primární zdroj) a plný text 2608.27734; N-007 nejdřív zpětně ověřit, zda se zamítnuté rodiny opakovaly (UCENI_LOG). Příště: sebehodnoceni-kalibrace nebo planovani-rozpocet.
+11. Běh 5 (22. 10.): nic skutečně nového k použití; N-001/N-003 jen podpořeny. Příště: nastroje-robustnost nebo experimentovani-falesne-objevy (N-004: Bailey & López de Prado primární zdroj; N-007 zpětné ověření v UCENI_LOG). planovani-rozpocet má 2 prázdné běhy za sebou.

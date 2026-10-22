@@ -15,7 +15,9 @@
    "zkreslujici_vlivy": "doba běhu závisí na síti a velikosti stahovaných dat",
    "stav": "novy",
    "duvod": "předpoklad pro všechna další srovnání",
-   "zdroje": []
+   "zdroje": [
+    "https://arxiv.org/abs/2606.00198"
+   ]
   },
   {
    "id": "N-002",
@@ -52,7 +54,8 @@
    "stav": "novy",
    "duvod": "",
    "zdroje": [
-    "https://arxiv.org/abs/2605.27668"
+    "https://arxiv.org/abs/2605.27668",
+    "https://arxiv.org/abs/2605.26703"
    ]
   },
   {
