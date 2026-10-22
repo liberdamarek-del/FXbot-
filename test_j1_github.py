@@ -93,6 +93,8 @@ assert "denik_uzivatele" not in pub_file and (out / ".nojekyll").exists()
 
 # 7. the smoke test of the rendered page
 assert WS.check_dom('<div id="status">Aktualizováno 22. 10.</div><div class="row small" id="zaloha">') == []
+assert WS.check_dom('<div id="status">Aktualizováno</div><div id="zaloha"><script>x = "Data se načítají"; y = '
+                    '"nepodařilo načíst"</script>') == [], "texty ve skriptu stranky se nepocitaji"
 assert len(WS.check_dom('<div id="status">Data modelu se nepodařilo načíst.</div><div id="zaloha" hidden="">')) == 3
 
 print("J1 GitHub provoz a verejna stranka: OK")

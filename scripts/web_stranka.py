@@ -92,6 +92,8 @@ def build(stav: Path, ven: Path, beh_url: str | None, behy_url: str | None, now:
 
 def check_dom(dom: str) -> list[str]:
     """What must be on the page once its script has loaded stav.json and rendered (headless browser dump)."""
+    import re
+    dom = re.sub(r"<script\b.*?</script>", "", dom, flags=re.S | re.I)   # the script's own texts are not the page
     problems = []
     if "Aktualizováno" not in dom:
         problems.append("stav modelu se nevykreslil (chybí 'Aktualizováno')")
