@@ -104,7 +104,58 @@ def check_dom(dom: str) -> list[str]:
     return problems
 
 
+def browser_check(site: Path, dump: Path | None = None) -> list[str]:
+    """Open the built site in a real (headless) Chromium: the state must render, the script must not throw, and a
+    journal entry written through the form must show up and survive a reload (the browser journal works)."""
+    import functools
+    import http.server
+    import threading
+    from playwright.sync_api import sync_playwright
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(site))
+    srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{srv.server_address[1]}/"
+    problems: list[str] = []
+    rendered = "document.getElementById('status').innerText.includes('Aktualizováno')"
+    has_trade = "document.getElementById('open-trades').innerText.includes('Otevřené obchody')"
+    try:
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch()
+            page = browser.new_page(locale="cs-CZ", timezone_id="Europe/Prague")
+            page.on("pageerror", lambda e: problems.append(f"chyba skriptu: {e}"))
+            page.on("console", lambda m: problems.append(f"konzole: {m.text}")
+                    if m.type == "error" and "favicon" not in m.text and "fonts.g" not in m.text else None)
+            page.goto(url, wait_until="networkidle")
+            try:
+                page.wait_for_function(rendered, timeout=20000)
+            except Exception:
+                problems.append("stav se do 20 s nevykreslil")
+            html = page.content()
+            if dump:
+                dump.write_text(html, encoding="utf-8")                  # for the run report (provoz-zprava)
+            problems += check_dom(html)
+            page.fill("#f-vstup", "1.1")
+            page.click("#f-ulozit")
+            try:
+                page.wait_for_function(has_trade, timeout=5000)
+                page.reload(wait_until="networkidle")
+                page.wait_for_function(rendered + " && " + has_trade, timeout=20000)
+            except Exception:
+                problems.append("zápis do deníku v prohlížeči nefunguje (obchod se neobjevil nebo nepřežil obnovení stránky)")
+            browser.close()
+    finally:
+        srv.shutdown()
+    return problems
+
+
 def main(argv: list[str]) -> int:
+    if argv[:1] == ["kontrola-prohlizec"]:
+        dump = Path(argv[argv.index("--dom") + 1]) if "--dom" in argv else None
+        problems = browser_check(Path(argv[1]), dump)
+        for p in problems:
+            print(f"CHYBA stranky: {p}")
+        print("stranka OK (prohlizec)" if not problems else "stranka NENI v poradku")
+        return 1 if problems else 0
     if argv[:1] == ["kontrola"]:
         problems = check_dom(Path(argv[1]).read_text(encoding="utf-8", errors="replace"))
         for p in problems:

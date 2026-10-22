@@ -26,6 +26,10 @@ permissions:
   pages: write
   id-token: write
 
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: fxbot-provoz
   cancel-in-progress: false
@@ -100,11 +104,13 @@ jobs:
       - run: pip install -r requirements-provoz.txt
 
       - name: Denní běh (sazby, signály, dopředný test, heuristiky, diagnostika)
-        run: python scripts/rutina.py denni || { echo "druhý pokus za minutu"; sleep 60; python scripts/rutina.py denni; }
+        run: |
+          mkdir -p zprava
+          python scripts/rutina.py denni 2>&1 | tee zprava/beh.txt || { echo "druhý pokus za minutu"; sleep 60; python scripts/rutina.py denni 2>&1 | tee -a zprava/beh.txt; }
 
       - name: Souhrn
         if: always()
-        run: python scripts/github_beh.py souhrn "$DRUH"
+        run: mkdir -p zprava && python scripts/github_beh.py souhrn "$DRUH" | tee zprava/souhrn.md
 
       - name: Uložit do repozitáře (jen ostrý režim)
         if: needs.plan.outputs.rezim == 'ostry'
@@ -123,12 +129,11 @@ jobs:
       - name: Sestavit stránku
         run: python scripts/web_stranka.py --beh-url "$FXBOT_BEH_URL" --behy-url "${{ github.server_url }}/${{ github.repository }}/actions"
 
-      - name: Kontrola stránky v prohlížeči
+      - name: Kontrola stránky v prohlížeči (Chromium)
         run: |
-          python -m http.server 8765 -d _site > /dev/null 2>&1 &
-          sleep 2
-          google-chrome --headless=new --no-sandbox --disable-gpu --virtual-time-budget=15000 --dump-dom http://127.0.0.1:8765/ > dom.html
-          python scripts/web_stranka.py kontrola dom.html
+          pip install -q playwright==1.56.0
+          python -m playwright install --with-deps chromium > /dev/null
+          python scripts/web_stranka.py kontrola-prohlizec _site --dom zprava/stranka.html 2>&1 | tee -a zprava/kontrola.txt
 
       - uses: actions/upload-pages-artifact@v5
         with:
@@ -152,6 +157,19 @@ jobs:
         with:
           path: .znacka
           key: fxbot-beh-patek-${{ needs.plan.outputs.patek }}
+
+      - name: Zpráva o běhu (větev provoz-zprava)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p zprava
+          cp -f data/live/diagnostika.json zprava/ 2>/dev/null || true
+          { echo "beh: $FXBOT_BEH_URL"; echo "workflow: $GITHUB_WORKFLOW"; echo "stav jobu: $JOB_STATUS"; date -u; } > zprava/README.txt
+          cd zprava && git init -q && git checkout -q -b provoz-zprava && git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Zpráva o běhu $GITHUB_RUN_ID ($JOB_STATUS)"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" provoz-zprava || echo "zprávu se nepodařilo uložit"
 
   stranka:
     needs: beh
