@@ -252,6 +252,39 @@ def check_outputs(today: date, champion_name: str | None) -> None:
            "adresa webove stranky ulozena" if dash.exists() else "learning/dashboard.json chybi")
 
 
+def check_hygiene() -> None:
+    """Research hygiene (R-049): the vault of test data is closed and the trial registry's hash chain is intact. Like the
+    heuristics ledger, these checks only report - they never block the main model's signals."""
+    from src.core import trezor as TZ
+    state = TZ.load() if TZ.TREZOR.exists() else None
+    if state is None:
+        report("trezor", WARN, "learning/trezor.json chybi - data po 2026-10-01 nejsou chranena")
+    elif state.get("otevreno"):
+        report("trezor", WARN, f"trezor je OTEVRENY ({state['historie'][-1]['kdy'] if state.get('historie') else '?'}): "
+                               "data po 2026-10-01 uz nejsou neviděna")
+    else:
+        report("trezor", OK, f"zavreny od {state['od']}: uceni a vyzkum vidi jen starsi data")
+    check = LEARNING / "hygiena" / "histdata_kontrola.json"                    # the mandatory control on 16 HistData pairs
+    champs = {}
+    for prof in ("max", "mesicne"):
+        f = LEARNING / ("champion_12.json" if prof == "max" else "champion_12_mesicne.json")
+        champs[prof] = json.loads(f.read_text())["config"]["name"] if f.exists() else None
+    if not check.exists():
+        report("kontrola HistData", WARN, "kontrola na 16 parech HistData chybi - python scripts/kontrola_histdata.py")
+    else:
+        done = {p: v["nazev"] for p, v in json.loads(check.read_text())["profily"].items()}
+        report("kontrola HistData", OK if done == champs else WARN,
+               "kontrola odpovida sampionum" if done == champs else "kontrola je pro jine sampiony - python scripts/kontrola_histdata.py")
+    import registr_pokusu as RP
+    from src.core import ledger as LG
+    if not RP.REG.exists():
+        report("registr pokusu", WARN, "learning/registr_pokusu/registr.jsonl chybi - python scripts/registr_pokusu.py import-logu")
+        return
+    v = LG.verify(RP.REG)
+    report("registr pokusu", OK if v["ok"] else ERR,
+           f"{RP.n_trials()} pokusu, retezec otisku v poradku" if v["ok"] else f"retezec porusen: {v['chyba']}")
+
+
 def check_heuristics(today: date) -> None:
     """Heuristic layer (R-038): the rule registry is recent and the prediction ledger is intact (hash chain, one
     evaluation per prediction). Information layer only - its errors never block the main model's signals."""
@@ -303,6 +336,10 @@ def run(online: bool = False) -> dict:
         check_heuristics(today)
     except Exception as exc:
         report("heuristiky", WARN, f"kontrola nejde provest: {type(exc).__name__}: {exc}")
+    try:
+        check_hygiene()
+    except Exception as exc:
+        report("hygiena", WARN, f"kontrola nejde provest: {type(exc).__name__}: {exc}")
     if online:
         check_online()
     counts = {s: sum(r["stav"] == s for r in results) for s in (OK, WARN, ERR)}

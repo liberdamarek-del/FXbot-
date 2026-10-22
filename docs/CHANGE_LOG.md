@@ -878,3 +878,44 @@ mají uložené hladiny a vyhodnocují se podle nich dál. `test_h2_levels.py`: 
 testů V7.8.0, starý `fxbot.py` (nový umí jen `test`), `termux_schedule.sh`, seed testovací databáze. Nic nesmazáno; tag
 `5669c4e`, tabulka v `archive/README.md`. Zůstává `src/broker/*` (fáze 4). Nový stručný `README.md`.
 
+
+## R-049 - 2026-10-20: architektura-v2, fáze 2 - výzkumná hygiena
+
+Zadání uživatele (fáze 2). Šampioni, brána, zmrazení pokusů a rutiny beze změny; živé signály se nemění. Výsledek a doporučení:
+`docs/FAZE2_VYSLEDEK.md`, tabulky `docs/FAZE2_TABULKY.md`, kontrola `docs/KONTROLA_HISTDATA.md`.
+
+**1. Registr pokusů.** `learning/registr_pokusu/registr.jsonl` (jen přidávání, řetězec otisků jako u deníku heuristik,
+`src/core/ledger.py`), `scripts/registr_pokusu.py`. Povinná pole nového pokusu: hypotéza, EKONOMICKÝ DŮVOD, parametry, data / test;
+`self_learn.py` neregistrovaný pokus nespustí a zapíše výsledek. Zpětně naplněn z `docs/UCENI_LOG.md`: **332 záznamů** (144 různých
+jmen, 8 přijatých, 324 zamítnutých; 106 + 136 z 1. a 2. 10.). Skutečný počet pokusů je **NEOVĚŘENO** a vyšší: pivoty (1 080 variant),
+intradenní studie (300), `profit_lab2` (213 840 systémů) v logu učení nejsou. Pokus bez záznamu se nepočítá.
+
+**2. DSR / PSR / PBO.** `src/core/statistika.py` (Bailey, López de Prado 2014; Bailey a kol. 2017), testy proti uzavřeným tvarům
+a simulaci. `scripts/faze2_analyza.py`: měsíční řady šampionů v obou testovacích oknech brány (93 měsíců), všech 144 jmen z
+`EXPERIMENTS` přehráno na dnešních šampionech (288 běhů), PBO (CSCV, 8–16 bloků), efektivní počet pokusů z korelace variant.
+
+**3. Trezor.** Obchodní dny od 2026-10-01 jsou zamčené (`learning/trezor.json`, `src/core/trezor.py`, `docs/TREZOR.md`):
+`market.series()` a `load_hourly()` je odřežou; otevřít jde jednou a jen s výslovným souhlasem uživatele (`scripts/trezor.py
+otevri --souhlas ...`). Živé signály, forward test a heuristiky berou ceny z Yahoo a trezoru se netýkají. Trezor je ZAVŘENÝ.
+
+**4. Kontrola 16 párů HistData** (`scripts/kontrola_histdata.py`, jen report, ne kritérium výběru): šampion se stejnými
+maržemi, žádné ladění. Úspěšnost 77–81 %, ale průměr obchodu −2,3 … +1,4 % marže a roční výnos −11,5 … −1,5 % při propadech
+43–84 % (12 živých párů na stejných maržích: +19,7 … +53,3 %, propady 18–28 %). Spready těchto párů jsou předpoklad
+(NEOVĚŘENO), data jsou jen BID. Diagnostika (`check_hygiene`) hlásí, když se šampion změní a kontrola ne.
+
+**5. Výsledek přepočtu (kritérium zastavení).** DSR šampiona při 332 pokusech a rozptylu čistého šumu (pravidlo zadání): **0,872**
+(max) / **0,861** (měsíční) < 0,95 → **šampion po korekci neprošel**. Mírnější čtení (efektivně 28 / 12 nezávislých pokusů,
+rozptyl Sharpe variant) dává 0,975–0,998, ale spoléhá na úplnost logu, což není pravda; při 213 840 pokusech klesá i nejmírnější
+čtení na 0,90 / 0,95. PBO 0,54–0,63 (max), 0,79–0,90 (měsíční). Základ CH-009 bez přijatých změn: Sharpe 0,301 (max), v 2023–26
++6,8 % ročně proti +19,7 % šampiona; PSR(0) 0,997, tj. základní okraj vypadá kladně.
+
+**6. Nález při práci (opraveno před zveřejněním výsledků).** První běh počítal varianty totožné se šampionem (už v něm jsou nebo
+nic nemění: 8 + 8) a kopie jiných variant jako samostatné strategie; to zvyšovalo korelaci a PBO a snižovalo efektivní počet
+pokusů. `usable()` teď bere jen různé řady; použitelných variant je 118 (max) a 72 (měsíční) místo 129 / 80. Uvedená čísla jsou
+po opravě; test hlídá totožné i duplicitní řady a kratší řady (okno bez platných marží, 50 variant měsíčního profilu).
+
+**7. Testy.** `test_i1_hygiena.py` (řetězec a zásahy do něj, import logu = log, povinná pole, vzorce, trezor, pomocné funkce
+analýzy); `python fxbot.py test`: 13 testů.
+
+**Otevřené.** Automatický DSR u každého budoucího pokusu se nepočítá (zmrazení); práh při N pokusech vypíše `registr_pokusu.py
+souhrn`. Další krok jen podle rozhodnutí uživatele (`docs/FAZE2_VYSLEDEK.md`, bod 7).

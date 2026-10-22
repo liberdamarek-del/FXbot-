@@ -1,0 +1,501 @@
+{
+ "vytvoreno": "2026-10-20",
+ "pary_histdata": [
+  "USD/NOK",
+  "EUR/NOK",
+  "USD/SEK",
+  "EUR/SEK",
+  "USD/MXN",
+  "USD/ZAR",
+  "ZAR/JPY",
+  "USD/PLN",
+  "EUR/PLN",
+  "USD/HUF",
+  "EUR/HUF",
+  "USD/CZK",
+  "EUR/CZK",
+  "CHF/JPY",
+  "EUR/CAD",
+  "GBP/AUD"
+ ],
+ "profily": {
+  "max": {
+   "nazev": "CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk",
+   "marze": [
+    0.15,
+    0.15,
+    0.06,
+    0.06
+   ],
+   "hist16": {
+    "obdobi": {
+     "2012-2018": {
+      "obchodu_rocne": 37.48227613720962,
+      "uspesnost": 0.7767857142857143,
+      "prumer_proc_marze": -2.3124560334125275,
+      "rocne": -0.04852064025607594,
+      "propad": 0.4990464694605109,
+      "ziskovych_mesicne": 2.3835616438356166
+     },
+     "2019-2022": {
+      "obchodu_rocne": 42.99264328485886,
+      "uspesnost": 0.7732558139534884,
+      "prumer_proc_marze": 0.4572912788356489,
+      "rocne": -0.08121351773880536,
+      "propad": 0.7245314360565359,
+      "ziskovych_mesicne": 2.7142857142857144
+     },
+     "2023-2026-09": {
+      "obchodu_rocne": 33.622404666053825,
+      "uspesnost": 0.7933884297520661,
+      "prumer_proc_marze": -0.3968127097182908,
+      "rocne": -0.07859331138731473,
+      "propad": 0.5936195732825709,
+      "ziskovych_mesicne": 2.1818181818181817
+     }
+    },
+    "po_parech": {
+     "USD/NOK": {
+      "obchodu": 97,
+      "uspesnost": 0.7938144329896907,
+      "prumer_proc_marze": 2.7681842112548836,
+      "data_do": "2026-09-30"
+     },
+     "EUR/NOK": {
+      "obchodu": 81,
+      "uspesnost": 0.7654320987654321,
+      "prumer_proc_marze": 0.4256142474425307,
+      "data_do": "2026-09-30"
+     },
+     "USD/SEK": {
+      "obchodu": 56,
+      "uspesnost": 0.9107142857142857,
+      "prumer_proc_marze": 10.674374044924706,
+      "data_do": "2026-09-30"
+     },
+     "EUR/SEK": {
+      "obchodu": 39,
+      "uspesnost": 0.9230769230769231,
+      "prumer_proc_marze": 5.970295898682107,
+      "data_do": "2026-09-30"
+     },
+     "USD/MXN": {
+      "obchodu": 105,
+      "uspesnost": 0.7238095238095238,
+      "prumer_proc_marze": -3.1369262032254115,
+      "data_do": "2026-09-30"
+     },
+     "USD/ZAR": {
+      "obchodu": 98,
+      "uspesnost": 0.8163265306122449,
+      "prumer_proc_marze": 4.285961638123397,
+      "data_do": "2026-09-30"
+     },
+     "ZAR/JPY": {
+      "obchodu": 104,
+      "uspesnost": 0.6538461538461539,
+      "prumer_proc_marze": -15.723341586764608,
+      "data_do": "2026-09-30"
+     },
+     "USD/PLN": {
+      "obchodu": 104,
+      "uspesnost": 0.7788461538461539,
+      "prumer_proc_marze": -0.016885568838521027,
+      "data_do": "2026-09-30"
+     },
+     "EUR/PLN": {
+      "obchodu": 33,
+      "uspesnost": 0.7575757575757576,
+      "prumer_proc_marze": -2.712646501947834,
+      "data_do": "2026-09-30"
+     },
+     "USD/HUF": {
+      "obchodu": 42,
+      "uspesnost": 0.7380952380952381,
+      "prumer_proc_marze": -3.499073999990599,
+      "data_do": "2026-09-30"
+     },
+     "EUR/HUF": {
+      "obchodu": 16,
+      "uspesnost": 1.0,
+      "prumer_proc_marze": 8.937034122641096,
+      "data_do": "2018-12-14"
+     },
+     "USD/CZK": {
+      "obchodu": 96,
+      "uspesnost": 0.8541666666666666,
+      "prumer_proc_marze": 4.931264097209145,
+      "data_do": "2026-09-30"
+     },
+     "EUR/CZK": {
+      "obchodu": 11,
+      "uspesnost": 0.6363636363636364,
+      "prumer_proc_marze": -9.922414890113625,
+      "data_do": "2026-09-30"
+     },
+     "CHF/JPY": {
+      "obchodu": 90,
+      "uspesnost": 0.7,
+      "prumer_proc_marze": -6.489901990632243,
+      "data_do": "2026-09-30"
+     },
+     "EUR/CAD": {
+      "obchodu": 85,
+      "uspesnost": 0.8117647058823529,
+      "prumer_proc_marze": 1.0865317765442113,
+      "data_do": "2026-09-30"
+     },
+     "GBP/AUD": {
+      "obchodu": 60,
+      "uspesnost": 0.7666666666666667,
+      "prumer_proc_marze": -0.819657878630654,
+      "data_do": "2026-09-30"
+     }
+    },
+    "obchodu_celkem": 1117
+   },
+   "zivych12": {
+    "obdobi": {
+     "2012-2018": {
+      "obchodu_rocne": 38.40150196546262,
+      "uspesnost": 0.8526785714285714,
+      "prumer_proc_marze": 5.093025362471741,
+      "rocne": 0.23487748954039378,
+      "propad": 0.18286113190723785,
+      "ziskovych_mesicne": 2.6901408450704225
+     },
+     "2019-2022": {
+      "obchodu_rocne": 42.49602707897077,
+      "uspesnost": 0.893491124260355,
+      "prumer_proc_marze": 6.746319408401187,
+      "rocne": 0.5111811087359166,
+      "propad": 0.19173756736387193,
+      "ziskovych_mesicne": 3.0816326530612246
+     },
+     "2023-2026-09": {
+      "obchodu_rocne": 28.76002397551973,
+      "uspesnost": 0.8461538461538461,
+      "prumer_proc_marze": 4.118301219831412,
+      "rocne": 0.19675473712497582,
+      "propad": 0.28180296698401286,
+      "ziskovych_mesicne": 2.0
+     }
+    },
+    "po_parech": {
+     "EUR/GBP": {
+      "obchodu": 61,
+      "uspesnost": 0.9016393442622951,
+      "prumer_proc_marze": 6.6662595435293905,
+      "data_do": "2026-09-30"
+     },
+     "EUR/USD": {
+      "obchodu": 63,
+      "uspesnost": 0.9365079365079365,
+      "prumer_proc_marze": 10.464293780027688,
+      "data_do": "2026-09-30"
+     },
+     "EUR/CHF": {
+      "obchodu": 36,
+      "uspesnost": 0.9444444444444444,
+      "prumer_proc_marze": 11.217436312634057,
+      "data_do": "2026-09-30"
+     },
+     "EUR/JPY": {
+      "obchodu": 55,
+      "uspesnost": 0.8,
+      "prumer_proc_marze": -0.1718234455406257,
+      "data_do": "2026-09-30"
+     },
+     "GBP/USD": {
+      "obchodu": 97,
+      "uspesnost": 0.9175257731958762,
+      "prumer_proc_marze": 8.434224508024615,
+      "data_do": "2026-09-30"
+     },
+     "GBP/JPY": {
+      "obchodu": 76,
+      "uspesnost": 0.8289473684210527,
+      "prumer_proc_marze": -0.9840295386020594,
+      "data_do": "2026-09-30"
+     },
+     "AUD/USD": {
+      "obchodu": 84,
+      "uspesnost": 0.8452380952380952,
+      "prumer_proc_marze": 1.8454314250535258,
+      "data_do": "2026-09-30"
+     },
+     "AUD/JPY": {
+      "obchodu": 103,
+      "uspesnost": 0.8737864077669902,
+      "prumer_proc_marze": 7.879076509016548,
+      "data_do": "2026-09-30"
+     },
+     "NZD/USD": {
+      "obchodu": 90,
+      "uspesnost": 0.8666666666666667,
+      "prumer_proc_marze": 7.833504966298085,
+      "data_do": "2026-09-30"
+     },
+     "USD/CAD": {
+      "obchodu": 66,
+      "uspesnost": 0.9393939393939394,
+      "prumer_proc_marze": 9.778505110743216,
+      "data_do": "2026-09-30"
+     },
+     "USD/CHF": {
+      "obchodu": 95,
+      "uspesnost": 0.9157894736842105,
+      "prumer_proc_marze": 11.587518405155974,
+      "data_do": "2026-09-30"
+     },
+     "USD/JPY": {
+      "obchodu": 89,
+      "uspesnost": 0.8651685393258427,
+      "prumer_proc_marze": 7.872564432726379,
+      "data_do": "2026-09-30"
+     }
+    },
+    "obchodu_celkem": 915
+   }
+  },
+  "mesicne": {
+   "nazev": "CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk",
+   "marze": [
+    0.2,
+    0.2,
+    0.04,
+    0.04
+   ],
+   "hist16": {
+    "obdobi": {
+     "2012-2018": {
+      "obchodu_rocne": 36.62813859421506,
+      "uspesnost": 0.8082191780821918,
+      "prumer_proc_marze": 0.09054476154343596,
+      "rocne": -0.0520188002866625,
+      "propad": 0.5347615171045457,
+      "ziskovych_mesicne": 2.4246575342465753
+     },
+     "2019-2022": {
+      "obchodu_rocne": 41.99281437125749,
+      "uspesnost": 0.7797619047619048,
+      "prumer_proc_marze": 0.25046962604749823,
+      "rocne": -0.11472952131246972,
+      "propad": 0.8373926745359355,
+      "ziskovych_mesicne": 2.673469387755102
+     },
+     "2023-2026-09": {
+      "obchodu_rocne": 33.34453355311123,
+      "uspesnost": 0.8083333333333333,
+      "prumer_proc_marze": 1.413869852584445,
+      "rocne": -0.014975382370199353,
+      "propad": 0.42535068473240734,
+      "ziskovych_mesicne": 2.2045454545454546
+     }
+    },
+    "po_parech": {
+     "USD/NOK": {
+      "obchodu": 94,
+      "uspesnost": 0.7978723404255319,
+      "prumer_proc_marze": 1.409493209265513,
+      "data_do": "2026-09-30"
+     },
+     "EUR/NOK": {
+      "obchodu": 81,
+      "uspesnost": 0.8148148148148148,
+      "prumer_proc_marze": 2.8205907701539714,
+      "data_do": "2026-09-30"
+     },
+     "USD/SEK": {
+      "obchodu": 56,
+      "uspesnost": 0.9107142857142857,
+      "prumer_proc_marze": 10.541228481304419,
+      "data_do": "2026-09-30"
+     },
+     "EUR/SEK": {
+      "obchodu": 39,
+      "uspesnost": 0.9743589743589743,
+      "prumer_proc_marze": 8.625851982324969,
+      "data_do": "2026-09-30"
+     },
+     "USD/MXN": {
+      "obchodu": 102,
+      "uspesnost": 0.7843137254901961,
+      "prumer_proc_marze": 0.6538621970708749,
+      "data_do": "2026-09-30"
+     },
+     "USD/ZAR": {
+      "obchodu": 97,
+      "uspesnost": 0.8350515463917526,
+      "prumer_proc_marze": 4.449153638998659,
+      "data_do": "2026-09-30"
+     },
+     "ZAR/JPY": {
+      "obchodu": 96,
+      "uspesnost": 0.65625,
+      "prumer_proc_marze": -11.330967032746349,
+      "data_do": "2026-09-30"
+     },
+     "USD/PLN": {
+      "obchodu": 100,
+      "uspesnost": 0.78,
+      "prumer_proc_marze": -0.4102697120889238,
+      "data_do": "2026-09-30"
+     },
+     "EUR/PLN": {
+      "obchodu": 33,
+      "uspesnost": 0.7575757575757576,
+      "prumer_proc_marze": -5.42141204022709,
+      "data_do": "2026-09-30"
+     },
+     "USD/HUF": {
+      "obchodu": 42,
+      "uspesnost": 0.7619047619047619,
+      "prumer_proc_marze": -2.7248948048600505,
+      "data_do": "2026-09-30"
+     },
+     "EUR/HUF": {
+      "obchodu": 16,
+      "uspesnost": 1.0,
+      "prumer_proc_marze": 8.937034122641096,
+      "data_do": "2018-12-14"
+     },
+     "USD/CZK": {
+      "obchodu": 96,
+      "uspesnost": 0.8541666666666666,
+      "prumer_proc_marze": 4.603796447245607,
+      "data_do": "2026-09-30"
+     },
+     "EUR/CZK": {
+      "obchodu": 11,
+      "uspesnost": 0.6363636363636364,
+      "prumer_proc_marze": -16.23762913084278,
+      "data_do": "2026-09-30"
+     },
+     "CHF/JPY": {
+      "obchodu": 87,
+      "uspesnost": 0.7241379310344828,
+      "prumer_proc_marze": -3.6489687162946134,
+      "data_do": "2026-09-30"
+     },
+     "EUR/CAD": {
+      "obchodu": 85,
+      "uspesnost": 0.8235294117647058,
+      "prumer_proc_marze": 0.6260603243342626,
+      "data_do": "2026-09-30"
+     },
+     "GBP/AUD": {
+      "obchodu": 58,
+      "uspesnost": 0.7586206896551724,
+      "prumer_proc_marze": -0.6491522572490853,
+      "data_do": "2026-09-30"
+     }
+    },
+    "obchodu_celkem": 1093
+   },
+   "zivych12": {
+    "obdobi": {
+     "2012-2018": {
+      "obchodu_rocne": 38.230066688831094,
+      "uspesnost": 0.8789237668161435,
+      "prumer_proc_marze": 5.881189879915996,
+      "rocne": 0.2914006505518838,
+      "propad": 0.1764520276458177,
+      "ziskovych_mesicne": 2.76056338028169
+     },
+     "2019-2022": {
+      "obchodu_rocne": 42.74748286050314,
+      "uspesnost": 0.9,
+      "prumer_proc_marze": 6.192490908462402,
+      "rocne": 0.5330853739613486,
+      "propad": 0.19200895897977432,
+      "ziskovych_mesicne": 3.122448979591837
+     },
+     "2023-2026-09": {
+      "obchodu_rocne": 28.76002397551973,
+      "uspesnost": 0.8557692307692307,
+      "prumer_proc_marze": 5.479108681804326,
+      "rocne": 0.28217355451967574,
+      "propad": 0.2411894344286103,
+      "ziskovych_mesicne": 2.022727272727273
+     }
+    },
+    "po_parech": {
+     "EUR/GBP": {
+      "obchodu": 61,
+      "uspesnost": 0.9016393442622951,
+      "prumer_proc_marze": 4.975873656053642,
+      "data_do": "2026-09-30"
+     },
+     "EUR/USD": {
+      "obchodu": 63,
+      "uspesnost": 0.9682539682539683,
+      "prumer_proc_marze": 13.383238376346823,
+      "data_do": "2026-09-30"
+     },
+     "EUR/CHF": {
+      "obchodu": 36,
+      "uspesnost": 0.9444444444444444,
+      "prumer_proc_marze": 11.217436312634057,
+      "data_do": "2026-09-30"
+     },
+     "EUR/JPY": {
+      "obchodu": 55,
+      "uspesnost": 0.8,
+      "prumer_proc_marze": -0.6256284753781625,
+      "data_do": "2026-09-30"
+     },
+     "GBP/USD": {
+      "obchodu": 97,
+      "uspesnost": 0.9381443298969072,
+      "prumer_proc_marze": 7.877359820965525,
+      "data_do": "2026-09-30"
+     },
+     "GBP/JPY": {
+      "obchodu": 76,
+      "uspesnost": 0.9078947368421053,
+      "prumer_proc_marze": 8.662476582130497,
+      "data_do": "2026-09-30"
+     },
+     "AUD/USD": {
+      "obchodu": 84,
+      "uspesnost": 0.8690476190476191,
+      "prumer_proc_marze": 1.9423884062679702,
+      "data_do": "2026-09-30"
+     },
+     "AUD/JPY": {
+      "obchodu": 103,
+      "uspesnost": 0.883495145631068,
+      "prumer_proc_marze": 8.565863934612214,
+      "data_do": "2026-09-30"
+     },
+     "NZD/USD": {
+      "obchodu": 90,
+      "uspesnost": 0.8666666666666667,
+      "prumer_proc_marze": 9.340889055577318,
+      "data_do": "2026-09-30"
+     },
+     "USD/CAD": {
+      "obchodu": 65,
+      "uspesnost": 0.9384615384615385,
+      "prumer_proc_marze": 8.855801390208827,
+      "data_do": "2026-09-30"
+     },
+     "USD/CHF": {
+      "obchodu": 95,
+      "uspesnost": 0.9263157894736842,
+      "prumer_proc_marze": 13.194419891013546,
+      "data_do": "2026-09-30"
+     },
+     "USD/JPY": {
+      "obchodu": 89,
+      "uspesnost": 0.8651685393258427,
+      "prumer_proc_marze": 6.50170111543505,
+      "data_do": "2026-09-30"
+     }
+    },
+    "obchodu_celkem": 914
+   }
+  }
+ }
+}

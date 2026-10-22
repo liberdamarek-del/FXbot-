@@ -1,0 +1,8 @@
+{
+ "od": "2026-10-01",
+ "otevreno": false,
+ "pravidlo": "Obchodni dny s datem od 'od' dal jsou zamcene: market.series() je orizne, takze uceni, simulator, heuristiky a vyzkum je nevidi. Zive signaly, forward test a zive predikce heuristik (ceny z Yahoo) se trezoru netykaji. Otevre se jednou a jen s vyslovnym souhlasem uzivatele: python scripts/trezor.py otevri --souhlas \"...\".",
+ "zalozeno": "2026-10-20",
+ "rozhodnuti": "uzivatel, zadani architektura-v2 faze 2 (2026-10-20)",
+ "historie": []
+}

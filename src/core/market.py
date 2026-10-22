@@ -16,7 +16,7 @@ import numpy as np
 from src.instruments import get_instrument
 from src.path_archive import trading_date
 
-from . import paths
+from . import paths, trezor
 from .rates import (EXTEND_IDS, EXTENDED, LONG_IDS, RATE_IDS, curve_mom, monthly_long_rates,  # noqa: F401 (re-export)
                     monthly_rates, rate_at)
 from .ta import ema, rolling_max, rolling_min, shift, true_range, weekly_aligned, wilder
@@ -66,18 +66,27 @@ def half_spread(pair: str) -> float:
 FIELDS = ("bo", "bh", "bl", "bc", "ao", "ah", "al", "ac")
 
 
-def load_hourly(symbol: str) -> dict:
+def load_hourly(symbol: str, vault: bool = True) -> dict:
     """Hourly arrays of one pair: ts (bar open, UTC) and BID/ASK OHLC
-    (FXCM; for the pairs FXCM does not publish the HistData BID series). (Was fxcm_universe.load.)"""
+    (FXCM; for the pairs FXCM does not publish the HistData BID series). (Was fxcm_universe.load.) The hours of the
+    vault's locked trading days (learning/trezor.json) are cut off unless `vault=False` (only `series`, see trezor.py)."""
     path = paths.FXCM_H1 / f"{symbol.replace('/', '')}.npz"
     if not path.exists():
         path = paths.HISTDATA_H1 / f"{symbol.replace('/', '')}.npz"
     data = np.load(path)
-    return {k: data[k] for k in ("ts",) + FIELDS}
+    h = {k: data[k] for k in ("ts",) + FIELDS}
+    return trezor.cut_hours(h) if vault else h
 
 
-def series(symbol: str) -> dict:
-    """Hourly mid bars + the daily bars (New York close) built from them."""
+def series(symbol: str, vault: bool = True) -> dict:
+    """Hourly mid bars + the daily bars (New York close) built from them. The locked data of the vault (from
+    2026-10-01, learning/trezor.json, src/core/trezor.py) are cut off unless `vault=False` (only scripts/trezor.py)."""
+    s = _series_all(symbol)
+    return trezor.cut(s) if vault else s
+
+
+def _series_all(symbol: str) -> dict:
+    """The whole series (R-048: moved verbatim from scripts/profit_lab2.py as `series`)."""
     name = symbol.replace("/", "")
     cache = OUT / f"series_{name}.pkl"
     source = paths.FXCM_H1 / f"{name}.npz"
@@ -86,7 +95,7 @@ def series(symbol: str) -> dict:
     # rebuilt when the hourly data are newer (the weekly download), else the learning would not see new weeks
     if cache.exists() and (not source.exists() or cache.stat().st_mtime >= source.stat().st_mtime):
         return pickle.loads(cache.read_bytes())
-    H = load_hourly(symbol)
+    H = load_hourly(symbol, vault=False)               # the whole file: the cache keeps everything, `series` cuts
     ts = H["ts"]
     ho, hh, hl, hc = ((H["b" + k] + H["a" + k]) / 2 for k in "ohlc")
     hours = np.unique(ts // 3600 * 3600)
