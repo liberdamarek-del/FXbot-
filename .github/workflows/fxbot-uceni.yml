@@ -138,7 +138,7 @@ jobs:
       - name: Oznámení na telefon (jen když je nastavené téma ntfy)
         env:
           FXBOT_NTFY_TEMA: ${{ secrets.FXBOT_NTFY_TEMA }}
-        run: python scripts/github_beh.py oznam uceni
+        run: python scripts/github_beh.py oznam uceni 2>&1 | tee -a zprava/oznameni.txt
 
       - name: Značka hotového učení
         if: needs.plan.outputs.hotovo != 'true'
@@ -153,7 +153,7 @@ jobs:
         if: failure()
         env:
           FXBOT_NTFY_TEMA: ${{ secrets.FXBOT_NTFY_TEMA }}
-        run: python scripts/github_beh.py oznam-chyba uceni
+        run: mkdir -p zprava && python scripts/github_beh.py oznam-chyba uceni 2>&1 | tee -a zprava/oznameni.txt
 
       - name: Zpráva o běhu (větev provoz-zprava)
         if: always()
