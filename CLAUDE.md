@@ -60,6 +60,9 @@ user's journal lives only in his browser there). Mode in learning/provoz/github.
 Claude routines below stay the only writer of main), "ostry" = GitHub is the only writer and the Claude routines must be
 switched off first (two writers would break the append-only heuristics ledger). The user decided: one week side by side,
 then switch to "ostry" and switch the Claude routines off. web/prehled.html serves both the claude.ai artifact and Pages.
+R-051 (user's decision 2026-10-22): in the "ostry" mode the daily workflow also refreshes every hour Monday to Friday (cron
+"12 * * * 1-5" UTC) and runs send phone notifications via ntfy.sh (secret FXBOT_NTFY_TEMA; scripts/github_beh.py). Learning
+stays Wednesday + Saturday (more frequent learning adds nothing while trials are frozen and the vault is closed).
 
 ## Jobs (user's decision 2026-10-11, R-044: every routine starts a FRESH session - firing into the long main
 conversation cost ~300k tokens per step; 2026-10-08: one update a day (was hourly, the weekly usage limit);

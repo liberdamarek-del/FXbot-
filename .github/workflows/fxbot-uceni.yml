@@ -1,4 +1,4 @@
-# FXBOT learning on GitHub Actions (R-050, docs/GITHUB_PROVOZ.md): Wednesday and Saturday, like the Claude routines
+# FXBOT learning on GitHub Actions (R-050 / R-051, docs/GITHUB_PROVOZ.md): Wednesday and Saturday, like the Claude routines
 # "učení – středa / sobota", without the steps that need an AI (new trials are frozen anyway, R-047; the bounded
 # exploration step of docs/VYZKUM_FRONTA.md and the weekly research report stay with Claude / are paused, R-049).
 # Steps: FXCM history + fundamentals + rates, Saturday also the heuristic registry, champion re-evaluation (both
@@ -74,6 +74,7 @@ jobs:
     timeout-minutes: 180
     env:
       FXBOT_BEH_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      FXBOT_STRANKA_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -125,15 +126,19 @@ jobs:
       - name: Sestavit stránku
         run: python scripts/web_stranka.py --beh-url "$FXBOT_BEH_URL" --behy-url "${{ github.server_url }}/${{ github.repository }}/actions"
 
-      - name: Kontrola stránky v prohlížeči (Chromium)
+      - name: Kontrola stránky v prohlížeči
         run: |
-          pip install -q playwright==1.56.0
-          python -m playwright install --with-deps chromium > /dev/null
-          python scripts/web_stranka.py kontrola-prohlizec _site --dom zprava/stranka.html 2>&1 | tee -a zprava/kontrola.txt
+          kontrola() { python scripts/web_stranka.py kontrola-prohlizec _site --dom zprava/stranka.html 2>&1 | tee -a zprava/kontrola.txt; }
+          kontrola || { echo "Chrome nešel, instaluji Chromium"; python -m playwright install --with-deps chromium > /dev/null && kontrola; }
 
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+
+      - name: Oznámení na telefon (jen když je nastavené téma ntfy)
+        env:
+          FXBOT_NTFY_TEMA: ${{ secrets.FXBOT_NTFY_TEMA }}
+        run: python scripts/github_beh.py oznam uceni
 
       - name: Značka hotového učení
         if: needs.plan.outputs.hotovo != 'true'
@@ -144,6 +149,12 @@ jobs:
           path: .znacka
           key: fxbot-beh-uceni-${{ needs.plan.outputs.uceni }}
 
+      - name: Oznámení o selhání
+        if: failure()
+        env:
+          FXBOT_NTFY_TEMA: ${{ secrets.FXBOT_NTFY_TEMA }}
+        run: python scripts/github_beh.py oznam-chyba uceni
+
       - name: Zpráva o běhu (větev provoz-zprava)
         if: always()
         env:
@@ -152,9 +163,9 @@ jobs:
         run: |
           mkdir -p zprava
           cp -f data/live/diagnostika.json zprava/ 2>/dev/null || true
-          { echo "beh: $FXBOT_BEH_URL"; echo "workflow: $GITHUB_WORKFLOW"; echo "stav jobu: $JOB_STATUS"; date -u; } > zprava/README.txt
+          { echo "beh: $FXBOT_BEH_URL"; echo "workflow: $GITHUB_WORKFLOW"; echo "druh: uceni"; echo "stav jobu: $JOB_STATUS"; date -u; } > zprava/README.txt
           cd zprava && git init -q && git checkout -q -b provoz-zprava && git add -A
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Zpráva o běhu $GITHUB_RUN_ID ($JOB_STATUS)"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Zpráva o běhu $GITHUB_RUN_ID (uceni, $JOB_STATUS)"
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" provoz-zprava || echo "zprávu se nepodařilo uložit"
 
   stranka:
@@ -167,3 +178,12 @@ jobs:
     steps:
       - id: nasazeni
         uses: actions/deploy-pages@v5
+      - name: Oznámení o selhání zveřejnění
+        if: failure()
+        env:
+          FXBOT_NTFY_TEMA: ${{ secrets.FXBOT_NTFY_TEMA }}
+          BEH: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -n "$FXBOT_NTFY_TEMA" ] || exit 0
+          python3 -c 'import json,os; print(json.dumps({"topic": os.environ["FXBOT_NTFY_TEMA"], "priority": 4, "title": "FXBOT: stránku se nepodařilo zveřejnit", "message": "Učení proběhlo, ale nová verze stránky se nenasadila. " + os.environ["BEH"]}))' \
+            | curl -s -o /dev/null -H "Content-Type: application/json" --data-binary @- https://ntfy.sh/ || true

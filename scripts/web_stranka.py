@@ -12,7 +12,8 @@ stav.json is public (the repository and the Pages site are public), so the user'
   pary[].rozhodnuti_cb  next scheduled central bank decisions of the pair's currencies, [[YYYY-MM-DD, "Fed"], ...]
                         (signals_live.cb_decisions) - the page warns about the user's own open trades with the same
                         rule as aktualizace.journal_summary;
-  provoz                where and when it ran, and by when the next update is due (the page warns after that).
+  provoz                where and when it ran, the mode (learning/provoz/github.json) and by when the next update is
+                        due (the page warns after that): stin = next daily close + 6 h, ostry = next hourly slot + 3 h.
 """
 from __future__ import annotations
 
@@ -31,7 +32,11 @@ NEW_YORK = ZoneInfo("America/New_York")
 PRAGUE = ZoneInfo("Europe/Prague")
 PRIVATE_KEYS = ("denik_uzivatele",)          # personal data never published
 GRACE = timedelta(hours=6)                   # GitHub can start scheduled runs late (docs: delays under high load)
+GRACE_HOURLY = timedelta(hours=3)            # hourly refresh (R-051, "ostry" mode): one or two missed hours are no alarm
+HOURLY_MINUTE = 12                           # cron "12 * * * 1-5" in .github/workflows/fxbot-denni.yml
 CB_DAYS = 21
+POPIS = {"stin": "Obnova ve všední dny po 23:00 našeho času, v pátek i po 22:05 (GitHub)",
+         "ostry": "Obnova každou hodinu ve všední dny, signály v pátek po 22:05 (GitHub)"}
 
 
 def next_close(now: datetime) -> datetime:
@@ -45,20 +50,38 @@ def next_close(now: datetime) -> datetime:
         d += timedelta(days=1)
 
 
+def next_hourly(now: datetime) -> datetime:
+    """The next hourly slot (minute HOURLY_MINUTE UTC, Monday to Friday UTC) strictly after `now`."""
+    u = now.astimezone(timezone.utc)
+    slot = u.replace(minute=HOURLY_MINUTE, second=0, microsecond=0)
+    if slot <= u:
+        slot += timedelta(hours=1)
+    while slot.weekday() >= 5:
+        slot = (slot + timedelta(days=1)).replace(hour=0)
+    return slot
+
+
+def deadline(now: datetime, mode: str) -> datetime:
+    """By when the next update should be published; the page warns after that."""
+    return next_hourly(now) + GRACE_HOURLY if mode == "ostry" else next_close(now) + GRACE
+
+
 def cb_by_pair(pairs: list[str], today: date) -> dict:
     import signals_live as SL
     return {p: [[d.isoformat(), label] for d, label in SL.cb_decisions(p, today - timedelta(days=1), CB_DAYS)]
             for p in pairs}
 
 
-def public_state(state: dict, now: datetime, beh_url: str | None, behy_url: str | None, cb: dict) -> dict:
+def public_state(state: dict, now: datetime, beh_url: str | None, behy_url: str | None, cb: dict,
+                 mode: str = "stin") -> dict:
     out = {k: v for k, v in state.items() if k not in PRIVATE_KEYS}
     out["pary"] = [dict(p, rozhodnuti_cb=cb.get(p.get("par"), [])) for p in state.get("pary", [])]
     out["provoz"] = {
         "zdroj": "GitHub Actions",
-        "popis": "Obnova ve všední dny po 23:00 našeho času, v pátek i po 22:05 (GitHub)",
+        "rezim": mode,
+        "popis": POPIS.get(mode, POPIS["stin"]),
         "sestaveno": now.astimezone(timezone.utc).isoformat(timespec="minutes"),
-        "dalsi_aktualizace_do": (next_close(now) + GRACE).astimezone(timezone.utc).isoformat(timespec="minutes"),
+        "dalsi_aktualizace_do": deadline(now, mode).astimezone(timezone.utc).isoformat(timespec="minutes"),
         "beh_url": beh_url,
         "behy_url": behy_url,
     }
@@ -79,7 +102,8 @@ def build(stav: Path, ven: Path, beh_url: str | None, behy_url: str | None, now:
     now = now or datetime.now(timezone.utc)
     state = json.loads(stav.read_text(encoding="utf-8"))
     pairs = [p["par"] for p in state.get("pary", []) if "par" in p]
-    pub = public_state(state, now, beh_url, behy_url, cb_by_pair(pairs, now.astimezone(PRAGUE).date()))
+    import github_beh as GB
+    pub = public_state(state, now, beh_url, behy_url, cb_by_pair(pairs, now.astimezone(PRAGUE).date()), GB.mode())
     if ven.exists():
         shutil.rmtree(ven)
     ven.mkdir(parents=True)
@@ -122,11 +146,15 @@ def browser_check(site: Path, dump: Path | None = None) -> list[str]:
     has_trade = "document.getElementById('open-trades').innerText.includes('Otevřené obchody')"
     try:
         with sync_playwright() as pw:
-            browser = pw.chromium.launch()
+            try:
+                browser = pw.chromium.launch(channel="chrome")         # Google Chrome preinstalled on the runner
+            except Exception:
+                browser = pw.chromium.launch()                         # Playwright's own Chromium (installed by the workflow)
             page = browser.new_page(locale="cs-CZ", timezone_id="Europe/Prague")
             page.on("pageerror", lambda e: problems.append(f"chyba skriptu: {e}"))
+            # a resource that fails to load (web fonts, favicon) is not a page error; stav.json is checked by rendering
             page.on("console", lambda m: problems.append(f"konzole: {m.text}")
-                    if m.type == "error" and "favicon" not in m.text and "fonts.g" not in m.text else None)
+                    if m.type == "error" and not m.text.startswith("Failed to load resource") else None)
             page.goto(url, wait_until="networkidle")
             try:
                 page.wait_for_function(rendered, timeout=20000)

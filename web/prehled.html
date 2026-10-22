@@ -44,7 +44,7 @@ header.top { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baselin
 .chip.strong { background: var(--accent); color: var(--accent-ink); }
 .chip.warn { background: var(--warn-bg); color: var(--warn); }
 .signals { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-.signal { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 10px; border-left-width: 4px; }
+.signal { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 10px; border-left-width: 4px; min-width: 0; }
 .signal.buy { border-left-color: var(--buy); }
 .signal.sell { border-left-color: var(--sell); }
 .signal .head { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; }
@@ -461,7 +461,8 @@ details summary { cursor: pointer; font-weight: 600; }
       const data = JSON.parse(new TextDecoder().decode(bytes));
       const list = Array.isArray(data) ? data : data.zaznamy;
       if (!Array.isArray(list) || !list.length) return;
-      if (!window.confirm(`Nahrát do deníku v tomto prohlížeči ${list.length} záznamů z odkazu?`)) return;
+      const n = list.length, word = n === 1 ? "záznam" : n >= 2 && n <= 4 ? "záznamy" : "záznamů";
+      if (!window.confirm(`Nahrát do deníku v tomto prohlížeči ${n} ${word} z odkazu?`)) return;
       $("zaloha-msg").textContent = importMessage(mergeJournal(list));
     } catch (e) { $("zaloha-msg").textContent = "Odkaz s deníkem je poškozený – nic se nenahrálo."; }
   }
@@ -556,8 +557,8 @@ details summary { cursor: pointer; font-weight: 600; }
     const acc = (v) => rs ? `<td class="num ${v >= 0 ? "pos" : "neg"}">${sgn(v, 2)} %</td>` : "";
     const rows = (plan.tp || []).map((t) => `<tr><td>TP${t.cislo}</td><td class="num pos">${fmt(t.cena, d)}</td>
       <td class="num pos">+${fmt(t.proc_marze, 0)} %</td>${acc(rs ? rs.marze * t.proc_marze / 100 : 0)}<td class="num">${t.pravdepodobnost !== undefined ? fmt(t.pravdepodobnost, 0) + " %" : "–"}</td></tr>`).join("");
-    return `<table class="plan"><thead><tr><th>Cíl</th><th>Cena</th><th>Z marže</th>${rs ? "<th>Z účtu</th>" : ""}<th>Pravděpodobnost</th></tr></thead>
-      <tbody>${rows}<tr class="slrow"><td>Stop loss</td><td class="num neg">${fmt(plan.sl.cena, d)}</td><td class="num neg">−${fmt(plan.sl.proc_marze, 0)} %</td>${acc(rs ? -rs.ztrata : 0)}<td class="small muted">pro všechny části</td></tr></tbody></table>
+    return `<div class="tablewrap"><table class="plan"><thead><tr><th>Cíl</th><th>Cena</th><th>Z marže</th>${rs ? "<th>Z účtu</th>" : ""}<th>Pravděpodobnost</th></tr></thead>
+      <tbody>${rows}<tr class="slrow"><td>Stop loss</td><td class="num neg">${fmt(plan.sl.cena, d)}</td><td class="num neg">−${fmt(plan.sl.proc_marze, 0)} %</td>${acc(rs ? -rs.ztrata : 0)}<td class="small muted">pro všechny části</td></tr></tbody></table></div>
       ${rs ? '<p class="small muted">„Z účtu“ = celá pozice, kdyby se celá zavřela na dané ceně.</p>' : ""}`;
   }
   function planCard(s, plan, kind, i) {

@@ -953,3 +953,26 @@ po 60 dnech bez aktivity.
 0 CHYBA; stejné obchody modelu jako v Claude). Kontrola stránky nejdřív hlásila texty z kódu skriptu (opraveno, kontrola je teď
 v Chromiu přes Playwright včetně zápisu do deníku). Pages zapnul uživatel; stránka https://liberdamarek-del.github.io/FXbot-/.
 Zpráva o běhu ve větvi `provoz-zprava`.
+
+## R-051 - 2026-10-22: hodinová obnova (jen ostrý režim) a oznámení na telefon
+
+Rozhodnutí uživatele 22. 10. 2026 po R-050: obnova několikrát denně a oznámení přes ntfy; učení beze změny (pokusy zmrazené
+R-047, trezor R-049 - častější učení by nic nepřineslo a další pokusy by zhoršily korekci). Model, šampioni a signály se nemění.
+
+* `.github/workflows/fxbot-denni.yml`: cron `12 * * * 1-5` (UTC); klíč `hodina` + značka v cache; běží **jen v režimu ostry**
+  (`learning/provoz/github.json`), ve stínovém režimu hodinové sloty jen pojišťují denní / páteční běh. Hodinové běhy
+  doplní heuristikám všechny 4H svíčky (živá vrstva byla psaná na hodinový běh).
+* `scripts/github_beh.py`: oznámení - denní / páteční vždy, učení nízkou prioritou, hodinový běh jen při novince (model otevřel
+  nebo zavřel obchod proti poslednímu commitu `forward_trades.json`, nová CHYBA proti poslednímu běhu v `github_beh.json`);
+  `oznam-chyba` při selhání (ne u hodinového běhu); zveřejnění stránky hlásí selhání zvlášť.
+* `scripts/web_stranka.py`: termín další aktualizace a text podle režimu (ostrý: další hodinový slot + 3 h); kontrola stránky
+  v prohlížeči nejdřív v Chrome předinstalovaném na serveru (bez instalace balíčků každou hodinu), jinak Chromium; chyby načtení
+  písem a ikony se nepočítají. `requirements-provoz.txt` + playwright 1.56.0.
+* `web/prehled.html`: tabulka plánu v kartě signálu se na šířce telefonu (390 px) roztahovala o 25 px a stránka šla posouvat do
+  strany - teď se posouvá jen tabulka; skloňování v dotazu na přenos deníku odkazem.
+* Testy: `test_j1_github.py` (hodinový klíč, termíny, novinky pro oznámení, kdy se posílá); stránka ověřena v Chromiu (přenos
+  deníku odkazem, záloha, obnovení stránky, šířka telefonu). `python fxbot.py test`: 14 testů.
+
+**NEOVĚŘENO:** zda Yahoo snese stahování každou hodinu ze serverů GitHubu; doručení oznámení (až uživatel nastaví secret
+`FXBOT_NTFY_TEMA`).
+
