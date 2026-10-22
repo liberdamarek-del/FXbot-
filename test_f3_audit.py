@@ -7,9 +7,11 @@ the Friday close with the earlier days' full closes, exactly what the live run a
 the forward test with costs, the stop before the target in the same hour and the time exit.
 """
 
+import contextlib
 import os
 import sys
 import tempfile
+from types import SimpleNamespace
 from datetime import date, datetime, timedelta, timezone
 from dataclasses import replace
 from pathlib import Path
@@ -19,18 +21,23 @@ os.environ["FXBOT_IGNORE_DOTENV"] = "1"
 PROJECT_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+sys.path.insert(0, str(PROJECT_ROOT / "tests"))
 
 import numpy as np  # noqa: E402
 
 import indikatory as K  # noqa: E402
+import jadro_scenar as S  # noqa: E402  (synthetic prices / rates / VIX for the live core, no data/)
 import profit_deep as D  # noqa: E402
-import profit_lab as PL  # noqa: E402
-import profit_lab2 as P  # noqa: E402
 import signals_live as SL  # noqa: E402
-import strategy_mining as SM  # noqa: E402
-import winrate_lab as W1  # noqa: E402
+from src.core import market as P  # noqa: E402
+from src.core import ta  # noqa: E402
 
-P.OUT = Path(tempfile.mkdtemp(prefix="fxbot_f3_out_"))              # caches of the test stay out of data/
+# The test must pass on a clean clone: rates, VIX and prices come from synthetic files in a temporary folder, the
+# caches of the test stay out of data/ (until R-048 this test read data/research/fred and the FXCM history).
+TMP = Path(tempfile.mkdtemp(prefix="fxbot_f3_data_"))
+_PATHS = contextlib.ExitStack()                                     # stays open until the test process ends
+_PATHS.enter_context(S.dirs_core(TMP))
+S.zapis_data(SimpleNamespace(P=P), TMP, symbols=("AUD/USD",))
 
 UTC = timezone.utc
 H = 3600
@@ -46,30 +53,30 @@ days = [date(2024, 1, 1) + timedelta(days=k) for k in range(700) if (date(2024, 
 c = 1.1 * np.exp(np.cumsum(rng.normal(0, 0.004, len(days))))
 o = np.concatenate([[c[0]], c[:-1]])
 h, l_ = np.maximum(o, c) * 1.001, np.minimum(o, c) * 0.999
-full = PL.weekly_aligned(days, o, h, l_, c)
+full = ta.weekly_aligned(days, o, h, l_, c)
 for cut in (300, 301, 302, 303, 304, 450):                          # every weekday as the last known day
-    part = PL.weekly_aligned(days[:cut], o[:cut], h[:cut], l_[:cut], c[:cut])
+    part = ta.weekly_aligned(days[:cut], o[:cut], h[:cut], l_[:cut], c[:cut])
     for key, v in part.items():
         assert np.allclose(v, full[key][:cut], equal_nan=True), (key, cut)
 assert np.array_equal(full["week_end"], [d.weekday() == 4 for d in days])
 
 # ---------------------------------------------------------------- RSI of a flat market = neutral 50
 flat = np.full(30, 1.25)
-assert np.allclose(K.rsi(flat, 2)[5:], 50.0) and np.allclose(SM.rsi(flat, 2)[5:], 50.0)
+assert np.allclose(K.rsi(flat, 2)[5:], 50.0) and np.allclose(ta.rsi(flat, 2)[5:], 50.0)
 
 # ---------------------------------------------------------------- the two indicator libraries agree
 x = 1.1 * np.exp(np.cumsum(rng.normal(0, 0.005, 800)))           # (strategy_mining: model, indikatory: research)
 for n in (2, 3, 14):
-    assert np.allclose(SM.rsi(x, n)[30:], K.rsi(x, n)[30:], atol=1e-9), n
-assert np.allclose(SM.ema(x, 20)[200:], K.ema(x, 20)[200:], rtol=1e-9)   # EMA: other seed, the same after
+    assert np.allclose(ta.rsi(x, n)[30:], K.rsi(x, n)[30:], atol=1e-9), n
+assert np.allclose(ta.ema(x, 20)[200:], K.ema(x, 20)[200:], rtol=1e-9)   # EMA: other seed, the same after
                                                                            # the warm-up (10 x the period)
 
 # ---------------------------------------------------------------- Bollinger: the same value whatever the start
 jpy = 150 * np.exp(np.cumsum(rng.normal(0, 0.003, 1500)))
 atr = np.full(1500, 0.5)
-a_full = W1.indicators(jpy, jpy * 1.002, jpy * 0.998, jpy, atr)
+a_full = ta.indicators(jpy, jpy * 1.002, jpy * 0.998, jpy, atr)
 for i in (900, 1200, 1499):
-    a_pre = W1.indicators(*(x[i - 400:i + 1] for x in (jpy, jpy * 1.002, jpy * 0.998, jpy, atr)))
+    a_pre = ta.indicators(*(x[i - 400:i + 1] for x in (jpy, jpy * 1.002, jpy * 0.998, jpy, atr)))
     for key in ("bb20_2.0", "bb20_1.5", "bb10_2.0"):
         assert abs(a_full[key][i] - a_pre[key][-1]) <= 1e-11, (key, i)
 
@@ -102,7 +109,7 @@ for key, v in I.items():                                             # cut 0 = t
         assert np.allclose(np.asarray(v, float), np.asarray(J0[key], float), rtol=1e-9, atol=1e-10, equal_nan=True), key
 _, J1 = D.prepared_live(SYMBOL, 2, 3, "oecd", 1, (4,))
 live_c = np.append(s["dc"][:i0], hc[last[i0] - 1])                  # earlier days full, the Friday at 16:00
-assert abs(J1["rsi2"][i0] - SM.rsi(live_c, 2)[-1]) < 1e-9 and J1["rsi2"][i0] < 5 < I["rsi2"][i0]
+assert abs(J1["rsi2"][i0] - ta.rsi(live_c, 2)[-1]) < 1e-9 and J1["rsi2"][i0] < 5 < I["rsi2"][i0]
 other = np.array([d.weekday() != 4 for d in cal])
 assert np.array_equal(J1["rsi2"][other], I["rsi2"][other], equal_nan=True)   # other days untouched
 assert np.array_equal(J1["rates_mom"], I["rates_mom"])              # known inputs kept
@@ -243,13 +250,12 @@ finally:
     AK.SL.cb_decisions = _cbd
 
 # ---------------------------------------------------------------- round 34: relative yield curve veto (sim = live function)
-import profit_lab2 as PL2  # noqa: E402
 _r = {"AUD": {(2026, m): 4.0 for m in range(1, 13)}, "USD": {(2026, m): 4.0 for m in range(1, 13)}}
 _l = {"AUD": {(2026, m): 4.5 for m in range(1, 13)}, "USD": {(2026, m): 4.5 for m in range(1, 13)}}
-assert PL2.curve_mom(_r, _l, "AUD", "USD", 2026, 9, 2, 3) == 0.0                     # nothing moved
+assert P.curve_mom(_r, _l, "AUD", "USD", 2026, 9, 2, 3) == 0.0                     # nothing moved
 _l["AUD"].update({(2026, 6): 5.0, (2026, 7): 5.0})                                  # AUD long end up (lag 2 -> July)
-assert PL2.curve_mom(_r, _l, "AUD", "USD", 2026, 9, 2, 3) > 0                       # AUD curve steepened: veto a BUY
-assert PL2.curve_mom(_r, {"USD": _l["USD"]}, "AUD", "USD", 2026, 9, 2, 3) is None    # missing data -> None (veto)
+assert P.curve_mom(_r, _l, "AUD", "USD", 2026, 9, 2, 3) > 0                       # AUD curve steepened: veto a BUY
+assert P.curve_mom(_r, {"USD": _l["USD"]}, "AUD", "USD", 2026, 9, 2, 3) is None    # missing data -> None (veto)
 import diagnostika as DGX  # noqa: E402
 _cv = {"name": "x", "universe": "12", "base": {"signal": "D RSI2<5", "weekly": True, "curve_veto": True},
        "tiers": [{"fund": "rates_up", "rates_thr": 0.1, "curve_veto": True}], "sizing": "vol"}

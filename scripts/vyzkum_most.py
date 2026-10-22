@@ -27,7 +27,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import indikatory as K  # noqa: E402
-import profit_lab2 as P  # noqa: E402
+from src.core import market as P  # noqa: E402
 import tydenni_analyza as T  # noqa: E402
 from src.instruments import get_instrument  # noqa: E402
 
@@ -183,8 +183,7 @@ def event_trades(rules: list[dict]) -> list[dict]:
     for r in rules:
         pair, side = r["par"], r["smer"]
         s = P.series(pair)
-        inst = get_instrument(pair)
-        half = (P.SPREAD_PIPS[pair] / 2 + P.SLIPPAGE_PIPS / 2) * inst.pip
+        half = P.half_spread(pair)
         bars = daily_bars(pair)
         b = K.Builder(bars)
         state = b.mask(K.Cond(*dict(T.EVENT_STATES)[r["stav"]]))

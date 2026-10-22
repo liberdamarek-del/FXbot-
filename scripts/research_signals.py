@@ -53,6 +53,9 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.engine.series import PriceSeries  # noqa: E402  (loads .env first)
+from src.core.market import FIN_MARKUP as FINANCING_MARKUP  # noqa: E402
+from src.core.market import SLIPPAGE_PIPS  # noqa: E402,F401
+from src.core.market import SPREAD_PIPS_12 as SPREAD_PIPS  # noqa: E402,F401
 from src.fundamental.catalog import LONG_RATE, SHORT_RATE  # noqa: E402
 from src.fundamental.store import load_series  # noqa: E402
 from src.instruments import get_instrument, parse_symbols  # noqa: E402
@@ -74,11 +77,7 @@ PERIODS = {
     "HOLDOUT": (date(2022, 1, 1), date(2026, 9, 30)),
 }
 HORIZONS = (1, 5, 20)
-# typical retail spread in pips (incl. broker markup), the same in all periods
-SPREAD_PIPS = {"EUR/USD": 0.8, "USD/JPY": 0.9, "GBP/USD": 1.2, "USD/CHF": 1.4, "AUD/USD": 1.0, "USD/CAD": 1.5,
-               "NZD/USD": 1.5, "EUR/JPY": 1.5, "GBP/JPY": 2.5, "EUR/GBP": 1.2, "EUR/CHF": 1.6, "AUD/JPY": 1.6}
-SLIPPAGE_PIPS = 0.4
-FINANCING_MARKUP = 1.0      # % p.a. the broker keeps on each side of the swap
+# typical retail spread (SPREAD_PIPS), slippage and the swap markup of the 12 live pairs: one table in src/core/market.py (R-048)
 # pre-specified economic roles (a hypothesis to test, not a rule)
 RISK_BETA = {"AUD": 1.0, "NZD": 1.0, "CAD": 0.5, "JPY": -1.0, "CHF": -1.0}
 OIL_LINK = {"CAD": 1.0}

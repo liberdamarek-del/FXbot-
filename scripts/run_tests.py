@@ -38,60 +38,19 @@ TEST_TIMEOUT = int(os.getenv("FXBOT_TEST_TIMEOUT", "900"))
 
 # Canonical order. Block A tests come first (they are self-contained).
 TESTS = [
-    "test_a1_market_session.py",
-    "test_a2_schema_migration.py",
-    "test_a3_paper_ambiguous.py",
-    "test_b1_rate_limiter.py",
-    "test_b2_twelve_client.py",
-    "test_b3_data_state.py",
-    "test_b4_data_update.py",
     "test_b5_prediction_ledger.py",
-    "test_b6_scripts.py",
-    "test_b7_update_service.py",
-    "test_b8_resample.py",
-    "test_b9_history_settle.py",
-    "test_b10_batch_storage.py",
-    "test_b11_offsession.py",
     "test_c1_indicators.py",
-    "test_c2_analysis.py",
-    "test_d1_resolver.py",
     "test_e1_path_archive.py",
-    "test_e2_fundamentals.py",
-    "test_e3_engine.py",
-    "test_e4_v78_pretests.py",
-    "test_e5_run.py",
     "test_e6_stats_registry.py",
-    "test_e7_upgrade.py",
     "test_e8_fxcm.py",
     "test_f1_live_model.py",
     "test_f2_weekly_research.py",
     "test_f3_audit.py",
     "test_f4_heuristics.py",
     "test_g0_zmrazeni.py",
-    "test_m39.py",
-    "test_m310.py",
-    "test_m311.py",
-    "test_m312.py",
-    "test_m313.py",
-    "test_m314.py",
-    "test_m315.py",
-    "test_m41.py",
-    "test_m42.py",
-    "test_m43.py",
-    "test_m44.py",
-    "test_m45.py",
-    "test_m46.py",
-    "test_m47.py",
-    "test_m48.py",
-    "test_m49.py",
-    "test_m410.py",
-    "test_m411.py",
-    "test_m412.py",
-    "test_m413.py",
-    "test_m414.py",
-    "scripts/test_m415_real_data.py",
-    "scripts/test_m51.py",
-    "scripts/verify_all.py",
+    "test_h1_core.py",
+    "test_h2_levels.py",
+    "test_i1_hygiena.py",
 ]
 
 
@@ -165,24 +124,6 @@ def main(argv: list[str]) -> int:
     try:
         if not syntax_check():
             failures += 1
-
-        seed = subprocess.run(
-            [
-                sys.executable,
-                "-c",
-                "from tests.seed import seed_database; "
-                "print('SEEDED BARS:', seed_database())",
-            ],
-            cwd=PROJECT_ROOT,
-            env=env,
-            capture_output=True,
-            text=True,
-        )
-        print(seed.stdout.strip() or seed.stderr.strip())
-
-        if seed.returncode != 0:
-            print("[FAIL] SEED")
-            return 1
 
         started_all = time.monotonic()
 

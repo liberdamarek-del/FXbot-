@@ -1,0 +1,3215 @@
+{
+"hodnoty": {
+"curve_mom": "b441ad93d56aa4a754e588a31e5855930598e235c085c84235c0706cecae4b07",
+"daily_indicators": {
+"atr_pct": "521aac264888f5fef998bc46814b91f86086a706df4bf6d0b7f562180d897032",
+"bb10_2.0": "4d2b9bc1bc0d5a37b9280a315cee7df8e3168ea8d4f4ca7ba86d8c34f31e5c2a",
+"bb20_1.5": "9e5b073da2681d646ef804e873331233d1840e13d5412aa5af386905e772e9c6",
+"bb20_2.0": "f50f7aa9722433b1eeb4f5491dc346f6ed8ae55fa57e3f1cac67b741e65ac989",
+"dist_sma5": "4a5bb7bab43334214c0871cc03acb14c640fa82c5ca4a2c1dd094b7224f1d39b",
+"down2": "7d6f8c336c4ee1bdf7e29ba52e63a92e840a0ea53224ebb042d1e12fa9b53b42",
+"down3": "6d4e6f266313b052b9e8180397b4dbf1422fd49f605d77ac5607f75de8e6ff53",
+"down4": "2bdbeb4e73cd595b76bd823fe33aae2a124c96962b97db3e02c45b77ff052a82",
+"ibs": "c7241fc7941343d00ad7b8ef455632ddc743c50567fbae682b26ef6309777c4d",
+"kelt": "59812a28811583ced6d081315ec4f83b0e1861d3314eeaab803a5a305296f990",
+"rsi2": "cb0a1a844032ecc89ea6340d0fbd2ac760649f63db18e7dfa9ca18942af7f7dc",
+"rsi3": "39af674c9cb1785b081edaec3fe5a776d3aa0162d0eadb16d4cbaafec7e0f8d5",
+"rsi4": "971ea9c7c3cf59b907b77bbd61333d6157a5549d22f39fd41025403b0e7522de",
+"sma100": "6e28d4a0e629469b963bbb9f968cee9047f3f671c1456bb2fc5e590ca71e4679",
+"sma200": "2ebd95b933b03cb2e96ddfb4dc865ed83909483f6fdce58783130d964eb047c6",
+"sma50": "b09b3cd67d27f4664f9aaa4125d7329f626d4e714c949117eda08d7bdb5e4a0f",
+"stoch14": "f7089d7ecfaf492f2c4eab7ef38c14946342aa7c5f0ab99ca7cc9e4f5d146d12",
+"stoch5": "5399195d5de9ffa0f52d77a6d57cb2f0984f314ec4aea39a0c64ee90ba101256",
+"up2": "00a2194ec5e6226e72e23e9c3e7e50ac17dd803143e164829627596e04a82b11",
+"up3": "814c72a01ce3929ef4ee1ccf06749d84664f32d2874857759c4948aabcb1afe9",
+"up4": "6246a77ad9b904378d58e0f3d2480af14f84e703ccc31afaa63c0e229f38e839",
+"wr14": "4c600f99f3d4129cc4457e5def390aa85e7a3df8b084cf1f346a68a6dc1c25da",
+"wr5": "7f6f1e830987632db68c31fc53544f51e5eee94bb6521ee19d7de92fb5a982f2",
+"wr9": "1c8ea44ef00b93357e205526a9952a9dc7d56816272c081ecb9286fa36f5ffcc"
+},
+"indicators": {
+"AUD/JPY": {
+"atr": "4d0f782e055d257dff859c3e64f0791cde2b2bc7d6bb1bf8cbbbc129aea9f7a4",
+"atr_pct": "8f84a6905f9aa2553bf2e7e9dadf53be34db4c02a982072aff2faae4f6a46c05",
+"bb10_2.0": "1de970f828b29e4de7c04db7ac29aea19422777093c03b10f50764f35ac7afa3",
+"bb20_1.5": "a1b562309e2d07113fc716e1faae652d94f547f493ead4c83edc8fba2cda05de",
+"bb20_2.0": "cd9f0d716cdb64034c3e36789d0656b21bd2c1579e08fa8eed2a19024374e76c",
+"brk20": "dcb73221bc94acc40b04401e68a70e5d280ff958b7751ece83d3cf46936b5267",
+"carry": "150f9493577c2508bb820efba0819e20575af11317dfc4e4b2f8032f0a4fec52",
+"carry_fin": "3d45d9c5419beeddec1eee2627158b16de801fd5df5f9a52960669d574929d3e",
+"cross": "995df501609ae2fb07520e626c8b6022c9fa2a98a044f083eaa8fcb6b9296a73",
+"dist_sma5": "f869d96e10b6692316ccb964f22060969fa7d80033ac285ec9c2b5408ac0fc5a",
+"down2": "1c84cd6397b22d1fd09247758dd75ee1df2bd5419c4aa7e800647ab810166ef4",
+"down3": "01907d44696743ea1829726c431d486bd392a72ecd57e8b3ed46d9cc7eeb79e5",
+"down4": "623cbf0ebfcd99f59764923565c462122bb135756df4bba6612d5f6fe75d86e6",
+"ibs": "371185c3f0e92c5a6fb1fbeb927b19e24de0be0645ac2c21d4f49ca28af4bc2c",
+"kelt": "9811544a9fa3c24141debc9ed80e17a906eca9b9de2950dee4d1694f34dc9445",
+"rates_mom": "ad982e863cb827b28457e7443fa90c51a59114757e1cd9a37c9f834909f7be7f",
+"rsi2": "52e789a672872b22c4cc93fea9006ef7c36ae9c92e0c1c0c1f0b9065b3830de6",
+"rsi3": "1bb4a8e87fb161047a3a32313ec8016142780393b8d292c9ba45dbd8aca3afc1",
+"rsi4": "396780fe9c7c4765491e450919ddf56b0b5667e707aa33811fbfbe942d57cdf9",
+"sma100": "4eeaa8de5c64ee9d47beb4ef0ffb0ed631e68de5d9baeb87e3985a0155d3d998",
+"sma200": "c3487f38620a48a0ef5dee96de4bfa29c48e1a65aab184043a0f98d951919f9d",
+"sma50": "ae0e3df65d3cb1e39497d4f52f41eae73aab9d4d98efdc76c7b2e339d5d41a1d",
+"stoch14": "8e26048e93aa5a52a011e6701d6047ca288bd60e5fae02c29df1df8005ba9ebf",
+"stoch5": "f3988ef40b31a496fc277ab0dabda0554601e731be03ecd1e2ed8ea407360838",
+"up2": "7b1940c910d8fe52feb7c8e457b9de89a863e6427eb8bac3517eda6d3a75396c",
+"up3": "e14b289d48a911292d31f56b7ec730f14a82a0a205a75a5093bdd90b7ee6324b",
+"up4": "0f7006569f6c288f46f65c05f549c8b280033511e6d38fdd70ed21ab6b7fadc2",
+"w_brk13": "37bb8274c2edc52dff71f19308c27528d94aad9f2c0289623bed69d8e98e862e",
+"w_close": "a0fade0f2926fa0476e3dfc0c5f96541b62145735e1d1be451818af1a4fbdff4",
+"w_hi52": "31a9036be9a4df9c560fdb7d454c83ab8815bb2e8153ac886534c1f611d4f814",
+"w_lo52": "889614a6c636419a690e5355a34192ad5763565e25658e92431867fa8e99a8eb",
+"w_rsi2": "e9d4ac9886d0fdb3587ef145d8a8083e37f8a9041e9d9a2b555597efa00da9a6",
+"w_rsi3": "d4d34c09b60f10b2ce82fb8871ea16c4a6aa37a72f34ac5542051fb63c6d4de3",
+"w_sma10": "f53084ee7f92dda12688a61f71bd22be8b35e5821daba5198098479668e17858",
+"w_sma20": "6cab4da183e3d00d51cfbff7a3e9b638a79cd1eff3907e066777389a42e0d01a",
+"w_sma40": "ffdeec923cc985e14d8f526718240d722fbc75c6f923bc46366c7e3efa4a4107",
+"w_sma40v": "5fa9b4f07a6fb503417f90d9a12ac75bee139a7b85aeee0ea3b1560a77e83d47",
+"w_wr4": "21d6fb3a934e2be61b5ab1402bcf8580b9ed7f2b4400a7243d35c58568959b9a",
+"week_end": "19c081a062f9e8f55eb7ff8ccb292bde9940382bf0fc42dc6137812bde3927bf",
+"wr14": "1f4af82e2f0808f97ad15799e119bae097c45bc60fb1630dde3a622532e6d866",
+"wr5": "4ad45c55ee5a5850790c493e7813cf5f9bf7dda8efe33677152d4dca2d5f5a8f",
+"wr9": "99860891a717da49613273229ffa08c9153383f323794399999fc9c1a3c54c55"
+},
+"EUR/USD": {
+"atr": "c6e432c53980ed9be7069efb872de54e9045b25fa6ee0fcbbe05b5965fd3402f",
+"atr_pct": "77a842516e1ab93701029d789065d6966765ead25d3eddbfa35f3a23cf5ce7de",
+"bb10_2.0": "bad0f72dd662b9f9adaa3459ebb278d20e497cadc108da26fedb975180fcbeb7",
+"bb20_1.5": "3753aeafe8c27d73bc7bfff4a6e2f1200ce31c2cd0dd5ed05944f87aed84e012",
+"bb20_2.0": "1fa188e6a5a4cde39d82bae03ed021de73c156458094e1a973a46ffe94d2665b",
+"brk20": "b9a2a857dc84f438497785817be3c89c10f1a7e2bef056e9028ed32f57b7a220",
+"carry": "1620f1fe9d82707dd5cd107a7ff041f31b26dba2079f1ca09607432ded0f6dc6",
+"carry_fin": "b43bfd19dc8139294c4d979d51c68484cc08834e0b253cbfa44c72d9628a9104",
+"cross": "304a90f942df1d6b52d1dc6f8bf1b0e0494d1ddcf3c24a65347ef150ee4b82b1",
+"dist_sma5": "249fa8ccd5ab3bdc2c76d5bce185e6c6d8ab58689f891bf6bfaedcb49e5b7341",
+"down2": "ba28a374b69db933368cd73ba22fed3b65f67bf10a448985ddc44703c821c750",
+"down3": "4c88e21aadb2d115aaa99f79eeaf8dcc5b5a3e73b67e093a9bd14626cb06f4cc",
+"down4": "c19a4e76fe7ce6469f3ded0cae319060f91bef0fb46cd3b4d8785075ac9364da",
+"ibs": "2534c8ba81558c5a62aa3014247d9da436977ee5caabff9565c2f2ce9552f330",
+"kelt": "fb6e83043357e8084c35e44843830212a52d62debe1a946bc8ebcac3445f89f6",
+"rates_mom": "1a2bd3c88df7e4a349087d0a97b9a4644164be03a56648811e981e236b83f472",
+"rsi2": "a766906e85e223b8c67afda7e1d8fee1306098035fddcee6387d0ea3554705fb",
+"rsi3": "a30ca9c9921ecb7fbb5821f530077fffb3a96845197e26c363660b914c49a00e",
+"rsi4": "71003eebc7637fdffe724bf629bbdb69431993055400e7c7dbe37415b78c84b5",
+"sma100": "cfbaed642bff85ad6f0bf8517b5e4130fec70e7a27ee763cbd3115058e0ff26b",
+"sma200": "59f458044592185d6b095fefb339c9880d5ea358be0cc2c0fe63506cdde28f7c",
+"sma50": "0197443a9013c3271de68c85ac72cccb7f5d2147d57f39617019f5bc52d2de6d",
+"stoch14": "08b977abe5d02718c093d7c1b84fbe80eb6dba78063f03b4405bfe42b3c15e4a",
+"stoch5": "d8aa4da20dc48f976d7fd74a9bfe20102889149951a9293cf39e5a8ecea7f5ee",
+"up2": "879853c8271486b9986c291118c83ef1e0e5ba9aae24eb26aa71ad059823d8e4",
+"up3": "d8d08714f4fc01be33ac7289640dc19d94b6994d1e1dcad2cbc82f48977140e9",
+"up4": "94bb1b9935ae0fea43ab6867c01aa98b8990159a62d2417d563956d8e7a928e8",
+"w_brk13": "e64f3d9c47467f98c20c3784b80743910ece4d55314b62798ffe30dbfff10320",
+"w_close": "011b6a82b53e7d9d933974dd1bdef3636286499a103b183eeca92cdeafec1d02",
+"w_hi52": "6edf13ee02ae889e9f47775298a7e6565427d39c0053d5dafba6782ba5bb98a8",
+"w_lo52": "ae5f6532b7bff8b190922a8dd3aa4ee8a248b55ae47fd627da9e3f0046aac506",
+"w_rsi2": "30e94c0a28a2c26c42080f7a3cf0f3511f722d303ab3e85bd9b27083b85d76ab",
+"w_rsi3": "dd139699f667956bff6afb969e23b37b3048f8e3f689c92b70f4785762665b05",
+"w_sma10": "c3caef398bf9e88b9860b2b7e04ff6bb304855dddf1fe9be0d00c3e90b871ffb",
+"w_sma20": "518c82d9e7da7de8f83be98a29cef18af5a62f3f3a95d872ea678212bfb29acc",
+"w_sma40": "a1060206177966fbe630cb253901d5130be874f7e3c2d7e9c87335ad4c5ef4e2",
+"w_sma40v": "844553a3ac46a7fb10ac5f2b5e020ef780c6863e29b5d5b6b1255af9470ff4d7",
+"w_wr4": "90f2af1ca4803d54e1fa2dbaab7464ab6620ee1d0d0f7c2a0e62bdc98b302d71",
+"week_end": "19c081a062f9e8f55eb7ff8ccb292bde9940382bf0fc42dc6137812bde3927bf",
+"wr14": "151993ac31387d9a3f1bcabdaa932378bf00a66fce866c66415b68247790f6e5",
+"wr5": "01e6b711b4f528bb0bab8f909a36acb458d34623c772e9c88b501a220abf8eaa",
+"wr9": "34b5805539b69bdaebf54b98f1a8855291903826d9ab9c66abb8a4d0772c2826"
+}
+},
+"leverage": {
+"AUD/JPY": 20,
+"AUD/USD": 20,
+"EUR/USD": 30,
+"GBP/JPY": 30,
+"NZD/USD": 20
+},
+"long_rates": "321ea1e775beb78d6db101ea621ef789a84cb2d6f5314c98a1f599cd0b47b1d2",
+"portfolio": {
+"max": {
+"cagr": "0x1.17883f6fc2c30p-4",
+"equity": "0x1.328d5fb297d9dp+0",
+"hash": "0d1800a6c9d0bb22e6b34fa8047a90a988318b2490da8b18e8e63f95f030e49f",
+"max_dd": "0x1.c8b5f0b0e19bcp-3",
+"n": 25
+},
+"mesicne": {
+"cagr": "0x1.0b8adb9d52e80p-5",
+"equity": "0x1.1778ee912501dp+0",
+"hash": "3be5742e154cd18cf3167e0893cee9e2f9048bd4ba1c1de12b0b68957717e174",
+"max_dd": "0x1.7c9d1547c6d50p-2",
+"n": 21
+}
+},
+"rate_at": "e52fad22553cdc2655cce6e5b592a6abd2d9a6369b75ceb3978eb3151e89ca6c",
+"rates": "168517bbd062831739bbcdd4424c4aca742817b8484c3c051368ffa440683164",
+"rates_extended": {
+"GBP": [
+2016,
+4
+]
+},
+"series": {
+"AUD/JPY": {
+"c": "c841dc7ac185d77e717bc319ded456a36a1168d5e19fd555866117f621ba95b6",
+"close_ts": "6621610a1420f2997e3e638edcb23169e7c2de11ca8b9dd777bcfa69753e632e",
+"days": "5d0a0de5d4595ea85651ed69f2172e4b15e57252c94ccf878fb2ef532ee2eaba",
+"dc": "a0fade0f2926fa0476e3dfc0c5f96541b62145735e1d1be451818af1a4fbdff4",
+"dh": "9a67216d4bf2718e6561003af5e1a9f66bd735fc56aab79e4c4bb743fd07a645",
+"dl": "a80afb02d91a4d9d98fd882db9b560baa2dbadf087d8486d055d885d21c46d41",
+"do": "481a071a3990531ad59ecbd6612cb4687591d7c3a99508709cac1264619af44e",
+"first": "c63c8b7e19a11530d73219f5a79ffb447929d1c184f4c6ce16a3eb66e7ef076f",
+"h": "ee216a44891066ff5261d191e147d6e966577fa2a123cd6481f68c3daa99bcc7",
+"l": "00fe5a7d59bc0755a0c8b1f708b048cd62448d9ec353e6eb203f929a11e63ffe",
+"last": "5d7cbb29de650a8e607df2862cbb01f23002366a2a26d66696a80e0cc3ae3d99",
+"o": "376fe0922bd177c84f9a7504b6334db913366491ecec1484d1bf6770896d580e",
+"ts": "2e96a138cc583588d1ccc248bb4a692884ea9314cf5026c165e49ccf431ba8c0"
+},
+"EUR/USD": {
+"c": "526ac63fd72fa75d49755fc9fcef950632dd8c19a9bd892b5970333c53502b61",
+"close_ts": "6621610a1420f2997e3e638edcb23169e7c2de11ca8b9dd777bcfa69753e632e",
+"days": "5d0a0de5d4595ea85651ed69f2172e4b15e57252c94ccf878fb2ef532ee2eaba",
+"dc": "011b6a82b53e7d9d933974dd1bdef3636286499a103b183eeca92cdeafec1d02",
+"dh": "1ef0e8565dfdffaa5011ab400b260e485905774b4cf7a5e0389dab6e7f84ce31",
+"dl": "953f9ef4518f4cc6d814063440924ac07a04fc083f4d56e7d2dc8e46fd45057c",
+"do": "89f51792d136049bd743251a0cbc187c9faa09c8dd3a5fedbfb8c0550452ad8b",
+"first": "c63c8b7e19a11530d73219f5a79ffb447929d1c184f4c6ce16a3eb66e7ef076f",
+"h": "0b903abcd792a264f331a7536dc46087d940c9a153ec14d9d5b0c23b1b2330e2",
+"l": "bf298260cc88ff35b6ce54e6b6ed04031d48f379c38fc2b0212f9869b75d85ff",
+"last": "5d7cbb29de650a8e607df2862cbb01f23002366a2a26d66696a80e0cc3ae3d99",
+"o": "143122dff4b62cfeef760be02e3ee83e1184bdd367f7d56f8c9f4fd854037b35",
+"ts": "2e96a138cc583588d1ccc248bb4a692884ea9314cf5026c165e49ccf431ba8c0"
+}
+},
+"signal_names": [
+"D %R14<10",
+"D 3 dny dolu",
+"D Donchian20 pruraz",
+"D EMA20 x EMA50 cerstve",
+"D RSI2<10",
+"D RSI2<5",
+"D RSI3<15",
+"D pod BB20(2)",
+"D pod SMA5 o 1.5 ATR",
+"W %R4<10",
+"W %R4<20",
+"W 13-tydenni pruraz",
+"W 52-tydenni maximum",
+"W RSI2<10",
+"W RSI2<20",
+"W RSI3<30",
+"W kazdy tyden",
+"W trend SMA10>SMA40"
+],
+"signals": {
+"AUD/JPY": {
+"D %R14<10": [
+"6cd3cddfbf574fa1a22bdf42f668f82fb4a0318136f353d38e3ac563b8cbbf74",
+"dccd65ea95ebf71deef795c45758a1d7e9607c0e88dbe0e8acd7389defda49ae"
+],
+"D 3 dny dolu": [
+"01907d44696743ea1829726c431d486bd392a72ecd57e8b3ed46d9cc7eeb79e5",
+"e14b289d48a911292d31f56b7ec730f14a82a0a205a75a5093bdd90b7ee6324b"
+],
+"D Donchian20 pruraz": [
+"8f8bcf3a25ef01882eeb1c992cb7688cbdf67391aa3eed342f3b310469365e77",
+"2e6abceb4eb129748eb3bc26cd77e5050931dddfed1dbbac6d7e310facd06ca3"
+],
+"D EMA20 x EMA50 cerstve": [
+"5b44ef668ddfd4be813735e6f10852fc93009a79abbe7b26156718908a7610e9",
+"fb2bda52ace5251b4a738915486cf642b52caee5a673bf0eec689418380392cb"
+],
+"D RSI2<10": [
+"0edc00945fbfea976af700eaa0368ced864f09f8ec7a67ebe98f829b3ffb8007",
+"51aa94c42e979e111d5301970c4b4b5bee54f309e7633a563ca1bf2ef7eea8b1"
+],
+"D RSI2<5": [
+"7bb6b31b254347ebdf01a57347f4863cebae2a1e7ce8407fbe089e00face25c3",
+"18c828a2f723496265e29843178307663a8a2cf75ce73ba7ba065b925807234b"
+],
+"D RSI3<15": [
+"56485230d6d12cc81b79905cd6f785ce63fe67de843155ae153a63f548c42e1b",
+"6b5bed086cb2a03aef53e86515027c61ee91c1512b135296d293afe56cf056ac"
+],
+"D pod BB20(2)": [
+"4f47abdb762d5bd7811d991b8e91af625f4b5ee214ee069619e370c9229062bd",
+"90244491513d66f5d394075b691bceaca0b9277f34c8aacf1daa0ee2fdb7e4d9"
+],
+"D pod SMA5 o 1.5 ATR": [
+"5c79a849648ac2d15518b02212cb74e163dc9405c8c965f066542cfed3a0c583",
+"32868bf0b49661f24a737b833631c2f9032e1227f0caef552dc674a2631cd368"
+],
+"W %R4<10": [
+"c4145d1b5354e51e3f0fd3638fafd654a500f6fb94bc112aa61b1dc5832bc5a3",
+"09ad07a50d7dd3f721c310a37990564f2e0557ee2232acc58a61ae91f4531218"
+],
+"W %R4<20": [
+"64d46af2b4bc7e675dd099364e7d0dc73088e6a0aafd2fd5602d1e16bda7c782",
+"3dc720dcada7dbb4eb37fd33341dc8033462919088026ed54e9d8b1a333d648b"
+],
+"W 13-tydenni pruraz": [
+"43b664dba31f772d29ef2cbedca402639611abfb9c662fb5c67b849baf935d0e",
+"2158628d54bcb49348053145c3a1c7d626c36763f5d4ece1111657d9ba835558"
+],
+"W 52-tydenni maximum": [
+"7c9a2b4af210d6c79e8f28210e22ec78355afe2e4abd4cfc2d6ac92ae5903a1f",
+"ade531b1c73310a41e8e4b99fb38071db7c6ef02ecf1a494246d62a1b14933e3"
+],
+"W RSI2<10": [
+"568579e63edebedfe76c79b048a86b665e8da86ab934747e39d8bc1a118222a3",
+"4ab2d3530a8964891853b0151874d3961c717bc3668357c3b6c44b7b5b09a32f"
+],
+"W RSI2<20": [
+"59e1059ed5ad22624fbca27a758c2a3acd9c6a9f1a37fff3bbf2b9d3df25165f",
+"3364de3a6726099f284f451819f279e4083ca66419563149d97d5e5aae00a2c8"
+],
+"W RSI3<30": [
+"f61843c2ecd68c9aa034776a395f3cb3ebcabeb777eb31eb323832764f4778c6",
+"db7d2302187c2326ad54617f00eb16eedab8859f3098db055955a0010c210be6"
+],
+"W kazdy tyden": [
+"19c081a062f9e8f55eb7ff8ccb292bde9940382bf0fc42dc6137812bde3927bf",
+"19c081a062f9e8f55eb7ff8ccb292bde9940382bf0fc42dc6137812bde3927bf"
+],
+"W trend SMA10>SMA40": [
+"203aae1c45bcacd8f18b72f5976d91bb2d405e2985d98fe94377ade73f2c8708",
+"0c47ec4fe17d2cee1d5c8c91bbc251d1f3928ba383e2356977d635c9f4e26b8e"
+]
+},
+"EUR/USD": {
+"D %R14<10": [
+"bf6b4fe2701ca2748f7f5004320eedeaad6745b347f78a4d1f56b5bfba9719f9",
+"2b03f1b135875832ae31cb193db4fca7640a8025c45990aab3b730c903a367c7"
+],
+"D 3 dny dolu": [
+"4c88e21aadb2d115aaa99f79eeaf8dcc5b5a3e73b67e093a9bd14626cb06f4cc",
+"d8d08714f4fc01be33ac7289640dc19d94b6994d1e1dcad2cbc82f48977140e9"
+],
+"D Donchian20 pruraz": [
+"5701f64f84f65265210063408f63962b91051291992e3fdceb3d52d386a73f8a",
+"f0e5e902f0e2cb6a1ebd7961c273f40ce571ef92ea970aecc91be93f3767b5df"
+],
+"D EMA20 x EMA50 cerstve": [
+"fa2a0db5932f41fbb3765f40970ed15212de61a3bf009a27cecfbf91c460c28f",
+"f9810da67c45c29c95028a6eb79fe2b9e110d92e9c73a956287799f7888ce3eb"
+],
+"D RSI2<10": [
+"40a2c3fc8d0fde11d1c1b01598cc0403b9d9aecf2be6869b11f27b1c31348548",
+"d938ffb2a326d7a58e192ec792916f065caa4ed00dfff1f703ab49e360646f36"
+],
+"D RSI2<5": [
+"ed3378eb36a047645231f1525c5dfd2e9a4df15048a10e8bc9a10a2ef9892cb7",
+"c24505c05070746f5e412197d97c8c110f2dc6a2a3d0a201f008820d4e3ebe62"
+],
+"D RSI3<15": [
+"d3b8db0c7b4c40966de764077f5ad764115dc93b59d440d95a26abf151c2eaf5",
+"b7f56295a31321cae2ae93734bdaefe98d80db1a492d24889b492f1afacb15b1"
+],
+"D pod BB20(2)": [
+"45d183412e654aa4ad835a9c4b878733eed27f3827fa3be7b49951013e172894",
+"5e135bcba4f2668bf25e7944dbdc801a68d5f9f51dee8b8488a235b520610407"
+],
+"D pod SMA5 o 1.5 ATR": [
+"fb6dd70d9cace84f9dfd8c6c289b84ae78eeb68cc3d1b61c38bcaed592fbd23d",
+"600a176ebf45907b315bde362ccc8081c551315c7574008985eb7a83b1e5167d"
+],
+"W %R4<10": [
+"77c5f0dfeae0b20304a7ac864d9180ef89941162168bfdd14c4d2c70ad844d06",
+"7a6e6cfb055bd2183d8fb323ad633120306eb3b9b254c81b21365c35708b73bf"
+],
+"W %R4<20": [
+"0b72bcf0599e173bb6eb48b31cfad8c01f05baa6ffe2178c8c32429980593577",
+"54c344d7c8d82dbf2a6aeec7647df9f4e4d715580efaef03cc123e0f7c802d3a"
+],
+"W 13-tydenni pruraz": [
+"045cb155617935f494f68abc97793b9db6ca6699b26f5e3c4a41d7a29d2ac6ee",
+"0e79d026cef2b7ae69d502dc7df6a5dbaedacca623aa97a5aa7eb8bcd711c961"
+],
+"W 52-tydenni maximum": [
+"ade531b1c73310a41e8e4b99fb38071db7c6ef02ecf1a494246d62a1b14933e3",
+"ade531b1c73310a41e8e4b99fb38071db7c6ef02ecf1a494246d62a1b14933e3"
+],
+"W RSI2<10": [
+"65fc302892b8570531332f28911930db58eee735f84bfbf69db758adfb2b28d3",
+"eea7e43819219f160b6e7cff4a00c9f5248e12def7ce5d56ccf1690bce720928"
+],
+"W RSI2<20": [
+"4b772e2c29d1022f64b40a9b010683742b055ecc4d3644c55edc39fd5a7629c8",
+"e2d007a6d755fe67cc62ff32e0c3fa1c225b2f13271282078ef302ec6439064f"
+],
+"W RSI3<30": [
+"442b269ec0768f476534a009e979fa50adf1d8500d18fd6d1f3d5e429b357028",
+"9cf08c815e3f08547f00807d6d8dcee39fb0b2523b6b0c8305cdc6239f84d7dc"
+],
+"W kazdy tyden": [
+"19c081a062f9e8f55eb7ff8ccb292bde9940382bf0fc42dc6137812bde3927bf",
+"19c081a062f9e8f55eb7ff8ccb292bde9940382bf0fc42dc6137812bde3927bf"
+],
+"W trend SMA10>SMA40": [
+"28215425fdc1262aaa1e4f052b4b3354bd754002ea790a460e5c0fb5c541e3f0",
+"2376c38f697f348c05fa3124d0b09f4ab4a4efa9403a1bdb6ad67f40e688d916"
+]
+}
+},
+"ta": {
+"ema": "35fe7da4e122ab5171924f6336af0c433c7bdf930613d0ac1f881ccb7872c2af",
+"rmax": "23368d2ba666c54aa0bc6c2f3dcf9f35ec36977e686a90cc4062076485188c2d",
+"rmin": "043d02501e4513cc2d5f324056fd1d9adbb914e89c205409b8b1fd22feda407b",
+"rsi14": "df49a40ed043503449de4b67a416fa2352f944930eef5378788176a982b69297",
+"rsi2": "dc848cc21ea8391c2ccb8027a7e60dbaa0284d26b623c8501c51d51c87ae2add",
+"rsi_flat": "4fb8dd40006a2f43d1bd233f4754bdf4d497c87ed569f99f25d983eb91574d36",
+"shift": "97fddeb0d80da21876cbad842fba570b675861a20f51ebf37a30364dde18be49",
+"shift3": "03916cab6973a7934d713bc55ebbc291f5d292d4afbdddff18a8bf2bc03c9fa0",
+"sma": "b5b5deba5c699c38390c62d38f35ab8cc52f691a2aa5218f3f1d41eb0f1a918b",
+"sma_gap": "1009fd5b715882a2dc1e33afcb6947fb34fb426a8d9deb4c4f891228372760b7",
+"tr": "306ebbb461a83bff9ca2c0090c00386ad3be0fa881c0b7ba1edcdcb8ad75d14e",
+"wilder": "ebc538b8800a6bef8b828f314c3261450ef514a02d009d4bc6d11e5866a7258e"
+},
+"trades": {
+"casti_cile": {
+"first": [
+{
+"day": "2013-12-31",
+"days": "0x1.a000000000000p-1",
+"entry": "0x1.48dc300812d96p+0",
+"margin_pct": "0x1.e1c609db1c8a7p+4",
+"marks": [],
+"mfe_atr": "0x1.e0ce492fde7e7p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.00f22763caf48p+0",
+"reason": "TP",
+"rm": "-0x0.0p+0",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.a14c90b6ccd0cp+6",
+"t_in": 1388523600,
+"t_out": 1388610000,
+"tp_pct": "0x1.a14c90b6ccd0cp+4"
+},
+{
+"day": "2014-01-01",
+"days": "0x1.7aaaaaaaaaaabp+1",
+"entry": "0x1.4caaffc007436p+6",
+"margin_pct": "0x1.daac901721447p+4",
+"marks": [
+[
+1388700000,
+"0x1.0a3ae7c099d30p+3"
+],
+[
+1388786400,
+"0x1.a8dad13a237cap+4"
+]
+],
+"mfe_atr": "0x1.fd3e191368175p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.7bbd401281039p+0",
+"reason": "TP",
+"rm": "-0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.97f99c11d25ecp+6",
+"t_in": 1388610000,
+"t_out": 1388966400,
+"tp_pct": "0x1.97f99c11d25ecp+4"
+},
+{
+"day": "2014-01-06",
+"days": "0x1.44aaaaaaaaaabp+3",
+"entry": "0x1.413eacbaad632p+0",
+"margin_pct": "0x1.160acc18e4e3dp+5",
+"marks": [
+[
+1389132000,
+"-0x1.08be74326dcb7p+3"
+],
+[
+1389218400,
+"-0x1.29ca94a6c1454p+4"
+],
+[
+1389304800,
+"-0x1.2871b818eefd2p+5"
+],
+[
+1389391200,
+"-0x1.91cd73066a1b9p+4"
+],
+[
+1389650400,
+"-0x1.e2e5d423db541p-3"
+],
+[
+1389736800,
+"-0x1.4d86e341b0420p+4"
+],
+[
+1389823200,
+"-0x1.21cedbade9766p+2"
+],
+[
+1389909600,
+"0x1.cfa700dfc4c45p+4"
+]
+],
+"mfe_atr": "0x1.e188c5db686a1p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.28940ce75a8cap+0",
+"reason": "TP",
+"rm": "0x0.0p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.b779b60d9e6d1p+6",
+"t_in": 1389042000,
+"t_out": 1389934800,
+"tp_pct": "0x1.b779b60d9e6d1p+4"
+}
+],
+"hash": "d8b1a33eac5f09dc23650019170771bd09055ccca1331d50cd6677f17e37e61c",
+"n": 121
+},
+"denni_bez_decide_h": {
+"first": [
+{
+"day": "2013-12-31",
+"days": "0x1.4000000000000p-1",
+"entry": "0x1.48dc300812d96p+0",
+"margin_pct": "0x1.9d651cfcefe26p+4",
+"marks": [],
+"mfe_atr": "0x1.53899f23ef238p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.b8f4632feecf5p-1",
+"reason": "TP",
+"rm": "-0x0.0p+0",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.a14c90b6ccd0cp+6",
+"t_in": 1388523600,
+"t_out": 1388577600,
+"tp_pct": "0x1.a14c90b6ccd0cp+4"
+},
+{
+"day": "2014-01-06",
+"days": "0x1.3eaaaaaaaaaabp+3",
+"entry": "0x1.413eacbaad632p+0",
+"margin_pct": "0x1.e2097df190660p+4",
+"marks": [
+[
+1389132000,
+"-0x1.08be74326dcb7p+3"
+],
+[
+1389218400,
+"-0x1.29ca94a6c1454p+4"
+],
+[
+1389304800,
+"-0x1.2871b818eefd2p+5"
+],
+[
+1389391200,
+"-0x1.91cd73066a1b9p+4"
+],
+[
+1389650400,
+"-0x1.e2e5d423db541p-3"
+],
+[
+1389736800,
+"-0x1.4d86e341b0420p+4"
+],
+[
+1389823200,
+"-0x1.21cedbade9766p+2"
+]
+],
+"mfe_atr": "0x1.64833f9412a78p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.011621095e144p+0",
+"reason": "TP",
+"rm": "0x0.0p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.b779b60d9e6d1p+6",
+"t_in": 1389042000,
+"t_out": 1389902400,
+"tp_pct": "0x1.b779b60d9e6d1p+4"
+},
+{
+"day": "2014-01-06",
+"days": "0x1.0000000000000p-1",
+"entry": "0x1.42123831cae3cp+6",
+"margin_pct": "0x1.a639e9a106bd0p+4",
+"marks": [],
+"mfe_atr": "0x1.1e28df7e68dcfp-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.51c7ee1a6bca6p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.a6e23dcb1bc76p+6",
+"t_in": 1389042000,
+"t_out": 1389085200,
+"tp_pct": "0x1.a6e23dcb1bc76p+4"
+}
+],
+"hash": "c71a1c277e20357728546c11f2e38aec9bd07e6e97736d4e7d3c710e06a42df5",
+"n": 106
+},
+"limitni_vstup": {
+"first": [
+{
+"day": "2014-01-08",
+"days": "0x1.a555555555555p+1",
+"entry": "0x1.3d5b2540cd549p+0",
+"margin_pct": "0x1.bfa8c047bb2a2p+4",
+"marks": [
+[
+1389304800,
+"-0x1.7f3a4ba460b30p-1"
+],
+[
+1389391200,
+"0x1.6ae72fee40ceep+3"
+]
+],
+"mfe_atr": "0x1.784096511d21cp-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.dd80cd19502cfp-1",
+"reason": "TP",
+"rm": "0x0.0p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.b197378358f90p+6",
+"t_in": 1389297600,
+"t_out": 1389582000,
+"tp_pct": "0x1.b197378358f90p+4"
+},
+{
+"day": "2014-01-09",
+"days": "0x1.c0aaaaaaaaaabp+4",
+"entry": "0x1.56b840f879179p+6",
+"margin_pct": "-0x1.0c929c3e92385p+5",
+"marks": [
+[
+1389391200,
+"0x1.238ffb66e2c77p+3"
+],
+[
+1389650400,
+"-0x1.e8bb1cabbd1b0p+3"
+],
+[
+1389736800,
+"-0x1.49c980dffb0e5p+1"
+],
+[
+1389823200,
+"-0x1.008baecb8c458p+3"
+],
+[
+1389909600,
+"-0x1.a0f61507e110fp+5"
+],
+[
+1389996000,
+"-0x1.a737c69e3bb2ap+4"
+],
+[
+1390255200,
+"-0x1.12d45352c6f2ap+5"
+],
+[
+1390341600,
+"-0x1.cff4486f8e9c4p+4"
+],
+[
+1390428000,
+"-0x1.5adce3ca4a875p+4"
+],
+[
+1390514400,
+"-0x1.03b16ba07293cp+5"
+],
+[
+1390600800,
+"-0x1.6a2b28c83b866p+3"
+],
+[
+1390860000,
+"-0x1.f8c769a3f0326p-2"
+],
+[
+1390946400,
+"-0x1.fa25b7fb86a5cp+5"
+],
+[
+1391032800,
+"-0x1.539cd06d124a4p+6"
+],
+[
+1391119200,
+"-0x1.150c169d71691p+6"
+],
+[
+1391205600,
+"-0x1.e1a6938853283p+5"
+],
+[
+1391464800,
+"-0x1.080fdea6848fap+6"
+],
+[
+1391551200,
+"-0x1.fc0e4ca7ae626p+5"
+],
+[
+1391637600,
+"-0x1.d93d215f0cfccp+5"
+],
+[
+1391724000,
+"-0x1.ee304b765a506p+4"
+]
+],
+"mfe_atr": "0x1.b410f6e67edbcp-2",
+"pair": "AUD/JPY",
+"price_pct": "-0x1.adb760641d26ep+0",
+"reason": "CAS",
+"rm": "-0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.afecfaeaf7f57p+6",
+"t_in": 1389312000,
+"t_out": 1391734800,
+"tp_pct": "0x1.afecfaeaf7f57p+4"
+},
+{
+"day": "2014-02-04",
+"days": "0x1.5555555555555p-1",
+"entry": "0x1.3e795e8a0ccd3p+0",
+"margin_pct": "0x1.a6e32f16ba439p+4",
+"marks": [],
+"mfe_atr": "0x1.4ea5ce8475690p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.c314767ea48c5p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.a3d1a65258127p+6",
+"t_in": 1391558400,
+"t_out": 1391616000,
+"tp_pct": "0x1.a3d1a65258127p+4"
+}
+],
+"hash": "b8f42760015ede6f32a3d8fc0fd028898fc8bdd9929457fb33e251797272cfaa",
+"n": 86
+},
+"max_stupen0": {
+"all": [
+{
+"day": "2014-02-21",
+"days": "0x1.7d55555555555p+3",
+"entry": "0x1.405aea8b3e107p+0",
+"margin_pct": "0x1.dfead34e33170p+4",
+"marks": [
+[
+1393020000,
+"0x1.c1f08bb64f633p+0"
+],
+[
+1393279200,
+"-0x1.b879eda7d8930p+4"
+],
+[
+1393365600,
+"-0x1.1f21b59072f37p+5"
+],
+[
+1393452000,
+"-0x1.ef945478d878ap+4"
+],
+[
+1393538400,
+"-0x1.a577d158e4d90p+5"
+],
+[
+1393624800,
+"-0x1.78512873eb294p+4"
+],
+[
+1393884000,
+"0x1.64fc190aa95dbp-1"
+],
+[
+1393970400,
+"-0x1.0b4ea09389e07p+4"
+]
+],
+"mfe_atr": "0x1.77227228cbf98p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.ffe969ed034bcp-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.a9116697d7e98p+6",
+"t_in": 1393012800,
+"t_out": 1394042400,
+"tp_pct": "0x1.a9116697d7e98p+4"
+},
+{
+"day": "2014-03-28",
+"days": "0x1.7aaaaaaaaaaabp+1",
+"entry": "0x1.48066a1917cd0p+0",
+"margin_pct": "0x1.9b3512bd100dap+4",
+"marks": [
+[
+1396040400,
+"0x1.4fd98934a4af1p+2"
+]
+],
+"mfe_atr": "0x1.52063c7118e3cp-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.b69f02ebccdb5p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.8f893cd21a930p+6",
+"t_in": 1396033200,
+"t_out": 1396288800,
+"tp_pct": "0x1.8f893cd21a930p+4"
+},
+{
+"day": "2014-04-25",
+"days": "0x1.0955555555555p+4",
+"entry": "0x1.4d4375639ad13p+0",
+"margin_pct": "0x1.d3f6c754b0462p+4",
+"marks": [
+[
+1398459600,
+"-0x1.65a327c3e024fp+2"
+],
+[
+1398718800,
+"-0x1.c806d57690704p+4"
+],
+[
+1398805200,
+"-0x1.7612cce97340ep+3"
+],
+[
+1398891600,
+"-0x1.08495f35795cep+5"
+],
+[
+1398978000,
+"-0x1.9abb2d616fcfbp+5"
+],
+[
+1399064400,
+"-0x1.50e62d0d43375p+5"
+],
+[
+1399323600,
+"-0x1.881d42381f1a1p+5"
+],
+[
+1399410000,
+"-0x1.82b231714546cp+3"
+],
+[
+1399496400,
+"0x1.53f503969134dp+2"
+],
+[
+1399582800,
+"-0x1.71e717cecc630p+3"
+],
+[
+1399669200,
+"0x1.f2704f48964f6p+2"
+]
+],
+"mfe_atr": "0x1.791f87582b3b7p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.f3295d27226cfp-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.928a10f982af5p+6",
+"t_in": 1398452400,
+"t_out": 1399885200,
+"tp_pct": "0x1.928a10f982af5p+4"
+},
+{
+"day": "2014-09-19",
+"days": "0x1.ad55555555555p+3",
+"entry": "0x1.5f9f88353d0cbp+0",
+"margin_pct": "-0x1.749ff1a34ec4cp+6",
+"marks": [
+[
+1411160400,
+"-0x1.2c72bfbf0b1e7p-2"
+],
+[
+1411419600,
+"-0x1.fcf678b500b59p+3"
+],
+[
+1411506000,
+"-0x1.94eb617d26840p+5"
+],
+[
+1411592400,
+"-0x1.9dba62ec643ffp+5"
+],
+[
+1411678800,
+"-0x1.b6ce9453d46d9p+5"
+],
+[
+1411765200,
+"-0x1.c276bd49ca272p+5"
+],
+[
+1412024400,
+"-0x1.0ea5b85687b0ep+6"
+],
+[
+1412110800,
+"-0x1.f3b554c4696b4p+5"
+],
+[
+1412197200,
+"-0x1.201413ccd28e0p+6"
+],
+[
+1412283600,
+"-0x1.148fd289cf8ffp+6"
+]
+],
+"mfe_atr": "0x1.6814d4e01b8aap-3",
+"pair": "EUR/USD",
+"price_pct": "-0x1.8d776825a95a6p+1",
+"reason": "SL",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.841029bf5ccbdp+6",
+"t_in": 1411153200,
+"t_out": 1412312400,
+"tp_pct": "0x1.841029bf5ccbdp+4"
+},
+{
+"day": "2014-10-10",
+"days": "0x1.5000000000000p+1",
+"entry": "0x1.632fb3bd9a241p+6",
+"margin_pct": "0x1.8408ce7b9ba78p+4",
+"marks": [
+[
+1412974800,
+"0x1.19eb3854bbeabp-1"
+]
+],
+"mfe_atr": "0x1.48722aa242b18p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.366d71fc7c860p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.8655f50ee54c5p+6",
+"t_in": 1412967600,
+"t_out": 1413194400,
+"tp_pct": "0x1.8655f50ee54c5p+4"
+},
+{
+"day": "2015-05-01",
+"days": "0x1.8aaaaaaaaaaabp+1",
+"entry": "0x1.5b743ae02bd61p+0",
+"margin_pct": "0x1.9d77cec7168d2p+4",
+"marks": [
+[
+1430514000,
+"0x1.171bbf27cc478p+2"
+]
+],
+"mfe_atr": "0x1.60af30c838d58p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.b90854078f858p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.94583eff329b2p+6",
+"t_in": 1430506800,
+"t_out": 1430773200,
+"tp_pct": "0x1.94583eff329b2p+4"
+},
+{
+"day": "2015-05-22",
+"days": "0x1.b155555555555p+3",
+"entry": "0x1.53f2308867244p+0",
+"margin_pct": "0x1.b04cac73a68dbp+4",
+"marks": [
+[
+1432328400,
+"-0x1.7b5461b5403cdp+2"
+],
+[
+1432587600,
+"-0x1.a0d7baa6194d4p+3"
+],
+[
+1432674000,
+"-0x1.4acdcf01ce386p+0"
+],
+[
+1432760400,
+"0x1.05f5d2f9f3bf3p+0"
+],
+[
+1432846800,
+"0x1.58018552f3ef6p+1"
+],
+[
+1432933200,
+"0x1.83381aecbbd90p+3"
+],
+[
+1433192400,
+"-0x1.95dc7ecc41634p+4"
+],
+[
+1433278800,
+"-0x1.e0aac59f473c7p+4"
+],
+[
+1433365200,
+"-0x1.c4a511e34cb61p+4"
+],
+[
+1433451600,
+"-0x1.0408dc249b85cp+3"
+]
+],
+"mfe_atr": "0x1.7771e39aae915p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.cd1e95d0b1a83p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.883b23af445cap+6",
+"t_in": 1432321200,
+"t_out": 1433491200,
+"tp_pct": "0x1.883b23af445cap+4"
+},
+{
+"day": "2015-07-17",
+"days": "0x1.7aaaaaaaaaaabp+3",
+"entry": "0x1.75d393265ae82p+6",
+"margin_pct": "0x1.6b79e94f4da90p+4",
+"marks": [
+[
+1437166800,
+"-0x1.101edabba067ap+2"
+],
+[
+1437426000,
+"-0x1.36e4b67a6b624p+3"
+],
+[
+1437512400,
+"-0x1.b6a2db964f34ep+4"
+],
+[
+1437598800,
+"-0x1.8c8ba4c075c5ap+4"
+],
+[
+1437685200,
+"-0x1.256eef1191b5ap+3"
+],
+[
+1437771600,
+"0x1.3e9ccc893a479p+2"
+],
+[
+1438030800,
+"-0x1.ab7a11d36c91cp+3"
+],
+[
+1438117200,
+"0x1.4d95854569fcep+3"
+]
+],
+"mfe_atr": "0x1.7d63a73581063p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.22c7edd90aedap+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.6e11dff54b528p+6",
+"t_in": 1437159600,
+"t_out": 1438182000,
+"tp_pct": "0x1.6e11dff54b528p+4"
+},
+{
+"day": "2015-08-21",
+"days": "0x1.4aaaaaaaaaaabp+1",
+"entry": "0x1.5399aaae32de9p+0",
+"margin_pct": "0x1.a441cf243261fp+4",
+"marks": [
+[
+1440190800,
+"-0x1.cfbed9c14021cp+1"
+]
+],
+"mfe_atr": "0x1.2e4e4fbe3a137p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.c0463248be465p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.9bc39004a29a2p+6",
+"t_in": 1440183600,
+"t_out": 1440406800,
+"tp_pct": "0x1.9bc39004a29a2p+4"
+},
+{
+"day": "2015-09-18",
+"days": "0x1.8555555555555p+1",
+"entry": "0x1.61297da57eaa2p+6",
+"margin_pct": "0x1.954078b7a4103p+4",
+"marks": [
+[
+1442610000,
+"0x1.1eca7f8c8c2bep+2"
+]
+],
+"mfe_atr": "0x1.345fb24eef4d9p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.443393c61cd9cp+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.934078b7a4102p+6",
+"t_in": 1442602800,
+"t_out": 1442865600,
+"tp_pct": "0x1.934078b7a4102p+4"
+},
+{
+"day": "2015-11-06",
+"days": "0x1.f000000000000p+1",
+"entry": "0x1.5b0b71893e55ep+6",
+"margin_pct": "0x1.96bae1554ae26p+4",
+"marks": [
+[
+1446847200,
+"-0x1.1552b482e3208p+2"
+],
+[
+1447106400,
+"-0x1.637512eede55fp+3"
+]
+],
+"mfe_atr": "0x1.7b5b7e5a5ad3dp-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.45624dddd581ep+0",
+"reason": "TP",
+"rm": "0x1.4000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.942e9b323959ap+6",
+"t_in": 1446840000,
+"t_out": 1447174800,
+"tp_pct": "0x1.942e9b323959ap+4"
+},
+{
+"day": "2015-12-11",
+"days": "0x1.6aaaaaaaaaaabp+1",
+"entry": "0x1.3c4edf152c44cp+6",
+"margin_pct": "0x1.c9dc5e0925182p+4",
+"marks": [
+[
+1449871200,
+"-0x1.1a83560aa661dp+2"
+]
+],
+"mfe_atr": "0x1.5f532145022e6p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.6e49e4d41dacep+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.c6c17b426c668p+6",
+"t_in": 1449864000,
+"t_out": 1450108800,
+"tp_pct": "0x1.c6c17b426c668p+4"
+},
+{
+"day": "2016-02-26",
+"days": "0x1.0400000000000p+4",
+"entry": "0x1.451c1a838d107p+6",
+"margin_pct": "0x1.c0681c4229c10p+4",
+"marks": [
+[
+1456524000,
+"-0x1.f8e34bce146f1p+2"
+],
+[
+1456783200,
+"0x1.59e0c3522f0b7p-3"
+],
+[
+1456869600,
+"-0x1.4af78e0bad2c7p+4"
+],
+[
+1456956000,
+"-0x1.e1e0a1c681c5cp+3"
+],
+[
+1457042400,
+"-0x1.33aeabd8e7320p+5"
+],
+[
+1457128800,
+"-0x1.35f3acdb372aep+5"
+],
+[
+1457388000,
+"-0x1.5076c7059e2e0p+5"
+],
+[
+1457474400,
+"-0x1.62f01f5287b33p+5"
+],
+[
+1457560800,
+"-0x1.72b76022c9c08p+4"
+],
+[
+1457647200,
+"0x1.8cfafe4fff322p+2"
+],
+[
+1457733600,
+"0x1.d4f1f017b6209p+3"
+]
+],
+"mfe_atr": "0x1.67de3161fd4edp-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.66b9b034ee340p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.ab096cea7deb0p+6",
+"t_in": 1456516800,
+"t_out": 1457920800,
+"tp_pct": "0x1.ab096cea7deb0p+4"
+}
+],
+"hash": "d8d8e30d47a8f21536f09d1e780a4be536269de72517b0d63528cd01f3082c22",
+"n": 13
+},
+"max_stupen3": {
+"all": [
+{
+"day": "2014-02-21",
+"days": "0x1.7d55555555555p+3",
+"entry": "0x1.405aea8b3e107p+0",
+"margin_pct": "0x1.dfead34e33170p+4",
+"marks": [
+[
+1393020000,
+"0x1.c1f08bb64f633p+0"
+],
+[
+1393279200,
+"-0x1.b879eda7d8930p+4"
+],
+[
+1393365600,
+"-0x1.1f21b59072f37p+5"
+],
+[
+1393452000,
+"-0x1.ef945478d878ap+4"
+],
+[
+1393538400,
+"-0x1.a577d158e4d90p+5"
+],
+[
+1393624800,
+"-0x1.78512873eb294p+4"
+],
+[
+1393884000,
+"0x1.64fc190aa95dbp-1"
+],
+[
+1393970400,
+"-0x1.0b4ea09389e07p+4"
+]
+],
+"mfe_atr": "0x1.77227228cbf98p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.ffe969ed034bcp-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.a9116697d7e98p+6",
+"t_in": 1393012800,
+"t_out": 1394042400,
+"tp_pct": "0x1.a9116697d7e98p+4"
+},
+{
+"day": "2014-03-28",
+"days": "0x1.7aaaaaaaaaaabp+1",
+"entry": "0x1.48066a1917cd0p+0",
+"margin_pct": "0x1.9b3512bd100dap+4",
+"marks": [
+[
+1396040400,
+"0x1.4fd98934a4af1p+2"
+]
+],
+"mfe_atr": "0x1.52063c7118e3cp-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.b69f02ebccdb5p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.8f893cd21a930p+6",
+"t_in": 1396033200,
+"t_out": 1396288800,
+"tp_pct": "0x1.8f893cd21a930p+4"
+},
+{
+"day": "2014-04-25",
+"days": "0x1.0955555555555p+4",
+"entry": "0x1.4d4375639ad13p+0",
+"margin_pct": "0x1.d3f6c754b0462p+4",
+"marks": [
+[
+1398459600,
+"-0x1.65a327c3e024fp+2"
+],
+[
+1398718800,
+"-0x1.c806d57690704p+4"
+],
+[
+1398805200,
+"-0x1.7612cce97340ep+3"
+],
+[
+1398891600,
+"-0x1.08495f35795cep+5"
+],
+[
+1398978000,
+"-0x1.9abb2d616fcfbp+5"
+],
+[
+1399064400,
+"-0x1.50e62d0d43375p+5"
+],
+[
+1399323600,
+"-0x1.881d42381f1a1p+5"
+],
+[
+1399410000,
+"-0x1.82b231714546cp+3"
+],
+[
+1399496400,
+"0x1.53f503969134dp+2"
+],
+[
+1399582800,
+"-0x1.71e717cecc630p+3"
+],
+[
+1399669200,
+"0x1.f2704f48964f6p+2"
+]
+],
+"mfe_atr": "0x1.791f87582b3b7p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.f3295d27226cfp-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.928a10f982af5p+6",
+"t_in": 1398452400,
+"t_out": 1399885200,
+"tp_pct": "0x1.928a10f982af5p+4"
+},
+{
+"day": "2014-05-16",
+"days": "0x1.ac00000000000p+3",
+"entry": "0x1.576dce34cf1a9p+0",
+"margin_pct": "-0x1.9ed820119ab40p+6",
+"marks": [
+[
+1400274000,
+"0x1.a1aea9c4954ebp+1"
+],
+[
+1400533200,
+"-0x1.087373ca9bcaep+4"
+],
+[
+1400619600,
+"-0x1.1ae0fbe0f518fp+2"
+],
+[
+1400706000,
+"-0x1.ad58d99e3ced4p+4"
+],
+[
+1400792400,
+"-0x1.8e6e2a3c88546p+5"
+],
+[
+1400878800,
+"-0x1.454761e88c15dp+5"
+],
+[
+1401138000,
+"-0x1.e3b4262d2327cp+4"
+],
+[
+1401224400,
+"-0x1.d855fc168e0b1p+5"
+],
+[
+1401310800,
+"-0x1.1fc7bdd19e9f8p+6"
+],
+[
+1401397200,
+"-0x1.6348cc03c31e6p+6"
+]
+],
+"mfe_atr": "0x1.6e586e26b0739p-2",
+"pair": "EUR/USD",
+"price_pct": "-0x1.ba802234e9488p+1",
+"reason": "SL",
+"rm": "0x1.0000000000000p-2",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.89f50e88d651cp+6",
+"t_in": 1400266800,
+"t_out": 1401422400,
+"tp_pct": "0x1.89f50e88d651cp+4"
+},
+{
+"day": "2014-05-30",
+"days": "0x1.ab55555555555p+4",
+"entry": "0x1.642373e2a5037p+0",
+"margin_pct": "-0x1.a46861e0360a3p+6",
+"marks": [
+[
+1401483600,
+"-0x1.3049167213960p+0"
+],
+[
+1401742800,
+"-0x1.7dfe99722593ep+4"
+],
+[
+1401829200,
+"-0x1.9538b8cbf9952p+4"
+],
+[
+1401915600,
+"-0x1.9407d92b91a5fp+4"
+],
+[
+1402002000,
+"-0x1.7f95e367e9b3cp+4"
+],
+[
+1402088400,
+"-0x1.840d67a0ef186p+5"
+],
+[
+1402347600,
+"-0x1.94b0c8546d023p+5"
+],
+[
+1402434000,
+"-0x1.4ee3e57d07555p+5"
+],
+[
+1402520400,
+"-0x1.45412b78ee694p+5"
+],
+[
+1402606800,
+"-0x1.5ffc63b572bd4p+5"
+],
+[
+1402693200,
+"-0x1.d6f3efb46dd53p+5"
+],
+[
+1402952400,
+"-0x1.0ac187649c13dp+6"
+],
+[
+1403038800,
+"-0x1.1bc5b85ccbe2bp+5"
+],
+[
+1403125200,
+"-0x1.de53ff642ff04p+5"
+],
+[
+1403211600,
+"-0x1.af57bfc7de212p+5"
+],
+[
+1403298000,
+"-0x1.93844b905bfc2p+5"
+],
+[
+1403557200,
+"-0x1.18da5a6023e87p+5"
+],
+[
+1403643600,
+"-0x1.8ef3c2543c2d5p+5"
+],
+[
+1403730000,
+"-0x1.0d1e70355f034p+6"
+]
+],
+"mfe_atr": "0x1.0a1b4290f6679p-3",
+"pair": "EUR/USD",
+"price_pct": "-0x1.c06f57558ef9dp+1",
+"reason": "SL",
+"rm": "0x1.0000000000000p-2",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.7ab2e722d75afp+6",
+"t_in": 1401476400,
+"t_out": 1403784000,
+"tp_pct": "0x1.7ab2e722d75afp+4"
+},
+{
+"day": "2014-07-11",
+"days": "0x1.3555555555555p+1",
+"entry": "0x1.7b7e585ebf8c2p+6",
+"margin_pct": "0x1.859fda778ff92p+4",
+"marks": [
+[
+1405112400,
+"0x1.57b749606cc44p+2"
+]
+],
+"mfe_atr": "0x1.2a26b06b95e8fp-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.37b3152c732dbp+0",
+"reason": "TP",
+"rm": "-0x0.0p+0",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.8736a5dd42d28p+6",
+"t_in": 1405105200,
+"t_out": 1405314000,
+"tp_pct": "0x1.8736a5dd42d28p+4"
+},
+{
+"day": "2014-08-08",
+"days": "0x1.0555555555555p+2",
+"entry": "0x1.6ffcd0df1bffbp+6",
+"margin_pct": "0x1.93d2b3f7d1a38p+4",
+"marks": [
+[
+1407531600,
+"0x1.8cc66a896dc00p-1"
+],
+[
+1407790800,
+"-0x1.0347d8fa48944p+3"
+]
+],
+"mfe_atr": "0x1.5bddd3761e373p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.430ef65fdae93p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.976728dceedccp+6",
+"t_in": 1407524400,
+"t_out": 1407877200,
+"tp_pct": "0x1.976728dceedccp+4"
+},
+{
+"day": "2014-09-26",
+"days": "0x1.c0aaaaaaaaaabp+4",
+"entry": "0x1.591187f397affp+0",
+"margin_pct": "-0x1.5ebce15d12071p+0",
+"marks": [
+[
+1411765200,
+"-0x1.90f59c753b54cp-2"
+],
+[
+1412024400,
+"-0x1.7ec13fe909dbap+3"
+],
+[
+1412110800,
+"-0x1.aa7fd0dde5ac2p+2"
+],
+[
+1412197200,
+"-0x1.066d1c1c43772p+4"
+],
+[
+1412283600,
+"-0x1.aef827cc41d7ap+3"
+],
+[
+1412370000,
+"-0x1.27208f3746106p+4"
+],
+[
+1412629200,
+"-0x1.1960e95bb586ap+5"
+],
+[
+1412715600,
+"-0x1.b53ada1273a30p+5"
+],
+[
+1412802000,
+"-0x1.ef6afe0b0850ep+5"
+],
+[
+1412888400,
+"-0x1.1e70a57ea2be0p+6"
+],
+[
+1412974800,
+"-0x1.a81747984058ap+5"
+],
+[
+1413234000,
+"-0x1.5804a5d6f30d1p+5"
+],
+[
+1413320400,
+"-0x1.6dee7fa0c73c9p+5"
+],
+[
+1413406800,
+"-0x1.a07c6ed5c4cc2p+5"
+],
+[
+1413493200,
+"-0x1.775197270d8f7p+4"
+],
+[
+1413579600,
+"-0x1.a0c3b52c19b7ap+4"
+],
+[
+1413838800,
+"-0x1.29b449cf150b8p+3"
+],
+[
+1413925200,
+"-0x1.46a797b2d17d5p+3"
+],
+[
+1414011600,
+"-0x1.14c38f0fd4cf3p+5"
+],
+[
+1414098000,
+"-0x1.30da37715582ep+4"
+]
+],
+"mfe_atr": "0x1.013079fe5e7b1p-1",
+"pair": "EUR/USD",
+"price_pct": "-0x1.761ece41244bdp-5",
+"reason": "CAS",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.75251e868bd8fp+6",
+"t_in": 1411758000,
+"t_out": 1414180800,
+"tp_pct": "0x1.75251e868bd8fp+4"
+},
+{
+"day": "2014-10-10",
+"days": "0x1.5000000000000p+1",
+"entry": "0x1.632fb3bd9a241p+6",
+"margin_pct": "0x1.8408ce7b9ba78p+4",
+"marks": [
+[
+1412974800,
+"0x1.19eb3854bbeabp-1"
+]
+],
+"mfe_atr": "0x1.48722aa242b18p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.366d71fc7c860p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.8655f50ee54c5p+6",
+"t_in": 1412967600,
+"t_out": 1413194400,
+"tp_pct": "0x1.8655f50ee54c5p+4"
+},
+{
+"day": "2014-12-19",
+"days": "0x1.72aaaaaaaaaabp+3",
+"entry": "0x1.61624dbd41db6p+6",
+"margin_pct": "0x1.8a5d78712f8cap+4",
+"marks": [
+[
+1419026400,
+"0x1.e79cec1134371p+0"
+],
+[
+1419285600,
+"0x1.b55128810cac4p+1"
+],
+[
+1419372000,
+"0x1.0b1118a0c11a3p+2"
+],
+[
+1419458400,
+"-0x1.d6b37866e0fe1p+4"
+],
+[
+1419544800,
+"-0x1.5496138b0d846p+5"
+],
+[
+1419631200,
+"-0x1.a22e33cad5b6ap+5"
+],
+[
+1419890400,
+"-0x1.37545c34c7c6dp+4"
+],
+[
+1419976800,
+"-0x1.07f1ef39a99d6p+4"
+]
+],
+"mfe_atr": "0x1.37bdf185268f8p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.3b7df9f4260a2p+0",
+"reason": "TP",
+"rm": "-0x0.0p+0",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.948536fb1f2f4p+6",
+"t_in": 1419019200,
+"t_out": 1420020000,
+"tp_pct": "0x1.948536fb1f2f4p+4"
+},
+{
+"day": "2015-01-23",
+"days": "0x1.d555555555555p+1",
+"entry": "0x1.5f434555ba9bcp+6",
+"margin_pct": "0x1.7af059a79d73ap+4",
+"marks": [
+[
+1422050400,
+"0x1.0d2dc6c47e39ap+2"
+],
+[
+1422309600,
+"-0x1.8069fe74ede2cp-1"
+]
+],
+"mfe_atr": "0x1.68a612a228dc1p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.2f26ae1fb1295p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.7e274a7559a71p+6",
+"t_in": 1422043200,
+"t_out": 1422360000,
+"tp_pct": "0x1.7e274a7559a71p+4"
+},
+{
+"day": "2015-04-10",
+"days": "0x1.7000000000000p+2",
+"entry": "0x1.5f815faa99031p+0",
+"margin_pct": "-0x1.61d1cac413f4bp+6",
+"marks": [
+[
+1428699600,
+"0x1.0f87d67bfa9b3p-2"
+],
+[
+1428958800,
+"-0x1.95711efa96405p+4"
+],
+[
+1429045200,
+"-0x1.18f84d134bc4ap+5"
+],
+[
+1429131600,
+"-0x1.a74254e04bfddp+5"
+]
+],
+"mfe_atr": "0x1.7b451841501cap-2",
+"pair": "EUR/USD",
+"price_pct": "-0x1.79684fc015494p+1",
+"reason": "SL",
+"rm": "0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.59c90661e2dc2p+6",
+"t_in": 1428692400,
+"t_out": 1429189200,
+"tp_pct": "0x1.59c90661e2dc2p+4"
+},
+{
+"day": "2015-05-22",
+"days": "0x1.b155555555555p+3",
+"entry": "0x1.53f2308867244p+0",
+"margin_pct": "0x1.b04cac73a68dbp+4",
+"marks": [
+[
+1432328400,
+"-0x1.7b5461b5403cdp+2"
+],
+[
+1432587600,
+"-0x1.a0d7baa6194d4p+3"
+],
+[
+1432674000,
+"-0x1.4acdcf01ce386p+0"
+],
+[
+1432760400,
+"0x1.05f5d2f9f3bf3p+0"
+],
+[
+1432846800,
+"0x1.58018552f3ef6p+1"
+],
+[
+1432933200,
+"0x1.83381aecbbd90p+3"
+],
+[
+1433192400,
+"-0x1.95dc7ecc41634p+4"
+],
+[
+1433278800,
+"-0x1.e0aac59f473c7p+4"
+],
+[
+1433365200,
+"-0x1.c4a511e34cb61p+4"
+],
+[
+1433451600,
+"-0x1.0408dc249b85cp+3"
+]
+],
+"mfe_atr": "0x1.7771e39aae915p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.cd1e95d0b1a83p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.883b23af445cap+6",
+"t_in": 1432321200,
+"t_out": 1433491200,
+"tp_pct": "0x1.883b23af445cap+4"
+},
+{
+"day": "2015-09-18",
+"days": "0x1.8555555555555p+1",
+"entry": "0x1.61297da57eaa2p+6",
+"margin_pct": "0x1.954078b7a4103p+4",
+"marks": [
+[
+1442610000,
+"0x1.1eca7f8c8c2bep+2"
+]
+],
+"mfe_atr": "0x1.345fb24eef4d9p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.443393c61cd9cp+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.934078b7a4102p+6",
+"t_in": 1442602800,
+"t_out": 1442865600,
+"tp_pct": "0x1.934078b7a4102p+4"
+},
+{
+"day": "2015-11-06",
+"days": "0x1.f000000000000p+1",
+"entry": "0x1.5b0b71893e55ep+6",
+"margin_pct": "0x1.96bae1554ae26p+4",
+"marks": [
+[
+1446847200,
+"-0x1.1552b482e3208p+2"
+],
+[
+1447106400,
+"-0x1.637512eede55fp+3"
+]
+],
+"mfe_atr": "0x1.7b5b7e5a5ad3dp-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.45624dddd581ep+0",
+"reason": "TP",
+"rm": "0x1.4000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.942e9b323959ap+6",
+"t_in": 1446840000,
+"t_out": 1447174800,
+"tp_pct": "0x1.942e9b323959ap+4"
+},
+{
+"day": "2015-11-20",
+"days": "0x1.5000000000000p+1",
+"entry": "0x1.52680b468f912p+0",
+"margin_pct": "0x1.74bfdadadece6p+4",
+"marks": [
+[
+1448056800,
+"0x1.253f69aebe23cp+2"
+]
+],
+"mfe_atr": "0x1.69a5f54cadfacp-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.8d9971fa87428p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.828ec24e98ab5p+6",
+"t_in": 1448049600,
+"t_out": 1448276400,
+"tp_pct": "0x1.828ec24e98ab5p+4"
+},
+{
+"day": "2016-02-26",
+"days": "0x1.0400000000000p+4",
+"entry": "0x1.451c1a838d107p+6",
+"margin_pct": "0x1.c0681c4229c10p+4",
+"marks": [
+[
+1456524000,
+"-0x1.f8e34bce146f1p+2"
+],
+[
+1456783200,
+"0x1.59e0c3522f0b7p-3"
+],
+[
+1456869600,
+"-0x1.4af78e0bad2c7p+4"
+],
+[
+1456956000,
+"-0x1.e1e0a1c681c5cp+3"
+],
+[
+1457042400,
+"-0x1.33aeabd8e7320p+5"
+],
+[
+1457128800,
+"-0x1.35f3acdb372aep+5"
+],
+[
+1457388000,
+"-0x1.5076c7059e2e0p+5"
+],
+[
+1457474400,
+"-0x1.62f01f5287b33p+5"
+],
+[
+1457560800,
+"-0x1.72b76022c9c08p+4"
+],
+[
+1457647200,
+"0x1.8cfafe4fff322p+2"
+],
+[
+1457733600,
+"0x1.d4f1f017b6209p+3"
+]
+],
+"mfe_atr": "0x1.67de3161fd4edp-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.66b9b034ee340p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.ab096cea7deb0p+6",
+"t_in": 1456516800,
+"t_out": 1457920800,
+"tp_pct": "0x1.ab096cea7deb0p+4"
+},
+{
+"day": "2016-08-19",
+"days": "0x1.6aaaaaaaaaaabp+1",
+"entry": "0x1.5086a440fa579p+0",
+"margin_pct": "0x1.9964cefe4f176p+4",
+"marks": [
+[
+1471640400,
+"-0x1.e05c054c3e3abp+2"
+]
+],
+"mfe_atr": "0x1.63ce610003690p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.b4afcbb9edf6dp-1",
+"reason": "TP",
+"rm": "0x0.0p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.95aaf20fd7dbcp+6",
+"t_in": 1471633200,
+"t_out": 1471878000,
+"tp_pct": "0x1.95aaf20fd7dbcp+4"
+},
+{
+"day": "2016-08-26",
+"days": "0x1.6aaaaaaaaaaabp+3",
+"entry": "0x1.5b6a7e9f3be07p+0",
+"margin_pct": "0x1.659af6bdcac20p+4",
+"marks": [
+[
+1472245200,
+"-0x1.c793292eaeab6p+0"
+],
+[
+1472504400,
+"0x1.efed404774be1p+2"
+],
+[
+1472590800,
+"-0x1.68e16a833851fp+1"
+],
+[
+1472677200,
+"-0x1.f1043043b7670p+3"
+],
+[
+1472763600,
+"-0x1.0ef53955f49bap+4"
+],
+[
+1472850000,
+"-0x1.ccf46d3d49789p+2"
+],
+[
+1473109200,
+"0x1.622cd9e06876cp+2"
+],
+[
+1473195600,
+"0x1.3561685152720p+4"
+]
+],
+"mfe_atr": "0x1.5834f9281b98ep-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.7d721841e9577p-1",
+"reason": "TP",
+"rm": "-0x0.0p+0",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.925151eb618d6p+6",
+"t_in": 1472238000,
+"t_out": 1473217200,
+"tp_pct": "0x1.925151eb618d6p+4"
+},
+{
+"day": "2016-09-16",
+"days": "0x1.44aaaaaaaaaabp+4",
+"entry": "0x1.5ed8697557332p+0",
+"margin_pct": "-0x1.a49991ed3dd6dp+6",
+"marks": [
+[
+1474059600,
+"-0x1.c20429a2c050ep-1"
+],
+[
+1474318800,
+"-0x1.143f7249470dcp+4"
+],
+[
+1474405200,
+"-0x1.cab4e36a4303ep+5"
+],
+[
+1474491600,
+"-0x1.051747bb54061p+6"
+],
+[
+1474578000,
+"-0x1.36f1e5f305aeep+6"
+],
+[
+1474664400,
+"-0x1.67bdf545bc44ap+5"
+],
+[
+1474923600,
+"-0x1.168ea289a84c1p+4"
+],
+[
+1475010000,
+"-0x1.01bd26efbde3cp+5"
+],
+[
+1475096400,
+"-0x1.34f2e4bfb02ebp+5"
+],
+[
+1475182800,
+"-0x1.739d580ad8aecp+5"
+],
+[
+1475269200,
+"-0x1.343abcc1cffeap+5"
+],
+[
+1475528400,
+"-0x1.b5cfdc3588f50p+5"
+],
+[
+1475614800,
+"-0x1.1d3dc0d0af250p+6"
+],
+[
+1475701200,
+"-0x1.168fb579f4937p+6"
+],
+[
+1475787600,
+"-0x1.39e77986621cfp+6"
+]
+],
+"mfe_atr": "0x1.8df1991efd0e9p-5",
+"pair": "EUR/USD",
+"price_pct": "-0x1.c0a3cedaeca0ep+1",
+"reason": "SL",
+"rm": "0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.9096102c5d66ap+6",
+"t_in": 1474052400,
+"t_out": 1475805600,
+"tp_pct": "0x1.9096102c5d66ap+4"
+},
+{
+"day": "2016-10-28",
+"days": "0x1.1155555555555p+4",
+"entry": "0x1.6e0bc1ca2c426p+0",
+"margin_pct": "0x1.1f45ccd8eaf43p+4",
+"marks": [
+[
+1477688400,
+"0x1.6d26bcc69f0aap+2"
+],
+[
+1477947600,
+"-0x1.dfd79bc9c0631p+2"
+],
+[
+1478034000,
+"-0x1.f99609bc1f14ep+4"
+],
+[
+1478120400,
+"-0x1.08ccc14c36a61p+4"
+],
+[
+1478206800,
+"-0x1.082a1749f7be8p+4"
+],
+[
+1478293200,
+"-0x1.a931d120b47bap+4"
+],
+[
+1478556000,
+"-0x1.8d177f50d4ea9p+5"
+],
+[
+1478642400,
+"-0x1.a8b29d4f5de77p+2"
+],
+[
+1478728800,
+"-0x1.78accffe1d3e7p+2"
+],
+[
+1478815200,
+"-0x1.783b91d6b1dd2p+2"
+],
+[
+1478901600,
+"-0x1.bf3680da1a4d4p+1"
+]
+],
+"mfe_atr": "0x1.5a8436232769ap-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.326c963cb659dp-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.62ab7fb257aa9p+6",
+"t_in": 1477681200,
+"t_out": 1479157200,
+"tp_pct": "0x1.62ab7fb257aa9p+4"
+}
+],
+"hash": "5087db8e83f823d88d07b73b6bb8bacd244bbb112f3d25d2ae2ab226249e79bb",
+"n": 21
+},
+"mesicne_stupen2": {
+"all": [
+{
+"day": "2014-02-21",
+"days": "0x1.7d55555555555p+3",
+"entry": "0x1.405aea8b3e107p+0",
+"margin_pct": "0x1.dfead34e33170p+4",
+"marks": [
+[
+1393020000,
+"0x1.c1f08bb64f633p+0"
+],
+[
+1393279200,
+"-0x1.b879eda7d8930p+4"
+],
+[
+1393365600,
+"-0x1.1f21b59072f37p+5"
+],
+[
+1393452000,
+"-0x1.ef945478d878ap+4"
+],
+[
+1393538400,
+"-0x1.a577d158e4d90p+5"
+],
+[
+1393624800,
+"-0x1.78512873eb294p+4"
+],
+[
+1393884000,
+"0x1.64fc190aa95dbp-1"
+],
+[
+1393970400,
+"-0x1.0b4ea09389e07p+4"
+]
+],
+"mfe_atr": "0x1.77227228cbf98p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.ffe969ed034bcp-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.1b60ef0fe5465p+7",
+"t_in": 1393012800,
+"t_out": 1394042400,
+"tp_pct": "0x1.a9116697d7e98p+4"
+},
+{
+"day": "2014-03-28",
+"days": "0x1.7aaaaaaaaaaabp+1",
+"entry": "0x1.48066a1917cd0p+0",
+"margin_pct": "0x1.9b3512bd100dap+4",
+"marks": [
+[
+1396040400,
+"0x1.4fd98934a4af1p+2"
+]
+],
+"mfe_atr": "0x1.52063c7118e3cp-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.b69f02ebccdb5p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.0a5b7de1670cap+7",
+"t_in": 1396033200,
+"t_out": 1396288800,
+"tp_pct": "0x1.8f893cd21a930p+4"
+},
+{
+"day": "2014-04-25",
+"days": "0x1.0955555555555p+4",
+"entry": "0x1.4d4375639ad13p+0",
+"margin_pct": "0x1.d3f6c754b0462p+4",
+"marks": [
+[
+1398459600,
+"-0x1.65a327c3e024fp+2"
+],
+[
+1398718800,
+"-0x1.c806d57690704p+4"
+],
+[
+1398805200,
+"-0x1.7612cce97340ep+3"
+],
+[
+1398891600,
+"-0x1.08495f35795cep+5"
+],
+[
+1398978000,
+"-0x1.9abb2d616fcfbp+5"
+],
+[
+1399064400,
+"-0x1.50e62d0d43375p+5"
+],
+[
+1399323600,
+"-0x1.881d42381f1a1p+5"
+],
+[
+1399410000,
+"-0x1.82b231714546cp+3"
+],
+[
+1399496400,
+"0x1.53f503969134dp+2"
+],
+[
+1399582800,
+"-0x1.71e717cecc630p+3"
+],
+[
+1399669200,
+"0x1.f2704f48964f6p+2"
+]
+],
+"mfe_atr": "0x1.791f87582b3b7p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.f3295d27226cfp-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.0c5c0b5101ca3p+7",
+"t_in": 1398452400,
+"t_out": 1399885200,
+"tp_pct": "0x1.928a10f982af5p+4"
+},
+{
+"day": "2014-05-16",
+"days": "0x1.0eaaaaaaaaaabp+4",
+"entry": "0x1.576dce34cf1a9p+0",
+"margin_pct": "-0x1.13d8d9c342e5dp+7",
+"marks": [
+[
+1400274000,
+"0x1.a1aea9c4954ebp+1"
+],
+[
+1400533200,
+"-0x1.087373ca9bcaep+4"
+],
+[
+1400619600,
+"-0x1.1ae0fbe0f518fp+2"
+],
+[
+1400706000,
+"-0x1.ad58d99e3ced4p+4"
+],
+[
+1400792400,
+"-0x1.8e6e2a3c88546p+5"
+],
+[
+1400878800,
+"-0x1.454761e88c15dp+5"
+],
+[
+1401138000,
+"-0x1.e3b4262d2327cp+4"
+],
+[
+1401224400,
+"-0x1.d855fc168e0b1p+5"
+],
+[
+1401310800,
+"-0x1.1fc7bdd19e9f8p+6"
+],
+[
+1401397200,
+"-0x1.6348cc03c31e6p+6"
+],
+[
+1401483600,
+"-0x1.c1063d2e01c9ep+6"
+]
+],
+"mfe_atr": "0x1.6e586e26b0739p-2",
+"pair": "EUR/USD",
+"price_pct": "-0x1.263ca4037a8ecp+2",
+"reason": "SL",
+"rm": "0x1.0000000000000p-2",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.06a35f05e4368p+7",
+"t_in": 1400266800,
+"t_out": 1401728400,
+"tp_pct": "0x1.89f50e88d651cp+4"
+},
+{
+"day": "2014-06-06",
+"days": "0x1.c0aaaaaaaaaabp+4",
+"entry": "0x1.696bf366c1d09p+0",
+"margin_pct": "-0x1.25d703566a2dap+4",
+"marks": [
+[
+1402088400,
+"-0x1.f8d633166bb46p+1"
+],
+[
+1402347600,
+"-0x1.7f9404efb5a91p+2"
+],
+[
+1402434000,
+"0x1.4d52df9fa37edp+1"
+],
+[
+1402520400,
+"0x1.e53d91abb01cap+1"
+],
+[
+1402606800,
+"0x1.fe54a61439e71p-2"
+],
+[
+1402693200,
+"-0x1.c4f6c48f8fbd9p+3"
+],
+[
+1402952400,
+"-0x1.5dc56a1e65c8ep+4"
+],
+[
+1403038800,
+"0x1.1cd0421910c63p+3"
+],
+[
+1403125200,
+"-0x1.e2089d971b6b6p+3"
+],
+[
+1403211600,
+"-0x1.28d6edb70d216p+3"
+],
+[
+1403298000,
+"-0x1.76534296054f1p+2"
+],
+[
+1403557200,
+"0x1.285206f923510p+3"
+],
+[
+1403643600,
+"-0x1.52579f81f838fp+2"
+],
+[
+1403730000,
+"-0x1.6715aeb4ede90p+4"
+],
+[
+1403816400,
+"-0x1.8cc2d072266d6p+4"
+],
+[
+1403902800,
+"-0x1.09f9282076e73p+5"
+],
+[
+1404162000,
+"-0x1.8f84797a44dffp+4"
+],
+[
+1404248400,
+"-0x1.c2b7a53910882p+4"
+],
+[
+1404334800,
+"-0x1.865d30fb979cfp+4"
+],
+[
+1404421200,
+"-0x1.da33343ecf40fp+3"
+]
+],
+"mfe_atr": "0x1.299f27f5c4577p-1",
+"pair": "EUR/USD",
+"price_pct": "-0x1.396de16d3e0e9p-1",
+"reason": "CAS",
+"rm": "0x1.8000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.e44485d52517dp+6",
+"t_in": 1402081200,
+"t_out": 1404504000,
+"tp_pct": "0x1.6b33645fdbd1ep+4"
+},
+{
+"day": "2014-08-08",
+"days": "0x1.0555555555555p+2",
+"entry": "0x1.6ffcd0df1bffbp+6",
+"margin_pct": "0x1.93d2b3f7d1a38p+4",
+"marks": [
+[
+1407531600,
+"0x1.8cc66a896dc00p-1"
+],
+[
+1407790800,
+"-0x1.0347d8fa48944p+3"
+]
+],
+"mfe_atr": "0x1.5bddd3761e373p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.430ef65fdae93p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.0f9a1b3df4933p+7",
+"t_in": 1407524400,
+"t_out": 1407877200,
+"tp_pct": "0x1.976728dceedccp+4"
+},
+{
+"day": "2014-09-26",
+"days": "0x1.c0aaaaaaaaaabp+4",
+"entry": "0x1.591187f397affp+0",
+"margin_pct": "-0x1.5ebce15d12071p+0",
+"marks": [
+[
+1411765200,
+"-0x1.90f59c753b54cp-2"
+],
+[
+1412024400,
+"-0x1.7ec13fe909dbap+3"
+],
+[
+1412110800,
+"-0x1.aa7fd0dde5ac2p+2"
+],
+[
+1412197200,
+"-0x1.066d1c1c43772p+4"
+],
+[
+1412283600,
+"-0x1.aef827cc41d7ap+3"
+],
+[
+1412370000,
+"-0x1.27208f3746106p+4"
+],
+[
+1412629200,
+"-0x1.1960e95bb586ap+5"
+],
+[
+1412715600,
+"-0x1.b53ada1273a30p+5"
+],
+[
+1412802000,
+"-0x1.ef6afe0b0850ep+5"
+],
+[
+1412888400,
+"-0x1.1e70a57ea2be0p+6"
+],
+[
+1412974800,
+"-0x1.a81747984058ap+5"
+],
+[
+1413234000,
+"-0x1.5804a5d6f30d1p+5"
+],
+[
+1413320400,
+"-0x1.6dee7fa0c73c9p+5"
+],
+[
+1413406800,
+"-0x1.a07c6ed5c4cc2p+5"
+],
+[
+1413493200,
+"-0x1.775197270d8f7p+4"
+],
+[
+1413579600,
+"-0x1.a0c3b52c19b7ap+4"
+],
+[
+1413838800,
+"-0x1.29b449cf150b8p+3"
+],
+[
+1413925200,
+"-0x1.46a797b2d17d5p+3"
+],
+[
+1414011600,
+"-0x1.14c38f0fd4cf3p+5"
+],
+[
+1414098000,
+"-0x1.30da37715582ep+4"
+]
+],
+"mfe_atr": "0x1.013079fe5e7b1p-1",
+"pair": "EUR/USD",
+"price_pct": "-0x1.761ece41244bdp-5",
+"reason": "CAS",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.f186d35e0fcbep+6",
+"t_in": 1411758000,
+"t_out": 1414180800,
+"tp_pct": "0x1.75251e868bd8fp+4"
+},
+{
+"day": "2014-10-10",
+"days": "0x1.5000000000000p+1",
+"entry": "0x1.632fb3bd9a241p+6",
+"margin_pct": "0x1.8408ce7b9ba78p+4",
+"marks": [
+[
+1412974800,
+"0x1.19eb3854bbeabp-1"
+]
+],
+"mfe_atr": "0x1.48722aa242b18p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.366d71fc7c860p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.04394e09ee32ep+7",
+"t_in": 1412967600,
+"t_out": 1413194400,
+"tp_pct": "0x1.8655f50ee54c5p+4"
+},
+{
+"day": "2015-01-23",
+"days": "0x1.d555555555555p+1",
+"entry": "0x1.5f434555ba9bcp+6",
+"margin_pct": "0x1.7af059a79d73ap+4",
+"marks": [
+[
+1422050400,
+"0x1.0d2dc6c47e39ap+2"
+],
+[
+1422309600,
+"-0x1.8069fe74ede2cp-1"
+]
+],
+"mfe_atr": "0x1.68a612a228dc1p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.2f26ae1fb1295p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.fd89b89c77896p+6",
+"t_in": 1422043200,
+"t_out": 1422360000,
+"tp_pct": "0x1.7e274a7559a71p+4"
+},
+{
+"day": "2015-04-10",
+"days": "0x1.2800000000000p+4",
+"entry": "0x1.5f815faa99031p+0",
+"margin_pct": "0x1.e4c6a710ec4b7p+3",
+"marks": [
+[
+1428699600,
+"0x1.0f87d67bfa9b3p-2"
+],
+[
+1428958800,
+"-0x1.95711efa96405p+4"
+],
+[
+1429045200,
+"-0x1.18f84d134bc4ap+5"
+],
+[
+1429131600,
+"-0x1.a74254e04bfddp+5"
+],
+[
+1429218000,
+"-0x1.5e14cf063f614p+6"
+],
+[
+1429304400,
+"-0x1.6f61bc46bcc88p+6"
+],
+[
+1429563600,
+"-0x1.48754968246a1p+6"
+],
+[
+1429650000,
+"-0x1.e2e52a638ca56p+5"
+],
+[
+1429736400,
+"-0x1.b10ee3be1e7a3p+4"
+],
+[
+1429822800,
+"-0x1.3513c2756db01p+4"
+],
+[
+1429909200,
+"-0x1.7b90e5d92e875p+5"
+],
+[
+1430168400,
+"-0x1.93d86203b6e0ap+5"
+],
+[
+1430254800,
+"0x1.790c58208b280p+2"
+]
+],
+"mfe_atr": "0x1.60ac0a25b06d7p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.028c14d5d35b7p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.cd0c088283d02p+6",
+"t_in": 1428692400,
+"t_out": 1430290800,
+"tp_pct": "0x1.59c90661e2dc2p+4"
+},
+{
+"day": "2015-05-22",
+"days": "0x1.b155555555555p+3",
+"entry": "0x1.53f2308867244p+0",
+"margin_pct": "0x1.b04cac73a68dbp+4",
+"marks": [
+[
+1432328400,
+"-0x1.7b5461b5403cdp+2"
+],
+[
+1432587600,
+"-0x1.a0d7baa6194d4p+3"
+],
+[
+1432674000,
+"-0x1.4acdcf01ce386p+0"
+],
+[
+1432760400,
+"0x1.05f5d2f9f3bf3p+0"
+],
+[
+1432846800,
+"0x1.58018552f3ef6p+1"
+],
+[
+1432933200,
+"0x1.83381aecbbd90p+3"
+],
+[
+1433192400,
+"-0x1.95dc7ecc41634p+4"
+],
+[
+1433278800,
+"-0x1.e0aac59f473c7p+4"
+],
+[
+1433365200,
+"-0x1.c4a511e34cb61p+4"
+],
+[
+1433451600,
+"-0x1.0408dc249b85cp+3"
+]
+],
+"mfe_atr": "0x1.7771e39aae915p-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.cd1e95d0b1a83p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.057cc274d83dbp+7",
+"t_in": 1432321200,
+"t_out": 1433491200,
+"tp_pct": "0x1.883b23af445cap+4"
+},
+{
+"day": "2015-09-18",
+"days": "0x1.8555555555555p+1",
+"entry": "0x1.61297da57eaa2p+6",
+"margin_pct": "0x1.954078b7a4103p+4",
+"marks": [
+[
+1442610000,
+"0x1.1eca7f8c8c2bep+2"
+]
+],
+"mfe_atr": "0x1.345fb24eef4d9p-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.443393c61cd9cp+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.0cd5a5cfc2b57p+7",
+"t_in": 1442602800,
+"t_out": 1442865600,
+"tp_pct": "0x1.934078b7a4102p+4"
+},
+{
+"day": "2015-11-06",
+"days": "0x1.f000000000000p+1",
+"entry": "0x1.5b0b71893e55ep+6",
+"margin_pct": "0x1.96bae1554ae26p+4",
+"marks": [
+[
+1446847200,
+"-0x1.1552b482e3208p+2"
+],
+[
+1447106400,
+"-0x1.637512eede55fp+3"
+]
+],
+"mfe_atr": "0x1.7b5b7e5a5ad3dp-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.45624dddd581ep+0",
+"reason": "TP",
+"rm": "0x1.4000000000000p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.0d746776d0e67p+7",
+"t_in": 1446840000,
+"t_out": 1447174800,
+"tp_pct": "0x1.942e9b323959ap+4"
+},
+{
+"day": "2015-11-20",
+"days": "0x1.5000000000000p+1",
+"entry": "0x1.52680b468f912p+0",
+"margin_pct": "0x1.74bfdadadece6p+4",
+"marks": [
+[
+1448056800,
+"0x1.253f69aebe23cp+2"
+]
+],
+"mfe_atr": "0x1.69a5f54cadfacp-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.8d9971fa87428p-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.01b48189bb1cep+7",
+"t_in": 1448049600,
+"t_out": 1448276400,
+"tp_pct": "0x1.828ec24e98ab5p+4"
+},
+{
+"day": "2016-02-26",
+"days": "0x1.0400000000000p+4",
+"entry": "0x1.451c1a838d107p+6",
+"margin_pct": "0x1.c0681c4229c10p+4",
+"marks": [
+[
+1456524000,
+"-0x1.f8e34bce146f1p+2"
+],
+[
+1456783200,
+"0x1.59e0c3522f0b7p-3"
+],
+[
+1456869600,
+"-0x1.4af78e0bad2c7p+4"
+],
+[
+1456956000,
+"-0x1.e1e0a1c681c5cp+3"
+],
+[
+1457042400,
+"-0x1.33aeabd8e7320p+5"
+],
+[
+1457128800,
+"-0x1.35f3acdb372aep+5"
+],
+[
+1457388000,
+"-0x1.5076c7059e2e0p+5"
+],
+[
+1457474400,
+"-0x1.62f01f5287b33p+5"
+],
+[
+1457560800,
+"-0x1.72b76022c9c08p+4"
+],
+[
+1457647200,
+"0x1.8cfafe4fff322p+2"
+],
+[
+1457733600,
+"0x1.d4f1f017b6209p+3"
+]
+],
+"mfe_atr": "0x1.67de3161fd4edp-1",
+"pair": "AUD/JPY",
+"price_pct": "0x1.66b9b034ee340p+0",
+"reason": "TP",
+"rm": "0x1.0000000000000p-1",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.1cb0f346fe9cap+7",
+"t_in": 1456516800,
+"t_out": 1457920800,
+"tp_pct": "0x1.ab096cea7deb0p+4"
+},
+{
+"day": "2016-09-16",
+"days": "0x1.c0aaaaaaaaaabp+4",
+"entry": "0x1.5ed8697557332p+0",
+"margin_pct": "-0x1.49dfaab76558ap+6",
+"marks": [
+[
+1474059600,
+"-0x1.c20429a2c050ep-1"
+],
+[
+1474318800,
+"-0x1.143f7249470dcp+4"
+],
+[
+1474405200,
+"-0x1.cab4e36a4303ep+5"
+],
+[
+1474491600,
+"-0x1.051747bb54061p+6"
+],
+[
+1474578000,
+"-0x1.36f1e5f305aeep+6"
+],
+[
+1474664400,
+"-0x1.67bdf545bc44ap+5"
+],
+[
+1474923600,
+"-0x1.168ea289a84c1p+4"
+],
+[
+1475010000,
+"-0x1.01bd26efbde3cp+5"
+],
+[
+1475096400,
+"-0x1.34f2e4bfb02ebp+5"
+],
+[
+1475182800,
+"-0x1.739d580ad8aecp+5"
+],
+[
+1475269200,
+"-0x1.343abcc1cffeap+5"
+],
+[
+1475528400,
+"-0x1.b5cfdc3588f50p+5"
+],
+[
+1475614800,
+"-0x1.1d3dc0d0af250p+6"
+],
+[
+1475701200,
+"-0x1.168fb579f4937p+6"
+],
+[
+1475787600,
+"-0x1.39e77986621cfp+6"
+],
+[
+1475874000,
+"-0x1.3cba24a6d506ap+6"
+],
+[
+1476133200,
+"-0x1.f4c2503dc6abbp+5"
+],
+[
+1476219600,
+"-0x1.4d9095ad6d444p+6"
+],
+[
+1476306000,
+"-0x1.0d7809b5909c0p+6"
+],
+[
+1476392400,
+"-0x1.e4c52583d3888p+5"
+]
+],
+"mfe_atr": "0x1.8df1991efd0e9p-5",
+"pair": "EUR/USD",
+"price_pct": "-0x1.5fdd82e5c16fap+1",
+"reason": "CAS",
+"rm": "0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.0b0eb572e8ef1p+7",
+"t_in": 1474052400,
+"t_out": 1476475200,
+"tp_pct": "0x1.9096102c5d66ap+4"
+},
+{
+"day": "2016-10-28",
+"days": "0x1.1155555555555p+4",
+"entry": "0x1.6e0bc1ca2c426p+0",
+"margin_pct": "0x1.1f45ccd8eaf43p+4",
+"marks": [
+[
+1477688400,
+"0x1.6d26bcc69f0aap+2"
+],
+[
+1477947600,
+"-0x1.dfd79bc9c0631p+2"
+],
+[
+1478034000,
+"-0x1.f99609bc1f14ep+4"
+],
+[
+1478120400,
+"-0x1.08ccc14c36a61p+4"
+],
+[
+1478206800,
+"-0x1.082a1749f7be8p+4"
+],
+[
+1478293200,
+"-0x1.a931d120b47bap+4"
+],
+[
+1478556000,
+"-0x1.8d177f50d4ea9p+5"
+],
+[
+1478642400,
+"-0x1.a8b29d4f5de77p+2"
+],
+[
+1478728800,
+"-0x1.78accffe1d3e7p+2"
+],
+[
+1478815200,
+"-0x1.783b91d6b1dd2p+2"
+],
+[
+1478901600,
+"-0x1.bf3680da1a4d4p+1"
+]
+],
+"mfe_atr": "0x1.5a8436232769ap-1",
+"pair": "EUR/USD",
+"price_pct": "0x1.326c963cb659dp-1",
+"reason": "TP",
+"rm": "0x1.0000000000000p-2",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.d8e4aa431f8e1p+6",
+"t_in": 1477681200,
+"t_out": 1479157200,
+"tp_pct": "0x1.62ab7fb257aa9p+4"
+}
+],
+"hash": "2c37db070cacace55103ea77cfe1b544bfa7ca848d1e4ccf8aec14bb8bd73bf8",
+"n": 17
+},
+"procentni_vystup": {
+"first": [
+{
+"day": "2013-12-31",
+"days": "0x1.1555555555555p-1",
+"entry": "0x1.48dc300812d96p+0",
+"margin_pct": "0x1.d93b9dcee773cp+3",
+"marks": [],
+"mfe_atr": "0x1.7dbd22ddf9c7dp-2",
+"pair": "EUR/USD",
+"price_pct": "0x1.f8c81fcba18c9p-2",
+"reason": "TP",
+"rm": "-0x0.0p+0",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.e000000000000p+4",
+"t_in": 1388523600,
+"t_out": 1388570400,
+"tp_pct": "0x1.e000000000000p+3"
+},
+{
+"day": "2014-01-01",
+"days": "0x1.0000000000000p-3",
+"entry": "0x1.4caaffc007436p+6",
+"margin_pct": "0x1.3fe3f1f8fc7e3p+3",
+"marks": [],
+"mfe_atr": "0x1.dd517ab8a1170p-4",
+"pair": "AUD/JPY",
+"price_pct": "0x1.ffd31cc193fd2p-2",
+"reason": "TP",
+"rm": "-0x1.0000000000000p-1",
+"side": -1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.4000000000000p+4",
+"t_in": 1388610000,
+"t_out": 1388620800,
+"tp_pct": "0x1.4000000000000p+3"
+},
+{
+"day": "2014-01-06",
+"days": "0x1.8aaaaaaaaaaabp+0",
+"entry": "0x1.413eacbaad632p+0",
+"margin_pct": "0x1.ed2d96cb65b2fp+3",
+"marks": [
+[
+1389132000,
+"-0x1.08be74326dcb7p+3"
+]
+],
+"mfe_atr": "0x1.335f75f783063p-2",
+"pair": "EUR/USD",
+"price_pct": "0x1.07073f5b69708p-1",
+"reason": "TP",
+"rm": "0x0.0p+0",
+"side": 1,
+"size_factor": "0x1.0000000000000p+0",
+"sl_pct": "0x1.e000000000000p+4",
+"t_in": 1389042000,
+"t_out": 1389175200,
+"tp_pct": "0x1.e000000000000p+3"
+}
+],
+"hash": "79e947ca56ad8783e790eab153f7cef98c41bac8cba45097e4c8b381c83557b0",
+"n": 338
+}
+},
+"weekly_aligned": {
+"w_close": "1cb98e5ee26b5502e3df430981f64356b5452dc238d4160dc97d4d709ee657cf",
+"w_hi52": "1a116da26daba4fe5b02af3d277eef956cbfeb172b7aa4822149fd59aad68fff",
+"w_lo52": "5b284a49f1477968a2d7590cd44c48f3f52ec298e3c7b42b47febcab889adb70",
+"w_rsi2": "d1cd26e3ec0a0ee481bed562f8822e79d2cea6147266a7a579c6f77891049dc8",
+"w_rsi3": "32e2866d3136c1c99a31e94cc019b2ffc49d30f68125340d3d1f0e0c9e6ef42b",
+"w_sma10": "f77475259cc4c287e1784b8a5f89369c086347ddc74cc73dbc724ebec2ec540a",
+"w_sma20": "18a5361364d52b20c5935b642efe75e500fa9e388a3c456a7ace1147e1fa8690",
+"w_sma40": "9b559beeeaf95af8b8488b60dd693f7404f1a2c9a7fb7b75ecdff482c21f879d",
+"w_wr4": "74f91667737466e718d4bff00907d953ef90fc405b57fb5d4bf23053645e4119",
+"week_end": "41a3b2567bcab6bb44bab652d98699d6f7ef85caf1de3915aa17140f738f57fb"
+}
+},
+"meta": {
+"numpy": "2.5.3",
+"platforma": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+"python": "3.13.16",
+"sekund": 7.1,
+"zdroj": "STARY KOD pred R-048 (main 2b35769): scripts/profit_lab2.py, strategy_mining.py, profit_lab.py, winrate_lab.py"
+}
+}

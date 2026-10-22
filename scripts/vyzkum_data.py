@@ -24,7 +24,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
-import profit_lab2 as P  # noqa: E402
+from src.core import market as P  # noqa: E402
 from src.sources.http import fetch  # noqa: E402
 
 UTC = timezone.utc
