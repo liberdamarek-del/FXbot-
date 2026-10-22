@@ -45,7 +45,7 @@ jobs:
         with:
           sparse-checkout: |
             scripts/github_beh.py
-            learning/provoz
+            learning/provoz/github.json
           sparse-checkout-cone-mode: false
       - id: klice
         run: |
