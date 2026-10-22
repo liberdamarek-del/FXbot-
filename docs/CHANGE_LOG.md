@@ -948,3 +948,8 @@ sloučeno 22. 10., 13 testů prošlo); týden souběhu s rutinami Claude, pak je
 **NEOVĚŘENO do prvního běhu na GitHubu:** dostupnost Yahoo, FRED, FXCM, ForexFactory a zdrojů fundamentů ze serverů GitHubu;
 doba učení; komu GitHub posílá e-mail o selhání plánovaného běhu; zda commity bota v ostrém režimu stačí proti vypnutí plánů
 po 60 dnech bez aktivity.
+
+**Doplněno 22. 10. 2026 (první běhy):** denní běh na GitHubu prošel (Yahoo, FRED, ForexFactory dostupné; diagnostika 36 OK,
+0 CHYBA; stejné obchody modelu jako v Claude). Kontrola stránky nejdřív hlásila texty z kódu skriptu (opraveno, kontrola je teď
+v Chromiu přes Playwright včetně zápisu do deníku). Pages zapnul uživatel; stránka https://liberdamarek-del.github.io/FXbot-/.
+Zpráva o běhu ve větvi `provoz-zprava`.

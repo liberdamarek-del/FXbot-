@@ -49,6 +49,9 @@ Přepnutí: změnit `"rezim"` na `"ostry"`, zapsat do `docs/CHANGE_LOG.md`, comm
 
 ## Stránka
 
+Adresa: **https://liberdamarek-del.github.io/FXbot-/** (zapnuto 22. 10. 2026: Settings → Pages → Source: GitHub Actions; přes API to
+ze sezení Claude nejde). Zpráva o každém běhu je ve větvi `provoz-zprava` (logy jobů nejsou ze sezení Claude čitelné).
+
 `scripts/web_stranka.py` vezme `data/live/stav.json`, **odstraní deník uživatele** (`denik_uzivatele`; stránka i repozitář jsou
 veřejné), přidá ke každému páru nejbližší rozhodnutí centrálních bank (`rozhodnuti_cb`) a údaje o běhu (`provoz`: odkaz na běh,
 termín další aktualizace = další zavření trhu + 6 h). Stránka (`web/prehled.html`, stejný soubor jako artefakt na claude.ai)
@@ -79,7 +82,7 @@ Kdo zná název tématu, zprávy vidí; proto náhodný název a uložení jako 
 |---|---|---|
 | Zpoždění nebo vypadnutí plánovaného běhu | páteční signál přijde pozdě (vstup je do 23:00) | víc slotů; stránka ukazuje čas aktualizace a varování; ruční spuštění |
 | 60 dní bez aktivity → GitHub plány vypne | běhy přestanou | v ostrém režimu commituje bot denně; **zda commity bota počítají jako aktivita, NEOVĚŘENO**; stránka po termínu varuje, zapnout jde v Actions jedním tlačítkem |
-| Yahoo / FRED / FXCM / ForexFactory ze serverů GitHubu | běh selže nebo bez dat | **NEOVĚŘENO do prvního běhu**; druhý pokus za minutu; při chybě GitHub pošle e-mail (komu u plánovaných běhů, NEOVĚŘENO) |
+| Yahoo / FRED / ForexFactory ze serverů GitHubu | běh selže nebo bez dat | **OVĚŘENO 22. 10. 2026** (denní běh: diagnostika 36 OK, 0 CHYBA); FXCM a fundamenty ověří první učení; druhý pokus za minutu; komu GitHub pošle e-mail o selhání plánovaného běhu, NEOVĚŘENO |
 | Deník jen v jednom prohlížeči | ztráta při smazání dat prohlížeče, jiný telefon ho nevidí | záloha souborem, žádost o trvalé úložiště (`navigator.storage.persist`) |
 | Veřejná stránka | signály a model vidí kdokoli s odkazem (repozitář je veřejný už dnes) | `noindex`; deník se nezveřejňuje |
 | Rozdíl proti rutině Claude | jiné výsledky | týden souběhu: stejné signály a obchody modelu v obou přehledech |
