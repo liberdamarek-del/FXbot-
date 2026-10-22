@@ -18,7 +18,10 @@ without a reason; never fill missing data (NEOVĚŘENO).
 Position size (user's decision 2026-10-07, R-037, docs/RIZIKO.md): the live dashboard sizes every trade by its
 stop loss - the stop costs at most the user's chosen share of the account (default 5 %, weak tiers 30 % of it;
 weights in `learning/riziko.json` from `python scripts/riziko_lab.py --stupne`, chosen walk-forward). The
-signals themselves (entry, targets, stop) are the gate-tested champion's.
+signals themselves (entry, targets, stop) are the gate-tested champion's. Limit on one currency (user's decision 2026-10-22, R-052, docs/RIZIKO.md
+ch. 7): the dashboard adds up the stop losses of trades betting on the same currency in the same direction (the user's open
+journal trades + the cards above) and caps them at 1.5 x the one-trade risk (adjustable); the journal requires stop loss and margin.
+Dashboard only - not a model change; the value was chosen up front, not fitted (freeze R-047).
 
 Heuristic model (user's request 2026-10-07, R-038, docs/HEURISTIKY.md): `scripts/heuristiky.py` is a separate
 information layer - 5,760 measurable rules (57 template families x params x 12 pairs x 1D / 4H, per pair and all pairs)

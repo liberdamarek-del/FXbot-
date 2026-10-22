@@ -976,3 +976,18 @@ R-047, trezor R-049 - častější učení by nic nepřineslo a další pokusy b
 **NEOVĚŘENO:** zda Yahoo snese stahování každou hodinu ze serverů GitHubu; doručení oznámení (až uživatel nastaví secret
 `FXBOT_NTFY_TEMA`).
 
+## R-052 - 2026-10-22: limit na jednu měnu a povinný stop loss a marže v deníku
+
+Rozhodnutí uživatele 22. 10. 2026. Model, šampioni, brána, signály a dopředný test beze změny; mění se jen přehled a oznámení.
+
+* **Limit na jednu měnu** (`web/prehled.html`, docs/RIZIKO.md kap. 7): součet ztrát při stopu se stejnou sázkou na stejnou měnu
+  (otevřené obchody z deníku + karty výš v seznamu) nejvýš 1,5 × ztráta jednoho obchodu (nastavitelné). Karta se zmenší nebo
+  dostane „Nevstupuj“ s důvodem; nad signály souhrn rizika po měnách. Hodnota zvolená předem, nevyladěná (R-047); podobný nápad
+  `jedna_sazka_na_menu` brána 2. 10. zamítla (jedno období lepší, druhé horší) - je to pojistka, ne zlepšení výnosu.
+* **Deník:** stop loss a marže povinné (stop na ztrátové straně, do 20 % od vstupu; take profit na ziskové), u otevřených
+  obchodů bez nich tlačítko „Doplnit“; v uzavřených obchodech sloupec R (výsledek v násobcích vzdálenosti stopu) a průměr R
+  - bez stop lossu nejde poctivě porovnat obchody uživatele s modelem.
+* `scripts/github_beh.py concentration`: páteční oznámení upozorní na signály se stejnou sázkou na měnu.
+* Kontrola stránky v prohlížeči vyplňuje i stop loss a marži. Ověřeno v Chromiu (limit 7,5 %: EUR/USD v deníku 0,6 % +
+  signál EUR/CHF 5 % → EUR/GBP zmenšen na 37 %; validace formuláře; doplnění stopu; šířka telefonu 390 px). Testy: 14.
+

@@ -113,6 +113,23 @@ def committed(rel: str):
         return None
 
 
+CCY_GEN = {"EUR": "eura", "USD": "dolaru", "JPY": "jenu", "GBP": "libry", "CHF": "franku", "AUD": "australského dolaru",
+           "CAD": "kanadského dolaru", "NZD": "novozélandského dolaru"}
+
+
+def concentration(signals: list) -> list[str]:
+    """Signals of one Friday that bet on the same currency in the same direction (R-052): they lose together, the
+    dashboard sizes them under the limit on one currency - the notification only warns."""
+    by: dict = {}
+    for g in signals:
+        base, quote = g["par"].split("/")
+        side = 1 if g["smer"] == "KOUPIT" else -1
+        for ccy, d in ((base, side), (quote, -side)):
+            by.setdefault((ccy, d), []).append(g["par"])
+    return [f"Pozor: {' + '.join(v)} = stejná sázka na {'růst' if d > 0 else 'pokles'} {CCY_GEN.get(c, c)}; velikost vezmi "
+            f"z přehledu (limit na jednu měnu)." for (c, d), v in by.items() if len(v) > 1]
+
+
 def model_changes(before: list | None, after: list) -> list[str]:
     """Model trades opened or closed between two versions of learning/forward_trades.json."""
     old = {t["id"]: t for t in (before or [])}
@@ -154,6 +171,7 @@ def summary(kind: str) -> dict:
         lines.append(f"{g['par']} {g['smer']} ({g.get('stupen')}): vstup {g.get('vstup')}, TP {tps}, SL {g.get('sl')}"
                      + (f", marže {r.get('marze_proc_uctu')} % účtu při riziku {r.get('riziko_proc')} %"
                         if r.get("marze_proc_uctu") is not None else ""))
+    lines += concentration(sig)
     changes = model_changes(committed("learning/forward_trades.json"),
                             json.loads(FORWARD.read_text(encoding="utf-8")) if FORWARD.exists() else [])
     lines += changes

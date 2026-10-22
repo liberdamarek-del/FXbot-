@@ -151,6 +151,14 @@ try:
     assert GB.summary("hodina")["poslat"] is False and GB.summary("denni")["poslat"] is True
 finally:
     GB.STAV, GB.FORWARD, GB.committed = orig
+# signals of one Friday on the same currency (R-052)
+sig = [{"par": "EUR/CHF", "smer": "KOUPIT"}, {"par": "EUR/GBP", "smer": "KOUPIT"}, {"par": "GBP/JPY", "smer": "PRODAT"}]
+w = GB.concentration(sig)
+assert w == ["Pozor: EUR/CHF + EUR/GBP = stejná sázka na růst eura; velikost vezmi z přehledu (limit na jednu měnu).",
+             "Pozor: EUR/GBP + GBP/JPY = stejná sázka na pokles libry; velikost vezmi z přehledu (limit na jednu měnu)."], w
+assert GB.concentration([{"par": "EUR/USD", "smer": "KOUPIT"}, {"par": "USD/JPY", "smer": "KOUPIT"}]) == []   # opposite on USD
+assert GB.concentration([]) == []
+
 # no topic: nothing is sent, the run never fails because of a notification
 os.environ.pop("FXBOT_NTFY_TEMA", None)
 assert GB.post({"title": "x", "lines": []}) == 0 and GB.notify_failure("hodina") == 0 and GB.notify_failure("patek") == 0

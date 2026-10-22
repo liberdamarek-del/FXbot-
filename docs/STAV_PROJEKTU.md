@@ -53,6 +53,7 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 | Forward test | skutečné obchody modelu od 2. 10. 2026 | ROZPRACOVÁNO | 2 obchody, závěr až po 4+ týdnech |
 | Týdenní výzkum | popis a vysvětlení týdne, kandidáti na pokusy | HOTOVO/OVĚŘENO | archiv learning/tydenni |
 | Velikost podle rizika | stop stojí nejvýš zvolené % účtu (výchozí 5 %) | HOTOVO/OVĚŘENO (R-037) | test naslepo 2019–22, 2023–26; test_f3_audit; přehled v prohlížeči |
+| Limit na jednu měnu (R-052) | součet ztrát při stopu se stejnou sázkou na měnu nejvýš 1,5 × ztráta obchodu (přehled), povinný stop loss a marže v deníku, R v deníku | HOTOVO (přehled); historický dopad na výnos NEOVĚŘENO (záměrně, R-047) | Chromium: zmenšení / Nevstupuj, validace; test_j1 (oznámení) |
 | Heuristický model | 5 760 měřitelných pravidel, stavy, živé predikce, deník s řetězcem otisků, sebehodnocení | HOTOVO/OVĚŘENO jako systém (R-038); žádné pravidlo AKTIVNÍ | test_f4_heuristics (bez pohledu do budoucna, deník), záložka v prohlížeči; docs/HEURISTIKY.md |
 
 ## 4. Co se už zkoušelo (aby se to neopakovalo)

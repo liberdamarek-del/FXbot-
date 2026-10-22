@@ -91,3 +91,24 @@ Po každé změně šampiona měsíčního profilu se musí spustit `python scri
 * **Nejmenší obchod u brokera je 0,01 lotu.** U malých účtů a malého rizika vyjde třetina pozice pod tuto mez.
   Přehled na to upozorní a doporučí jednu pozici s cílem TP1.
 * Váhy stupňů jsou vybrané na historii. Skutečný důkaz dá až forward test.
+
+## 7. Limit na jednu měnu (R-052, 22. 10. 2026)
+
+Rozhodnutí uživatele 22. 10. 2026. **Proč:** každý obchod je sázka na růst jedné měny a pokles druhé (KOUPIT EUR/JPY = euro
+nahoru, jen dolů). Obchody se stejnou sázkou prodělávají současně; 22. 10. měl model otevřené EUR/JPY i EUR/CHF (obě na růst
+eura) a obě byly ve ztrátě.
+
+**Jak to funguje (jen přehled, `web/prehled.html`):** sečtou se ztráty při stop lossu všech obchodů se stejnou sázkou na
+stejnou měnu (měna + směr) a součet nesmí překročit limit. Do součtu jdou otevřené obchody z deníku uživatele (ztráta při
+stopu od vstupu: marže Kč × páka × vzdálenost stopu / vstup, vyžaduje velikost účtu) a karty výš v seznamu (silnější signál
+dřív). Když se karta nevejde celá, přehled ji zmenší a napíše proč; když se nevejde vůbec, napíše „Nevstupuj“ a schová tlačítko
+zápisu. Opačné sázky se nevzájemně neodečítají (opatrná strana). Obchod v deníku bez stop lossu nebo marže do součtu nejde
+a přehled to vypíše (NEOVĚŘENO se nedoplňuje odhadem). Oznámení v pátek upozorní, když dva signály sázejí na stejnou měnu.
+
+**Výchozí limit 1,5 × nejvyšší ztráta jednoho obchodu** (při 5 % tedy 7,5 % účtu), nastavitelný na přehledu. Číslo je zvolené
+předem, **ne vyladěné na historii**: testovací roky 2019–26 jsou opotřebované (R-047) a nový výpočet na nich by byl další pokus.
+
+**Co víme z historie:** podobný nápad prošel bránou 2. 10. 2026 (`jedna_sazka_na_menu`, docs/OBCHODNIK.md: víc signálů na
+stejnou měnu = velikost dělená odmocninou počtu): 2023–26 lepší (výnos na propad 1,55 proti 1,43), 2019–22 horší (3,94 proti
+4,49), tedy zamítnut. Limit proto **není zlepšení výnosu**, ale pojistka proti souběžné ztrátě; jeho historický dopad na výnos je
+NEOVĚŘENO a může být záporný. Signály šampiona (vstup, cíle, stop) ani dopředný test modelu (jeho vlastní marže) se nemění.

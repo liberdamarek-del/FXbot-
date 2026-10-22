@@ -164,7 +164,11 @@ def browser_check(site: Path, dump: Path | None = None) -> list[str]:
             if dump:
                 dump.write_text(html, encoding="utf-8")                  # for the run report (provoz-zprava)
             problems += check_dom(html)
+            page.select_option("#f-par", "EUR/USD")
+            page.select_option("#f-smer", "KOUPIT")
             page.fill("#f-vstup", "1.1")
+            page.fill("#f-sl", "1.09")                                   # stop loss and margin are required (R-052)
+            page.fill("#f-marze", "1000")
             page.click("#f-ulozit")
             try:
                 page.wait_for_function(has_trade, timeout=5000)

@@ -146,7 +146,10 @@ details summary { cursor: pointer; font-weight: 600; }
       <input id="ucet" class="num" inputmode="decimal" style="max-width: 11em" placeholder="např. 100000">
       <label for="riziko" class="muted">Nejvyšší ztráta jednoho obchodu (% účtu):</label>
       <input id="riziko" class="num" inputmode="decimal" style="max-width: 5em" placeholder="5">
+      <label for="riziko-mena" class="muted">Nejvyšší ztráta na jednu měnu (% účtu):</label>
+      <input id="riziko-mena" class="num" inputmode="decimal" style="max-width: 5em" placeholder="7,5">
     </div>
+    <div class="small" id="mena-info"></div>
     <details class="small" id="risk-box" hidden>
       <summary>Co čekat při zvolené nejvyšší ztrátě jednoho obchodu</summary>
       <p class="muted">Velikost obchodu se počítá ze vzdálenosti stop lossu: když cena dojde na stop, ztratíš nejvýš zvolené procento účtu (silné signály celé, slabší 30 %). Čísla jsou z let, které model při výběru nastavení neviděl. Menší ztráta jednoho obchodu = menší roční výnos; poměr zisku a propadu zůstává podobný.</p>
@@ -227,9 +230,9 @@ details summary { cursor: pointer; font-weight: 600; }
       <div class="field"><label for="f-par">Pár</label><select id="f-par"></select></div>
       <div class="field"><label for="f-smer">Směr</label><select id="f-smer"><option value="KOUPIT">KOUPIT (long)</option><option value="PRODAT">PRODAT (short)</option></select></div>
       <div class="field"><label for="f-vstup">Vstupní cena</label><input id="f-vstup" class="num" inputmode="decimal" required></div>
-      <div class="field"><label for="f-sl">Stop loss</label><input id="f-sl" class="num" inputmode="decimal"></div>
+      <div class="field"><label for="f-sl">Stop loss</label><input id="f-sl" class="num" inputmode="decimal" required></div>
       <div class="field"><label for="f-tp">Take profit</label><input id="f-tp" class="num" inputmode="decimal"></div>
-      <div class="field"><label for="f-marze">Vložená marže (Kč)</label><input id="f-marze" class="num" inputmode="decimal" placeholder="nepovinné"></div>
+      <div class="field"><label for="f-marze">Vložená marže (Kč)</label><input id="f-marze" class="num" inputmode="decimal" required></div>
       <div class="field" style="grid-column: 1 / -1"><label for="f-pozn">Poznámka</label><input id="f-pozn" placeholder="např. podle signálu modelu"></div>
       <div class="row"><button type="submit" id="f-ulozit">Vstoupil jsem</button><span class="small muted" id="f-msg" role="status"></span></div>
     </form>
@@ -237,11 +240,11 @@ details summary { cursor: pointer; font-weight: 600; }
   </section>
 
   <section class="sheet" aria-labelledby="h-res">
-    <header><h2 id="h-res">Výsledky</h2><span class="small muted">Ziskové procento je vždy z marže obchodu (páka 1:30, u párů s AUD a NZD 1:20).</span></header>
+    <header><h2 id="h-res">Výsledky</h2><span class="small muted">Ziskové procento je vždy z marže obchodu (páka 1:30, u párů s AUD a NZD 1:20). R = výsledek v násobcích rizika (vzdálenost stop lossu): +1 R vydělal tolik, kolik riskoval.</span></header>
     <h3>Moje uzavřené obchody</h3>
     <div class="stats" id="my-stats"><div class="empty">Až zapíšeš a uzavřeš první obchod, uvidíš tu úspěšnost a zisk.</div></div>
     <div class="tablewrap"><table>
-      <thead><tr><th>Pár</th><th>Směr</th><th class="r">Vstup</th><th class="r">Výstup</th><th class="r">Pipy</th><th class="r">% marže</th><th class="r">Kč</th><th></th></tr></thead>
+      <thead><tr><th>Pár</th><th>Směr</th><th class="r">Vstup</th><th class="r">Výstup</th><th class="r">Pipy</th><th class="r">% marže</th><th class="r">Kč</th><th class="r">R</th><th></th></tr></thead>
       <tbody id="closed"></tbody>
     </table></div>
     <h3>Obchody modelu (dopředný test)</h3>
@@ -405,7 +408,7 @@ details summary { cursor: pointer; font-weight: 600; }
   }
   function useBrowserJournal() {
     store.mode = "web";
-    const reload = () => { journal = sortJournal(lsRead()); renderJournal(); renderBackup(); };
+    const reload = () => { journal = sortJournal(lsRead()); renderJournal(); renderBackup(); renderSignals(); renderReady(); };
     store.add = async (doc) => { const rows = lsRead(); rows.push(Object.assign({_id: newId()}, doc)); lsWrite(rows); reload(); };
     store.update = async (id, fields) => {
       const rows = lsRead(), r = rows.find((x) => x._id === id);
@@ -510,6 +513,9 @@ details summary { cursor: pointer; font-weight: 600; }
   // the largest loss of one trade in % of the account (per-viewer choice; stop-based sizing, docs/RIZIKO.md)
   try { const v = localStorage.getItem("fx_riziko_proc"); if (v) $("riziko").value = v; } catch (e) {}
   $("riziko").addEventListener("input", () => { try { localStorage.setItem("fx_riziko_proc", $("riziko").value); } catch (e) {} renderSignals(); renderReady(); renderRisk(); });
+  // the largest loss on one currency in one direction in % of the account (R-052, per-viewer choice; default 1.5 x riskPct)
+  try { const v = localStorage.getItem("fx_riziko_mena"); if (v) $("riziko-mena").value = v; } catch (e) {}
+  $("riziko-mena").addEventListener("input", () => { try { localStorage.setItem("fx_riziko_mena", $("riziko-mena").value); } catch (e) {} renderSignals(); renderReady(); });
   function riskPct() {
     const v = parseNum($("riziko").value);
     if (v !== null && v > 0 && v <= 20) return v;
@@ -523,6 +529,70 @@ details summary { cursor: pointer; font-weight: 600; }
     const marze = R * w / (slm / 100);
     return {R, w, marze, ztrata: R * w};
   }
+  // ---------------------------------------------------------------- limit on one currency (R-052, docs/RIZIKO.md)
+  // Every trade is a bet on one currency rising and the other falling (KOUPIT EUR/JPY = euro up, yen down). Trades that bet
+  // on the same currency in the same direction lose together, so their stops are added up and the total may not exceed the
+  // limit. Counted: the user's open journal trades (loss at the stop from the entry, needs stop loss, margin and account size)
+  // and the cards above it in the list (the stronger signal first). Opposite bets do not offset each other.
+  const CCY_GEN = {EUR: "eura", USD: "dolaru", JPY: "jenu", GBP: "libry", CHF: "franku", AUD: "australského dolaru",
+                   CAD: "kanadského dolaru", NZD: "novozélandského dolaru"};
+  const legs = (par, smer) => { const [b, q] = par.split("/"), s = smer === "KOUPIT" ? 1 : -1; return [[b, s], [q, -s]]; };
+  const legText = (c, d) => `${d > 0 ? "růst" : "pokles"} ${CCY_GEN[c] || c}`;
+  const CAP_DEFAULT = 1.5;                               // x the largest loss of one trade (chosen up front, not fitted)
+  function ccyCapPct() {
+    const v = parseNum($("riziko-mena").value);
+    if (v !== null && v > 0 && v <= 50) return v;
+    const R = riskPct();
+    return R === null ? null : R * CAP_DEFAULT;
+  }
+  // loss at the stop of one journal trade in % of the account, measured from the entry; null = cannot be computed
+  function journalRiskPct(t, acc) {
+    if (!acc || !t.marze_kc || !t.sl || !t.vstup) return null;
+    const side = t.smer === "KOUPIT" ? 1 : -1;
+    const lossOfMargin = -side * (t.sl - t.vstup) / t.vstup * 100 * paka(t.par);
+    return lossOfMargin > 0 ? t.marze_kc * lossOfMargin / 100 / acc * 100 : 0;      // stop moved into profit: no risk
+  }
+  function exposure() {
+    const acc = parseNum($("ucet").value), used = {}, from = {}, unknown = [];
+    for (const t of journal.filter((x) => x.stav !== "uzavreny")) {
+      const r = journalRiskPct(t, acc);
+      if (r === null) { unknown.push(t); continue; }
+      for (const [c, d] of legs(t.par, t.smer)) { used[c + d] = (used[c + d] || 0) + r; (from[c + d] = from[c + d] || []).push(t.par); }
+    }
+    return {used, from, unknown, acc};
+  }
+  // for the cards in display order: the share of the planned risk that still fits under the limit
+  function capList(items) {
+    const cap = ccyCapPct(), ex = exposure(), used = Object.assign({}, ex.used), from = {};
+    for (const k in ex.from) from[k] = ex.from[k].slice();
+    return items.map(({s, rs}) => {
+      if (!rs || cap === null) return {scale: 1, note: null, blocked: false};
+      const ks = legs(s.par, s.smer).map(([c, d]) => [c, d, c + d]);
+      const allowed = Math.max(0, Math.min(rs.ztrata, ...ks.map(([, , k]) => cap - (used[k] || 0))));
+      const scale = rs.ztrata > 0 ? allowed / rs.ztrata : 1;
+      let note = null;
+      if (scale < 0.999) {
+        const why = ks.filter(([, , k]) => cap - (used[k] || 0) < rs.ztrata)
+          .map(([c, d, k]) => `na ${legText(c, d)} už je ${fmt(used[k] || 0, 1)} % účtu (${[...new Set(from[k] || [])].join(", ")})`);
+        note = (scale <= 0.001 ? "Nevstupuj – limit je vyčerpaný: " : `Zmenšeno na ${fmt(scale * 100, 0)} % velikosti: `)
+          + why.join("; ") + `. Limit na jednu měnu je ${fmt(cap, 1)} % účtu.`;
+      }
+      for (const [, , k] of ks) { used[k] = (used[k] || 0) + allowed; (from[k] = from[k] || []).push(s.par + " (signál)"); }
+      return {scale, note, blocked: scale <= 0.001};
+    });
+  }
+  function renderCcyInfo() {
+    const cap = ccyCapPct();
+    if (cap === null) { $("mena-info").innerHTML = ""; return; }
+    const ex = exposure();
+    const parts = Object.keys(ex.used).filter((k) => ex.used[k] > 0.05).sort((a, b) => ex.used[b] - ex.used[a])
+      .map((k) => `${legText(k.slice(0, 3), +k.slice(3) > 0 ? 1 : -1)} ${fmt(ex.used[k], 1)} %${ex.used[k] > cap + 1e-9 ? ' <span class="neg">(nad limitem)</span>' : ""}`);
+    $("mena-info").innerHTML = `<p class="muted">Limit na jednu měnu: <b>${fmt(cap, 1)} % účtu</b>${parseNum($("riziko-mena").value) === null ? ` (výchozí ${fmt(CAP_DEFAULT, 1).replace(",0", "")}× ztráta jednoho obchodu)` : ""}.`
+      + (parts.length ? ` Tvé otevřené obchody teď riskují: ${parts.join(", ")}.` : "") + `</p>`
+      + (ex.unknown.length ? `<p class="neg">${ex.acc ? "" : "Zadej velikost účtu – bez ní nejde spočítat riziko tvých otevřených obchodů. "}`
+        + `Do limitu se nepočítá: ${ex.unknown.map((t) => esc(t.par + " " + t.smer)).join(", ")}${ex.acc ? " – chybí stop loss nebo marže, doplň je v deníku" : ""}.</p>` : "");
+  }
+
   function renderRisk() {
     if (!state || !state.riziko) return;
     $("risk-box").hidden = false;
@@ -561,13 +631,14 @@ details summary { cursor: pointer; font-weight: 600; }
       <tbody>${rows}<tr class="slrow"><td>Stop loss</td><td class="num neg">${fmt(plan.sl.cena, d)}</td><td class="num neg">−${fmt(plan.sl.proc_marze, 0)} %</td>${acc(rs ? -rs.ztrata : 0)}<td class="small muted">pro všechny části</td></tr></tbody></table></div>
       ${rs ? '<p class="small muted">„Z účtu“ = celá pozice, kdyby se celá zavřela na dané ceně.</p>' : ""}`;
   }
-  function planCard(s, plan, kind, i) {
+  function planCard(s, plan, kind, i, cap) {
     const cls = s.smer === "KOUPIT" ? "buy" : "sell";
     const d = dec(s.par);
     const acc = parseNum($("ucet").value);
     const base = s.par.split("/")[0];
     const czk = state.czk && state.czk[base];
-    const rs = riskSizing(s, plan);
+    const rs0 = riskSizing(s, plan);
+    const rs = rs0 && cap && cap.scale < 0.999 ? Object.assign({}, rs0, {marze: rs0.marze * cap.scale, ztrata: rs0.ztrata * cap.scale}) : rs0;
     const orig = s.marze_proc_uctu !== undefined ? s.marze_proc_uctu : (s.marze_zaklad || 0) * 100;
     const marze = rs ? rs.marze : orig;
     let money = "";
@@ -587,25 +658,28 @@ details summary { cursor: pointer; font-weight: 600; }
       <div class="head"><h3>${esc(s.par)}</h3><div class="row">${sideChip(s.smer)}${tierChip(s.stupen)}</div></div>
       <div class="prob"><span class="big">${prob !== undefined && prob !== null ? fmt(prob, 0) + " %" : "–"}</span><span class="small muted">pravděpodobnost úspěchu (dosažení TP1 před stop lossem v historii)</span></div>
       <div class="instr">${instr}</div>
+      ${cap && cap.note ? `<div class="notice">⚖ ${esc(cap.note)}</div>` : ""}
       ${planTable(s.par, plan, s.smer, rs)}
-      <p class="small">Velikost: marže <b>${fmt(marze, 1)} % účtu</b>${money}.${rs ? ` Při stop lossu ztratíš nejvýš <b class="neg">${fmt(rs.ztrata, 1)} % účtu</b>${acc ? ` (${fmt(acc * rs.ztrata / 100, 0)} Kč)` : ""} – podle tvé volby ${fmt(rs.R, 1)} %${rs.w < 1 ? `, slabší signál ${fmt(rs.w * 100, 0)} % z toho` : ""}.` : ""} Rozděl pozici na <b>3 stejné části</b> s cíli TP1, TP2 a TP3, stop loss stejný pro všechny${plan.prumer_rozdeleni_3 !== undefined ? ` (historický průměr takového rozdělení ${sgn(plan.prumer_rozdeleni_3, 1)} % marže na obchod)` : ""}. Zavřít nejpozději za 4 týdny${s.zavrit_nejpozdeji ? ", tj. " + esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ")) : ""}.</p>
+      <p class="small">Velikost: marže <b>${fmt(marze, 1)} % účtu</b>${money}.${rs ? ` Při stop lossu ztratíš nejvýš <b class="neg">${fmt(rs.ztrata, 1)} % účtu</b>${acc ? ` (${fmt(acc * rs.ztrata / 100, 0)} Kč)` : ""} – podle tvé volby ${fmt(rs.R, 1)} %${rs.w < 1 ? `, slabší signál ${fmt(rs.w * 100, 0)} % z toho` : ""}${cap && cap.scale < 0.999 ? `, zmenšeno limitem na jednu měnu` : ""}.` : ""} Rozděl pozici na <b>3 stejné části</b> s cíli TP1, TP2 a TP3, stop loss stejný pro všechny${plan.prumer_rozdeleni_3 !== undefined ? ` (historický průměr takového rozdělení ${sgn(plan.prumer_rozdeleni_3, 1)} % marže na obchod)` : ""}. Zavřít nejpozději za 4 týdny${s.zavrit_nejpozdeji ? ", tj. " + esc(new Date(s.zavrit_nejpozdeji).toLocaleDateString("cs-CZ")) : ""}.</p>
       ${rs && orig ? `<p class="small muted">Původní velikost modelu by byla marže ${fmt(orig, 1)} % účtu, tj. ztráta při stopu ${fmt(orig * plan.sl.proc_marze / 100, 1)} % účtu.</p>` : ""}
       ${s.duvod ? `<p class="small muted">${esc(s.duvod)}</p>` : ""}
       ${s.varovani ? `<div class="notice">⚠ ${esc(s.varovani)}</div>` : ""}
       ${plan.pred_rozhodnutim ? `<p class="small"><b>Před rozhodnutím centrální banky:</b> ${esc(plan.pred_rozhodnutim.pravidlo)} <span class="muted">${esc(plan.pred_rozhodnutim.text)}</span></p>` : ""}
       ${s.vyzkum && s.vyzkum.podminky_pro ? `<p class="small muted">${esc(s.vyzkum.text)}${s.vyzkum.podminky_pro.length ? " Pro: " + esc(s.vyzkum.podminky_pro.join(", ")) + "." : ""}${s.vyzkum.podminky_proti.length ? " Proti: " + esc(s.vyzkum.podminky_proti.join(", ")) + "." : ""}</p>` : ""}
-      ${kind === "trh" ? `<div class="row"><button type="button" class="ghost" data-fill="${i}">Zapsat podle signálu</button></div>` : ""}
+      ${kind === "trh" && !(cap && cap.blocked) ? `<div class="row"><button type="button" class="ghost" data-fill="${i}">Zapsat podle signálu</button></div>` : ""}
     </article>`;
   }
   function renderReady() {
     if (!state) return;
     const list = ranked(state.pary || []).filter((p) => p.skupina === "pripraven" && p.plan);
     $("ready-sec").hidden = !list.length;
-    $("ready").innerHTML = list.length ? list.map((p, i) => planCard(p, p.plan, "podminka", i)).join("") : "";
+    const caps = capList(list.map((p) => ({s: p, rs: riskSizing(p, p.plan)})));
+    $("ready").innerHTML = list.length ? list.map((p, i) => planCard(p, p.plan, "podminka", i, caps[i])).join("") : "";
   }
 
   function renderSignals() {
     if (!state) return;
+    renderCcyInfo();
     const acc = parseNum($("ucet").value);
     const list = (state.signaly || []).slice().sort((a, b) => (b.pravdepodobnost_uspechu || b.odhad_uspesnosti || 0) - (a.pravdepodobnost_uspechu || a.odhad_uspesnosti || 0));
     $("sig-note").textContent = state.trh_zavren ? "Signály z pátku – trh je zavřený, nový obchod už nezadávej (platí jen pro ty, kdo vstoupili v pátek)."
@@ -614,14 +688,17 @@ details summary { cursor: pointer; font-weight: 600; }
       $("signals").innerHTML = `<div class="empty">${state.je_patek ? "Tento pátek žádný pár nesplnil podmínky. Žádný obchod – i to je rozhodnutí." : "Teď není pátek, takže nový signál není. Podívej se do Sledovaných párů, které páry jsou blízko."}</div>`;
       return;
     }
-    $("signals").innerHTML = list.map((s, i) => planCard(s, s.plan || {vstup: s.vstup, tp: [{cislo: 1, cena: s.tp, proc_marze: s.zisk_tp_proc_marze}], sl: {cena: s.sl, proc_marze: s.ztrata_sl_proc_marze}}, "trh", i)).join("");
+    const plans = list.map((s) => s.plan || {vstup: s.vstup, tp: [{cislo: 1, cena: s.tp, proc_marze: s.zisk_tp_proc_marze}], sl: {cena: s.sl, proc_marze: s.ztrata_sl_proc_marze}});
+    const caps = capList(list.map((s, i) => ({s, rs: riskSizing(s, plans[i])})));
+    $("signals").innerHTML = list.map((s, i) => planCard(s, plans[i], "trh", i, caps[i])).join("");
     $("signals").querySelectorAll("[data-fill]").forEach((b) => b.addEventListener("click", () => {
       const s = list[+b.dataset.fill];
       $("f-par").value = s.par; $("f-smer").value = s.smer;
       $("f-vstup").value = s.vstup; $("f-sl").value = s.sl; $("f-tp").value = (s.plan && s.plan.tp && s.plan.tp[0]) ? s.plan.tp[0].cena : s.tp;
       const accv = parseNum($("ucet").value);
       const rsv = riskSizing(s, s.plan || {sl: {proc_marze: s.ztrata_sl_proc_marze}});
-      if (accv) $("f-marze").value = Math.round(accv * (rsv ? rsv.marze : s.marze_proc_uctu) / 100);
+      const sc = caps[+b.dataset.fill] ? caps[+b.dataset.fill].scale : 1;
+      if (accv) $("f-marze").value = Math.round(accv * (rsv ? rsv.marze * sc : s.marze_proc_uctu) / 100);
       $("f-pozn").value = `signál modelu ${state.den_dat} (${CZ[s.stupen] || s.stupen})`;
       $("entry").scrollIntoView({behavior: "smooth", block: "start"});
       $("f-vstup").focus();
@@ -756,7 +833,9 @@ details summary { cursor: pointer; font-weight: 600; }
     const pips = side * (t.vystup - t.vstup) / pip(t.par);
     const margin = move * paka(t.par);
     const kc = t.marze_kc ? t.marze_kc * margin / 100 : null;
-    return {pips, margin, kc};
+    const riskDist = t.sl ? Math.abs(t.vstup - t.sl) : 0;
+    const r = riskDist > 0 ? side * (t.vystup - t.vstup) / riskDist : null;     // result in multiples of the risk
+    return {pips, margin, kc, r};
   }
 
   function alertFor(t) {
@@ -781,6 +860,10 @@ details summary { cursor: pointer; font-weight: 600; }
           ${live !== null ? `<span class="small muted">teď orientačně ${sgn(live, 1)} % marže</span>` : ""}
           ${now && t.sl && side * (now - t.sl) <= 0 ? '<span class="chip warn">cena je za stop lossem – zkontroluj u brokera</span>' : ""}
           ${now && t.tp && side * (now - t.tp) >= 0 ? '<span class="chip strong">cena dosáhla take profitu – zkontroluj u brokera</span>' : ""}</div>
+        ${!t.sl || !t.marze_kc ? `<div class="row small"><span class="neg">Chybí ${!t.sl && !t.marze_kc ? "stop loss a marže" : !t.sl ? "stop loss" : "marže"} – riziko obchodu neznám:</span>
+          ${!t.sl ? `<input class="num" style="max-width:9em" inputmode="decimal" placeholder="stop loss" aria-label="Stop loss ${esc(t.par)}" data-dsl>` : ""}
+          ${!t.marze_kc ? `<input class="num" style="max-width:9em" inputmode="decimal" placeholder="marže Kč" aria-label="Marže ${esc(t.par)}" data-dmarze>` : ""}
+          <button type="button" class="ghost" data-doplnit ${canWrite ? "" : "disabled"}>Doplnit</button></div>` : ""}
         ${alertFor(t) ? `<div class="notice">⚠ ${esc(alertFor(t))}</div>` : ""}
         <div class="small muted">${esc(praha(t.cas_vstupu))}${t.poznamka ? " · " + esc(t.poznamka) : ""}</div>
         <div class="row"><input class="num" style="max-width:10em" inputmode="decimal" placeholder="výstupní cena" aria-label="Výstupní cena ${esc(t.par)}" data-exit>
@@ -797,6 +880,22 @@ details summary { cursor: pointer; font-weight: 600; }
         try { await store.update(id, {vystup: v, cas_vystupu: new Date().toISOString(), stav: "uzavreny"}); }
         catch (e) { msg.textContent = "Uložení se nepovedlo – zkus to znovu."; }
       });
+      const fill = el.querySelector("[data-doplnit]");
+      if (fill) fill.addEventListener("click", async () => {
+        const t = journal.find((x) => x._id === id), msg = el.querySelector("[data-msg]");
+        const fields = {};
+        if (el.querySelector("[data-dsl]")) {
+          const v = parseNum(el.querySelector("[data-dsl]").value), err = slError(t.smer, t.vstup, v);
+          if (err) { msg.textContent = err; return; }
+          fields.sl = v;
+        }
+        if (el.querySelector("[data-dmarze]")) {
+          const v = parseNum(el.querySelector("[data-dmarze]").value);
+          if (v === null || v <= 0) { msg.textContent = "Zadej marži v Kč."; return; }
+          fields.marze_kc = v;
+        }
+        try { await store.update(id, fields); } catch (e) { msg.textContent = "Uložení se nepovedlo – zkus to znovu."; }
+      });
       const del = el.querySelector("[data-del]");
       del.addEventListener("click", async () => {
         if (del.dataset.sure !== "1") { del.dataset.sure = "1"; del.textContent = "Opravdu smazat?"; return; }
@@ -808,7 +907,7 @@ details summary { cursor: pointer; font-weight: 600; }
     $("closed").innerHTML = rows.map(({t, r}) => `<tr><td>${esc(t.par)}</td><td>${sideChip(t.smer)}</td>
       <td class="r num">${fmt(t.vstup, dec(t.par))}</td><td class="r num">${fmt(t.vystup, dec(t.par))}</td>
       <td class="r num ${r.pips >= 0 ? "pos" : "neg"}">${sgn(r.pips, 1)}</td><td class="r num ${r.margin >= 0 ? "pos" : "neg"}">${sgn(r.margin, 1)} %</td>
-      <td class="r num">${r.kc !== null ? sgn(r.kc, 0) : "–"}</td><td class="small muted">${esc(praha(t.cas_vystupu))}</td></tr>`).join("");
+      <td class="r num">${r.kc !== null ? sgn(r.kc, 0) : "–"}</td><td class="r num ${r.r === null ? "" : r.r >= 0 ? "pos" : "neg"}">${r.r !== null ? sgn(r.r, 2) : "–"}</td><td class="small muted">${esc(praha(t.cas_vystupu))}</td></tr>`).join("");
     if (rows.length) {
       const wins = rows.filter((x) => x.r.margin > 0).length;
       const avg = rows.reduce((a, x) => a + x.r.margin, 0) / rows.length;
@@ -817,7 +916,10 @@ details summary { cursor: pointer; font-weight: 600; }
       $("my-stats").innerHTML = `<div class="stat"><span class="label">Uzavřeno</span><span class="v">${rows.length}</span></div>
         <div class="stat"><span class="label">Úspěšnost</span><span class="v">${fmt(wins / rows.length * 100, 0)} %</span></div>
         <div class="stat"><span class="label">Průměr na obchod</span><span class="v ${avg >= 0 ? "pos" : "neg"}">${sgn(avg, 1)} % marže</span></div>
-        <div class="stat"><span class="label">Celkem</span><span class="v ${sumKc >= 0 ? "pos" : "neg"}">${kcs.length ? sgn(sumKc, 0) + " Kč" : "–"}</span></div>`;
+        <div class="stat"><span class="label">Celkem</span><span class="v ${sumKc >= 0 ? "pos" : "neg"}">${kcs.length ? sgn(sumKc, 0) + " Kč" : "–"}</span></div>`
+        + (() => { const rr = rows.filter((x) => x.r.r !== null); if (!rr.length) return `<div class="stat"><span class="label">Průměr R</span><span class="v">–</span><span class="small muted">obchody bez stop lossu</span></div>`;
+          const m = rr.reduce((a, x) => a + x.r.r, 0) / rr.length;
+          return `<div class="stat"><span class="label">Průměr R (${rr.length} z ${rows.length})</span><span class="v ${m >= 0 ? "pos" : "neg"}">${sgn(m, 2)} R</span></div>`; })();
     }
   }
 
@@ -957,12 +1059,25 @@ details summary { cursor: pointer; font-weight: 600; }
 
   function renderAll() { renderStatus(); renderRisk(); renderSignals(); renderReady(); renderPairs(); renderNews(); renderResearch(); renderFund(); renderModel(); renderJournal(); renderHeur(); }
 
+  // stop loss on the losing side of the entry; null = fine
+  function slError(smer, vstup, sl) {
+    if (sl === null) return "Zadej stop loss – bez něj nejde spočítat riziko obchodu.";
+    if (smer === "KOUPIT" && !(sl < vstup)) return "U nákupu musí být stop loss pod vstupní cenou.";
+    if (smer === "PRODAT" && !(sl > vstup)) return "U prodeje musí být stop loss nad vstupní cenou.";
+    if (Math.abs(sl - vstup) / vstup > 0.2) return "Stop loss je víc než 20 % od vstupu – zkontroluj desetinnou čárku.";
+    return null;
+  }
   $("entry").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const msg = $("f-msg");
     const vstup = parseNum($("f-vstup").value);
     if (vstup === null) { msg.textContent = "Zadej vstupní cenu."; return; }
     if (!store.add || !canWrite) { msg.textContent = "Deník teď není dostupný."; return; }
+    const slv = parseNum($("f-sl").value), mz = parseNum($("f-marze").value), tpv = parseNum($("f-tp").value);
+    const slErr = slError($("f-smer").value, vstup, slv);
+    if (slErr) { msg.textContent = slErr; return; }
+    if (mz === null || mz <= 0) { msg.textContent = "Zadej vloženou marži v Kč – bez ní nejde spočítat riziko ani výsledek v Kč."; return; }
+    if (tpv !== null && ($("f-smer").value === "KOUPIT" ? !(tpv > vstup) : !(tpv < vstup))) { msg.textContent = "Take profit musí být na ziskové straně od vstupu."; return; }
     const doc = { par: $("f-par").value, smer: $("f-smer").value, vstup, sl: parseNum($("f-sl").value), tp: parseNum($("f-tp").value),
       marze_kc: parseNum($("f-marze").value), poznamka: $("f-pozn").value.trim().slice(0, 300), cas_vstupu: new Date().toISOString(), stav: "otevreny" };
     $("f-ulozit").disabled = true;
@@ -1018,6 +1133,7 @@ details summary { cursor: pointer; font-weight: 600; }
     }, () => { $("status").innerHTML = "<span>Data modelu se nepodařilo načíst. Obnov stránku.</span>"; });
     db.collection("denik").orderBy("cas_vstupu", "desc").onSnapshot((qs) => {
       journal = qs.docs.map((d) => Object.assign({_id: d.id}, d.data()));
+      renderSignals(); renderReady();
       renderJournal();
     }, () => { $("db-note").hidden = false; $("db-note").textContent = "Deník se nepodařilo načíst. Obnov stránku."; });
   })();
