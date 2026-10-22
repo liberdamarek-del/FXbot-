@@ -1,0 +1,151 @@
+# FXBOT learning on GitHub Actions (R-050, docs/GITHUB_PROVOZ.md): Wednesday and Saturday, like the Claude routines
+# "učení – středa / sobota", without the steps that need an AI (new trials are frozen anyway, R-047; the bounded
+# exploration step of docs/VYZKUM_FRONTA.md and the weekly research report stay with Claude / are paused, R-049).
+# Steps: FXCM history + fundamentals + rates, Saturday also the heuristic registry, champion re-evaluation (both
+# profiles), tests, the daily update with the full history, then the page. Mode as in fxbot-denni.yml.
+name: FXBOT učení (středa a sobota)
+
+on:
+  schedule:
+    - cron: "40 15 * * 3"    # Wednesday 17:40 Prague (summer time; 16:40 in winter - the hour does not matter)
+    - cron: "40 18 * * 3"    # Wednesday backup slot
+    - cron: "57 6 * * 6"     # Saturday 08:57 Prague (summer time)
+    - cron: "57 9 * * 6"     # Saturday backup slot
+  workflow_dispatch:
+    inputs:
+      vynutit:
+        description: "Spustit, i když dnešní učení už proběhlo"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: fxbot-provoz
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      bezet: ${{ steps.rozhodnuti.outputs.bezet }}
+      uceni: ${{ steps.klice.outputs.uceni }}
+      rezim: ${{ steps.klice.outputs.rezim }}
+      hotovo: ${{ steps.hotovo.outputs.cache-hit }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            scripts/github_beh.py
+            learning/provoz
+          sparse-checkout-cone-mode: false
+      - id: klice
+        run: |
+          python3 scripts/github_beh.py plan
+          python3 scripts/github_beh.py rezim
+      - id: hotovo
+        uses: actions/cache/restore@v6
+        with:
+          path: .znacka
+          key: fxbot-beh-uceni-${{ steps.klice.outputs.uceni }}
+          lookup-only: true
+      - id: rozhodnuti
+        env:
+          VYNUTIT: ${{ github.event_name == 'workflow_dispatch' && inputs.vynutit }}
+          HOTOVO: ${{ steps.hotovo.outputs.cache-hit }}
+        run: |
+          bezet=false
+          if [ "$HOTOVO" != "true" ] || [ "$VYNUTIT" = "true" ]; then bezet=true; fi
+          echo "bezet=$bezet" >> "$GITHUB_OUTPUT"
+          echo "beh: $bezet"
+
+  beh:
+    needs: plan
+    if: needs.plan.outputs.bezet == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      FXBOT_BEH_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-provoz.txt
+      - run: pip install -r requirements-provoz.txt
+
+      - name: Data (historie FXCM 12 párů, fundamenty, sazby)
+        run: python scripts/rutina.py uceni || { echo "druhý pokus za minutu"; sleep 60; python scripts/rutina.py uceni; }
+
+      - name: Heuristiky – přepočet registru (jen sobota)
+        run: |
+          if [ "$(TZ=Europe/Prague date +%u)" = "6" ]; then python scripts/heuristiky.py prepocet; else echo "není sobota"; fi
+
+      - name: Šampion – přehodnocení na nových datech (nové pokusy jsou zmrazené, R-047)
+        run: |
+          python scripts/self_learn.py --profile mesicne
+          python scripts/self_learn.py
+          python scripts/github_beh.py sampion
+
+      - name: Testy
+        run: python fxbot.py test
+
+      - name: Denní běh s plnou historií
+        run: python scripts/rutina.py denni
+
+      - name: Souhrn
+        if: always()
+        run: python scripts/github_beh.py souhrn uceni
+
+      - name: Uložit do repozitáře (jen ostrý režim)
+        if: needs.plan.outputs.rezim == 'ostry'
+        run: |
+          python scripts/github_beh.py zapis uceni
+          git add learning/ docs/
+          if git diff --cached --quiet; then echo "nic nového k uložení"; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "GitHub: učení $(date -u +%F)" -m "Běh: $FXBOT_BEH_URL"
+          for i in 1 2 3 4; do
+            git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0
+            sleep $((2 ** i))
+          done
+          exit 1
+
+      - name: Sestavit stránku
+        run: python scripts/web_stranka.py --beh-url "$FXBOT_BEH_URL" --behy-url "${{ github.server_url }}/${{ github.repository }}/actions"
+
+      - name: Kontrola stránky v prohlížeči
+        run: |
+          python -m http.server 8765 -d _site > /dev/null 2>&1 &
+          sleep 2
+          google-chrome --headless=new --no-sandbox --disable-gpu --virtual-time-budget=15000 --dump-dom http://127.0.0.1:8765/ > dom.html
+          python scripts/web_stranka.py kontrola dom.html
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - name: Značka hotového učení
+        if: needs.plan.outputs.hotovo != 'true'
+        run: mkdir -p .znacka && date -u > .znacka/hotovo
+      - if: needs.plan.outputs.hotovo != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .znacka
+          key: fxbot-beh-uceni-${{ needs.plan.outputs.uceni }}
+
+  stranka:
+    needs: beh
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.nasazeni.outputs.page_url }}
+    steps:
+      - id: nasazeni
+        uses: actions/deploy-pages@v5

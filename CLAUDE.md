@@ -54,6 +54,13 @@ Learning runs still download data, refresh rates / fundamentals / heuristics / w
 champion on the new data - but add no experiments. The ideas queue below is parked. The champion stays unchanged and
 is only watched in the forward test.
 
+GITHUB OPERATION (user's decision 2026-10-22, R-050, docs/GITHUB_PROVOZ.md): the same jobs also run on GitHub Actions
+(.github/workflows/fxbot-denni.yml, fxbot-uceni.yml) and publish the dashboard on GitHub Pages (scripts/web_stranka.py; the
+user's journal lives only in his browser there). Mode in learning/provoz/github.json: "stin" = GitHub commits nothing (the
+Claude routines below stay the only writer of main), "ostry" = GitHub is the only writer and the Claude routines must be
+switched off first (two writers would break the append-only heuristics ledger). The user decided: one week side by side,
+then switch to "ostry" and switch the Claude routines off. web/prehled.html serves both the claude.ai artifact and Pages.
+
 ## Jobs (user's decision 2026-10-11, R-044: every routine starts a FRESH session - firing into the long main
 conversation cost ~300k tokens per step; 2026-10-08: one update a day (was hourly, the weekly usage limit);
 2026-10-06: learning 2x a week)

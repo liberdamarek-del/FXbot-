@@ -1,0 +1,5 @@
+# Exact versions for the GitHub Actions runs (R-050); the golden test (test_h1_core, tests/fixtures/jadro_zlaty.json)
+# compares results bit for bit, so numerical libraries are pinned to the versions the tests passed with.
+numpy==2.5.3
+requests==2.34.2
+python-dotenv==1.2.3

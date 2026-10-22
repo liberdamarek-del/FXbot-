@@ -88,6 +88,7 @@ button.ghost { background: transparent; color: var(--accent); }
 button.danger { border-color: var(--sell); background: transparent; color: var(--sell); }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+[hidden] { display: none !important; }   /* .sheet / .row set display, which would otherwise override the hidden attribute */
 .trade { border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 8px; }
 .trade:first-child { border-top: 0; padding-top: 0; }
 .pos { color: var(--buy); } .neg { color: var(--sell); }
@@ -215,6 +216,13 @@ details summary { cursor: pointer; font-weight: 600; }
   <section class="sheet" aria-labelledby="h-journal">
     <header><h2 id="h-journal">Můj deník</h2><span class="small muted">Zapiš vstup a pak výstup. Výsledek se spočítá sám.</span></header>
     <div class="notice" id="db-note" hidden></div>
+    <div class="row small" id="zaloha" hidden>
+      <span class="muted" id="zaloha-info"></span>
+      <button type="button" class="ghost" id="zaloha-ulozit">Uložit zálohu</button>
+      <button type="button" class="ghost" id="zaloha-nahrat">Nahrát zálohu</button>
+      <input type="file" id="zaloha-soubor" accept="application/json,.json" hidden>
+      <span id="zaloha-msg" role="status"></span>
+    </div>
     <form class="entry" id="entry" autocomplete="off">
       <div class="field"><label for="f-par">Pár</label><select id="f-par"></select></div>
       <div class="field"><label for="f-smer">Směr</label><select id="f-smer"><option value="KOUPIT">KOUPIT (long)</option><option value="PRODAT">PRODAT (short)</option></select></div>
@@ -352,7 +360,148 @@ details summary { cursor: pointer; font-weight: 600; }
   const sideChip = (s) => s === "KOUPIT" ? '<span class="chip buy">KOUPIT</span>' : s === "PRODAT" ? '<span class="chip sell">PRODAT</span>' : '<span class="chip">nic</span>';
   const CZ = { silny: "silný", stredni: "střední", slaby: "slabý" };
 
-  let state = null, journal = [], db = null, canWrite = true;
+  let state = null, journal = [], db = null, canWrite = true, loadedAt = 0;
+
+  // ---------------------------------------------------------------- where the journal lives (R-050)
+  // "claude": the artifact database on claude.ai (the Claude routines read it); "web": this browser only (the GitHub
+  // Pages copy - the page and the repository are public, so the journal never leaves the browser except as a backup
+  // file the user saves himself).
+  const LS_JOURNAL = "fxbot.denik.v1", LS_BACKUP = "fxbot.denik.zaloha";
+  const JOURNAL_FIELDS = ["par", "smer", "vstup", "sl", "tp", "marze_kc", "poznamka", "cas_vstupu", "stav", "vystup", "cas_vystupu"];
+  const store = { mode: null, add: null, update: null, remove: null };
+  const sortJournal = (rows) => rows.slice().sort((a, b) => String(b.cas_vstupu || "").localeCompare(String(a.cas_vstupu || "")));
+  const newId = () => "w" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  function lsRead() {
+    try { const v = JSON.parse(localStorage.getItem(LS_JOURNAL) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  }
+  function lsWrite(rows) { localStorage.setItem(LS_JOURNAL, JSON.stringify(rows)); }   // throws when the browser refuses storage
+  // one journal entry from a backup (or an ArtifactData export of the claude.ai journal), or null when it is not one
+  function cleanEntry(x) {
+    if (!x || typeof x !== "object") return null;
+    const d = x.data && typeof x.data === "object" ? x.data : x;
+    const num = (v) => v === null || v === undefined || v === "" ? null : typeof v === "number" ? (isFinite(v) ? v : null) : parseNum(v);
+    if (!PAIRS.includes(d.par) || !["KOUPIT", "PRODAT"].includes(d.smer) || num(d.vstup) === null) return null;
+    const out = {_id: String(x._id || x.id || x.doc_id || newId()).slice(0, 64)};
+    for (const k of JOURNAL_FIELDS) out[k] = d[k] === undefined ? null : d[k];
+    for (const k of ["vstup", "sl", "tp", "marze_kc", "vystup"]) out[k] = num(out[k]);
+    out.stav = out.stav === "uzavreny" && out.vystup !== null ? "uzavreny" : "otevreny";
+    out.poznamka = String(out.poznamka || "").slice(0, 300);
+    for (const k of ["cas_vstupu", "cas_vystupu"]) out[k] = out[k] && !isNaN(Date.parse(out[k])) ? String(out[k]) : null;
+    return out;
+  }
+  // merge entries into the browser journal; a closed trade is never reopened by an older backup
+  function mergeJournal(list) {
+    const incoming = list.map(cleanEntry).filter(Boolean);
+    const rows = lsRead().map((r) => cleanEntry(r) || r);
+    let added = 0, updated = 0;
+    for (const e of incoming) {
+      const i = rows.findIndex((r) => r._id === e._id);
+      if (i < 0) { rows.push(e); added++; continue; }
+      if (rows[i].stav === "uzavreny" && e.stav !== "uzavreny") continue;
+      if (JSON.stringify(rows[i]) !== JSON.stringify(e)) { rows[i] = e; updated++; }
+    }
+    lsWrite(rows);
+    return {added, updated, same: incoming.length - added - updated, invalid: list.length - incoming.length};
+  }
+  function useBrowserJournal() {
+    store.mode = "web";
+    const reload = () => { journal = sortJournal(lsRead()); renderJournal(); renderBackup(); };
+    store.add = async (doc) => { const rows = lsRead(); rows.push(Object.assign({_id: newId()}, doc)); lsWrite(rows); reload(); };
+    store.update = async (id, fields) => {
+      const rows = lsRead(), r = rows.find((x) => x._id === id);
+      if (!r) throw new Error("zaznam nenalezen");
+      Object.assign(r, fields); lsWrite(rows); reload();
+    };
+    store.remove = async (id) => { lsWrite(lsRead().filter((x) => x._id !== id)); reload(); };
+    window.addEventListener("storage", (e) => { if (e.key === LS_JOURNAL) reload(); });   // changed in another tab
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+    importFromLink();
+    reload();
+  }
+  function renderBackup() {
+    if (store.mode !== "web") return;
+    $("zaloha").hidden = false;
+    let last = null;
+    try { last = localStorage.getItem(LS_BACKUP); } catch (e) {}
+    const n = journal.length, word = n === 1 ? "záznam" : n >= 2 && n <= 4 ? "záznamy" : "záznamů";
+    $("zaloha-info").textContent = `Deník je uložený jen v tomto prohlížeči (${n} ${word}). `
+      + (last ? `Poslední záloha ${praha(last)}.` : "Zálohu sis zatím neuložil.");
+  }
+  function exportJournal() {
+    const payload = {format: "fxbot-denik", verze: 1, exportovano: new Date().toISOString(), zaznamy: sortJournal(lsRead())};
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 1)], {type: "application/json"}));
+    a.download = `fxbot-denik-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    try { localStorage.setItem(LS_BACKUP, new Date().toISOString()); } catch (e) {}
+    renderBackup();
+  }
+  function importMessage(r) {
+    return `Nahráno: ${r.added} nových, ${r.updated} upravených, ${r.same} beze změny`
+      + (r.invalid ? `, ${r.invalid} neplatných přeskočeno` : "") + ".";
+  }
+  async function importJournal(file) {
+    let data;
+    try { data = JSON.parse(await file.text()); } catch (e) { return "Soubor není platná záloha deníku."; }
+    const list = Array.isArray(data) ? data : data && Array.isArray(data.zaznamy) ? data.zaznamy : null;
+    if (!list) return "Soubor není záloha deníku FXBOT.";
+    const r = mergeJournal(list);
+    journal = sortJournal(lsRead()); renderJournal(); renderBackup();
+    return importMessage(r);
+  }
+  // a one-time move of the journal by link: …#denik=<base64url of a backup>; the fragment never reaches the server
+  function importFromLink() {
+    const m = /(?:^#|&)denik=([A-Za-z0-9_-]+)/.exec(location.hash || "");
+    if (!m) return;
+    history.replaceState(null, "", location.pathname + location.search);
+    try {
+      const b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
+      const bytes = Uint8Array.from(atob(b64 + "===".slice((b64.length + 3) % 4)), (c) => c.charCodeAt(0));
+      const data = JSON.parse(new TextDecoder().decode(bytes));
+      const list = Array.isArray(data) ? data : data.zaznamy;
+      if (!Array.isArray(list) || !list.length) return;
+      if (!window.confirm(`Nahrát do deníku v tomto prohlížeči ${list.length} záznamů z odkazu?`)) return;
+      $("zaloha-msg").textContent = importMessage(mergeJournal(list));
+    } catch (e) { $("zaloha-msg").textContent = "Odkaz s deníkem je poškozený – nic se nenahrálo."; }
+  }
+  $("zaloha-ulozit").addEventListener("click", () => {
+    try { exportJournal(); $("zaloha-msg").textContent = "Záloha se stahuje do složky Stažené."; }
+    catch (e) { $("zaloha-msg").textContent = "Zálohu se nepodařilo vytvořit."; }
+  });
+  $("zaloha-nahrat").addEventListener("click", () => $("zaloha-soubor").click());
+  $("zaloha-soubor").addEventListener("change", async (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    try { $("zaloha-msg").textContent = await importJournal(f); } catch (e) { $("zaloha-msg").textContent = "Nahrání se nepovedlo."; }
+    ev.target.value = "";
+  });
+
+  // ---------------------------------------------------------------- central bank warning for the user's open trades
+  // the same rule as scripts/aktualizace.journal_summary (R-021: the champion closes a trade that is in profit at the
+  // close of the trading day before a scheduled decision); the page computes it itself in the "web" mode
+  const pragueDay = (d) => new Intl.DateTimeFormat("en-CA", {timeZone: "Europe/Prague", year: "numeric", month: "2-digit", day: "2-digit"}).format(d);
+  const addDays = (iso, n) => { const t = new Date(iso + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+  const weekday = (iso) => (new Date(iso + "T12:00:00Z").getUTCDay() + 6) % 7;     // Monday = 0, as Python's date.weekday()
+  function nextWeekdays(iso, n) { const out = []; let d = iso; while (out.length < n) { d = addDays(d, 1); if (weekday(d) < 5) out.push(d); } return out; }
+  function dayWord(today, d) {
+    const gap = Math.round((Date.parse(d) - Date.parse(today)) / 86400000);
+    if (gap === 1 || gap === 2) return ["Zítra", "Pozítří"][gap - 1];
+    return ["V pondělí", "V úterý", "Ve středu", "Ve čtvrtek", "V pátek"][weekday(d)] || d;
+  }
+  function cbAlert(t, now = new Date()) {
+    const p = (state && state.pary || []).find((x) => x.par === t.par);
+    if (!p || !Array.isArray(p.rozhodnuti_cb) || typeof p.cena !== "number" || typeof t.vstup !== "number") return null;
+    const today = pragueDay(now), [d1, d2] = nextWeekdays(today, 2);
+    const profit = (t.smer === "KOUPIT" ? 1 : -1) * (p.cena - t.vstup) > 0;
+    const b1 = p.rozhodnuti_cb.filter((x) => x[0] === d1).map((x) => x[1]);
+    const b2 = p.rozhodnuti_cb.filter((x) => x[0] === d2).map((x) => x[1]);
+    if (b1.length && profit) return `${dayWord(today, d1)} rozhoduje ${b1.join(", ")}. Obchod je v zisku – model by ho dnes `
+      + "při zavření trhu (23:00 našeho času) uzavřel.";
+    if (b2.length) return `${dayWord(today, d2)} rozhoduje ${b2.join(", ")}. Když bude obchod ${dayWord(today, d1).toLowerCase()} `
+      + "při zavření trhu (23:00 našeho času) v zisku, model ho uzavře" + (profit ? " (teď je v zisku)." : " (teď je ve ztrátě).");
+    return null;
+  }
 
   // account size (per-viewer convenience)
   try { const v = localStorage.getItem("fx_ucet_kc"); if (v) $("ucet").value = v; } catch (e) {}
@@ -392,8 +541,12 @@ details summary { cursor: pointer; font-weight: 600; }
 
   function renderStatus() {
     if (!state) return;
+    const pv = state.provoz || {};                       // GitHub copy only (scripts/web_stranka.py, R-050)
+    const late = pv.dalsi_aktualizace_do && Date.now() > Date.parse(pv.dalsi_aktualizace_do);
     $("status").innerHTML = `<span>Aktualizováno <b class="num">${esc(praha(state.aktualizovano))}</b></span><span>Ceny do <span class="num">${esc(state.den_dat)}</span></span>`
-      + `<span>Obnova jednou denně ve všední dny ve 23:07 (náš čas)</span>`
+      + `<span>${esc(pv.popis || "Obnova jednou denně ve všední dny ve 23:07 (náš čas)")}</span>`
+      + (late ? `<div class="notice" style="flex-basis: 100%">⚠ Data jsou starší, než by měla být: poslední plánovaný běh asi neproběhl nebo selhal.`
+        + (pv.behy_url ? ` <a href="${esc(pv.behy_url)}" target="_blank" rel="noopener">Zkontrolovat běhy</a>` : "") + `</div>` : "")
       + (state.varovani || []).map((v) => `<div class="notice" style="flex-basis: 100%">⚠ ${esc(v)}</div>`).join("")
       + ((state.diagnostika && state.diagnostika.souhrn && state.diagnostika.souhrn.CHYBA) ? `<div class="notice" style="flex-basis: 100%">⚠ Kontrola dat našla chybu: ${esc((state.diagnostika.problemy || []).join("; "))}</div>` : "");
   }
@@ -605,9 +758,10 @@ details summary { cursor: pointer; font-weight: 600; }
     return {pips, margin, kc};
   }
 
-  function alertFor(id) {
-    const d = state && state.denik_uzivatele;
-    const o = d && (d.otevrene || []).find((x) => x.id === id);
+  function alertFor(t) {
+    if (store.mode !== "claude") return cbAlert(t);      // the browser journal: the page computes the warning itself
+    const d = state && state.denik_uzivatele;            // claude.ai: the routine computed it from the artifact journal
+    const o = d && (d.otevrene || []).find((x) => x.id === t._id);
     return o ? o.upozorneni : null;
   }
 
@@ -626,7 +780,7 @@ details summary { cursor: pointer; font-weight: 600; }
           ${live !== null ? `<span class="small muted">teď orientačně ${sgn(live, 1)} % marže</span>` : ""}
           ${now && t.sl && side * (now - t.sl) <= 0 ? '<span class="chip warn">cena je za stop lossem – zkontroluj u brokera</span>' : ""}
           ${now && t.tp && side * (now - t.tp) >= 0 ? '<span class="chip strong">cena dosáhla take profitu – zkontroluj u brokera</span>' : ""}</div>
-        ${alertFor(t._id) ? `<div class="notice">⚠ ${esc(alertFor(t._id))}</div>` : ""}
+        ${alertFor(t) ? `<div class="notice">⚠ ${esc(alertFor(t))}</div>` : ""}
         <div class="small muted">${esc(praha(t.cas_vstupu))}${t.poznamka ? " · " + esc(t.poznamka) : ""}</div>
         <div class="row"><input class="num" style="max-width:10em" inputmode="decimal" placeholder="výstupní cena" aria-label="Výstupní cena ${esc(t.par)}" data-exit>
           <button type="button" data-close ${canWrite ? "" : "disabled"}>Vystoupil jsem</button>
@@ -639,13 +793,13 @@ details summary { cursor: pointer; font-weight: 600; }
         const v = parseNum(el.querySelector("[data-exit]").value);
         const msg = el.querySelector("[data-msg]");
         if (v === null) { msg.textContent = "Zadej výstupní cenu."; return; }
-        try { await db.collection("denik").doc(id).update({vystup: v, cas_vystupu: new Date().toISOString(), stav: "uzavreny"}); }
+        try { await store.update(id, {vystup: v, cas_vystupu: new Date().toISOString(), stav: "uzavreny"}); }
         catch (e) { msg.textContent = "Uložení se nepovedlo – zkus to znovu."; }
       });
       const del = el.querySelector("[data-del]");
       del.addEventListener("click", async () => {
         if (del.dataset.sure !== "1") { del.dataset.sure = "1"; del.textContent = "Opravdu smazat?"; return; }
-        try { await db.collection("denik").doc(id).delete(); } catch (e) { el.querySelector("[data-msg]").textContent = "Smazání se nepovedlo."; }
+        try { await store.remove(id); } catch (e) { el.querySelector("[data-msg]").textContent = "Smazání se nepovedlo."; }
       });
     });
     // closed + stats
@@ -807,18 +961,47 @@ details summary { cursor: pointer; font-weight: 600; }
     const msg = $("f-msg");
     const vstup = parseNum($("f-vstup").value);
     if (vstup === null) { msg.textContent = "Zadej vstupní cenu."; return; }
-    if (!db) { msg.textContent = "Deník teď není dostupný."; return; }
+    if (!store.add || !canWrite) { msg.textContent = "Deník teď není dostupný."; return; }
     const doc = { par: $("f-par").value, smer: $("f-smer").value, vstup, sl: parseNum($("f-sl").value), tp: parseNum($("f-tp").value),
       marze_kc: parseNum($("f-marze").value), poznamka: $("f-pozn").value.trim().slice(0, 300), cas_vstupu: new Date().toISOString(), stav: "otevreny" };
     $("f-ulozit").disabled = true;
-    try { await db.collection("denik").add(doc); msg.textContent = "Uloženo."; ["f-vstup","f-sl","f-tp","f-marze","f-pozn"].forEach((k) => { $(k).value = ""; }); }
+    try { await store.add(doc); msg.textContent = "Uloženo.";["f-vstup","f-sl","f-tp","f-marze","f-pozn"].forEach((k) => { $(k).value = ""; }); }
     catch (e) { msg.textContent = e && e.code === "invalid_argument" ? "Do deníku nemáš právo zapisovat." : "Uložení se nepovedlo – zkus to znovu."; }
     $("f-ulozit").disabled = false;
   });
 
+  // ---------------------------------------------------------------- GitHub Pages copy: stav.json next to the page
+  async function loadState() {
+    const r = await fetch("stav.json?t=" + Date.now(), {cache: "no-store"});
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    state = await r.json();
+    loadedAt = Date.now();
+    renderAll();
+  }
+  async function bootWeb() {
+    try { localStorage.setItem("fxbot.test", "1"); localStorage.removeItem("fxbot.test"); }
+    catch (e) {
+      canWrite = false; $("f-ulozit").disabled = true; $("db-note").hidden = false;
+      $("db-note").textContent = "Tento prohlížeč nedovolí ukládat data (soukromé okno?), deník tu proto nejde používat.";
+    }
+    if (canWrite) useBrowserJournal();
+    try { await loadState(); }
+    catch (e) { $("status").innerHTML = "<span>Data modelu se nepodařilo načíst. Obnov stránku.</span>"; }
+    const refresh = () => { if (document.visibilityState === "visible" && Date.now() - loadedAt > 10 * 60 * 1000) loadState().catch(() => {}); };
+    document.addEventListener("visibilitychange", refresh);
+    setInterval(refresh, 15 * 60 * 1000);
+  }
+
   (async function boot() {
     const cl = window.claude;
-    db = cl ? await cl.use("db") : null;
+    if (!cl) { await bootWeb(); return; }                // outside claude.ai (GitHub Pages, R-050)
+    db = await cl.use("db");
+    if (db) {
+      store.mode = "claude";
+      store.add = (doc) => db.collection("denik").add(doc);
+      store.update = (id, fields) => db.collection("denik").doc(id).update(fields);
+      store.remove = (id) => db.collection("denik").doc(id).delete();
+    }
     if (!db) {
       $("db-note").hidden = false;
       $("db-note").textContent = "Data se načítají jen v aplikaci Claude nebo na claude.ai, když jsi přihlášený.";

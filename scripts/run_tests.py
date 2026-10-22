@@ -51,6 +51,7 @@ TESTS = [
     "test_h1_core.py",
     "test_h2_levels.py",
     "test_i1_hygiena.py",
+    "test_j1_github.py",
 ]
 
 

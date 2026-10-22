@@ -10,3 +10,7 @@ lib/
 lib64
 include/
 pyvenv.cfg
+# GitHub Pages build and its smoke test (scripts/web_stranka.py, R-050)
+_site/
+dom.html
+.znacka/

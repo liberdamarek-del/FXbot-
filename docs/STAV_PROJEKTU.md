@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-10-20 (R-049, větev architektura-v2-faze2, fáze 2).
+Poslední revize: 2026-10-22 (R-050, provoz na GitHubu; fáze 1 a 2 sloučené do main).
 
 ## 1. Účel
 
@@ -49,6 +49,7 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 | Šampioni (měsíční, max) | živá pravidla | HOTOVO/OVĚŘENO | test naslepo 2019–22 a 2023–26 |
 | Živé signály | totéž co historie, pátek 16:00 NY | HOTOVO/OVĚŘENO | forward test = backtest (R-029) |
 | Přehled + deník | signály, plán, deník uživatele | HOTOVO/OVĚŘENO | aktualizace jednou denně po–pá 17:07 New York (R-041) |
+| Provoz na GitHubu (R-050, docs/GITHUB_PROVOZ.md) | denní běh, páteční signály, učení a přehled bez Claude: GitHub Actions + Pages, deník v prohlížeči | ROZPRACOVÁNO – režim **stin** (nic necommituje) od 22. 10. 2026; přepnutí na **ostry** po týdnu souběhu a vypnutí rutin Claude | test_j1_github, stránka v Node; běh na serverech GitHubu NEOVĚŘENO do prvního běhu |
 | Forward test | skutečné obchody modelu od 2. 10. 2026 | ROZPRACOVÁNO | 2 obchody, závěr až po 4+ týdnech |
 | Týdenní výzkum | popis a vysvětlení týdne, kandidáti na pokusy | HOTOVO/OVĚŘENO | archiv learning/tydenni |
 | Velikost podle rizika | stop stojí nejvýš zvolené % účtu (výchozí 5 %) | HOTOVO/OVĚŘENO (R-037) | test naslepo 2019–22, 2023–26; test_f3_audit; přehled v prohlížeči |

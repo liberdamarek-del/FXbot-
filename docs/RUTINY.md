@@ -1,5 +1,8 @@
 # Rutiny (R-044, 11. 10. 2026)
 
+_22. 10. 2026 (R-050): stejné úlohy běží i na GitHub Actions (`docs/GITHUB_PROVOZ.md`). Po týdnu souběhu se rutiny Claude
+vypnou a GitHub přejde do ostrého režimu._
+
 Každá rutina končí v **novém krátkém sezení** s připojeným repozitářem `liberdamarek-del/FXbot-` a modelem Sonnet.
 Dřív se všechny spouštěly v jednom dlouhém rozhovoru. Ten měl přes 300 000 tokenů paměti, které se četly v každém
 kroku, a to spotřebovávalo týdenní limit.

@@ -919,3 +919,32 @@ analýzy); `python fxbot.py test`: 13 testů.
 
 **Otevřené.** Automatický DSR u každého budoucího pokusu se nepočítá (zmrazení); práh při N pokusech vypíše `registr_pokusu.py
 souhrn`. Další krok jen podle rozhodnutí uživatele (`docs/FAZE2_VYSLEDEK.md`, bod 7).
+
+## R-050 - 2026-10-22: provoz na GitHubu bez Claude (GitHub Actions + Pages)
+
+Zadání uživatele 22. 10. 2026: bot má běžet samostatně na serveru zdarma a přehled se má otevřít ve webovém prohlížeči.
+Rozhodnutí uživatele: deník obchodů jen v prohlížeči; nejdřív sloučit fáze 1 a 2 (R-048, R-049) do `main` (PR #3 a #2,
+sloučeno 22. 10., 13 testů prošlo); týden souběhu s rutinami Claude, pak je vypnout (výzkum agenta tím skončí). Model,
+šampioni, brána a signály se **nemění**. Popis: `docs/GITHUB_PROVOZ.md`.
+
+* `.github/workflows/fxbot-denni.yml` (denní běh + páteční signály), `fxbot-uceni.yml` (středa, sobota), `fxbot-testy.yml`
+  (testy při push). Cron v UTC se sloty pro letní i zimní čas a záložními sloty; `scripts/github_beh.py plan` + značka v cache
+  zajistí jeden běh na obchodní den.
+* Režim `learning/provoz/github.json`: **stin** (start) nic necommituje, aby se dva zapisovatelé nepotkali v deníku predikcí
+  heuristik; **ostry** commituje `learning/` a `docs/`. Přepnout až po vypnutí rutin Claude.
+* `scripts/web_stranka.py`: `_site/index.html` + `stav.json` pro GitHub Pages; ze stavu se odstraní deník uživatele,
+  přidá se `pary[].rozhodnuti_cb` a `provoz`. Kontrola v Chrome bez okna před nasazením.
+* `web/prehled.html`: mimo claude.ai načte `stav.json` a deník drží v prohlížeči (zápis, výstup, smazání, záloha do souboru,
+  nahrání zálohy, jednorázový přenos odkazem). Upozornění na rozhodnutí centrální banky u vlastních obchodů počítá stránka podle
+  pravidla `aktualizace.journal_summary` (shoda textu ověřena). V Claude beze změny. Oprava: atribut `hidden` nefungoval u prvků
+  s vlastním `display` (prázdná sekce „Připravené ke vstupu“ se mohla zobrazovat); doplněno `[hidden] { display: none !important }`.
+* Volitelné oznámení přes ntfy.sh (`github_beh.py oznam`), jen když existuje secret `FXBOT_NTFY_TEMA`.
+* `requirements-provoz.txt` (přesné verze: numpy 2.5.3 kvůli testu zlatého jádra bit po bitu), `requirements.txt` + numpy.
+* Deník z artefaktu na claude.ai (4 záznamy) převeden do souboru zálohy pro nahrání do prohlížeče.
+* Testy: `test_j1_github.py` (klíče běhů v letním i zimním čase, režim, termín aktualizace, veřejný stav bez deníku, stránka);
+  `python fxbot.py test`: 14 testů. Stránka ověřena v Node se zjednodušeným DOM (načtení stavu, deník, přenos odkazem,
+  upozornění) a v režimu Claude.
+
+**NEOVĚŘENO do prvního běhu na GitHubu:** dostupnost Yahoo, FRED, FXCM, ForexFactory a zdrojů fundamentů ze serverů GitHubu;
+doba učení; komu GitHub posílá e-mail o selhání plánovaného běhu; zda commity bota v ostrém režimu stačí proti vypnutí plánů
+po 60 dnech bez aktivity.
