@@ -31,7 +31,7 @@
   "marze_proc_uctu": 6.0,
   "stav": "otevreny",
   "cb_vystup": true,
-  "prubezne_proc_marze": -32.3
+  "prubezne_proc_marze": -35.6
  },
  {
   "id": "2026-10-16_EURCHF",
@@ -52,6 +52,48 @@
   "swap_proc_rocne": 1.68,
   "vyzkum_pro": 1,
   "vyzkum_proti": 0,
-  "prubezne_proc_marze": -19.3
+  "prubezne_proc_marze": -7.8
+ },
+ {
+  "id": "2026-10-23_USDCAD",
+  "par": "USD/CAD",
+  "smer": "KOUPIT",
+  "stupen": "stredni",
+  "den": "2026-10-23",
+  "cas_vstupu": 1792785600,
+  "vstup": 1.40063,
+  "tp": 1.40561,
+  "sl": 1.37465,
+  "marze_proc_uctu": 4.0,
+  "stav": "otevreny",
+  "riziko_vaha": 0.3,
+  "ztrata_sl_proc_marze": 55.8,
+  "cb_vystup": true,
+  "drzeni_dni": 20,
+  "swap_proc_rocne": 0.61,
+  "vyzkum_pro": 2,
+  "vyzkum_proti": 0,
+  "prubezne_proc_marze": -0.8
+ },
+ {
+  "id": "2026-10-23_EURJPY",
+  "par": "EUR/JPY",
+  "smer": "KOUPIT",
+  "stupen": "slaby",
+  "den": "2026-10-23",
+  "cas_vstupu": 1792785600,
+  "vstup": 175.573,
+  "tp": 176.489,
+  "sl": 170.75,
+  "marze_proc_uctu": 4.0,
+  "stav": "otevreny",
+  "riziko_vaha": 0.3,
+  "ztrata_sl_proc_marze": 82.6,
+  "cb_vystup": true,
+  "drzeni_dni": 20,
+  "swap_proc_rocne": 0.01,
+  "vyzkum_pro": 0,
+  "vyzkum_proti": 1,
+  "prubezne_proc_marze": -0.4
  }
 ]
