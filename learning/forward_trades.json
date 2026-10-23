@@ -31,7 +31,7 @@
   "marze_proc_uctu": 6.0,
   "stav": "otevreny",
   "cb_vystup": true,
-  "prubezne_proc_marze": -35.6
+  "prubezne_proc_marze": -33.0
  },
  {
   "id": "2026-10-16_EURCHF",
@@ -52,7 +52,7 @@
   "swap_proc_rocne": 1.68,
   "vyzkum_pro": 1,
   "vyzkum_proti": 0,
-  "prubezne_proc_marze": -7.8
+  "prubezne_proc_marze": -7.9
  },
  {
   "id": "2026-10-23_USDCAD",
@@ -73,7 +73,7 @@
   "swap_proc_rocne": 0.61,
   "vyzkum_pro": 2,
   "vyzkum_proti": 0,
-  "prubezne_proc_marze": -0.8
+  "prubezne_proc_marze": -0.9
  },
  {
   "id": "2026-10-23_EURJPY",
@@ -94,6 +94,6 @@
   "swap_proc_rocne": 0.01,
   "vyzkum_pro": 0,
   "vyzkum_proti": 1,
-  "prubezne_proc_marze": -0.4
+  "prubezne_proc_marze": 2.2
  }
 ]
