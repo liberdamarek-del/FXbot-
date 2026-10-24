@@ -1,0 +1,11 @@
+{
+ "title": "FXBOT pátek: 2 signál(y)",
+ "lines": [
+  "USD/CAD KOUPIT (stredni): vstup 1.40063, TP 1.40561 / 1.40724 / 1.4105, SL 1.37465, marže 2.7 % účtu při riziku 5.0 %",
+  "EUR/JPY KOUPIT (slaby): vstup 175.573, TP 176.489 / 176.791 / 177.395, SL 170.75, marže 1.8 % účtu při riziku 5.0 %",
+  "Model: otevřené 4, uzavřené 1, ziskové 1.",
+  "CHYBA diagnostiky: fundamenty: AUD: sazba centralni banky chybi; fundamenty: CAD: sazba centralni banky chybi; fundamenty: CHF: sazba centralni banky chybi; fundamenty: EUR: sazba centralni banky chybi; fundamenty: GBP: sazba centralni banky chybi; fundamenty: JPY: sazba centralni banky chybi; fundamenty: NZD: sazba c"
+ ],
+ "priority": 4,
+ "poslat": true
+}
