@@ -991,3 +991,11 @@ Rozhodnutí uživatele 22. 10. 2026. Model, šampioni, brána, signály a dopře
 * Kontrola stránky v prohlížeči vyplňuje i stop loss a marži. Ověřeno v Chromiu (limit 7,5 %: EUR/USD v deníku 0,6 % +
   signál EUR/CHF 5 % → EUR/GBP zmenšen na 37 %; validace formuláře; doplnění stopu; šířka telefonu 390 px). Testy: 14.
 
+
+## 2026-10-24 - sobotní učení (rutina, bez změny modelu)
+
+* Stažena historie FXCM 12 párů, fundamenty a sazby FRED; přepočet heuristik: 5 760 pravidel, AKTIVNÍ 0, SLABÁ 410, NEOVĚŘENÁ 1 347, NEFUNKČNÍ 3 136, OVERFIT/NESTABILNÍ 867; 45 změn stavu (stavy_log.jsonl).
+* Zmrazení pokusů (R-047) platí: žádné nové pokusy, týdenní výzkum pozastaven (trezor zavřený). `self_learn.py` (oba profily) jen přehodnotil šampiony na nových datech - šampioni beze změny (jen drobné přepočtené metriky v champion_12_mesicne.json: test CAGR 28,3 → 28,2 %).
+* Průzkum: položka 1, krok 2 (RSI(2) Yahoo vs FXCM), viz docs/VYZKUM_FRONTA.md.
+* Diagnostika: 38 OK, 9 varování, 0 CHYBA. Varování `fundamenty: sazba centralni banky chybi` (8 měn) - databáze fundamentů v pracovním sezení je prázdná, informativní, model ji nepoužívá; příčina NEOVĚŘENO. První běh aktualizace hlásil CHYBU „stav.json chybí" (zapisuje se až po kontrole), druhý běh bez chyby.
+* `python fxbot.py test`: 14 testů, 0 selhání.
