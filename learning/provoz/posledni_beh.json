@@ -1,6 +1,13 @@
 {
- "cas": "2026-10-24T07:00+00:00",
- "rutina": "uceni",
- "lehky": false,
- "diagnostika": {}
+ "cas": "2026-10-26T21:09+00:00",
+ "rutina": "denni",
+ "lehky": true,
+ "diagnostika": {
+  "souhrn": {
+   "OK": 36,
+   "VAROVANI": 2,
+   "CHYBA": 0
+  },
+  "chyby": []
+ }
 }
