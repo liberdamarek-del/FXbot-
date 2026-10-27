@@ -5,10 +5,10 @@
    "id": "pamet-stav",
    "nazev": "Paměť a stav mezi krátkými sezeními (rutina bez historie)",
    "priorita": 5,
-   "behu": 2,
-   "prazdnych_za_sebou": 1,
-   "nalezu": 2,
-   "posledni_beh": "2026-10-18",
+   "behu": 3,
+   "prazdnych_za_sebou": 2,
+   "nalezu": 3,
+   "posledni_beh": "2026-10-27",
    "proc": "Každá rutina startuje bez paměti; dispečer roste o ~25 000 tokenů týdně (docs/RUTINY.md)."
   },
   {
@@ -35,10 +35,10 @@
    "id": "nastroje-robustnost",
    "nazev": "Používání nástrojů a robustnost běhů (idempotence, opakování, detekce tichého selhání)",
    "priorita": 3,
-   "behu": 1,
-   "prazdnych_za_sebou": 0,
-   "nalezu": 2,
-   "posledni_beh": "2026-10-15",
+   "behu": 2,
+   "prazdnych_za_sebou": 1,
+   "nalezu": 3,
+   "posledni_beh": "2026-10-27",
    "proc": "Rutiny závisí na síti, ArtifactData a gitu; selhání se pozná jen podle chybějícího commitu."
   },
   {
