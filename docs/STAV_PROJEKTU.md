@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-10-24 (sobotní učení bez změny modelu; R-050 provoz na GitHubu, fáze 1 a 2 sloučené do main).
+Poslední revize: 2026-10-28 (středeční učení bez změny modelu; R-050 provoz na GitHubu, fáze 1 a 2 sloučené do main).
 
 ## 1. Účel
 

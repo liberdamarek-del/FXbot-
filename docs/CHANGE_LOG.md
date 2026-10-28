@@ -999,3 +999,11 @@ Rozhodnutí uživatele 22. 10. 2026. Model, šampioni, brána, signály a dopře
 * Průzkum: položka 1, krok 2 (RSI(2) Yahoo vs FXCM), viz docs/VYZKUM_FRONTA.md.
 * Diagnostika: 38 OK, 9 varování, 0 CHYBA. Varování `fundamenty: sazba centralni banky chybi` (8 měn) - databáze fundamentů v pracovním sezení je prázdná, informativní, model ji nepoužívá; příčina NEOVĚŘENO. První běh aktualizace hlásil CHYBU „stav.json chybí" (zapisuje se až po kontrole), druhý běh bez chyby.
 * `python fxbot.py test`: 14 testů, 0 selhání.
+
+## 2026-10-28 - středeční učení (rutina, bez změny modelu)
+
+* `rutina.py uceni` (historie FXCM 12 párů, fundamenty, sazby FRED) proběhlo. Zmrazení pokusů (R-047) platí: žádné nové pokusy; `self_learn.py` (oba profily) jen přehodnotil šampiony - beze změny. Přepočet heuristik se dělá jen v sobotu, dnes neběžel.
+* Průzkum: tento týden žádný krok (položka 1, krok 3 - přesné prahy šampiona - zůstává ve frontě; položka 2 čeká na 2. 11.).
+* Diagnostika: 36 OK, 1 varování, 1 CHYBA - `prehled: data/live/stav.json chybi`; hlásí se při prvním průchodu diagnostiky, než aktualizace stav zapíše (soubor po běhu existuje, nahrán do přehledu); příčina pořadí kroků v čistém kontejneru, NEOVĚŘENO zda se opakuje i na GitHubu.
+* Forward test: 5 obchodů modelu, 3 otevřené, 2 uzavřené (oba zisk, průměr 10,6 % marže). Žádný nový signál.
+* `python fxbot.py test`: 14 testů, 0 selhání.
