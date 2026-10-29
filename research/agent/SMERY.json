@@ -15,20 +15,20 @@
    "id": "sebehodnoceni-kalibrace",
    "nazev": "Sebehodnocení a kalibrace predikcí (heuristický deník, forward test)",
    "priorita": 5,
-   "behu": 2,
-   "prazdnych_za_sebou": 1,
-   "nalezu": 2,
-   "posledni_beh": "2026-10-22",
+   "behu": 3,
+   "prazdnych_za_sebou": 2,
+   "nalezu": 3,
+   "posledni_beh": "2026-10-29",
    "proc": "Systém rozlišuje statistickou pravděpodobnost a heuristický odhad; chybí měřená kalibrace."
   },
   {
    "id": "experimentovani-falesne-objevy",
    "nazev": "Experimentování a ochrana proti falešným objevům (brána, vícenásobné testy)",
    "priorita": 4,
-   "behu": 2,
-   "prazdnych_za_sebou": 0,
+   "behu": 3,
+   "prazdnych_za_sebou": 1,
    "nalezu": 2,
-   "posledni_beh": "2026-10-20",
+   "posledni_beh": "2026-10-29",
    "proc": "Audit R-029: asi 5 % čistě šumových změn projde bránou v3; re-validace plánovaná na 2027-04."
   },
   {

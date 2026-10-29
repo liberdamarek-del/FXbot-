@@ -45,7 +45,7 @@
    "vytvoreno": "2026-10-13",
    "smer": "sebehodnoceni-kalibrace",
    "problem": "Heuristický deník je od 7. 10. 2026 živý; kalibrace subjektivního odhadu vyšla opačně, ale chybí pravidelná zpráva Brierova skóre a spolehlivosti (reliability) pro statistické pravděpodobnosti pravidel.",
-   "reseni": "Do heuristiky.py (jen čtení deníku, nic nezapisovat do predikce/vyhodnoceni) přidat report: Brierovo skóre, rozklad na spolehlivost/rozlišení a tabulku binů předpověď vs. skutečnost; zvážit beta-binomické zhlazení úspěšnosti pravidla s malým n. Jen informace.",
+   "reseni": "Do heuristiky.py (jen čtení deníku, nic nezapisovat do predikce/vyhodnoceni) přidat report: Brierovo skóre, rozklad na spolehlivost/rozlišení a tabulku binů předpověď vs. skutečnost; zvážit beta-binomické zhlazení úspěšnosti pravidla s malým n. Jen informace. Doplněk 2026-10-29: místo ručních binů CORP (isotonická regrese PAV + bootstrapové pásy, Dimitriadis et al. 2021).",
    "naklad": "střední",
    "rizika": "málo vyhodnocených predikcí = šum; zdroje jsou jen abstrakty B",
    "zavislosti": "learning/heuristiky/ (jen čtení)",
@@ -57,7 +57,8 @@
    "duvod": "",
    "zdroje": [
     "https://arxiv.org/abs/2605.27668",
-    "https://arxiv.org/abs/2605.26703"
+    "https://arxiv.org/abs/2605.26703",
+    "https://arxiv.org/abs/2008.03033"
    ]
   },
   {
