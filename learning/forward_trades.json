@@ -31,7 +31,7 @@
   "marze_proc_uctu": 6.0,
   "stav": "otevreny",
   "cb_vystup": true,
-  "prubezne_proc_marze": -25.6
+  "prubezne_proc_marze": -29.4
  },
  {
   "id": "2026-10-16_EURCHF",
@@ -52,7 +52,7 @@
   "swap_proc_rocne": 1.68,
   "vyzkum_pro": 1,
   "vyzkum_proti": 0,
-  "prubezne_proc_marze": -17.4
+  "prubezne_proc_marze": -18.7
  },
  {
   "id": "2026-10-23_USDCAD",
