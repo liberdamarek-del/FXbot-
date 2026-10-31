@@ -1,0 +1,240 @@
+{
+ "den": "2026-10-31",
+ "souhrn": {
+  "OK": 36,
+  "VAROVANI": 9,
+  "CHYBA": 1
+ },
+ "kontroly": [
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "EUR/USD: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "USD/JPY: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "GBP/USD: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "USD/CHF: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "AUD/USD: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "USD/CAD: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "NZD/USD: posledni hodinova svicka 2026-10-24 (pred 7 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "EUR/JPY: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "GBP/JPY: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "EUR/GBP: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "EUR/CHF: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "AUD/JPY: posledni hodinova svicka 2026-10-23 (pred 8 dny)"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "AUD: posledni mesic 2026-09, sazba 4.51, zmena za 3 mesice +0.08"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "CAD: posledni mesic 2026-09, sazba 2.28, zmena za 3 mesice -0.01"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "CHF: posledni mesic 2026-09, sazba -0.04, zmena za 3 mesice -0.01"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "EUR: posledni mesic 2026-09, sazba 2.51, zmena za 3 mesice +0.29"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "GBP: posledni mesic 2026-09, sazba 3.72, zmena za 3 mesice +0.00"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "JPY: posledni mesic 2026-09, sazba 1.56, zmena za 3 mesice +0.29"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "NZD: posledni mesic 2026-09, sazba 2.98, zmena za 3 mesice +0.35"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "USD: posledni mesic 2026-09, sazba 3.82, zmena za 3 mesice +0.10"
+  },
+  {
+   "oblast": "VIX",
+   "stav": "OK",
+   "zprava": "posledni hodnota 17.2 ze dne 2026-10-29"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "AUD: sazba centralni banky chybi"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "CAD: sazba centralni banky chybi"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "CHF: sazba centralni banky chybi"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "EUR: sazba centralni banky chybi"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "GBP: sazba centralni banky chybi"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "JPY: sazba centralni banky chybi"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "NZD: sazba centralni banky chybi"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "USD: sazba centralni banky chybi"
+  },
+  {
+   "oblast": "kalendar",
+   "stav": "VAROVANI",
+   "zprava": "ekonomicky kalendar prazdny"
+  },
+  {
+   "oblast": "sampion",
+   "stav": "OK",
+   "zprava": "champion_12.json: CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk | 4 stupne, marze [0.15, 0.15, 0.06, 0.06], vyzkouseno 144 pokusu"
+  },
+  {
+   "oblast": "sampion",
+   "stav": "OK",
+   "zprava": "champion_12_mesicne.json: CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk | 4 stupne, marze [0.2, 0.2, 0.04, 0.04], vyzkouseno 144 pokusu"
+  },
+  {
+   "oblast": "zivy model",
+   "stav": "OK",
+   "zprava": "zivy vypocet umi vsechny volby sampiona"
+  },
+  {
+   "oblast": "cas rozhodnuti",
+   "stav": "OK",
+   "zprava": "model testovan s rozhodnutim 1 h pred zavrenim, zive 1 h"
+  },
+  {
+   "oblast": "riziko",
+   "stav": "OK",
+   "zprava": "vahy stupnu [1.0, 1.0, 0.3, 0.3], vychozi riziko 5 % uctu na obchod"
+  },
+  {
+   "oblast": "statistiky paru",
+   "stav": "OK",
+   "zprava": "odpovidaji sampionovi"
+  },
+  {
+   "oblast": "uceni",
+   "stav": "OK",
+   "zprava": "profil max: nove pokusy zmrazeny od 2026-10-20 (R-047), vyzkouseno 144"
+  },
+  {
+   "oblast": "uceni",
+   "stav": "OK",
+   "zprava": "profil mesicne: nove pokusy zmrazeny od 2026-10-20 (R-047), vyzkouseno 144"
+  },
+  {
+   "oblast": "prehled",
+   "stav": "CHYBA",
+   "zprava": "data/live/stav.json chybi - spust signals_live.py"
+  },
+  {
+   "oblast": "forward test",
+   "stav": "OK",
+   "zprava": "5 obchodu modelu, 2 otevrenych, 3 uzavrenych"
+  },
+  {
+   "oblast": "prehled",
+   "stav": "OK",
+   "zprava": "adresa webove stranky ulozena"
+  },
+  {
+   "oblast": "heuristiky",
+   "stav": "OK",
+   "zprava": "registr 2026-10-31 (data do 2026-09-30), 5760 pravidel: AKTIVNÍ 0, SLABÁ 410, NEOVĚŘENÁ 1350, NEFUNKČNÍ 3135, OVERFIT/NESTABILNÍ 865"
+  },
+  {
+   "oblast": "heuristiky",
+   "stav": "OK",
+   "zprava": "denik predikci: 260 predikci, 217 vyhodnoceno, retezec neporuseny"
+  },
+  {
+   "oblast": "trezor",
+   "stav": "OK",
+   "zprava": "zavreny od 2026-10-01: uceni a vyzkum vidi jen starsi data"
+  },
+  {
+   "oblast": "kontrola HistData",
+   "stav": "OK",
+   "zprava": "kontrola odpovida sampionum"
+  },
+  {
+   "oblast": "registr pokusu",
+   "stav": "OK",
+   "zprava": "332 pokusu, retezec otisku v poradku"
+  }
+ ]
+}

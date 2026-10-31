@@ -1,0 +1,17 @@
+data pripravena
+  1D: masky a predikce 7 s
+  4H: masky a predikce 13 s
+  pravidel 5760 (odvozených 180), statistiky 17 s
+registr: 5760 pravidel {'AKTIVNÍ': 0, 'SLABÁ': 410, 'NEOVĚŘENÁ': 1350, 'NEFUNKČNÍ': 3135, 'OVERFIT/NESTABILNÍ': 865} | zmen stavu 4 | 170 s
+sampion: CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk
+sampion: CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk
+sampion beze zmeny
+STAV 2026-10-31T07:45+00:00 | data do 2026-10-30 | patek: True
+DIAGNOSTIKA {'OK': 36, 'VAROVANI': 9, 'CHYBA': 1}
+  CHYBA prehled: data/live/stav.json chybi - spust signals_live.py
+SIGNALY 0
+MODEL otevreny EUR/JPY KOUPIT od 2026-10-02: -31.4 % marze
+MODEL otevreny EUR/CHF KOUPIT od 2026-10-16: -19.4 % marze
+MODEL uzavreno 3, ziskovych 3, prumer 9.7 % marze
+DENIK uzavreno None, ziskovych None, otevreno 0
+HEURISTIKY nove 0, vyhodnoceno ted 0, otevreno 43
