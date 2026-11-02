@@ -29,9 +29,13 @@
   "tp": 178.669,
   "sl": 172.262,
   "marze_proc_uctu": 6.0,
-  "stav": "otevreny",
+  "stav": "uzavreny",
   "cb_vystup": true,
-  "prubezne_proc_marze": -31.4
+  "prubezne_proc_marze": -31.4,
+  "vystup": 176.396505859375,
+  "duvod_vystupu": "cas",
+  "cas_vystupu": 1793592000,
+  "vysledek_proc_marze": -21.4
  },
  {
   "id": "2026-10-16_EURCHF",
@@ -52,7 +56,7 @@
   "swap_proc_rocne": 1.68,
   "vyzkum_pro": 1,
   "vyzkum_proti": 0,
-  "prubezne_proc_marze": -19.4
+  "prubezne_proc_marze": -33.2
  },
  {
   "id": "2026-10-23_USDCAD",
