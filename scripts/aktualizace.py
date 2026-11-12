@@ -245,7 +245,7 @@ def main(argv: list[str]) -> int:
               + "".join(f"; {o['par']} {o['smer']} zasah {o['zasah']}" for o in s["otevrene"] if o["zasah"])
               + "".join(f"; {o['par']}: {o['upozorneni']}" for o in s["otevrene"] if o.get("upozorneni")))
         return 0
-    diag = DG.run(online=False)
+    diag = DG.run(online=False, stav_vznikne=True)     # stav.json is written by SL.main() right below (R-054)
     SL.main()
     state = json.loads(STAV.read_text())
     try:

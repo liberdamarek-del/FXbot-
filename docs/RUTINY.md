@@ -3,6 +3,10 @@
 _22. 10. 2026 (R-050): stejné úlohy běží i na GitHub Actions (`docs/GITHUB_PROVOZ.md`). Po týdnu souběhu se rutiny Claude
 vypnou a GitHub přejde do ostrého režimu._
 
+_**12. 11. 2026 (R-054): všechny rutiny FXBOT níže jsou VYPNUTÉ** (denní aktualizace a páteční signály 12. 11., učení a
+výzkum agenta 29. 10.) a GitHub běží v ostrém režimu jako jediný zapisovatel. Rutiny nejsou smazané; znovu je zapnout jen
+po přepnutí GitHubu zpět na `stin`._
+
 Každá rutina končí v **novém krátkém sezení** s připojeným repozitářem `liberdamarek-del/FXbot-` a modelem Sonnet.
 Dřív se všechny spouštěly v jednom dlouhém rozhovoru. Ten měl přes 300 000 tokenů paměti, které se četly v každém
 kroku, a to spotřebovávalo týdenní limit.

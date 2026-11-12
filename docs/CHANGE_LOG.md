@@ -1031,3 +1031,27 @@ forward test a rutiny beze změny; mění se jen to, co Claude Code načte a vyn
   zdražilo každou rutinu (Sonnet, týdenní limit) a projekt už má vlastní přísnější postup (brána, registr, testy).
 * Testy: nový `test_k1_claude_hooky.py` (blokování, povolené příkazy, brána testů s pamětí, kontrola syntaxe; ověřeno i
   úmyslně vloženými chybami do hooku). `python fxbot.py test`: 15 testů, 0 selhání.
+
+## R-054 - 2026-11-12: GitHub v ostrém režimu, úlohy Claude vypnuté, oprava falešné CHYBY při učení
+
+Rozhodnutí uživatele 22. 10. 2026 (týden souběhu, pak přepnout) a potvrzení 12. 11. 2026 („udělej co je potřeba“). Model,
+šampioni, brána a signály beze změny; mění se, kdo běhy dělá a ukládá.
+
+* **Kontrola před přepnutím** (souběh 22. 10. – 12. 11.): 254 běhů denního workflow, 250 úspěšných (4 selhání jen 22. 10. při
+  zprovoznění, od té doby žádné); 12 běhů učení bez chyby (historie FXCM, přehodnocení šampiona, testy, stránka ověřená
+  v Chromiu); páteční signály 23. 10. na GitHubu stejné jako u rutiny Claude (USD/CAD a EUR/JPY nákup); 12. 11. stejný stav
+  modelu (otevřený EUR/CHF od 16. 10., 4 uzavřené, 3 ziskové); oznámení ntfy odešla (HTTP 200). Deník uživatele v artefaktu
+  na claude.ai: 4 obchody, všechny uzavřené (nic otevřeného k přenosu).
+* **Proč teď:** učení Claude a výzkum agenta byly vypnuté od 29. 10. a GitHub ve stínovém režimu nic neukládal - výsledky
+  učení se zahazovaly (registr heuristik zůstal na 24. 10.), zatímco denní a páteční rutina Claude dál čerpaly limit.
+* **Přepnutí:** naplánované úlohy Claude „FXBOT denní aktualizace“ a „FXBOT páteční signály“ vypnuté (nesmazané), pak
+  `learning/provoz/github.json` → `ostry`. GitHub je jediný zapisovatel `learning/`; hodinová obnova po–pá (R-051) se tím zapíná.
+  Přehled pro uživatele: https://liberdamarek-del.github.io/FXbot-/ (artefakt na claude.ai se už neobnovuje).
+* **Oprava falešné CHYBY:** `aktualizace.py` spouští diagnostiku dřív, než `signals_live` zapíše `data/live/stav.json`. Na čistém
+  serveru s historií cen (učení) to hlásilo CHYBU „stav.json chybí“ v každém učení (i v učení Claude 28. 10.) a v ostrém režimu by
+  to dvakrát týdně šlo na telefon. `diagnostika.run(stav_vznikne=True)` z aktualizace → VAROVÁNÍ „vznikne v tomto běhu“;
+  samostatná diagnostika dál hlásí CHYBU. Selhání zápisu se neschová: aktualizace soubor hned čte, takže by běh spadl.
+  Test v `test_j1_github.py` (na původním kódu selže).
+* NEOVĚŘENO do prvních ostrých běhů: ukládání robotem do `main` (krok se ve stínovém režimu vždy přeskakoval), hodinové
+  stahování z Yahoo, zda GitHub počítá commity robota jako aktivitu (60 dní).
+* `python fxbot.py test`: 15 testů, 0 selhání.

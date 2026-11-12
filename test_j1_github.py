@@ -163,4 +163,23 @@ assert GB.concentration([]) == []
 os.environ.pop("FXBOT_NTFY_TEMA", None)
 assert GB.post({"title": "x", "lines": []}) == 0 and GB.notify_failure("hodina") == 0 and GB.notify_failure("patek") == 0
 
+# R-054: a learning run on a fresh runner has the price history (not lean) but no stav.json yet; aktualizace.py writes
+# it right after the diagnostics, so the missing file is a warning there - and still an error for a standalone check
+import diagnostika as DG  # noqa: E402
+
+orig_live, orig_lean = DG.LIVE, DG.LEAN
+DG.LIVE, DG.LEAN = Path(tempfile.mkdtemp(prefix="fxbot_j1_live_")), False
+try:
+    for vznikne, stav in ((True, DG.WARN), (False, DG.ERR)):
+        DG.results.clear()
+        DG.check_outputs(datetime.now(timezone.utc).date(), None, vznikne=vznikne)
+        prehled = [r for r in DG.results if r["oblast"] == "prehled" and "stav.json chybi" in r["zprava"]]
+        assert len(prehled) == 1 and prehled[0]["stav"] == stav, (vznikne, prehled)
+        assert ("vznikne v tomto behu" in prehled[0]["zprava"]) == vznikne, prehled
+finally:
+    DG.LIVE, DG.LEAN = orig_live, orig_lean
+    DG.results.clear()
+src_akt = (PROJECT_ROOT / "scripts" / "aktualizace.py").read_text(encoding="utf-8")
+assert "DG.run(online=False, stav_vznikne=True)" in src_akt, "aktualizace.py musi diagnostice rict, ze stav.json vznikne"
+
 print("J1 GitHub provoz a verejna stranka: OK")

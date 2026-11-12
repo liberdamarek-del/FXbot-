@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-11-12 (R-053 nastavení Claude Code: kratší CLAUDE.md, hooky); předtím 2026-10-28 (středeční učení bez změny modelu; R-050 provoz na GitHubu, fáze 1 a 2 sloučené do main).
+Poslední revize: 2026-11-12 (R-054 GitHub v ostrém režimu, úlohy Claude vypnuté, oprava falešné CHYBY při učení; R-053 nastavení Claude Code: kratší CLAUDE.md, hooky); předtím 2026-10-28 (středeční učení bez změny modelu; R-050 provoz na GitHubu, fáze 1 a 2 sloučené do main).
 
 ## 1. Účel
 
@@ -49,7 +49,7 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 | Šampioni (měsíční, max) | živá pravidla | HOTOVO/OVĚŘENO | test naslepo 2019–22 a 2023–26 |
 | Živé signály | totéž co historie, pátek 16:00 NY | HOTOVO/OVĚŘENO | forward test = backtest (R-029) |
 | Přehled + deník | signály, plán, deník uživatele | HOTOVO/OVĚŘENO | aktualizace jednou denně po–pá 17:07 New York (R-041) |
-| Provoz na GitHubu (R-050, docs/GITHUB_PROVOZ.md) | denní běh, páteční signály, učení a přehled bez Claude: GitHub Actions + Pages, deník v prohlížeči | ROZPRACOVÁNO – režim **stin** (nic necommituje) od 22. 10. 2026; přepnutí na **ostry** po týdnu souběhu a vypnutí rutin Claude; v ostrém režimu obnova každou hodinu po–pá a oznámení přes ntfy (R-051) | test_j1_github; 22. 10. denní běh na GitHubu OK (diagnostika 36 OK, 0 CHYBA), stránka https://liberdamarek-del.github.io/FXbot-/ prošla kontrolou v Chromiu; učení na GitHubu zatím neběželo (NEOVĚŘENO) |
+| Provoz na GitHubu (R-050, docs/GITHUB_PROVOZ.md) | denní běh, páteční signály, učení a přehled bez Claude: GitHub Actions + Pages, deník v prohlížeči | HOTOVO – režim **ostry** od 12. 11. 2026 (R-054): GitHub je jediný zapisovatel, úlohy Claude vypnuté; obnova každou hodinu po–pá a oznámení přes ntfy (R-051); předtím stin od 22. 10. | test_j1_github; souběh 22. 10. – 12. 11.: 250 z 254 běhů OK (4 selhání jen 22. 10. při zprovoznění), 12 učení OK, páteční signály 23. 10. shodné s Claude, ntfy HTTP 200; ukládání robota do `main` a hodinové běhy vůči limitům Yahoo ověří první ostré běhy (NEOVĚŘENO) |
 | Forward test | skutečné obchody modelu od 2. 10. 2026 | ROZPRACOVÁNO | 2 obchody, závěr až po 4+ týdnech |
 | Týdenní výzkum | popis a vysvětlení týdne, kandidáti na pokusy | HOTOVO/OVĚŘENO | archiv learning/tydenni |
 | Velikost podle rizika | stop stojí nejvýš zvolené % účtu (výchozí 5 %) | HOTOVO/OVĚŘENO (R-037) | test naslepo 2019–22, 2023–26; test_f3_audit; přehled v prohlížeči |
@@ -79,8 +79,8 @@ anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 | Živé ceny Yahoo: hodinové svíčky občas zpětně chybí (7. 10. 2026 středa 15–18 h New York) | OVĚŘENO (ošetřeno R-040) | heuristiky počítají horizont podle kalendáře a nečekají na chybějící hodiny déle než 2 h; páteční rozhodnutí hlavního modelu bez svíčky 15–16 h New York se nevyhodnotí (chyba páru, signals_live) |
 | Doručení naplánovaných úloh platformou | OVĚŘENO (mimo projekt) | 9.–11. 10. 2026: páteční aktualizace 23:07 a sobotní učení doručeny až v neděli 05:22 našeho času; signály a forward test tím nic neztratí (páteční signál proběhl včas, forward test počítá z cen), heuristiky ztratily denní svíčky pátku 9. 10. (12, zpětně se nedopisují, zmeskano) |
 | Relativní výnosová křivka (R-043) | OVĚŘENO (zamítnuto branou) | 2023–26 pomáhala (propad 28 → 19 %), 2019–22 škodila; znovu jen s daty po 10/2026 (2027-04); v živém stavu informace `zmena_krivky_3m` |
-| Rutiny v nových sezeních (R-044, docs/RUTINY.md) | HOTOVO/OVĚŘENO | rutina → dispečer → nové sezení s repozitářem (Sonnet); denní běh ověřen 11. 10. (70 s, push OK, ~7× levněji); staré rutiny vypnuté; učení přes dispečera poprvé ve středu 14. 10. |
-| Výzkum zlepšení agenta (R-045, research/agent/) | ROZPRACOVÁNO | složka a protokol založeny 13. 10. 2026, rutina 3× týdně (út, čt, ne 07:23 Praha) přes dispečera; zatím žádný běh, žádný zdroj; metriky provozu NEOVĚŘENO (N-001) |
+| Rutiny v nových sezeních (R-044, docs/RUTINY.md) | VYPNUTO od 12. 11. 2026 (R-054; učení a výzkum agenta od 29. 10.) – úlohy dělá GitHub v ostrém režimu; nesmazané, zapnout jen po návratu GitHubu na `stin` | rutina → dispečer → nové sezení s repozitářem (Sonnet); denní běh ověřen 11. 10. (70 s, push OK, ~7× levněji); staré rutiny vypnuté; učení přes dispečera poprvé ve středu 14. 10. |
+| Výzkum zlepšení agenta (R-045, research/agent/) | POZASTAVENO (rutina vypnutá 29. 10. 2026, poslední běh 29. 10.) | složka a protokol založeny 13. 10. 2026, rutina 3× týdně (út, čt, ne 07:23 Praha) přes dispečera; zatím žádný běh, žádný zdroj; metriky provozu NEOVĚŘENO (N-001) |
 | Repozitář liberdamarek-del/FXbot- je VEŘEJNÝ | OVĚŘENO (informace) | kdokoli vidí kód, model, forward test a heuristiky; deník uživatele v gitu není; data FXCM se proto do gitu nedávají |
 | Heuristiky: kalibrace odhadu | OVĚŘENO (negativní) | subjektivní odhad konfluence je opačně kalibrovaný (víc souhlasu = o něco nižší úspěšnost); zobrazuje se jen jako srovnání |
 | `scripts/pivot_lab.py` řádek 147: „nedefinovaná“ proměnná `row_wk` | OVĚŘENO: falešný poplach statické analýzy (R-048) | proměnná se čte až od druhé iterace, první ji nastaví; skript navíc nedosáhne žádná rutina |

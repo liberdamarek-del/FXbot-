@@ -223,11 +223,15 @@ def check_state() -> str | None:
     return name
 
 
-def check_outputs(today: date, champion_name: str | None) -> None:
+def check_outputs(today: date, champion_name: str | None, vznikne: bool = False) -> None:
+    """`vznikne` = the caller (aktualizace.py) writes stav.json right after the diagnostics, so a missing file in a
+    fresh container (GitHub runner, routine session) is expected, not an error (R-054). A failed write still fails
+    the run, because aktualizace reads the file back."""
     path = LIVE / "stav.json"
     if not path.exists():
-        report("prehled", WARN if LEAN else ERR, "data/live/stav.json chybi - spust signals_live.py"
-               + (" (nove sezeni: vznikne v tomto behu)" if LEAN else ""))
+        cekany = LEAN or vznikne
+        report("prehled", WARN if cekany else ERR, "data/live/stav.json chybi - spust signals_live.py"
+               + (" (nove sezeni: vznikne v tomto behu)" if cekany else ""))
     else:
         st = json.loads(path.read_text())
         made = datetime.fromisoformat(st["aktualizovano"])
@@ -322,8 +326,9 @@ def check_online() -> None:
         report("online", ERR, f"FRED neodpovida: {type(exc).__name__}")
 
 
-def run(online: bool = False) -> dict:
-    """All checks; returns {"den", "souhrn", "kontroly"} and writes data/live/diagnostika.json."""
+def run(online: bool = False, stav_vznikne: bool = False) -> dict:
+    """All checks; returns {"den", "souhrn", "kontroly"} and writes data/live/diagnostika.json.
+    `stav_vznikne`: the caller creates data/live/stav.json in the same run (aktualizace.py)."""
     results.clear()
     today = datetime.now(UTC).date()
     print(f"Diagnostika modelu {today}\n")
@@ -331,7 +336,7 @@ def run(online: bool = False) -> dict:
     check_rates(today)
     check_fundamentals_db(today)
     name = check_state()
-    check_outputs(today, name)
+    check_outputs(today, name, vznikne=stav_vznikne)
     try:
         check_heuristics(today)
     except Exception as exc:
