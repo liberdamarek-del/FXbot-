@@ -49,6 +49,12 @@ workflow) běží vždy.
 
 Přepnutí: změnit `"rezim"` na `"ostry"`, zapsat do `docs/CHANGE_LOG.md`, commit. Neznámá nebo chybějící hodnota = `stin`.
 
+**Od 12. 11. 2026 (R-054) platí `ostry`.** Naplánované úlohy Claude FXBOT jsou vypnuté (denní aktualizace a páteční signály
+12. 11., učení a výzkum agenta už 29. 10.); nesmazané, dají se znovu zapnout. Před přepnutím ověřeno za tři týdny souběhu:
+250 úspěšných běhů z 254 (4 selhání jen při zprovoznění 22. 10.), 12 běhů učení bez chyby, páteční signály 23. 10. stejné
+jako u rutiny Claude (USD/CAD a EUR/JPY nákup), oznámení ntfy odcházejí (HTTP 200). Návrat: nejdřív `stin`, pak zapnout úlohy
+Claude - nikdy obojí zapisující najednou.
+
 ## Stránka
 
 Adresa: **https://liberdamarek-del.github.io/FXbot-/** (zapnuto 22. 10. 2026: Settings → Pages → Source: GitHub Actions; přes API to
@@ -106,4 +112,5 @@ Limit ntfy.sh: 250 zpráv denně na odesílatele (dokumentace ntfy) – tady jed
 | Yahoo / FRED / ForexFactory ze serverů GitHubu | běh selže nebo bez dat | **OVĚŘENO 22. 10. 2026** (denní běh: diagnostika 36 OK, 0 CHYBA); FXCM a fundamenty ověří první učení; druhý pokus za minutu; komu GitHub pošle e-mail o selhání plánovaného běhu, NEOVĚŘENO |
 | Deník jen v jednom prohlížeči | ztráta při smazání dat prohlížeče, jiný telefon ho nevidí | záloha souborem, žádost o trvalé úložiště (`navigator.storage.persist`) |
 | Veřejná stránka | signály a model vidí kdokoli s odkazem (repozitář je veřejný už dnes) | `noindex`; deník se nezveřejňuje |
-| Rozdíl proti rutině Claude | jiné výsledky | týden souběhu: stejné signály a obchody modelu v obou přehledech |
+| Rozdíl proti rutině Claude | jiné výsledky | OVĚŘENO souběhem 22. 10. – 12. 11. 2026: stejné páteční signály (23. 10.) a stejné obchody modelu |
+| Falešná CHYBA „stav.json chybí“ při učení | oznámení CHYBA dvakrát týdně bez důvodu | opraveno R-054 (diagnostika ví, že aktualizace soubor v témže běhu vytvoří); test_j1 |

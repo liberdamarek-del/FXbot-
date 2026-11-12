@@ -67,8 +67,12 @@ GITHUB OPERATION (user's decision 2026-10-22, R-050, docs/GITHUB_PROVOZ.md): the
 (.github/workflows/fxbot-denni.yml, fxbot-uceni.yml) and publish the dashboard on GitHub Pages (scripts/web_stranka.py; the
 user's journal lives only in his browser there). Mode in learning/provoz/github.json: "stin" = GitHub commits nothing (the
 Claude routines below stay the only writer of main), "ostry" = GitHub is the only writer and the Claude routines must be
-switched off first (two writers would break the append-only heuristics ledger). The user decided: one week side by side,
-then switch to "ostry" and switch the Claude routines off. web/prehled.html serves both the claude.ai artifact and Pages.
+switched off first (two writers would break the append-only heuristics ledger). SINCE 2026-11-12 (R-054, user's decision)
+the mode is "ostry": GitHub Actions is the ONLY writer of learning/ and the job outputs in docs/; all FXBOT Claude scheduled
+tasks are switched off. A Claude session must not run the jobs below and commit their outputs (learning/forward_trades.json,
+learning/heuristiky/, learning/provoz/, champions) - code and documentation changes are fine. To go back: set "stin" first,
+then switch the Claude tasks on. The user's dashboard is https://liberdamarek-del.github.io/FXbot-/ (the claude.ai artifact
+is no longer updated). web/prehled.html serves both the claude.ai artifact and Pages.
 R-051 (user's decision 2026-10-22): in the "ostry" mode the daily workflow also refreshes every hour Monday to Friday (cron
 "12 * * * 1-5" UTC) and runs send phone notifications via ntfy.sh (secret FXBOT_NTFY_TEMA; scripts/github_beh.py). Learning
 stays Wednesday + Saturday (more frequent learning adds nothing while trials are frozen and the vault is closed).
@@ -76,6 +80,8 @@ stays Wednesday + Saturday (more frequent learning adds nothing while trials are
 ## Jobs (user's decision 2026-10-11, R-044: every routine starts a FRESH session - firing into the long main
 conversation cost ~300k tokens per step; 2026-10-08: one update a day (was hourly, the weekly usage limit);
 2026-10-06: learning 2x a week)
+SWITCHED OFF since 2026-11-12 (R-054): GitHub Actions runs these jobs ("ostry" mode above). The description stays as the
+reference for what the workflows do and for a return to the Claude routines.
 Since 2026-10-11 the four routines fire into a small dispatcher session ("FXBOT dispečer rutin", Sonnet), which only
 calls create_session with the repository attached and the task text (docs/RUTINY.md): a routine created by the
 create_trigger tool has no repository and cannot push, the phone UI cannot attach one. The old routines that fired

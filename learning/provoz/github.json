@@ -1,5 +1,5 @@
 {
- "rezim": "stin",
- "od": "2026-10-22",
- "poznamka": "R-050: stin = GitHub Actions bezi vedle rutin Claude, zverejnuje stranku, nic necommituje; ostry = jediny zapisovatel (commituje learning/). Prepnuti rozhoduje uzivatel (tyden soubehu, pak rutiny Claude vypnout)."
+ "rezim": "ostry",
+ "od": "2026-11-12",
+ "poznamka": "R-054: ostry = GitHub Actions je jediny zapisovatel (commituje learning/ a docs/); naplanovane ulohy Claude FXBOT jsou vypnute od 2026-11-12. Predtim stin od 2026-10-22 (R-050). Rozhodnuti uzivatele."
 }
