@@ -5,7 +5,7 @@ Stavy: **HOTOVO/OVĚŘENO** (funguje a ověřilo se testem nebo daty), **ROZPRAC
 zdroj nebo rozhodnutí), **NEOVĚŘENO** (předpoklad bez důkazu), **CHYBA** (známá chyba).
 Podrobná historie změn: `docs/CHANGE_LOG.md`, pokusy učení: `docs/UCENI_LOG.md`._
 
-Poslední revize: 2026-10-28 (středeční učení bez změny modelu; R-050 provoz na GitHubu, fáze 1 a 2 sloučené do main).
+Poslední revize: 2026-11-12 (R-053 nastavení Claude Code: kratší CLAUDE.md, hooky); předtím 2026-10-28 (středeční učení bez změny modelu; R-050 provoz na GitHubu, fáze 1 a 2 sloučené do main).
 
 ## 1. Účel
 
@@ -55,10 +55,11 @@ Každá změna pravidel vzniká jako pokus, projde testem naslepo na neviděnýc
 | Velikost podle rizika | stop stojí nejvýš zvolené % účtu (výchozí 5 %) | HOTOVO/OVĚŘENO (R-037) | test naslepo 2019–22, 2023–26; test_f3_audit; přehled v prohlížeči |
 | Limit na jednu měnu (R-052) | součet ztrát při stopu se stejnou sázkou na měnu nejvýš 1,5 × ztráta obchodu (přehled), povinný stop loss a marže v deníku, R v deníku | HOTOVO (přehled); historický dopad na výnos NEOVĚŘENO (záměrně, R-047) | Chromium: zmenšení / Nevstupuj, validace; test_j1 (oznámení) |
 | Heuristický model | 5 760 měřitelných pravidel, stavy, živé predikce, deník s řetězcem otisků, sebehodnocení | HOTOVO/OVĚŘENO jako systém (R-038); žádné pravidlo AKTIVNÍ | test_f4_heuristics (bez pohledu do budoucna, deník), záložka v prohlížeči; docs/HEURISTIKY.md |
+| Nastavení Claude Code (R-053) | CLAUDE.md pod 200 řádků (fronta nápadů v docs/FRONTA_POKUSU.md); hooky blokují ruční úpravy deníků, registru a trezoru, kontrolují syntaxi a před commitem s .py pouštějí testy | HOTOVO/OVĚŘENO v izolovaném testu; v živém sezení Claude Code NEOVĚŘENO | test_k1_claude_hooky.py; docs/CHANGE_LOG.md R-053 |
 
 ## 4. Co se už zkoušelo (aby se to neopakovalo)
 
-Seznam zamítnutých rodin je ve frontě nápadů v `CLAUDE.md` a v `docs/UCENI_LOG.md`. Souhrnné závěry:
+Seznam zamítnutých rodin je ve frontě nápadů v `docs/FRONTA_POKUSU.md` (do 2026-11-12 v `CLAUDE.md`) a v `docs/UCENI_LOG.md`. Souhrnné závěry:
 intradenní a minutové obchodování (INTRADAY.md), systémy z hazardu (HAZARD.md), pivoty (PIVOTY2.md),
 anomálie z literatury (ANOMALIE.md), mezitrhy (VYZKUM_POHYBY_2026-10-02.md).
 
