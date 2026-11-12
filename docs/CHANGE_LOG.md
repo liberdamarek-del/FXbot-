@@ -1007,3 +1007,27 @@ Rozhodnutí uživatele 22. 10. 2026. Model, šampioni, brána, signály a dopře
 * Diagnostika: 36 OK, 1 varování, 1 CHYBA - `prehled: data/live/stav.json chybi`; hlásí se při prvním průchodu diagnostiky, než aktualizace stav zapíše (soubor po běhu existuje, nahrán do přehledu); příčina pořadí kroků v čistém kontejneru, NEOVĚŘENO zda se opakuje i na GitHubu.
 * Forward test: 5 obchodů modelu, 3 otevřené, 2 uzavřené (oba zisk, průměr 10,6 % marže). Žádný nový signál.
 * `python fxbot.py test`: 14 testů, 0 selhání.
+
+## R-053 - 2026-11-12: nastavení Claude Code (kratší CLAUDE.md, hooky)
+
+Požadavek uživatele 12. 11. 2026 („udělej to všechno sám, jestli to pomůže“). Model, šampioni, brána, signály, přehled,
+forward test a rutiny beze změny; mění se jen to, co Claude Code načte a vynutí v každém sezení.
+
+* **Kratší CLAUDE.md:** fronta nápadů pro učení (odložená při zmrazení R-047) přesunuta beze změny textu do
+  `docs/FRONTA_POKUSU.md`; v CLAUDE.md zůstaly odkazy (zmrazení, krok Učení). CLAUDE.md 213 → 146 řádků, 21,5 → 15 kB.
+  Důvod: dokumentace Claude Code doporučuje pod 200 řádků; delší soubor zabírá kontext v každém sezení (i v každé rutině)
+  a snižuje dodržování pravidel.
+* **Hooky** (`.claude/settings.json`, `.claude/hooks/fxbot_hooky.py`) - pravidla, která dosud byla jen text, se teď vynucují:
+  - přímá úprava deníku heuristik (`learning/heuristiky/predikce|vyhodnoceni`), registru pokusů
+    (`learning/registr_pokusu/registr.jsonl`) a trezoru (`learning/trezor.json`) nástroji Edit / Write je zablokovaná;
+    v Bash `rm`, `mv`, `sed -i`, přesměrování, `tee`, `git checkout/restore` a zápis přes `python -c` na tyto soubory také;
+    skripty, které do nich zapisují (heuristiky.py, registr_pokusu.py, trezor.py), běží beze změny;
+  - po každé úpravě `.py` / `.json` / `.jsonl` kontrola syntaxe (rozbitý soubor Claude hned vidí);
+  - `git commit` / `git push`, který nese změny `.py`, nejdřív spustí `python fxbot.py test` a při chybě ho zablokuje;
+    prošlý stav si pamatuje (`.git/fxbot_testy_ok`), takže push po commitu testy neopakuje. Rutiny (commit jen
+    `learning/` a `docs/`) testy nespouštějí a nezpomalí se.
+* Kontrola Bash je hledání vzorů, ne neprůstřelná ochrana; CI (`fxbot-testy.yml`) a kontrola řetězce v diagnostice zůstávají.
+* Zvážen a NEPŘIDÁN plugin Superpowers: přidává hook při startu sezení a vlastní postup (brainstorming, plán), což by
+  zdražilo každou rutinu (Sonnet, týdenní limit) a projekt už má vlastní přísnější postup (brána, registr, testy).
+* Testy: nový `test_k1_claude_hooky.py` (blokování, povolené příkazy, brána testů s pamětí, kontrola syntaxe; ověřeno i
+  úmyslně vloženými chybami do hooku). `python fxbot.py test`: 15 testů, 0 selhání.
