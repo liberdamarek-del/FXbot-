@@ -1,0 +1,20 @@
+{
+ "denni": {
+  "beh": "https://github.com/liberdamarek-del/FXbot-/actions/runs/43258978739",
+  "cas": "2026-11-12T16:28+00:00",
+  "diagnostika": {
+   "chyby": [],
+   "souhrn": {
+    "CHYBA": 0,
+    "OK": 35,
+    "VAROVANI": 3
+   }
+  },
+  "klice": {
+   "denni": "2026-11-11",
+   "hodina": "2026-11-12T16",
+   "patek": "",
+   "uceni": "2026-11-12"
+  }
+ }
+}
