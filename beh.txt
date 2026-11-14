@@ -1,0 +1,7 @@
+STAV 2026-11-14T10:42+00:00 | data do 2026-11-13 | patek: True
+DIAGNOSTIKA {'OK': 35, 'VAROVANI': 3, 'CHYBA': 0}
+SIGNALY 0
+MODEL otevreny EUR/CHF KOUPIT od 2026-10-16: -6.0 % marze
+MODEL uzavreno 4, ziskovych 3, prumer 1.9 % marze
+DENIK uzavreno None, ziskovych None, otevreno 0
+HEURISTIKY nove 0, vyhodnoceno ted 0, otevreno 49

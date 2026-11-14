@@ -1,0 +1,200 @@
+{
+ "den": "2026-11-14",
+ "souhrn": {
+  "OK": 35,
+  "VAROVANI": 3,
+  "CHYBA": 0
+ },
+ "kontroly": [
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "EUR/USD: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "USD/JPY: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "GBP/USD: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "USD/CHF: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "AUD/USD: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "USD/CAD: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "NZD/USD: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "EUR/JPY: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "GBP/JPY: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "EUR/GBP: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "EUR/CHF: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "ceny",
+   "stav": "OK",
+   "zprava": "AUD/JPY: denni beh v novem sezeni - historie FXCM se stahuje jen pri uceni"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "AUD: posledni mesic 2026-09, sazba 4.51, zmena za 3 mesice +0.05"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "CAD: posledni mesic 2026-09, sazba 2.33, zmena za 3 mesice +0.06"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "CHF: posledni mesic 2026-09, sazba -0.04, zmena za 3 mesice +0.00"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "EUR: posledni mesic 2026-09, sazba 2.64, zmena za 3 mesice +0.30"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "GBP: posledni mesic 2026-09, sazba 3.72, zmena za 3 mesice +0.00"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "JPY: posledni mesic 2026-09, sazba 1.63, zmena za 3 mesice +0.21"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "NZD: posledni mesic 2026-09, sazba 3.13, zmena za 3 mesice +0.45"
+  },
+  {
+   "oblast": "sazby",
+   "stav": "OK",
+   "zprava": "USD: posledni mesic 2026-09, sazba 3.94, zmena za 3 mesice +0.17"
+  },
+  {
+   "oblast": "VIX",
+   "stav": "OK",
+   "zprava": "posledni hodnota 18.7 ze dne 2026-11-12"
+  },
+  {
+   "oblast": "fundamenty",
+   "stav": "VAROVANI",
+   "zprava": "databaze fundamentu chybi (jen informativni, model ji nepouziva)"
+  },
+  {
+   "oblast": "sampion",
+   "stav": "OK",
+   "zprava": "champion_12.json: CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk | 4 stupne, marze [0.15, 0.15, 0.06, 0.06], vyzkouseno 144 pokusu"
+  },
+  {
+   "oblast": "sampion",
+   "stav": "OK",
+   "zprava": "champion_12_mesicne.json: CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk | 4 stupne, marze [0.2, 0.2, 0.04, 0.04], vyzkouseno 144 pokusu"
+  },
+  {
+   "oblast": "zivy model",
+   "stav": "OK",
+   "zprava": "zivy vypocet umi vsechny volby sampiona"
+  },
+  {
+   "oblast": "cas rozhodnuti",
+   "stav": "OK",
+   "zprava": "model testovan s rozhodnutim 1 h pred zavrenim, zive 1 h"
+  },
+  {
+   "oblast": "riziko",
+   "stav": "OK",
+   "zprava": "vahy stupnu [1.0, 1.0, 0.3, 0.3], vychozi riziko 5 % uctu na obchod"
+  },
+  {
+   "oblast": "statistiky paru",
+   "stav": "OK",
+   "zprava": "odpovidaji sampionovi"
+  },
+  {
+   "oblast": "uceni",
+   "stav": "OK",
+   "zprava": "profil max: nove pokusy zmrazeny od 2026-10-20 (R-047), vyzkouseno 144"
+  },
+  {
+   "oblast": "uceni",
+   "stav": "OK",
+   "zprava": "profil mesicne: nove pokusy zmrazeny od 2026-10-20 (R-047), vyzkouseno 144"
+  },
+  {
+   "oblast": "prehled",
+   "stav": "VAROVANI",
+   "zprava": "data/live/stav.json chybi - spust signals_live.py (nove sezeni: vznikne v tomto behu)"
+  },
+  {
+   "oblast": "forward test",
+   "stav": "OK",
+   "zprava": "5 obchodu modelu, 1 otevrenych, 4 uzavrenych"
+  },
+  {
+   "oblast": "prehled",
+   "stav": "OK",
+   "zprava": "adresa webove stranky ulozena"
+  },
+  {
+   "oblast": "heuristiky",
+   "stav": "VAROVANI",
+   "zprava": "registr 2026-10-24 (data do 2026-09-30), 5760 pravidel: AKTIVNÍ 0, SLABÁ 410, NEOVĚŘENÁ 1347, NEFUNKČNÍ 3136, OVERFIT/NESTABILNÍ 867 - starsi nez 9 dni, spust heuristiky.py prepocet"
+  },
+  {
+   "oblast": "heuristiky",
+   "stav": "OK",
+   "zprava": "denik predikci: 420 predikci, 371 vyhodnoceno, retezec neporuseny"
+  },
+  {
+   "oblast": "trezor",
+   "stav": "OK",
+   "zprava": "zavreny od 2026-10-01: uceni a vyzkum vidi jen starsi data"
+  },
+  {
+   "oblast": "kontrola HistData",
+   "stav": "OK",
+   "zprava": "kontrola odpovida sampionum"
+  },
+  {
+   "oblast": "registr pokusu",
+   "stav": "OK",
+   "zprava": "332 pokusu, retezec otisku v poradku"
+  }
+ ]
+}
