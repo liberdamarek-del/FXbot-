@@ -114,3 +114,7 @@
 {"den": "2026-10-24", "id": "tr_pullback-30-L+vol=vysoká|USDJPY|4H", "z": "SLABÁ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru"}
 {"den": "2026-10-24", "id": "osc_rsi_obrat-2-5-L+vol=vysoká|EURJPY|4H", "z": "SLABÁ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 není lepší než náhodné vstupy ve stejném směru"}
 {"den": "2026-10-24", "id": "sr_odraz-20-S+trend=přechod|AUDJPY|4H", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 po nákladech prodělává (průměr -0,002 %)"}
+{"den": "2026-11-14", "id": "ud_cb_pokr-cb-L|GBPJPY|1D", "z": "NEFUNKČNÍ", "na": "NEOVĚŘENÁ", "duvod": "nedostatečný historický vzorek (2012–18: 24, 2019–26: 22, potřeba 30)"}
+{"den": "2026-11-14", "id": "ud_cb_obrat-cb-S|GBPJPY|1D", "z": "OVERFIT/NESTABILNÍ", "na": "NEOVĚŘENÁ", "duvod": "nedostatečný historický vzorek (2012–18: 24, 2019–26: 22, potřeba 30)"}
+{"den": "2026-11-14", "id": "ft_cb_extrem-L|VSE|1D", "z": "NEFUNKČNÍ", "na": "NEOVĚŘENÁ", "duvod": "nedostatečný historický vzorek (2012–18: 29, 2019–26: 29, potřeba 30)"}
+{"den": "2026-11-14", "id": "ft_cb_extrem-S|VSE|1D", "z": "OVERFIT/NESTABILNÍ", "na": "NEFUNKČNÍ", "duvod": "na novějších datech 2019–26 po nákladech prodělává (průměr -0,010 %)"}
