@@ -1,20 +1,20 @@
 {
  "denni": {
-  "beh": "https://github.com/liberdamarek-del/FXbot-/actions/runs/43336069786",
-  "cas": "2026-11-13T00:19+00:00",
+  "beh": "https://github.com/liberdamarek-del/FXbot-/actions/runs/43990417162",
+  "cas": "2026-11-17T00:47+00:00",
   "diagnostika": {
    "chyby": [],
    "souhrn": {
     "CHYBA": 0,
-    "OK": 35,
-    "VAROVANI": 3
+    "OK": 36,
+    "VAROVANI": 2
    }
   },
   "klice": {
-   "denni": "2026-11-12",
-   "hodina": "2026-11-13T00",
+   "denni": "2026-11-16",
+   "hodina": "2026-11-17T00",
    "patek": "",
-   "uceni": "2026-11-13"
+   "uceni": "2026-11-17"
   }
  },
  "hodina": {
