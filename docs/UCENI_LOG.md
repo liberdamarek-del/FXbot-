@@ -2058,3 +2058,11 @@ _Kazdy pokus o zlepseni: co se zkousi, vysledek ve dvou testovacich obdobich (vy
 
 2019-22: **+62.8%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +69% / +66%, vynos/propad 2.63; 2023-26: **+19.7%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +29%, vynos/propad 0.70
 
+## 2026-11-18 - profil mesicne: sampion CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk na datech do 2026-09-30 | AUD2026-10,CAD2026-10,CHF2026-10,CZK2026-10,EUR2026-10,GBP2026-10,HUF2026-10,JPY2026-10,MXN2026-10,NOK2026-10,NZD2026-10,PLN2026-10,SEK2026-10,USD2026-10,ZAR2026-10 | v4
+
+2019-22: **+50.4%** rocne, propad 29%, 3.1 ziskovych/mesic (marze 20% / 20% / 8% / 6%), po 2 letech +34% / +76%, vynos/propad 1.76; 2023-26: **+28.8%** rocne, propad 24%, 2.0 ziskovych/mesic (marze 20% / 20% / 4% / 4%), po 2 letech +19% / +45%, vynos/propad 1.19
+
+## 2026-11-18 - profil max: sampion CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk na datech do 2026-09-30 | AUD2026-10,CAD2026-10,CHF2026-10,CZK2026-10,EUR2026-10,GBP2026-10,HUF2026-10,JPY2026-10,MXN2026-10,NOK2026-10,NZD2026-10,PLN2026-10,SEK2026-10,USD2026-10,ZAR2026-10 | v4
+
+2019-22: **+59.6%** rocne, propad 24%, 3.0 ziskovych/mesic (marze 20% / 20% / 6% / 6%), po 2 letech +60% / +68%, vynos/propad 2.50; 2023-26: **+20.5%** rocne, propad 28%, 2.0 ziskovych/mesic (marze 15% / 15% / 6% / 6%), po 2 letech +14% / +31%, vynos/propad 0.73
+
