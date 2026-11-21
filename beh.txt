@@ -1,0 +1,17 @@
+data pripravena
+  1D: masky a predikce 7 s
+  4H: masky a predikce 14 s
+  pravidel 5760 (odvozených 180), statistiky 18 s
+registr: 5760 pravidel {'AKTIVNÍ': 0, 'SLABÁ': 410, 'NEOVĚŘENÁ': 1350, 'NEFUNKČNÍ': 3135, 'OVERFIT/NESTABILNÍ': 865} | zmen stavu 0 | 170 s
+sampion: CH-009 (12 paru) + stop_4_atr + signal_i_rsi3 + v3_zavrit_pred_cb_zisk
+sampion: CH-009 (12 paru) + velikost_podle_volatility + signal_i_rsi3 + zavrit_pred_cb_zisk
+sampion beze zmeny
+STAV 2026-11-21T15:04+00:00 | data do 2026-11-20 | patek: True
+DIAGNOSTIKA {'OK': 36, 'VAROVANI': 10, 'CHYBA': 0}
+SIGNALY 3
+  EUR/USD KOUPIT (stredni) vstup 1.09685 | TP1-3 1.10156 / 1.10311 / 1.10621 | SL 1.07213 | pravdepodobnost 90.8 | pri riziku 5.0 %: marze 2.2 % uctu, ztrata pri SL 1.5 % uctu | {'pravidlo': 'Když je obchod v zisku, zavři ho při zavření trhu (23:00 našeho času) den před rozhodnutím centrální banky jeho měn. Ve ztrátě ho nech běžet dál k cíli nebo stop lossu.', 'rozhodnuti': [{'den': '2026-12-09', 'banka': 'Fed'}, {'den': '2026-12-17', 'banka': 'ECB'}], 'text': 'Rozhodnutí v příštích 4 týdnech: Fed st 9. 12., ECB čt 17. 12.'}
+  NZD/USD KOUPIT (silny) vstup 0.54666 | TP1-3 0.55007 / 0.55117 / 0.55338 | SL 0.52907 | pravdepodobnost 88.5 | pri riziku 5.0 %: marze 7.7 % uctu, ztrata pri SL 5.0 % uctu | {'pravidlo': 'Když je obchod v zisku, zavři ho při zavření trhu (23:00 našeho času) den před rozhodnutím centrální banky jeho měn. Ve ztrátě ho nech běžet dál k cíli nebo stop lossu.', 'rozhodnuti': [{'den': '2026-12-09', 'banka': 'Fed'}], 'text': 'Rozhodnutí v příštích 4 týdnech: Fed st 9. 12.'}
+  AUD/USD KOUPIT (slaby) vstup 0.66155 | TP1-3 0.66549 / 0.66678 / 0.66936 | SL 0.64097 | pravdepodobnost 81.6 | pri riziku 5.0 %: marze 2.4 % uctu, ztrata pri SL 1.5 % uctu | {'pravidlo': 'Když je obchod v zisku, zavři ho při zavření trhu (23:00 našeho času) den před rozhodnutím centrální banky jeho měn. Ve ztrátě ho nech běžet dál k cíli nebo stop lossu.', 'rozhodnuti': [{'den': '2026-12-09', 'banka': 'Fed'}], 'text': 'Rozhodnutí v příštích 4 týdnech: Fed st 9. 12.'}
+MODEL uzavreno 5, ziskovych 3, prumer 1.5 % marze
+DENIK uzavreno None, ziskovych None, otevreno 0
+HEURISTIKY nove 0, vyhodnoceno ted 0, otevreno 88

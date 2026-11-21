@@ -1,0 +1,26 @@
+======================================================================
+FXBOT ISOLATED TEST RUN
+======================================================================
+TEST DATA DIR: /tmp/fxbot_test_02kpehvm
+PRODUCTION DATA DIR (untouched): /home/runner/work/FXbot-/FXbot-/data
+[PASS] SYNTAX (111 files)
+[PASS] test_b5_prediction_ledger.py (0 s)
+[PASS] test_c1_indicators.py (0 s)
+[PASS] test_e1_path_archive.py (0 s)
+[PASS] test_e6_stats_registry.py (0 s)
+[PASS] test_e8_fxcm.py (0 s)
+[PASS] test_f1_live_model.py (0 s)
+[PASS] test_f2_weekly_research.py (1 s)
+[PASS] test_f3_audit.py (1 s)
+[PASS] test_f4_heuristics.py (6 s)
+[PASS] test_g0_zmrazeni.py (0 s)
+[PASS] test_h1_core.py (5 s)
+[PASS] test_h2_levels.py (4 s)
+[PASS] test_i1_hygiena.py (1 s)
+[PASS] test_j1_github.py (0 s)
+[PASS] test_k1_claude_hooky.py (1 s)
+TOTAL TIME: 20 s
+======================================================================
+TESTS: 15 | FAILURES: 0
+RESULT: PASS
+======================================================================
