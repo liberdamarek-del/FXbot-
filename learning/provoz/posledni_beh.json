@@ -1,11 +1,11 @@
 {
- "cas": "2026-11-21T11:28+00:00",
+ "cas": "2026-11-21T15:04+00:00",
  "rutina": "denni",
- "lehky": true,
+ "lehky": false,
  "diagnostika": {
   "souhrn": {
    "OK": 36,
-   "VAROVANI": 2,
+   "VAROVANI": 10,
    "CHYBA": 0
   },
   "chyby": []

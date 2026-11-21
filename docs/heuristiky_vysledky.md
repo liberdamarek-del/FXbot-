@@ -1,4 +1,4 @@
-# Heuristický model – registr pravidel (2026-11-14)
+# Heuristický model – registr pravidel (2026-11-21)
 
 _Generuje `python scripts/heuristiky.py prepocet`. Data do 2026-09-30. Metodika: docs/HEURISTIKY.md. Výnosy jsou v % ceny po nákladech (spread + skluz), na jednu predikci._
 
@@ -57,10 +57,3 @@ _Generuje `python scripts/heuristiky.py prepocet`. Data do 2026-09-30. Metodika:
 | PROTI | 130 | 87,7 % | +8,7 |
 
 Shoda heuristik s hlavním modelem historicky NEPŘIDÁVALA hodnotu – důvěru v signál nezvyšuje. (p = 0.2959)
-
-## Změny stavů (4)
-
-- ud_cb_pokr-cb-L|GBPJPY|1D: NEFUNKČNÍ → NEOVĚŘENÁ (nedostatečný historický vzorek (2012–18: 24, 2019–26: 22, potřeba 30))
-- ud_cb_obrat-cb-S|GBPJPY|1D: OVERFIT/NESTABILNÍ → NEOVĚŘENÁ (nedostatečný historický vzorek (2012–18: 24, 2019–26: 22, potřeba 30))
-- ft_cb_extrem-L|VSE|1D: NEFUNKČNÍ → NEOVĚŘENÁ (nedostatečný historický vzorek (2012–18: 29, 2019–26: 29, potřeba 30))
-- ft_cb_extrem-S|VSE|1D: OVERFIT/NESTABILNÍ → NEFUNKČNÍ (na novějších datech 2019–26 po nákladech prodělává (průměr -0,010 %))
