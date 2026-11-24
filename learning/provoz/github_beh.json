@@ -1,7 +1,7 @@
 {
  "denni": {
-  "beh": "https://github.com/liberdamarek-del/FXbot-/actions/runs/44652186794",
-  "cas": "2026-11-20T01:15+00:00",
+  "beh": "https://github.com/liberdamarek-del/FXbot-/actions/runs/45328868605",
+  "cas": "2026-11-24T04:48+00:00",
   "diagnostika": {
    "chyby": [],
    "souhrn": {
@@ -11,10 +11,10 @@
    }
   },
   "klice": {
-   "denni": "2026-11-19",
-   "hodina": "2026-11-20T01",
+   "denni": "2026-11-23",
+   "hodina": "2026-11-24T04",
    "patek": "",
-   "uceni": "2026-11-20"
+   "uceni": "2026-11-24"
   }
  },
  "hodina": {
