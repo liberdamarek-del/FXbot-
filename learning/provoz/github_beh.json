@@ -54,21 +54,21 @@
   }
  },
  "uceni": {
-  "beh": "https://github.com/liberdamarek-del/FXbot-/actions/runs/44916737441",
-  "cas": "2026-11-21T15:04+00:00",
+  "beh": "https://github.com/liberdamarek-del/FXbot-/actions/runs/45723844445",
+  "cas": "2026-11-25T23:49+00:00",
   "diagnostika": {
    "chyby": [],
    "souhrn": {
     "CHYBA": 0,
     "OK": 36,
-    "VAROVANI": 10
+    "VAROVANI": 2
    }
   },
   "klice": {
-   "denni": "2026-11-20",
-   "hodina": "2026-11-21T15",
+   "denni": "2026-11-25",
+   "hodina": "2026-11-25T23",
    "patek": "",
-   "uceni": "2026-11-21"
+   "uceni": "2026-11-26"
   }
  }
 }
