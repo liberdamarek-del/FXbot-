@@ -1,0 +1,6 @@
+STAV 2026-11-28T04:56+00:00 | data do 2026-11-27 | patek: True
+DIAGNOSTIKA {'OK': 36, 'VAROVANI': 2, 'CHYBA': 0}
+SIGNALY 0
+MODEL uzavreno 5, ziskovych 3, prumer 1.5 % marze
+DENIK uzavreno None, ziskovych None, otevreno 0
+HEURISTIKY nove 0, vyhodnoceno ted 0, otevreno 53
